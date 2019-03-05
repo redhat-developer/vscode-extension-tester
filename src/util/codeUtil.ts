@@ -114,7 +114,7 @@ export class CodeUtil {
 
     packageExtension(): void {
         // add vsce to process' path
-        const binFolder = path.resolve(path.join('node_modules', '.bin'));
+        const binFolder = path.join(__dirname, '..', '..', 'node_modules', '.bin');
         const finalEnv: NodeJS.ProcessEnv = {};
         Object.assign(finalEnv, process.env);
         const key = process.platform === 'win32' ? 'Path' : 'PATH';
