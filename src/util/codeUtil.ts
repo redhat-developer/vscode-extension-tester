@@ -5,7 +5,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as unpack from '@microsoft.azure/unpack';
 import * as child_process from 'child_process';
-import { Runner } from "../suite/test-launcher";
+import { VSRunner } from "../suite/runner";
 
 export enum ReleaseQuality {
     Stable = 'stable',
@@ -112,19 +112,30 @@ export class CodeUtil {
         child_process.execSync(command, { stdio: 'inherit' });
     }
 
+    packageExtension(): void {
+        // add vsce to process' path
+        const binFolder = path.resolve(path.join('node_modules', '.bin'));
+        const finalEnv: NodeJS.ProcessEnv = {};
+        Object.assign(finalEnv, process.env);
+        const key = process.platform === 'win32' ? 'Path' : 'PATH';
+        finalEnv[key] = [binFolder, process.env[key]].join(path.delimiter);
+
+        child_process.execSync('vsce package', { stdio: 'inherit', env: finalEnv });
+    }
+
     /**
      * Run tests in your test environment using mocha
      */
     runTests(testFilesPattern: string): void {
-        // add chromedriver process' path
+        // add chromedriver to process' path
         const finalEnv: NodeJS.ProcessEnv = {};
         Object.assign(finalEnv, process.env);
         const key = process.platform === 'win32' ? 'Path' : 'PATH';
         finalEnv[key] = [this.downloadFolder, process.env[key]].join(path.delimiter);
     
         process.env = finalEnv;
-        const runner = new Runner(this.executablePath);
-        runner.run(testFilesPattern);
+        const runner = new VSRunner(this.executablePath);
+        runner.runTests(testFilesPattern);
     }
 
     /**
