@@ -6,6 +6,7 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 
 export { VSBrowser } from './webdriver/browser';
+export * from 'selenium-webdriver';
 
 /**
  * VSCode Extension Tester

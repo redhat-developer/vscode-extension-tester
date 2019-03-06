@@ -34,7 +34,6 @@ export class VSBrowser {
     }
 
     async quit(): Promise<void> {
-        console.log(this._driver);
         await this._driver.quit();
     }
 }
