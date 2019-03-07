@@ -40,7 +40,7 @@ Commands:
 ```
 As you can see, you have the option to run all the steps one by one. In this case you need to make sure all the consecutive commands use the correct flags by yourself. If you wish to run all the pre-test setup in one command, use the ```setup-tests``` command. To perform all the setup and run the tests, use the ```setup-and-run``` command.
 
-```*Note:* By default, the downloaded resources will be saved into 'test-resources' folder in the extension root. Make sure the folder is being ignored by tsc and vsce to avoid build problems. If you decide to change this folder using the -s flag, make sure all consecutive commands use the same storage folder.```
+```*Note:* By default, the downloaded resources will be saved into 'test-resources' folder in the extension root. Make sure the folder is being ignored by tsc (or tslint) and vsce to avoid build problems. If you decide to change this folder using the -s flag, make sure all consecutive commands use the same storage folder.```
 
 #### Using the API
 To use the API, simply import the ExTester class as follows:
