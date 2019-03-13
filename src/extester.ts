@@ -65,8 +65,6 @@ export class ExTester {
      * 
      * @param vscodeVersion version of VSCode to test against, default latest
      * @param vscodeStream whether to use stable or insiders build, default stable
-     * @param vsixPath path to your packaged extension, when unset, will attempt to use the default vsix filename convention.
-     * If no such file exists, will attempt to perform vsce package first.
      */
     async setupRequirements(vscodeVersion: string = 'latest', vscodeStream: string = 'stable'): Promise<void> {
         const quality = vscodeStream === 'insider' ? ReleaseQuality.Insider : ReleaseQuality.Stable;
@@ -80,8 +78,6 @@ export class ExTester {
      * @param vscodeVersion version of VSCode to test against, default latest
      * @param vscodeStream whether to use stable or insiders build, default stable
      * @param testFilesPattern glob pattern for test files to run
-     * @param vsixPath path to your packaged extension, when unset, will attempt to use the default vsix filename convention.
-     * If no such file exists, will attempt to perform vsce package first.
      */
     async setupAndRunTests(vscodeVersion: string = 'latest', vscodeStream: string = 'stable', testFilesPattern: string): Promise<void> {
         await this.setupRequirements(vscodeVersion, vscodeStream);

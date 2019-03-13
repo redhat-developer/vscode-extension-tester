@@ -50,47 +50,51 @@ import { ExTester } from 'vscode-extension-tester'
 The complete API reference is available below. It offers the same functionality as the CLI.
 ```typescript
 /**
- * Download VSCode of given version and release quality stream
- * @param version version to download, default latest
- * @param quality quality stream, only acceptable values are 'stable' and 'insider', default stable
+ * VSCode Extension Tester
  */
-downloadCode(version?: string, quality?: string): Promise<void>;
-/**
- * Install the extension into the test instance of VS Code
- * @param vsixFile path to extension .vsix file. If not set, default vsce path will be used
- */
-installVsix(vsixFile?: string): void;
-/**
- * Download the matching chromedriver for a given VS Code version
- * @param vscodeVersion selected versio nof VSCode, default latest
- * @param vscodeStream VSCode release stream, default stable
- */
-downloadChromeDriver(vscodeVersion?: string, vscodeStream?: string): Promise<void>;
-/**
- * Performs all necessary setup: getting VSCode + ChromeDriver
- * and packaging/installing extension into the test instance
- *
- * @param vscodeVersion version of VSCode to test against, default latest
- * @param vscodeStream whether to use stable or insiders build, default stable
- * @param vsixPath path to your packaged extension, when unset, will attempt to use the default vsix filename convention.
- * If no such file exists, will attempt to perform vsce package first.
- */
-setupRequirements(vscodeVersion?: string, vscodeStream?: string, vsixPath?: string): Promise<void>;
-/**
- * Performs requirements setup and runs extension tests
- *
- * @param vscodeVersion version of VSCode to test against, default latest
- * @param vscodeStream whether to use stable or insiders build, default stable
- * @param testFilesPattern glob pattern for test files to run
- * @param vsixPath path to your packaged extension, when unset, will attempt to use the default vsix filename convention.
- * If no such file exists, will attempt to perform vsce package first.
- */
-setupAndRunTests(vscodeVersion: string | undefined, vscodeStream: string | undefined, testFilesPattern: string, vsixPath?: string): Promise<void>;
-/**
- * Runs the selected test files in VS Code using mocha and webdriver
- * @param testFilesPattern glob pattern for selected test files
- */
-runTests(testFilesPattern: string): void;
+export declare class ExTester {
+    private code;
+    private chrome;
+    constructor(storageFolder?: string);
+    /**
+     * Download VSCode of given version and release quality stream
+     * @param version version to download, default latest
+     * @param quality quality stream, only acceptable values are 'stable' and 'insider', default stable
+     */
+    downloadCode(version?: string, quality?: string): Promise<void>;
+    /**
+     * Install the extension into the test instance of VS Code
+     * @param vsixFile path to extension .vsix file. If not set, default vsce path will be used
+     */
+    installVsix(vsixFile?: string): void;
+    /**
+     * Download the matching chromedriver for a given VS Code version
+     * @param vscodeVersion selected versio nof VSCode, default latest
+     * @param vscodeStream VSCode release stream, default stable
+     */
+    downloadChromeDriver(vscodeVersion?: string, vscodeStream?: string): Promise<void>;
+    /**
+     * Performs all necessary setup: getting VSCode + ChromeDriver
+     * and packaging/installing extension into the test instance
+     *
+     * @param vscodeVersion version of VSCode to test against, default latest
+     * @param vscodeStream whether to use stable or insiders build, default stable
+     */
+    setupRequirements(vscodeVersion?: string, vscodeStream?: string): Promise<void>;
+    /**
+     * Performs requirements setup and runs extension tests
+     *
+     * @param vscodeVersion version of VSCode to test against, default latest
+     * @param vscodeStream whether to use stable or insiders build, default stable
+     * @param testFilesPattern glob pattern for test files to run
+     */
+    setupAndRunTests(vscodeVersion: string | undefined, vscodeStream: string | undefined, testFilesPattern: string): Promise<void>;
+    /**
+     * Runs the selected test files in VS Code using mocha and webdriver
+     * @param testFilesPattern glob pattern for selected test files
+     */
+    runTests(testFilesPattern: string): void;
+}
 ```
 
 ### Writing the Tests
