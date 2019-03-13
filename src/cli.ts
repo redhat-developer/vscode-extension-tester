@@ -41,10 +41,9 @@ program.command('setup-tests')
     .option('-s, --storage <storage>', 'Use this folder for all test resources')
     .option('-V, --code_version <version>', 'Version of VSCode to download')
     .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
-    .option('-f, --vsix_file <file>', 'vsix file containing the extension')
     .action(async (cmd) => {
         const extest = new ExTester(cmd.storage);
-        await extest.setupRequirements(cmd.code_version, cmd.type, cmd.vsix_file);
+        await extest.setupRequirements(cmd.code_version, cmd.type);
     });
 
 program.command('run-tests <testFiles>')
@@ -60,10 +59,9 @@ program.command('setup-and-run <testFiles>')
     .option('-s, --storage <storage>', 'Use this folder for all test resources')
     .option('-V, --code_version <version>', 'Version of VSCode to download')
     .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
-    .option('-f, --vsix_file <file>', 'vsix file containing the extension')
     .action(async (testFiles, cmd) => {
         const extest = new ExTester(cmd.storage);
-        await extest.setupAndRunTests(cmd.code_version, cmd.type, testFiles, cmd.vsix_file);
+        await extest.setupAndRunTests(cmd.code_version, cmd.type, testFiles);
     });
 
 program.parse(process.argv);

@@ -68,11 +68,10 @@ export class ExTester {
      * @param vsixPath path to your packaged extension, when unset, will attempt to use the default vsix filename convention.
      * If no such file exists, will attempt to perform vsce package first.
      */
-    async setupRequirements(vscodeVersion: string = 'latest', vscodeStream: string = 'stable', vsixPath?: string): Promise<void> {
+    async setupRequirements(vscodeVersion: string = 'latest', vscodeStream: string = 'stable'): Promise<void> {
         const quality = vscodeStream === 'insider' ? ReleaseQuality.Insider : ReleaseQuality.Stable;
         await this.downloadCode(vscodeVersion, quality);
         await this.downloadChromeDriver(vscodeVersion, vscodeStream);
-        this.installVsix(vsixPath);
     }
 
     /**
@@ -84,8 +83,8 @@ export class ExTester {
      * @param vsixPath path to your packaged extension, when unset, will attempt to use the default vsix filename convention.
      * If no such file exists, will attempt to perform vsce package first.
      */
-    async setupAndRunTests(vscodeVersion: string = 'latest', vscodeStream: string = 'stable', testFilesPattern: string, vsixPath?: string): Promise<void> {
-        await this.setupRequirements(vscodeVersion, vscodeStream, vsixPath);
+    async setupAndRunTests(vscodeVersion: string = 'latest', vscodeStream: string = 'stable', testFilesPattern: string): Promise<void> {
+        await this.setupRequirements(vscodeVersion, vscodeStream);
         this.runTests(testFilesPattern);
     }
 
