@@ -10,7 +10,7 @@ program.version(pjson.version)
 program.command('get-vscode')
     .description('Download VSCode for testing')
     .option('-s, --storage <storage>', 'Use this folder for all test resources')
-    .option('-V, --code_version <version>', 'Version of VSCode to download')
+    .option('-c, --code_version <version>', 'Version of VSCode to download')
     .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
     .action(async (cmd) => {
         const extest = new ExTester(cmd.storage);
@@ -20,7 +20,7 @@ program.command('get-vscode')
 program.command('get-chromedriver')
     .description('Download ChromeDriver binary')
     .option('-s, --storage <storage>', 'Use this folder for all test resources')
-    .option('-V, --code_version <version>', 'Version of VSCode you want to run with the CromeDriver')
+    .option('-c, --code_version <version>', 'Version of VSCode you want to run with the CromeDriver')
     // .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
     .action(async (cmd) => {
         const extest = new ExTester(cmd.storage);
@@ -39,7 +39,7 @@ program.command('install-vsix')
 program.command('setup-tests')
     .description('Set up all necessary requirements for tests to run')
     .option('-s, --storage <storage>', 'Use this folder for all test resources')
-    .option('-V, --code_version <version>', 'Version of VSCode to download')
+    .option('-c, --code_version <version>', 'Version of VSCode to download')
     .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
     .action(async (cmd) => {
         const extest = new ExTester(cmd.storage);
@@ -57,7 +57,7 @@ program.command('run-tests <testFiles>')
 program.command('setup-and-run <testFiles>')
     .description('Perform all setup and run tests specified by glob pattern')
     .option('-s, --storage <storage>', 'Use this folder for all test resources')
-    .option('-V, --code_version <version>', 'Version of VSCode to download')
+    .option('-c, --code_version <version>', 'Version of VSCode to download')
     .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
     .action(async (testFiles, cmd) => {
         const extest = new ExTester(cmd.storage);

@@ -19,8 +19,8 @@ export class VSBrowser {
         this._driver = await new Builder()
             .forBrowser('chrome')
             .setChromeOptions(new Options().setChromeBinaryPath(codePath)
-            .addArguments(`--extensionDevelopmentPath=${process.cwd()}`))
-            .build();
+                .addArguments(`--extensionDevelopmentPath=${process.cwd()}`)
+            ).build();
         VSBrowser._instance = this;
         return this;
     }

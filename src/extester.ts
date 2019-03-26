@@ -8,6 +8,11 @@ import * as fs from 'fs-extra';
 export { VSBrowser } from './webdriver/browser';
 export * from 'selenium-webdriver';
 
+export { Menu } from './webdriver/components/menu/Menu';
+export { MenuItem } from './webdriver/components/menu/MenuItem';
+export { TitleBar, TitleBarItem } from './webdriver/components/menu/TitleBar';
+export { ContextMenu, ContextMenuItem } from './webdriver/components/menu/ContextMenu';
+
 /**
  * VSCode Extension Tester
  */

@@ -1,6 +1,6 @@
 {
   "name": "vscode-extension-tester",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Webdriver Testing for VSCode Extensions",
   "main": "out/extester.js",
   "types": "out/extester.d.ts",
@@ -37,9 +37,10 @@
     "@types/mocha": "^5.2.6",
     "@types/node": "^11.9.6",
     "@types/request": "^2.48.1",
+    "mocha": "^6.0.2",
     "rimraf": "^2.6.3",
-    "typescript": "^3.3.3333",
-    "mocha": "^6.0.2"
+    "robotjs": "^0.5.1",
+    "typescript": "^3.3.3333"
   },
   "dependencies": {
     "@microsoft.azure/unpack": "^1.0.19",
