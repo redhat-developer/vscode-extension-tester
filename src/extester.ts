@@ -5,13 +5,16 @@ import { DriverUtil } from './util/driverUtil';
 import * as path from 'path';
 import * as fs from 'fs-extra';
 
-export { VSBrowser } from './webdriver/browser';
 export * from 'selenium-webdriver';
+export { VSBrowser } from './webdriver/browser';
 
 export { Menu } from './webdriver/components/menu/Menu';
 export { MenuItem } from './webdriver/components/menu/MenuItem';
 export { TitleBar, TitleBarItem } from './webdriver/components/menu/TitleBar';
 export { ContextMenu, ContextMenuItem } from './webdriver/components/menu/ContextMenu';
+export { ActivityBar } from './webdriver/components/activityBar/ActivityBar';
+export { ViewControl } from './webdriver/components/activityBar/ViewControl';
+export { ActionsControl } from './webdriver/components/activityBar/ActionsControl';
 
 /**
  * VSCode Extension Tester

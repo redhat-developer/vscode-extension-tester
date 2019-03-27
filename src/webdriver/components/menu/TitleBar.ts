@@ -16,18 +16,25 @@ export class TitleBar extends Menu {
         return displayed;
     }
 
-    getItem(name: string): MenuItem {
+    getItem(name: string): TitleBarItem {
         return new TitleBarItem(name, this);
     }
 
-    async getItems(): Promise<MenuItem[]> {
-        const items: MenuItem[] = [];
+    async getItems(): Promise<TitleBarItem[]> {
+        const items: TitleBarItem[] = [];
         const elements = await this.findElements(By.className('menubar-menu-button'));
 
         for (const element of elements) {
             items.push(new TitleBarItem(await element.getAttribute('aria-label'), this));
         }
         return items;
+    }
+
+    /**
+     * Get the window title
+     */
+    async getTitle(): Promise<string> {
+        return this.findElement(By.className('window-title')).getText();
     }
 }
 
@@ -36,11 +43,11 @@ export class TitleBar extends Menu {
  */
 export class TitleBarItem extends MenuItem {
     constructor(name: string, parent: Menu) {
-        super(By.xpath(`//div[@aria-label='${name}']`), parent);
+        super(By.xpath(`.//div[@aria-label='${name}']`), parent);
         this.parent = parent;
     }
 
-    async select(): Promise<Menu> {
+    async select(): Promise<ContextMenu> {
         // because we are not moving the mouse, we might need 2 clicks when another item is open
         for (let index = 0; index < 2; index++) {
             const klass = await this.getAttribute('class');

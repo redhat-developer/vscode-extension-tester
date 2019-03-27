@@ -2,6 +2,9 @@ import { Menu } from "./Menu";
 import { MenuItem } from "./MenuItem";
 import { By, WebElement } from "selenium-webdriver";
 
+/**
+ * Object representing a context menu
+ */
 export class ContextMenu extends Menu {
     constructor(containingElement: WebElement) {
         super(By.className('monaco-menu-container'), containingElement);
@@ -12,12 +15,12 @@ export class ContextMenu extends Menu {
         return displayed;
     }
 
-    getItem(name: string): MenuItem {
+    getItem(name: string): ContextMenuItem {
         return new ContextMenuItem(name, this);
     }
 
-    async getItems(): Promise<MenuItem[]> {
-        const items: MenuItem[] = [];
+    async getItems(): Promise<ContextMenuItem[]> {
+        const items: ContextMenuItem[] = [];
         const elements = await this.findElements(By.className('action-item'));
 
         for (const element of elements) {
@@ -31,9 +34,12 @@ export class ContextMenu extends Menu {
     }
 }
 
+/**
+ * Object representing an item of a context menu
+ */
 export class ContextMenuItem extends MenuItem {
     constructor(name: string, parent: Menu) {
-        super(By.xpath(`//li[a/span/text()='${name}']`), parent);
+        super(By.xpath(`.//li[a/span/text()='${name}']`), parent);
     }
 
     async select(): Promise<Menu | void> {
