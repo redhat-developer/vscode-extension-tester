@@ -2,6 +2,8 @@
 
 import { WebDriver, Builder, until, By } from 'selenium-webdriver';
 import { Options } from 'selenium-webdriver/chrome';
+import * as path from 'path';
+import * as fs from 'fs-extra';
 
 export class VSBrowser {
     private _driver!: WebDriver;
@@ -16,11 +18,20 @@ export class VSBrowser {
      * @param codePath path to code binary
      */
     async start(codePath: string): Promise<VSBrowser> {
+        const storagePath = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.resolve('test-resources');
+        const userSettings = path.join(storagePath, 'settings', 'User');
+        if (!fs.existsSync(path.join(userSettings, 'settings.json'))) {
+            const defaultSettings = { "window.titleBarStyle": "custom" };
+            fs.mkdirpSync(userSettings);
+            fs.writeJSONSync(path.join(userSettings, 'settings.json'), defaultSettings);
+            console.log(`Writing default settings to ${path.join(userSettings, 'settings.json')}`);
+        }
+
         this._driver = await new Builder()
             .forBrowser('chrome')
             .setChromeOptions(new Options().setChromeBinaryPath(codePath)
-                .addArguments(`--extensionDevelopmentPath=${process.cwd()}`)
-            ).build();
+            .addArguments(`--extensionDevelopmentPath=${process.cwd()}`, `--user-data-dir=${path.join(storagePath, 'settings')}`))
+            .build();
         VSBrowser._instance = this;
         return this;
     }

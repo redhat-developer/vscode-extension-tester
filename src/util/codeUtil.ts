@@ -134,6 +134,7 @@ export class CodeUtil {
         finalEnv[key] = [this.downloadFolder, process.env[key]].join(path.delimiter);
     
         process.env = finalEnv;
+        process.env.TEST_RESOURCES = this.downloadFolder;
         const runner = new VSRunner(this.executablePath);
         runner.runTests(testFilesPattern);
     }
