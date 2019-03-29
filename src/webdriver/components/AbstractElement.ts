@@ -57,4 +57,5 @@ export abstract class AbstractElement extends WebElement {
     getEnclosingElement(): WebElement {
         return this.enclosingItem;
     }
+
 }

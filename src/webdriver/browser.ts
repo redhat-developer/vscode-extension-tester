@@ -1,6 +1,6 @@
 'use strict';
 
-import { WebDriver, Builder, until, By, WebElement } from 'selenium-webdriver';
+import { WebDriver, Builder, until, By } from 'selenium-webdriver';
 import { Options } from 'selenium-webdriver/chrome';
 
 export class VSBrowser {
@@ -51,22 +51,5 @@ export class VSBrowser {
      */
     async quit(): Promise<void> {
         await this._driver.quit();
-    }
-
-    /**
-     * Finds the element representing a view container
-     * @param title title of the view
-     */
-    async getView(title: string, timeout: number = 2000): Promise<WebElement> {
-        return this._driver.wait(until.elementLocated(By.xpath(`//li[@title='${title}']`)), timeout);
-    }
-
-    /**
-     * Opens a view with the given title
-     * @param title title of the view
-     */
-    async openView(title: string): Promise<void> {
-        const view = await this.getView(title);
-        await view.click();
     }
 }

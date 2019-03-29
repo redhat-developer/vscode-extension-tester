@@ -1,12 +1,12 @@
-import { AbstractElement } from "../AbstractElement";
 import { ActivityBar } from "./ActivityBar";
 import { By } from "selenium-webdriver";
-import { View } from "../view/View";
+import { SideBarView } from "../view/SideBarView";
+import { ElementWithContexMenu } from "../ElementWithContextMenu";
 
 /**
  * Page object representing a view container item in the activity bar
  */
-export class ViewControl extends AbstractElement {
+export class ViewControl extends ElementWithContexMenu {
     constructor(name: string, bar: ActivityBar) {
         super(By.xpath(`.//li[contains(@aria-label, '${name}')]`), bar);
     }
@@ -15,12 +15,12 @@ export class ViewControl extends AbstractElement {
      * Opens the associated view if not already open
      * @returns View object representing the opened view
      */
-    async openView(): Promise<View> {
+    async openView(): Promise<SideBarView> {
         const klass = await this.getAttribute('class');
         if (klass.indexOf('checked') < 0) {
             await this.click();
         }
-        return new View().wait();
+        return new SideBarView().wait();
     }
 
     /**

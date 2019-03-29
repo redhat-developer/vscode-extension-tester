@@ -4,7 +4,7 @@ import { MenuItem } from "./MenuItem";
 /**
  * Abstract element representing a menu
  */
-export abstract class Menu extends AbstractElement{
+export abstract class Menu extends AbstractElement {
     
     /**
      * Find whether the menu has an item of a given name

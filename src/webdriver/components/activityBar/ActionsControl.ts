@@ -1,12 +1,12 @@
-import { AbstractElement } from "../AbstractElement";
 import { ActivityBar } from "./ActivityBar";
 import { By } from "selenium-webdriver";
 import { ContextMenu } from "../menu/ContextMenu";
+import { ElementWithContexMenu } from "../ElementWithContextMenu";
 
 /**
  * Page object representing the global action controls on the bottom of the action bar
  */
-export class ActionsControl extends AbstractElement {
+export class ActionsControl extends ElementWithContexMenu {
     constructor(name: string, bar: ActivityBar) {
         super(By.xpath(`.//li[@aria-label='${name}']`), bar);
     }
@@ -16,14 +16,6 @@ export class ActionsControl extends AbstractElement {
      * @returns ContextMenu object representing the action's menu
      */
     async openActionMenu(): Promise<ContextMenu> {
-        const workbench = await this.getDriver().findElement(By.id('workbench.main.container'));
-        const menu = await workbench.findElement(By.className('context-view'));
-        const hidden = await menu.getAttribute('aria-hidden');
-        const klass = await menu.getAttribute('class');
-        if (hidden === 'true' || klass.indexOf('monaco-menu-container') < 0) {
-            await this.click();
-        }
-
-        return new ContextMenu(workbench).wait();
+        return this.openContextMenu();
     }
 }

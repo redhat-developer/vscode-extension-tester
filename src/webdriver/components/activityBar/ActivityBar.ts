@@ -1,12 +1,12 @@
-import { AbstractElement } from "../AbstractElement";
 import { By } from "selenium-webdriver";
 import { ViewControl } from "./ViewControl";
 import { ActionsControl } from "./ActionsControl";
+import { ElementWithContexMenu } from "../ElementWithContextMenu";
 
 /**
  * Page object representing the left side activity bar in VS Code
  */
-export class ActivityBar extends AbstractElement {
+export class ActivityBar extends ElementWithContexMenu {
     constructor() {
         super(By.id('workbench.parts.activitybar'), By.id('workbench.main.container'));
     }
@@ -15,7 +15,7 @@ export class ActivityBar extends AbstractElement {
      * Find all view containers displayed in the activity bar
      * @returns array of ViewControl objects
      */
-    async getViews(): Promise<ViewControl[]> {
+    async getViewControls(): Promise<ViewControl[]> {
         const views: ViewControl[] = [];
         const viewContainer = await this.findElement(By.xpath(`.//ul[@aria-label='Active View Switcher']`));
         for(const element of await viewContainer.findElements(By.className('action-item'))) {
@@ -25,11 +25,11 @@ export class ActivityBar extends AbstractElement {
     }
 
     /**
-     * Find a view with a given title
+     * Find a view container with a given title
      * @param name title of the view
      * @returns ViewControl object representing the view selector
      */
-    getView(name: string): ViewControl {
+    getViewControl(name: string): ViewControl {
         return new ViewControl(name, this);
     }
 
