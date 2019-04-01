@@ -8,13 +8,17 @@ import * as fs from 'fs-extra';
 export * from 'selenium-webdriver';
 export { VSBrowser } from './webdriver/browser';
 
-export { Menu } from './webdriver/components/menu/Menu';
-export { MenuItem } from './webdriver/components/menu/MenuItem';
-export { TitleBar, TitleBarItem } from './webdriver/components/menu/TitleBar';
-export { ContextMenu, ContextMenuItem } from './webdriver/components/menu/ContextMenu';
-export { ActivityBar } from './webdriver/components/activityBar/ActivityBar';
-export { ViewControl } from './webdriver/components/activityBar/ViewControl';
-export { ActionsControl } from './webdriver/components/activityBar/ActionsControl';
+export * from './webdriver/components/menu/Menu';
+export * from './webdriver/components/menu/MenuItem';
+export * from './webdriver/components/menu/TitleBar';
+export * from './webdriver/components/menu/ContextMenu';
+export * from './webdriver/components/activityBar/ActivityBar';
+export * from './webdriver/components/activityBar/ViewControl';
+export * from './webdriver/components/activityBar/ActionsControl';
+export * from './webdriver/components/view/SideBarView';
+export * from './webdriver/components/view/TitlePart';
+export * from './webdriver/components/view/Content';
+export * from './webdriver/native/dialogHandler';
 
 /**
  * VSCode Extension Tester

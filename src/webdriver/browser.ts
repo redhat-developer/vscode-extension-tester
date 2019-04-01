@@ -20,12 +20,13 @@ export class VSBrowser {
     async start(codePath: string): Promise<VSBrowser> {
         const storagePath = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.resolve('test-resources');
         const userSettings = path.join(storagePath, 'settings', 'User');
-        if (!fs.existsSync(path.join(userSettings, 'settings.json'))) {
-            const defaultSettings = { "window.titleBarStyle": "custom" };
-            fs.mkdirpSync(userSettings);
-            fs.writeJSONSync(path.join(userSettings, 'settings.json'), defaultSettings);
-            console.log(`Writing default settings to ${path.join(userSettings, 'settings.json')}`);
+        if (!fs.existsSync(userSettings)) {
+            fs.removeSync(path.join(storagePath, 'settings'));
         }
+        const defaultSettings = { "window.titleBarStyle": "custom" };
+        fs.mkdirpSync(userSettings);
+        fs.writeJSONSync(path.join(userSettings, 'settings.json'), defaultSettings);
+        console.log(`Writing default settings to ${path.join(userSettings, 'settings.json')}`);
 
         this._driver = await new Builder()
             .forBrowser('chrome')
