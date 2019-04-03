@@ -7,8 +7,11 @@ import { ElementWithContexMenu } from "../ElementWithContextMenu";
  * Page object representing a view container item in the activity bar
  */
 export class ViewControl extends ElementWithContexMenu {
-    constructor(name: string, bar: ActivityBar) {
-        super(By.xpath(`.//li[contains(@aria-label, '${name}')]`), bar);
+    private title: string;
+
+    constructor(title: string, bar: ActivityBar) {
+        super(By.xpath(`.//li[contains(@aria-label, '${title}')]`), bar);
+        this.title = title;
     }
 
     /**
@@ -31,5 +34,12 @@ export class ViewControl extends ElementWithContexMenu {
         if (klass.indexOf('checked') > -1) {
             await this.click();
         }
+    }
+
+    /**
+     * Returns the title of the associated view
+     */
+    getTitle(): string {
+        return this.title;
     }
 }

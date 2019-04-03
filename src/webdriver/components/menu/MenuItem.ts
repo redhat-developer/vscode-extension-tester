@@ -6,6 +6,7 @@ import { Menu } from "./Menu";
  */
 export abstract class MenuItem extends AbstractElement {
     protected parent!: Menu;
+    protected label!: string;
 
     /**
      * Use the given menu item: Opens the submenu if the item has children,
@@ -22,5 +23,12 @@ export abstract class MenuItem extends AbstractElement {
      */
     getParent(): Menu {
         return this.parent;
+    }
+
+    /**
+     * Returns the label of the menu item
+     */
+    getLabel(): string {
+        return this.label;
     }
 }

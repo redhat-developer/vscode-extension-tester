@@ -7,8 +7,11 @@ import { ElementWithContexMenu } from "../ElementWithContextMenu";
  * Page object representing the global action controls on the bottom of the action bar
  */
 export class ActionsControl extends ElementWithContexMenu {
-    constructor(name: string, bar: ActivityBar) {
-        super(By.xpath(`.//li[@aria-label='${name}']`), bar);
+    private title: string;
+
+    constructor(title: string, bar: ActivityBar) {
+        super(By.xpath(`.//li[@aria-label='${title}']`), bar);
+        this.title = title;
     }
 
     /**
@@ -17,5 +20,12 @@ export class ActionsControl extends ElementWithContexMenu {
      */
     async openActionMenu(): Promise<ContextMenu> {
         return this.openContextMenu();
+    }
+
+    /**
+     * Returns the title of the associated action
+     */
+    getTitle(): string {
+        return this.title;
     }
 }

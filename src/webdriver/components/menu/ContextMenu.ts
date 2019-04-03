@@ -38,8 +38,10 @@ export class ContextMenu extends Menu {
  * Object representing an item of a context menu
  */
 export class ContextMenuItem extends MenuItem {
-    constructor(name: string, parent: Menu) {
-        super(By.xpath(`.//li[a/span/text()='${name}']`), parent);
+    constructor(label: string, parent: Menu) {
+        super(By.xpath(`.//li[a/span/text()='${label}']`), parent);
+        this.parent = parent;
+        this.label = label;
     }
 
     async select(): Promise<Menu | void> {

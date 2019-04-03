@@ -2,6 +2,7 @@ import { By } from "selenium-webdriver";
 import { Menu } from "./Menu";
 import { MenuItem } from "./MenuItem";
 import { ContextMenu } from "./ContextMenu";
+import { WindowControls } from "../../../extester";
 
 /**
  * Page object representing the custom VSCode title bar
@@ -36,15 +37,20 @@ export class TitleBar extends Menu {
     async getTitle(): Promise<string> {
         return this.findElement(By.className('window-title')).getText();
     }
+
+    getWindowControls(): WindowControls {
+        return new WindowControls(this);
+    }
 }
 
 /**
  * Page object representing an item of the custom VSCode title bar
  */
 export class TitleBarItem extends MenuItem {
-    constructor(name: string, parent: Menu) {
-        super(By.xpath(`.//div[@aria-label='${name}']`), parent);
+    constructor(label: string, parent: Menu) {
+        super(By.xpath(`.//div[@aria-label='${label}']`), parent);
         this.parent = parent;
+        this.label = label;
     }
 
     async select(): Promise<ContextMenu> {

@@ -12,6 +12,7 @@ export * from './webdriver/components/menu/Menu';
 export * from './webdriver/components/menu/MenuItem';
 export * from './webdriver/components/menu/TitleBar';
 export * from './webdriver/components/menu/ContextMenu';
+export * from './webdriver/components/menu/WindowControls';
 export * from './webdriver/components/activityBar/ActivityBar';
 export * from './webdriver/components/activityBar/ViewControl';
 export * from './webdriver/components/activityBar/ActionsControl';

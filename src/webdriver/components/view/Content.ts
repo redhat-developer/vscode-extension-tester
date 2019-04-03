@@ -39,6 +39,9 @@ export class ViewSection extends ElementWithContexMenu {
     }
 
     async expand(): Promise<void> {
+        if (await this.isHeaderHidden()) {
+            return;
+        }
         if (!await this.isExpanded()) {
             const panel = await this.findElement(By.className('panel-header'));
             await panel.click();
@@ -47,6 +50,9 @@ export class ViewSection extends ElementWithContexMenu {
     }
 
     async collapse(): Promise<void> {
+        if (await this.isHeaderHidden()) {
+            return;
+        }
         if (await this.isExpanded()) {
             const panel = await this.findElement(By.className('panel-header'));
             await panel.click();
@@ -59,8 +65,9 @@ export class ViewSection extends ElementWithContexMenu {
         const expanded = await header.getAttribute('aria-expanded');
         return expanded === 'true';
     }
-}
 
-export class ViewItem extends ElementWithContexMenu {
-
+    private async isHeaderHidden(): Promise<boolean> {
+        const header = await this.findElement(By.className('panel-header'));
+        return (await header.getAttribute('class')).indexOf('hidden') > -1;
+    }
 }
