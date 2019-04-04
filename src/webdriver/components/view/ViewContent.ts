@@ -2,11 +2,17 @@ import { AbstractElement } from "../AbstractElement";
 import { SideBarView, ViewSection } from "../../../extester";
 import { By } from "selenium-webdriver";
 
+/**
+ * Page object representing the view container of a side bar view
+ */
 export class ViewContent extends AbstractElement {
     constructor(view: SideBarView) {
         super(By.className('content'), view);
     }
 
+    /**
+     * Finds whether a progress bar is active at the top of the view
+     */
     async hasProgress(): Promise<boolean> {
         const progress = await this.findElement(By.className('monaco-progress-container'));
         const hidden = await progress.getAttribute('aria-hidden');
@@ -16,10 +22,19 @@ export class ViewContent extends AbstractElement {
         return true;
     }
 
+    /**
+     * Retrieves a collapsible view content section by its title
+     * @param title Title of the section
+     * @returns a ViewSection object
+     */
     async getSection(title: string): Promise<ViewSection> {
         return new ViewSection(title, this);
     }
 
+    /**
+     * Retrieves all the collapsible view content sections
+     * @returns array of ViewSection objects
+     */
     async getSections(): Promise<ViewSection[]> {
         const sections: ViewSection[] = [];
         const elements = await this.findElements(By.className('split-view-view'));

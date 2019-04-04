@@ -1,4 +1,6 @@
-import { WindowControls, Menu, MenuItem, ContextMenu } from "../../../extester";
+import { WindowControls, ContextMenu } from "../../../extester";
+import { Menu } from "./Menu";
+import { MenuItem } from "./MenuItem";
 import { By } from "selenium-webdriver";
 
 /**

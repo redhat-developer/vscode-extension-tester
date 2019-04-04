@@ -1,5 +1,5 @@
 import { AbstractElement } from "../AbstractElement";
-import { Menu } from "../../../extester";
+import { Menu } from "./Menu";
 
 /**
  * Abstract element representing a menu item

@@ -17,7 +17,7 @@ export * from './webdriver/components/activityBar/ActivityBar';
 export * from './webdriver/components/activityBar/ViewControl';
 export * from './webdriver/components/activityBar/ActionsControl';
 export * from './webdriver/components/view/SideBarView';
-export * from './webdriver/components/view/TitlePart';
+export * from './webdriver/components/view/ViewTitlePart';
 export * from './webdriver/components/view/ViewContent';
 export * from './webdriver/components/view/ViewSection';
 export * from './webdriver/components/view/ViewItem';
