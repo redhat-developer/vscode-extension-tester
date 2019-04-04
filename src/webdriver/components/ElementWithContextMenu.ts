@@ -1,5 +1,6 @@
 import { AbstractElement } from "./AbstractElement";
-import { ContextMenu, By, Button } from "../../extester";
+import { ContextMenu } from "../../extester";
+import { By, Button } from 'selenium-webdriver';
 
 /**
  * Abstract element that has a context menu

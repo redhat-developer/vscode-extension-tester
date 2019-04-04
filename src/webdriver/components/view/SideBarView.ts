@@ -1,5 +1,6 @@
 import { AbstractElement } from "../AbstractElement";
-import { ViewTitlePart, By, ViewContent } from "../../../extester";
+import { ViewTitlePart, ViewContent } from "../../../extester";
+import { By } from 'selenium-webdriver';
 
 /**
  * Page object for the side bar view

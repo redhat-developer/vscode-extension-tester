@@ -6,7 +6,7 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 
 export * from 'selenium-webdriver';
-export { VSBrowser } from './webdriver/browser';
+export * from './webdriver/browser';
 
 export * from './webdriver/components/menu/Menu';
 export * from './webdriver/components/menu/MenuItem';
@@ -18,8 +18,15 @@ export * from './webdriver/components/activityBar/ViewControl';
 export * from './webdriver/components/activityBar/ActionsControl';
 export * from './webdriver/components/view/SideBarView';
 export * from './webdriver/components/view/TitlePart';
-export * from './webdriver/components/view/Content';
+export * from './webdriver/components/view/ViewContent';
+export * from './webdriver/components/view/ViewSection';
+export * from './webdriver/components/view/ViewItem';
+
 export * from './webdriver/native/dialogHandler';
+export * from './webdriver/native/nativeDialog';
+export { OpenFolderDialog } from './webdriver/native/openFolderDialog';
+
+export * from './webdriver/conditions/WaitForAttribute';
 
 /**
  * VSCode Extension Tester

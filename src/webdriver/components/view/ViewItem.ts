@@ -1,9 +1,16 @@
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
-import { ViewContent } from "../../../extester";
+import { ViewSection } from "../../../extester";
 import { By } from "selenium-webdriver";
 
 export class ViewItem extends ElementWithContexMenu {
-    constructor(label: string, viewPart: ViewContent) {
+    private label: string;
+
+    constructor(label: string, viewPart: ViewSection) {
         super(By.xpath(`.//div[@class='monaco-list-row' and @aria-label='${label}']`), viewPart);
+        this.label = label;
+    }
+
+    getLabel(): string {
+        return this.label;
     }
 }

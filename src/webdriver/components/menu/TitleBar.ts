@@ -1,8 +1,5 @@
+import { WindowControls, Menu, MenuItem, ContextMenu } from "../../../extester";
 import { By } from "selenium-webdriver";
-import { Menu } from "./Menu";
-import { MenuItem } from "./MenuItem";
-import { ContextMenu } from "./ContextMenu";
-import { WindowControls } from "../../../extester";
 
 /**
  * Page object representing the custom VSCode title bar

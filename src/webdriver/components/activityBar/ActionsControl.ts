@@ -1,7 +1,6 @@
-import { ActivityBar } from "./ActivityBar";
-import { By } from "selenium-webdriver";
-import { ContextMenu } from "../menu/ContextMenu";
+import { ActivityBar, ContextMenu } from "../../../extester";
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
+import { By } from "selenium-webdriver";
 
 /**
  * Page object representing the global action controls on the bottom of the action bar

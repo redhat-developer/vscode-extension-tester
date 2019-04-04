@@ -3,10 +3,20 @@ import * as robot from 'robotjs';
 import * as pathj from 'path';
 import * as fs from 'fs-extra';
 
+/**
+ * General open folder native dialog
+ */
 export interface OpenFolderDialog extends NativeDialog {
+    /**
+     * Enters the given folder path into the dialog selection
+     * @param path path to the folder to select
+     */
     selectFolder(path: string): void | Promise<void>;
 }
 
+/**
+ * Linux implementation of the folder dialog
+ */
 export class LinuxFolderDialog implements OpenFolderDialog {
     selectFolder(path: string): void {
         const absolutePath = pathj.resolve(path);
@@ -28,6 +38,9 @@ export class LinuxFolderDialog implements OpenFolderDialog {
     }
 }
 
+/**
+ * Windows implementation of the folder dialog
+ */
 export class WindowsFolderDialog implements OpenFolderDialog {
     selectFolder(path: string): void {
         const absolutePath = pathj.resolve(path);

@@ -1,5 +1,4 @@
-import { Menu } from "./Menu";
-import { MenuItem } from "./MenuItem";
+import { Menu, MenuItem } from "../../../extester";
 import { By, WebElement } from "selenium-webdriver";
 
 /**

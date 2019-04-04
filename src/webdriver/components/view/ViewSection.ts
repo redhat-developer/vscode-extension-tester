@@ -1,39 +1,9 @@
 import { AbstractElement } from "../AbstractElement";
-import { SideBarView } from "../../../extester";
+import { ViewContent, ViewItem, waitForAttributeValue } from "../../../extester";
 import { By } from "selenium-webdriver";
-import { ElementWithContexMenu } from "../ElementWithContextMenu";
-import { waitForAttributeValue } from "../../conditions/WaitForAttribute";
 
-export class ViewContent extends AbstractElement {
-    constructor(view: SideBarView) {
-        super(By.className('content'), view);
-    }
 
-    async hasProgress(): Promise<boolean> {
-        const progress = await this.findElement(By.className('monaco-progress-container'));
-        const hidden = await progress.getAttribute('aria-hidden');
-        if (hidden === 'true') {
-            return false;
-        }
-        return true;
-    }
-
-    async getSection(title: string): Promise<ViewSection> {
-        return new ViewSection(title, this);
-    }
-
-    async getSections(): Promise<ViewSection[]> {
-        const sections: ViewSection[] = [];
-        const elements = await this.findElements(By.className('split-view-view'));
-        for (const element of elements) {
-            const title = await element.findElement(By.xpath(`.//h3[@class='title']`)).getText();
-            sections.push(new ViewSection(title, this));
-        }
-        return sections;
-    }
-}
-
-export class ViewSection extends ElementWithContexMenu {
+export class ViewSection extends AbstractElement {
     constructor(title: string, content: ViewContent) {
         super(By.xpath(`.//div[@class='split-view-view' and translate(div/div/h3/text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='${title.toLowerCase()}']`), content);
     }
@@ -64,6 +34,15 @@ export class ViewSection extends ElementWithContexMenu {
         const header = await this.findElement(By.className('panel-header'));
         const expanded = await header.getAttribute('aria-expanded');
         return expanded === 'true';
+    }
+
+    async getVisibleItems(): Promise<ViewItem[]> {
+        const items: ViewItem[] = [];
+        const elements = await this.findElements(By.xpath(`.//div[@class='monaco-list-row']`));
+        for (const element of elements) {
+            items.push(new ViewItem(await element.getAttribute('aria-label'), this));
+        }
+        return items;
     }
 
     private async isHeaderHidden(): Promise<boolean> {

@@ -1,7 +1,6 @@
-import { By } from "selenium-webdriver";
-import { ViewControl } from "./ViewControl";
-import { ActionsControl } from "./ActionsControl";
+import { ActionsControl, ViewControl } from "../../../extester";
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
+import { By } from "selenium-webdriver";
 
 /**
  * Page object representing the left side activity bar in VS Code

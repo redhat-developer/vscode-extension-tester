@@ -1,7 +1,6 @@
-import { ActivityBar } from "./ActivityBar";
-import { By } from "selenium-webdriver";
-import { SideBarView } from "../view/SideBarView";
+import { ActivityBar, SideBarView } from "../../../extester";
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
+import { By } from "selenium-webdriver";
 
 /**
  * Page object representing a view container item in the activity bar

@@ -1,6 +1,7 @@
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
-import { SideBarView, By } from "../../../extester";
 import { AbstractElement } from "../AbstractElement";
+import { SideBarView } from "../../../extester";
+import { By } from 'selenium-webdriver';
 
 /**
  * Page object representing the top (title) part of a side bar view
