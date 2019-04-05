@@ -55,7 +55,7 @@ export class VSBrowser {
      * Waits until parts of the workbench are loaded
      */
     async waitForWorkbench(): Promise<void> {
-        await this._driver.wait(until.elementLocated(By.id('workbench.parts.titlebar')));
+        await this._driver.wait(until.elementLocated(By.className('monaco-workbench')));
     }
 
     /**

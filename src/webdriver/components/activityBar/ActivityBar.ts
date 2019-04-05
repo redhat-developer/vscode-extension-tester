@@ -7,7 +7,7 @@ import { By } from "selenium-webdriver";
  */
 export class ActivityBar extends ElementWithContexMenu {
     constructor() {
-        super(By.id('workbench.parts.activitybar'), By.id('workbench.main.container'));
+        super(By.id('workbench.parts.activitybar'), By.className('monaco-workbench'));
     }
 
     /**

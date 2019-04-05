@@ -88,8 +88,44 @@ export class ViewSection extends AbstractElement {
         return item;
     }
 
+    /**
+     * Retrieve the actions buttons on the section's header
+     * @returns array of ViewPanelAction objects
+     */
+    async getActions(): Promise<ViewPanelAction[]> {
+        const actions: ViewPanelAction[] = [];
+
+        if (!await this.isHeaderHidden()) {
+            const header = await this.findElement(By.className('panel-header'));
+            const act = await header.findElement(By.className('actions'));
+            const elements = await act.findElements(By.xpath(`.//a[@role='button']`));
+    
+            for (const element of elements) {
+                actions.push(new ViewPanelAction(await element.getAttribute('Title'), this));
+            }
+        }
+        return actions;
+    }
+
+    /**
+     * Retrieve an action button on the sections's header by its label
+     * @param label label/title of the button
+     */
+    getAction(label: string): ViewPanelAction {
+        return new ViewPanelAction(label, this);
+    }
+
     private async isHeaderHidden(): Promise<boolean> {
         const header = await this.findElement(By.className('panel-header'));
         return (await header.getAttribute('class')).indexOf('hidden') > -1;
+    }
+}
+
+/**
+ * Action button on the header of a view section
+ */
+export class ViewPanelAction extends AbstractElement {
+    constructor(label: string, viewPart: ViewSection) {
+        super(By.xpath(`.//a[contains(@class, 'action-label') and @role='button' and @title='${label}]'`), viewPart);
     }
 }

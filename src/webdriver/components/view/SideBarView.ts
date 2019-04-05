@@ -7,7 +7,7 @@ import { By } from 'selenium-webdriver';
  */
 export class SideBarView extends AbstractElement {
     constructor() {
-        super(By.id('workbench.parts.sidebar'), By.id('workbench.main.container'));
+        super(By.id('workbench.parts.sidebar'), By.className('monaco-workbench'));
     }
 
     /**

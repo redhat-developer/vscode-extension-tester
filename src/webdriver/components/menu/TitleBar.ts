@@ -8,7 +8,7 @@ import { By } from "selenium-webdriver";
  */
 export class TitleBar extends Menu {
     constructor() {
-        super(By.id('workbench.parts.titlebar'), By.id('workbench.main.container'));
+        super(By.id('workbench.parts.titlebar'), By.className('monaco-workbench'));
     }
 
     async hasItem(name: string): Promise<boolean> {
