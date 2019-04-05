@@ -26,7 +26,7 @@
     "extension"
   ],
   "author": "Jan Richter",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/jrichter1/vscode-extension-tester/issues"
   },
