@@ -65,15 +65,20 @@ export class ViewSection extends AbstractElement {
      * Find an item in this view section by label. Does not perform recursive search through the whole tree.
      * Does however scroll through all the expanded content. Will find items beyond the current scroll range.
      * @param label Label of the item to search for.
+     * @param maxLevel Limit how deep the algorithm should look into any expanded items, default unlimited (0)
      */
-    async findItem(label: string): Promise<ViewItem | undefined> {
+    async findItem(label: string, maxLevel: number = 0): Promise<ViewItem | undefined> {
+        await this.expand();
         const container = await this.findElement(By.className('monaco-list'));
         await container.sendKeys(Key.HOME);
         let item: ViewItem | undefined = undefined;
         do {
             try {
-                await container.findElement(By.xpath(`.//div[contains(@class, 'monaco-list-row') and @aria-label='${label}']`));
-                item = new ViewItem(label, this);
+                const temp = await container.findElement(By.xpath(`.//div[contains(@class, 'monaco-list-row') and @aria-label='${label}']`));
+                const level = +await temp.getAttribute('aria-level');
+                if (maxLevel > 0 && level <= maxLevel) {
+                    item = new ViewItem(label, this);
+                }
             } catch (err) {
                 try {
                     await container.findElement(By.xpath(`.//div[@data-last-element='true']`));
@@ -89,7 +94,45 @@ export class ViewSection extends AbstractElement {
     }
 
     /**
-     * Retrieve the actions buttons on the section's header
+     * Open an item with a given path represented by a sequence of labels
+     * 
+     * e.g to open 'file' inside 'folder', call
+     * openItem('folder', 'file')
+     * 
+     * The first item is only searched for directly within the root element (depth 1).
+     * The label sequence is handled in order. If a leaf item (a file for example) is found in the middle
+     * of the sequence, the rest is ignored.
+     * 
+     * @param path Sequence of labels that make up the path to a given item.
+     * @returns array of ViewItem objects representing the last item's children.
+     * If the last item is a leaf, empty array is returned.
+     */
+    async openItem(...path: string[]): Promise<ViewItem[]> {
+        let currentItem = await this.findItem(path[0], 1);
+        let items: ViewItem[] = [];
+
+        for (let i = 0; i < path.length; i++) {
+            if (!currentItem) {
+                throw new Error(`Item ${path[i]} not found`);
+            }
+            if (await currentItem.hasChildren() && await currentItem.isExpanded()) {
+                await currentItem.collapse();
+            }
+            items = await currentItem.select();
+            if (items.length < 1) {
+                return items;
+            }
+            if (i + 1 < path.length) {
+                currentItem = items.find((value) => {
+                    return value.getLabel() === path[i + 1];
+                });
+            }
+        }
+        return items;
+    }
+
+    /**
+     * Retrieve the action buttons on the section's header
      * @returns array of ViewPanelAction objects
      */
     async getActions(): Promise<ViewPanelAction[]> {

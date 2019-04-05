@@ -16,11 +16,11 @@ export * from './webdriver/components/menu/WindowControls';
 export * from './webdriver/components/activityBar/ActivityBar';
 export * from './webdriver/components/activityBar/ViewControl';
 export * from './webdriver/components/activityBar/ActionsControl';
-export * from './webdriver/components/view/SideBarView';
-export * from './webdriver/components/view/ViewTitlePart';
-export * from './webdriver/components/view/ViewContent';
-export * from './webdriver/components/view/ViewSection';
-export * from './webdriver/components/view/ViewItem';
+export * from './webdriver/components/sidebar/SideBarView';
+export * from './webdriver/components/sidebar/ViewTitlePart';
+export * from './webdriver/components/sidebar/ViewContent';
+export * from './webdriver/components/sidebar/ViewSection';
+export * from './webdriver/components/sidebar/ViewItem';
 
 export * from './webdriver/native/dialogHandler';
 export * from './webdriver/native/nativeDialog';
