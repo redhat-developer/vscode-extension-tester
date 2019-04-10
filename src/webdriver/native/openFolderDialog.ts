@@ -1,7 +1,7 @@
 import { NativeDialog } from "./nativeDialog";
-import * as robot from 'robotjs';
 import * as pathj from 'path';
 import * as fs from 'fs-extra';
+const robot = require('node-key-sender');
 
 /**
  * General open folder native dialog
@@ -18,23 +18,23 @@ export interface OpenFolderDialog extends NativeDialog {
  * Linux implementation of the folder dialog
  */
 export class LinuxFolderDialog implements OpenFolderDialog {
-    selectFolder(path: string): void {
+    async selectFolder(path: string): Promise<void> {
         const absolutePath = pathj.resolve(path);
         if (!fs.existsSync(absolutePath) || !fs.statSync(absolutePath).isDirectory()) {
             throw new Error('The selected path is not an existing directory');
         }
-        robot.keyTap('down');
-        robot.keyTap('l', 'control');
-        robot.typeString(absolutePath);
+        await robot.sendKey('down');
+        await robot.sendCombination(['control', 'l']);
+        await robot.sendText(absolutePath);
     }
 
     async confirm(): Promise<void> {
-        robot.keyTap('enter');
+        await robot.sendKey('enter');
         await new Promise((res) => { setTimeout(res, 4000); });
     }
 
-    cancel(): void {
-        robot.keyTap('escape');
+    async cancel(): Promise<void> {
+        await robot.sendKey('escape');
     }
 }
 
@@ -42,24 +42,24 @@ export class LinuxFolderDialog implements OpenFolderDialog {
  * Windows implementation of the folder dialog
  */
 export class WindowsFolderDialog implements OpenFolderDialog {
-    selectFolder(path: string): void {
+    async selectFolder(path: string): Promise<void> {
         const absolutePath = pathj.resolve(path);
         if (!fs.existsSync(absolutePath) || !fs.statSync(absolutePath).isDirectory()) {
             throw new Error('The selected path is not an existing directory');
         }
-        robot.keyTap('l', 'control');
-        robot.typeString(absolutePath);
-        robot.keyTap('enter');
-        robot.keyTap('space');
-        robot.keyTap('enter');
+        await robot.sendCombination(['control', 'l']);
+        await robot.sendText(absolutePath);
+        await robot.sendKey('enter');
+        await robot.sendKey('space');
+        await robot.sendKey('enter');
     }
 
     async confirm(): Promise<void> {
-        robot.keyTap('enter');
+        await robot.sendKey('enter');
         await new Promise((res) => { setTimeout(res, 4000); });
     }
 
-    cancel(): void {
-        robot.keyTap('escape');
+    async cancel(): Promise<void> {
+        await robot.sendKey('escape');
     }
 }

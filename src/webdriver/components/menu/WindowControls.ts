@@ -6,7 +6,7 @@ import { By, WebElement } from "selenium-webdriver";
  * Page object for the windows controls part of the title bar
  */
 export class WindowControls extends AbstractElement {
-    constructor(bar: TitleBar) {
+    constructor(bar: TitleBar = new TitleBar()) {
         super(By.className('window-controls-container'), bar);
     }
 

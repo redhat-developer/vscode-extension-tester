@@ -10,5 +10,5 @@ export interface NativeDialog {
     /**
      * Cancels the dialog
      */
-    cancel(): void;
+    cancel(): void | Promise<void>;
 }

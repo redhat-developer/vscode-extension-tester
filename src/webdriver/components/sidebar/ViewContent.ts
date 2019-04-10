@@ -6,7 +6,7 @@ import { By } from "selenium-webdriver";
  * Page object representing the view container of a side bar view
  */
 export class ViewContent extends AbstractElement {
-    constructor(view: SideBarView) {
+    constructor(view: SideBarView = new SideBarView()) {
         super(By.className('content'), view);
     }
 

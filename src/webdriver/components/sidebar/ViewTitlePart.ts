@@ -7,7 +7,7 @@ import { By } from 'selenium-webdriver';
  * Page object representing the top (title) part of a side bar view
  */
 export class ViewTitlePart extends ElementWithContexMenu {
-    constructor(view: SideBarView) {
+    constructor(view: SideBarView = new SideBarView()) {
         super(By.className('composite title'), view);
     }
 

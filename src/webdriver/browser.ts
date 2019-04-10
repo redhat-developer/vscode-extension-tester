@@ -23,7 +23,10 @@ export class VSBrowser {
         if (!fs.existsSync(userSettings)) {
             fs.removeSync(path.join(storagePath, 'settings'));
         }
-        const defaultSettings = { "window.titleBarStyle": "custom" };
+        const defaultSettings = { 
+            "window.titleBarStyle": "custom",
+            "workbench.editor.enablePreview": false
+        };
         fs.mkdirpSync(userSettings);
         fs.writeJSONSync(path.join(userSettings, 'settings.json'), defaultSettings);
         console.log(`Writing default settings to ${path.join(userSettings, 'settings.json')}`);
