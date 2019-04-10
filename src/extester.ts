@@ -21,6 +21,9 @@ export * from './webdriver/components/sidebar/ViewTitlePart';
 export * from './webdriver/components/sidebar/ViewContent';
 export * from './webdriver/components/sidebar/ViewSection';
 export * from './webdriver/components/sidebar/ViewItem';
+export * from './webdriver/components/editor/EditorView';
+export * from './webdriver/components/editor/Editor';
+export * from './webdriver/components/editor/ContentAssist';
 
 export * from './webdriver/native/dialogHandler';
 export * from './webdriver/native/nativeDialog';
