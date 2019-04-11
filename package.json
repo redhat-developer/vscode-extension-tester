@@ -32,6 +32,7 @@
   },
   "homepage": "https://github.com/jrichter1/vscode-extension-tester#readme",
   "devDependencies": {
+    "@types/clipboardy": "^1.1.0",
     "@types/fs-extra": "^5.0.5",
     "@types/glob": "^7.1.1",
     "@types/mocha": "^5.2.6",
@@ -44,6 +45,7 @@
   "dependencies": {
     "@microsoft.azure/unpack": "^1.0.19",
     "@types/selenium-webdriver": "^3.0.15",
+    "clipboardy": "^2.0.0",
     "commander": "^2.19.0",
     "fs-extra": "^7.0.1",
     "glob": "^7.1.3",

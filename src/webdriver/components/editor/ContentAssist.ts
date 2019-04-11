@@ -1,6 +1,9 @@
 import { Editor, Menu, MenuItem } from "../../../extester";
 import { By } from 'selenium-webdriver';
 
+/**
+ * Page object representing the content assistant
+ */
 export class ContentAssist extends Menu {
     constructor(editor: Editor) {
         super(By.className('suggest-widget'), editor);
@@ -29,6 +32,9 @@ export class ContentAssist extends Menu {
     }
 }
 
+/**
+ * Page object for a content assist item
+ */
 export class ContentAssistItem extends MenuItem {
     constructor(label: string, contentAssist: ContentAssist) {
         super(By.xpath(`.//div[contains(@class, 'monaco-list-row') and div/div/div/div/a/span/span/text()='${label}']`), contentAssist);

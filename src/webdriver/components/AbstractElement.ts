@@ -1,4 +1,4 @@
-import { WebElement, WebDriver, Locator, until, By } from "selenium-webdriver";
+import { WebElement, WebDriver, Locator, until, By, Key } from "selenium-webdriver";
 import { VSBrowser } from "../browser";
 
 /**
@@ -6,6 +6,7 @@ import { VSBrowser } from "../browser";
  */
 export abstract class AbstractElement extends WebElement {
 
+    public static ctlKey = process.platform === 'darwin' ? Key.COMMAND : Key.CONTROL;
     protected static driver: WebDriver;
     protected enclosingItem: WebElement;
 

@@ -2,7 +2,7 @@ import { ElementWithContexMenu } from "../ElementWithContextMenu";
 import { EditorView, ContentAssist } from "../../../extester";
 import { By, Key } from "selenium-webdriver";
 import { fileURLToPath } from "url";
-import * as fs from 'fs-extra';
+import * as clipboard from 'clipboardy';
 
 /**
  * Page object representing the active editor
@@ -12,23 +12,37 @@ export class Editor extends ElementWithContexMenu {
         super(By.className('editor-instance'), view);
     }
 
+    /**
+     * Find whether the active editor has unsaved changes
+     */
     async isDirty(): Promise<boolean> {
         const tab = await this.enclosingItem.findElement(By.css('div.tab.active'));
         const klass = await tab.getAttribute('class');
         return klass.indexOf('dirty') >= 0;
     }
 
+    /**
+     * Saves the active editor
+     */
     async save(): Promise<void> {
         const inputarea = await this.findElement(By.className('inputarea'));
-        await inputarea.sendKeys(Key.chord(Key.CONTROL, 's'));
+        await inputarea.sendKeys(Key.chord(Editor.ctlKey, 's'));
     }
 
+    /**
+     * Retrieve the path to the file opened in the active editor
+     */
     async getFilePath(): Promise<string> {
         const ed = await this.findElement(By.className('monaco-editor'));
         const url = await ed.getAttribute('data-uri');
         return fileURLToPath(url);
     }
 
+    /**
+     * Open/Close the content assistant at the current position in the editor by sending the default
+     * keyboard shortcut signal
+     * @param open true to open, false to close
+     */
     async toggleContentAssist(open: boolean): Promise<ContentAssist | void> {
         const inputarea = await this.findElement(By.className('inputarea'));
         const klass = await this.findElement(By.className('suggest-widget')).getAttribute('class');
@@ -45,11 +59,22 @@ export class Editor extends ElementWithContexMenu {
         }
     }
 
+    /**
+     * Get all text from the editor
+     */
     async getText(): Promise<string> {
-        const file = await this.getFilePath();
-        return fs.readFileSync(file).toString();
+        const inputarea = await this.findElement(By.className('inputarea'));
+        await inputarea.sendKeys(Key.chord(Editor.ctlKey, 'a'));
+        await inputarea.sendKeys(Key.chord(Editor.ctlKey, 'c'));
+        const text = clipboard.readSync();
+        await inputarea.click();
+        return text;
     }
 
+    /**
+     * Get text from a given line
+     * @param line number of the line to retrieve
+     */
     async getTextAtLine(line: number): Promise<string> {
         const text = await this.getText();
         const lines = text.split('\n');
@@ -59,6 +84,9 @@ export class Editor extends ElementWithContexMenu {
         return lines[line - 1];
     } 
 
+    /**
+     * Get number of lines in the editor
+     */
     async getNumberOfLines(): Promise<number> {
         const lineBox = await this.findElement(By.className(`view-lines`));
         const lines = await lineBox.findElements(By.className('view-line'));
