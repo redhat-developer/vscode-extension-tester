@@ -14,7 +14,13 @@ export class StatusBar extends AbstractElement {
      * @param open true to open, false to close
      */
     async toggleNotificationsCentre(open: boolean): Promise<void> {
-        const visible = await this.enclosingItem.findElement(By.className('notifications-center')).isDisplayed();
+        let visible = false;
+        try {
+            const klass = await this.enclosingItem.findElement(By.className('notifications-center')).getAttribute('class');
+            visible = klass.indexOf('visible') > -1;
+        } catch (err) {
+            // element doesn't exist until the button is first clicked
+        }
         if (visible !== open) {
             await this.findElement(By.className('octicon-bell')).click();
         }
