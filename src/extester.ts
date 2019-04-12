@@ -27,6 +27,7 @@ export * from './webdriver/components/editor/ContentAssist';
 export * from './webdriver/components/bottomBar/BottomBarPanel';
 export * from './webdriver/components/bottomBar/ProblemsView';
 export * from './webdriver/components/bottomBar/Views';
+export * from './webdriver/components/statusBar/StatusBar';
 
 export * from './webdriver/native/dialogHandler';
 export * from './webdriver/native/nativeDialog';

@@ -1,6 +1,7 @@
 import { By } from "selenium-webdriver";
 import { BottomBarPanel } from "../../../extester";
 import { TextView, ChannelView } from "./AbstractViews";
+import { AbstractElement } from "../AbstractElement";
 
 /**
  * Output view of the bottom panel
@@ -14,11 +15,11 @@ export class OutputView extends TextView {
 
 /**
  * Debug Console view on the bottom panel
+ * Functionality TBD on request
  */
-export class DebugConsoleView extends TextView {
+export class DebugConsoleView extends AbstractElement {
     constructor(panel: BottomBarPanel = new BottomBarPanel()) {
         super(By.id('workbench.panel.repl'), panel);
-        this.actionsLabel = 'Debug Console actions';
     }
 }
 
