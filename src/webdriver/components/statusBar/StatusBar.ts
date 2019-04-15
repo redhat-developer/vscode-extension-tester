@@ -1,5 +1,6 @@
 import { AbstractElement } from "../AbstractElement";
 import { By } from "selenium-webdriver";
+import { NotificationsCenter } from "../workbench/NotificationsCenter";
 
 /**
  * Page object for the status bar at the bottom
@@ -10,20 +11,18 @@ export class StatusBar extends AbstractElement {
     }
 
     /**
-     * Open/Close notification centre
-     * @param open true to open, false to close
+     * Open the notifications center
      */
-    async toggleNotificationsCentre(open: boolean): Promise<void> {
-        let visible = false;
-        try {
-            const klass = await this.enclosingItem.findElement(By.className('notifications-center')).getAttribute('class');
-            visible = klass.indexOf('visible') > -1;
-        } catch (err) {
-            // element doesn't exist until the button is first clicked
-        }
-        if (visible !== open) {
-            await this.findElement(By.className('octicon-bell')).click();
-        }
+    async openNotificationsCenter(): Promise<NotificationsCenter> {
+        await this.toggleNotificationsCentre(true);
+        return new NotificationsCenter();
+    }
+
+    /**
+     * Close the notifications center
+     */
+    async closeNotificationsCenter(): Promise<void> {
+        await this.toggleNotificationsCentre(false);
     }
 
     /**
@@ -104,5 +103,22 @@ export class StatusBar extends AbstractElement {
      */
     async getCurrentPosition(): Promise<string> {
         return await this.findElement(By.className('editor-status-selection')).getText();
+    }
+
+    /**
+     * Open/Close notification centre
+     * @param open true to open, false to close
+     */
+    private async toggleNotificationsCentre(open: boolean): Promise<void> {
+        let visible = false;
+        try {
+            const klass = await this.enclosingItem.findElement(By.className('notifications-center')).getAttribute('class');
+            visible = klass.indexOf('visible') > -1;
+        } catch (err) {
+            // element doesn't exist until the button is first clicked
+        }
+        if (visible !== open) {
+            await this.findElement(By.className('octicon-bell')).click();
+        }
     }
 }

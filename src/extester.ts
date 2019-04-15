@@ -28,6 +28,9 @@ export * from './webdriver/components/bottomBar/BottomBarPanel';
 export * from './webdriver/components/bottomBar/ProblemsView';
 export * from './webdriver/components/bottomBar/Views';
 export * from './webdriver/components/statusBar/StatusBar';
+export { Notification, NotificationType } from './webdriver/components/workbench/Notification';
+export * from './webdriver/components/workbench/NotificationsCenter';
+export * from './webdriver/components/workbench/Workbench';
 
 export * from './webdriver/native/dialogHandler';
 export * from './webdriver/native/nativeDialog';
