@@ -39,7 +39,8 @@ export class ViewContent extends AbstractElement {
         const sections: ViewSection[] = [];
         const elements = await this.findElements(By.className('split-view-view'));
         for (const element of elements) {
-            const title = await element.findElement(By.xpath(`.//h3[@class='title']`)).getText();
+            const title = await element.findElement(By.xpath(`.//h3[@class='title']`)).getAttribute('textContent');
+            console.log(title)
             sections.push(new ViewSection(title, this));
         }
         return sections;

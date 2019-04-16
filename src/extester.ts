@@ -13,23 +13,29 @@ export * from './webdriver/components/menu/MenuItem';
 export * from './webdriver/components/menu/TitleBar';
 export * from './webdriver/components/menu/ContextMenu';
 export * from './webdriver/components/menu/WindowControls';
+
 export * from './webdriver/components/activityBar/ActivityBar';
 export * from './webdriver/components/activityBar/ViewControl';
 export * from './webdriver/components/activityBar/ActionsControl';
+
 export * from './webdriver/components/sidebar/SideBarView';
 export * from './webdriver/components/sidebar/ViewTitlePart';
 export * from './webdriver/components/sidebar/ViewContent';
 export * from './webdriver/components/sidebar/ViewSection';
 export * from './webdriver/components/sidebar/ViewItem';
-export * from './webdriver/components/editor/EditorView';
-export * from './webdriver/components/editor/Editor';
-export * from './webdriver/components/editor/ContentAssist';
+
 export * from './webdriver/components/bottomBar/BottomBarPanel';
 export * from './webdriver/components/bottomBar/ProblemsView';
 export * from './webdriver/components/bottomBar/Views';
 export * from './webdriver/components/statusBar/StatusBar';
+
+export * from './webdriver/components/editor/EditorView';
+export * from './webdriver/components/editor/Editor';
+export * from './webdriver/components/editor/ContentAssist';
+
 export { Notification, NotificationType } from './webdriver/components/workbench/Notification';
 export * from './webdriver/components/workbench/NotificationsCenter';
+export * from './webdriver/components/workbench/InputBox';
 export * from './webdriver/components/workbench/Workbench';
 
 export * from './webdriver/native/dialogHandler';
