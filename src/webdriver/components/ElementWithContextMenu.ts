@@ -16,7 +16,7 @@ export abstract class ElementWithContexMenu extends AbstractElement {
 
         if (await menu.isDisplayed()) {
             await this.getDriver().actions().click(this, Button.RIGHT).perform();
-            await this.getDriver().wait(until.elementIsNotVisible(menu));
+            await this.getDriver().wait(until.elementIsNotVisible(menu), 1000);
         }
         await this.getDriver().actions().click(this, Button.RIGHT).perform();
 

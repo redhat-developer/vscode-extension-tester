@@ -1,13 +1,20 @@
 import { AbstractElement } from "../AbstractElement";
 import { ViewContent, ViewItem, waitForAttributeValue } from "../../../extester";
-import { By, Key } from "selenium-webdriver";
+import { By } from "selenium-webdriver";
 
 /**
  * Page object representing a collapsible content section of the side bar view
  */
-export class ViewSection extends AbstractElement {
+export abstract class ViewSection extends AbstractElement {
+    private title: string;
+
     constructor(title: string, content: ViewContent) {
         super(By.xpath(`.//div[@class='split-view-view' and translate(div/div/h3/text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='${title.toLowerCase()}']`), content);
+        this.title = title;
+    }
+
+    getTitle(): string {
+        return this.title;
     }
 
     /**
@@ -52,14 +59,7 @@ export class ViewSection extends AbstractElement {
      * Note that any item currently beyond the visible list, i.e. not scrolled to, will not be retrieved.
      * @returns array of ViewItem objects
      */
-    async getVisibleItems(): Promise<ViewItem[]> {
-        const items: ViewItem[] = [];
-        const elements = await this.findElements(By.xpath(`.//div[@class='monaco-list-row']`));
-        for (const element of elements) {
-            items.push(new ViewItem(await element.getAttribute('aria-label'), this));
-        }
-        return items;
-    }
+    abstract async getVisibleItems(): Promise<ViewItem[]>
 
     /**
      * Find an item in this view section by label. Does not perform recursive search through the whole tree.
@@ -67,31 +67,7 @@ export class ViewSection extends AbstractElement {
      * @param label Label of the item to search for.
      * @param maxLevel Limit how deep the algorithm should look into any expanded items, default unlimited (0)
      */
-    async findItem(label: string, maxLevel: number = 0): Promise<ViewItem | undefined> {
-        await this.expand();
-        const container = await this.findElement(By.className('monaco-list'));
-        await container.sendKeys(Key.HOME);
-        let item: ViewItem | undefined = undefined;
-        do {
-            try {
-                const temp = await container.findElement(By.xpath(`.//div[contains(@class, 'monaco-list-row') and @aria-label='${label}']`));
-                const level = +await temp.getAttribute('aria-level');
-                if (maxLevel > 0 && level <= maxLevel) {
-                    item = new ViewItem(label, this);
-                }
-            } catch (err) {
-                try {
-                    await container.findElement(By.xpath(`.//div[@data-last-element='true']`));
-                    break;
-                } catch (err) {
-                    // last element not yet found, continue
-                }
-                await container.sendKeys(Key.PAGE_DOWN);
-            }
-        } while (!item)
-
-        return item;
-    }
+    abstract async findItem(label: string, maxLevel?: number): Promise<ViewItem | undefined>
 
     /**
      * Open an item with a given path represented by a sequence of labels
@@ -144,7 +120,7 @@ export class ViewSection extends AbstractElement {
             const elements = await act.findElements(By.xpath(`.//a[@role='button']`));
     
             for (const element of elements) {
-                actions.push(new ViewPanelAction(await element.getAttribute('Title'), this));
+                actions.push(new ViewPanelAction(await element.getAttribute('title'), this));
             }
         }
         return actions;

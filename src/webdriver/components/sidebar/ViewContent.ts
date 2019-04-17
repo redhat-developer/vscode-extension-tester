@@ -1,6 +1,8 @@
 import { AbstractElement } from "../AbstractElement";
 import { SideBarView, ViewSection } from "../../../extester";
 import { By } from "selenium-webdriver";
+import { DefaultViewSection } from "./default/DefaultViewSection";
+import { CustomViewSection } from "./custom/CustomViewSection";
 
 /**
  * Page object representing the view container of a side bar view
@@ -28,7 +30,13 @@ export class ViewContent extends AbstractElement {
      * @returns a ViewSection object
      */
     async getSection(title: string): Promise<ViewSection> {
-        return new ViewSection(title, this);
+        const section = new DefaultViewSection(title, this);
+        try {
+            await section.findElement(By.className('monaco-list'));
+            return section;
+        } catch (err) {
+            return new CustomViewSection(title, this);
+        }
     }
 
     /**
@@ -40,8 +48,13 @@ export class ViewContent extends AbstractElement {
         const elements = await this.findElements(By.className('split-view-view'));
         for (const element of elements) {
             const title = await element.findElement(By.xpath(`.//h3[@class='title']`)).getAttribute('textContent');
-            console.log(title)
-            sections.push(new ViewSection(title, this));
+            let section: ViewSection = new DefaultViewSection(title, this);
+            try {
+                await section.findElement(By.className('monaco-list'));
+            } catch (err) {
+                section = new CustomViewSection(title, this);
+            }
+            sections.push(section);
         }
         return sections;
     }

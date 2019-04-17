@@ -1,11 +1,11 @@
 import { ActivityBar, SideBarView } from "../../../extester";
-import { AbstractElement } from "../AbstractElement";
 import { By } from "selenium-webdriver";
+import { ElementWithContexMenu } from "../ElementWithContextMenu";
 
 /**
  * Page object representing a view container item in the activity bar
  */
-export class ViewControl extends AbstractElement {
+export class ViewControl extends ElementWithContexMenu {
     private title: string;
 
     constructor(title: string, bar: ActivityBar) {
