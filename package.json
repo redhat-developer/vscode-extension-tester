@@ -12,7 +12,7 @@
     "extest": "./out/cli.js"
   },
   "scripts": {
-    "build": "rimraf out && tsc && chmod a+x ./out/cli.js",
+    "build": "rimraf out docs && tsc && chmod a+x ./out/cli.js && typedoc --out docs ./src/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -40,6 +40,7 @@
     "@types/request": "^2.48.1",
     "mocha": "^6.0.2",
     "rimraf": "^2.6.3",
+    "typedoc": "^0.14.2",
     "typescript": "^3.3.3333"
   },
   "dependencies": {
