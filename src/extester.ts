@@ -35,7 +35,9 @@ export * from './webdriver/components/editor/ContentAssist';
 
 export { Notification, NotificationType } from './webdriver/components/workbench/Notification';
 export * from './webdriver/components/workbench/NotificationsCenter';
-export * from './webdriver/components/workbench/InputBox';
+export * from './webdriver/components/workbench/input/Input';
+export * from './webdriver/components/workbench/input/InputBox';
+export * from './webdriver/components/workbench/input/QuickOpenBox';
 export * from './webdriver/components/workbench/Workbench';
 
 export * from './webdriver/native/dialogHandler';

@@ -1,5 +1,5 @@
 import { AbstractElement } from "../AbstractElement";
-import { By, WebElement } from "selenium-webdriver";
+import { By, WebElement, Key } from "selenium-webdriver";
 import { TitleBar } from "../menu/TitleBar";
 import { SideBarView } from "../sidebar/SideBarView";
 import { ActivityBar } from "../activityBar/ActivityBar";
@@ -8,6 +8,8 @@ import { EditorView } from "../editor/EditorView";
 import { BottomBarPanel } from "../bottomBar/BottomBarPanel";
 import { Notification, StandaloneNotification } from "./Notification";
 import { NotificationsCenter } from "./NotificationsCenter";
+import { QuickOpenBox } from "./input/QuickOpenBox";
+import { Input } from "./input/Input";
 
 /**
  * Handler for general workbench related actions
@@ -61,7 +63,6 @@ export class Workbench extends AbstractElement {
 
     /**
      * Get all standalone notifications (notifications outside the notifications center)
-     * @returns promise - array of Notification objects
      */
     async getNotifications(): Promise<Notification[]> {
         const notifications: Notification[] = [];
@@ -81,9 +82,26 @@ export class Workbench extends AbstractElement {
 
     /**
      * Opens the notifications center
-     * @returns NotificationsCenter promise
      */
     openNotificationsCenter(): Promise<NotificationsCenter> {
         return new StatusBar().openNotificationsCenter();
+    }
+
+    /**
+     * Open the VS Code command line prompt
+     */
+    async openCommandPrompt(): Promise<Input> {
+        await this.getDriver().actions().sendKeys(Key.F1).perform();
+        return new QuickOpenBox().wait();
+    }
+
+    /**
+     * Open the command prompt, type in a command and execute
+     * @param command text of the command to be executed
+     */
+    async executeCommand(command: string): Promise<void> {
+        const prompt = await this.openCommandPrompt();
+        await prompt.setText(`>${command}`);
+        await prompt.confirm();
     }
 }
