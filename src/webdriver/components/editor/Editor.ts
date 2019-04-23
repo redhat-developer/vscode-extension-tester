@@ -3,6 +3,7 @@ import { EditorView, ContentAssist } from "../../../extester";
 import { By, Key } from "selenium-webdriver";
 import { fileURLToPath } from "url";
 import * as clipboard from 'clipboardy';
+import { StatusBar } from "../statusBar/StatusBar";
 
 /**
  * Page object representing the active editor
@@ -64,11 +65,24 @@ export class Editor extends ElementWithContexMenu {
      */
     async getText(): Promise<string> {
         const inputarea = await this.findElement(By.className('inputarea'));
-        await inputarea.sendKeys(Key.chord(Editor.ctlKey, 'a'));
-        await inputarea.sendKeys(Key.chord(Editor.ctlKey, 'c'));
+        await inputarea.sendKeys(Key.chord(Editor.ctlKey, 'a'), Key.chord(Editor.ctlKey, 'c'));
         const text = clipboard.readSync();
-        await inputarea.click();
+        await inputarea.getDriver().actions().sendKeys(Key.UP).perform();
         return text;
+    }
+
+    /**
+     * Replace the contents of the editor with a given text
+     * @param text text to type into the editor
+     * @param formatText format the new text, default true
+     */
+    async setText(text: string, formatText: boolean = true): Promise<void> {
+        const inputarea = await this.findElement(By.className('inputarea'));
+        clipboard.writeSync(text);
+        await inputarea.sendKeys(Key.chord(Editor.ctlKey, 'a'), Key.chord(Editor.ctlKey, 'v'));
+        if (formatText) {
+            await this.formatDocument();
+        }
     }
 
     /**
@@ -82,40 +96,82 @@ export class Editor extends ElementWithContexMenu {
             throw new Error(`Line number ${line} does not exist`);
         }
         return lines[line - 1];
-    } 
+    }
+
+    /**
+     * Replace the contents of a line with a given text
+     * @param line number of the line to edit
+     * @param text text to set at the line
+     */
+    async setTextAtLine(line: number, text: string): Promise<void> {
+        if (line < 1 || line > await this.getNumberOfLines()) {
+            throw new Error(`Line number ${line} does not exist`);
+        }
+        const lines = (await this.getText()).split('\n');
+        lines[line - 1] = text;
+        await this.setText(lines.join('\n'));
+    }
+
+    /**
+     * Add the given text to the given coordinates
+     * @param line number of the line to type into
+     * @param column number of the column to start typing at
+     * @param text text to add
+     */
+    async typeText(line: number, column: number, text: string): Promise<void> {
+        if (line < 1 || line > await this.getNumberOfLines()) {
+            throw new Error(`Line number ${line} does not exist`);
+        }
+        if (column < 1) {
+            throw new Error(`Column number ${column} does not exist`);
+        }
+        const inputarea = await this.findElement(By.className('inputarea'));
+        let coordinates = await this.getCoordinates();
+        const lineGap = coordinates[0] - line;
+        const lineKey = lineGap >= 0 ? Key.UP : Key.DOWN;
+        for (let i = 0; i < Math.abs(lineGap); i++) {
+            inputarea.sendKeys(lineKey);
+        }
+
+        coordinates = await this.getCoordinates();
+        const columnGap = coordinates[1] - column;
+        const columnKey = columnGap >= 0 ? Key.LEFT : Key.RIGHT;
+        for (let i = 0; i < Math.abs(columnGap); i++) {
+            inputarea.sendKeys(columnKey);
+            if ((await this.getCoordinates())[0] != coordinates[0]) {
+                throw new Error(`Column number ${column} is not accessible on line ${line}`);
+            }
+        }
+
+        await inputarea.sendKeys(text);
+    }
 
     /**
      * Get number of lines in the editor
      */
     async getNumberOfLines(): Promise<number> {
-        const lineBox = await this.findElement(By.className(`view-lines`));
-        const lines = await lineBox.findElements(By.className('view-line'));
+        const lines = (await this.getText()).split('\n');
         return lines.length;
     }
 
-    //  TODO: add text manipulation
+    /**
+     * Use the built-in 'Format Document' option to format the text
+     */
+    async formatDocument(): Promise<void> {
+        const menu = await this.openContextMenu();
+        await menu.select('Format Document');
+    }
 
-    // private async getLinesInOrder(modifier: string = 'lines'): Promise<WebElement[]> {
-    //     const lineBox = await this.findElement(By.className(`view-${modifier}`));
-    //     let lines!: WebElement[];
-    //     if (modifier === 'lines') {
-    //         lines = await lineBox.findElements(By.className('view-line'));
-    //     } else {
-    //         lines = await lineBox.findElements(By.xpath('./*'));
-    //     }
-    //     const regex = /([0-9]+)(?=px;.)/g;
-
-    //     for (let i = 0; i < lines.length; i++) {
-    //         for (let j = 0; j < i; j++) {
-    //             const current = +(<RegExpMatchArray>(await lines[j].getAttribute('style')).match(regex))[0];
-    //             const next = +(<RegExpMatchArray>(await lines[j+1].getAttribute('style')).match(regex))[0];
-    //             if (next < current) {
-    //                 const temp = lines[j];
-    //                 lines[j] = lines[j+1];
-    //                 lines[j+1] = temp;
-    //             }
-    //         }
-    //     }
-    //     return lines;
-    // }
+    /**
+     * Get coordinates as number array [line, column]
+     */
+    private async getCoordinates(): Promise<number[]> {
+        const coords: number[] = [];
+        const statusBar = new StatusBar();
+        const coordinates = <RegExpMatchArray>(await statusBar.getCurrentPosition()).match(/\d+/g);
+        for(const c of coordinates) {
+            coords.push(+c);
+        }
+        return coords;
+    }
 }
