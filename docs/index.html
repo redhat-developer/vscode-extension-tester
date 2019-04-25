@@ -65,7 +65,8 @@
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
 				<h1 id="vscode-extension-tester">vscode-extension-tester</h1>
-				<p>VSCode Extension Tester is a package designed to help you run UI tests for your VS Code extensions using <a href="https://www.npmjs.com/package/selenium-webdriver">selenium-webdriver</a>. The main purpose is to automate all the necessary setup steps to launch webdriver tests:</p>
+				<p>VSCode Extension Tester is a package designed to help you run UI tests for your VS Code extensions using <a href="https://www.npmjs.com/package/selenium-webdriver">selenium-webdriver</a>. </p>
+				<p>The first part is to automate all the necessary setup steps to launch webdriver tests:</p>
 				<ul>
 					<li>Download a test instance of VS Code</li>
 					<li>Download the appropriate version of ChromeDriver</li>
@@ -73,106 +74,16 @@
 					<li>Launch the VS Code instance using webdriver</li>
 					<li>Run your tests</li>
 				</ul>
+				<p>The second part is to provide an extendable page object API for more convenient test writing. </p>
+				<h2 id="usage">Usage</h2>
 				<p>Simply install it into your extension devDependencies to get started:</p>
-				<pre><code>npm install --<span class="hljs-built_in">save</span>-<span class="hljs-built_in">dev</span> vscode-extension-tester</code></pre><h2 id="usage">Usage</h2>
-				<p>The Extension Tester offers both CLI and API to perform all its actions. That way you can simply integrate it into your npm scripts, or just call it from your code if that is more prefferable. </p>
-				<h3 id="set-up-and-run-tests">Set up and Run Tests</h3>
-				<h4 id="using-the-cli">Using the CLI</h4>
-				<p>Below is the CLI reference for all available commands. All the available options for each command can be obtained by calling the command with an <code>-h</code> flag.</p>
-				<pre><code><span class="hljs-attribute">Usage</span>: extest [options] [command]
-
-<span class="vim">VSCode Extension UI Test Runner
-
-Option<span class="hljs-variable">s:</span>
-  -V, --<span class="hljs-keyword">version</span>                        output the <span class="hljs-keyword">version</span> <span class="hljs-keyword">number</span>
-  -h, --<span class="hljs-keyword">help</span>                           output usage information
-
-Command<span class="hljs-variable">s:</span>
-  <span class="hljs-built_in">get</span>-vscode [<span class="hljs-keyword">options</span>]                 Download VSCode <span class="hljs-keyword">for</span> testing
-  <span class="hljs-built_in">get</span>-chromedriver [<span class="hljs-keyword">options</span>]           Download ChromeDriver binary
-  install-vsix [<span class="hljs-keyword">options</span>]               Install extension from vsix <span class="hljs-keyword">file</span> into test instance of VSCode
-  setup-tests [<span class="hljs-keyword">options</span>]                Set <span class="hljs-keyword">up</span> <span class="hljs-keyword">all</span> necessary requirements <span class="hljs-keyword">for</span> tests <span class="hljs-keyword">to</span> run
-  run-tests [<span class="hljs-keyword">options</span>] <span class="hljs-symbol">&lt;testFiles&gt;</span>      Run the test <span class="hljs-keyword">files</span> specified by <span class="hljs-keyword">a</span> <span class="hljs-built_in">glob</span> pattern
-  setup-<span class="hljs-built_in">and</span>-run [<span class="hljs-keyword">options</span>] <span class="hljs-symbol">&lt;testFiles&gt;</span>  Perform <span class="hljs-keyword">all</span> setup <span class="hljs-built_in">and</span> run tests specified by <span class="hljs-built_in">glob</span> pattern
-</span></code></pre><p>As you can see, you have the option to run all the steps one by one. In this case you need to make sure all the consecutive commands use the correct flags by yourself. If you wish to run all the pre-test setup in one command, use the <code>setup-tests</code> command. To perform all the setup and run the tests, use the <code>setup-and-run</code> command.</p>
-				<p><code>*Note:* By default, the downloaded resources will be saved into &#39;test-resources&#39; folder in the extension root. Make sure the folder is being ignored by tsc (or tslint) and vsce to avoid build problems. If you decide to change this folder using the -s flag, make sure all consecutive commands use the same storage folder.</code></p>
-				<h4 id="using-the-api">Using the API</h4>
-				<p>To use the API, simply import the ExTester class as follows:</p>
-				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { ExTester } <span class="hljs-keyword">from</span> <span class="hljs-string">'vscode-extension-tester'</span></code></pre>
-				<p>The complete API reference is available below. It offers the same functionality as the CLI.</p>
-				<pre><code class="language-typescript"><span class="hljs-comment">/**
- * VSCode Extension Tester
- */</span>
-<span class="hljs-keyword">export</span> <span class="hljs-keyword">declare</span> <span class="hljs-keyword">class</span> ExTester {
-    <span class="hljs-keyword">private</span> code;
-    <span class="hljs-keyword">private</span> chrome;
-    <span class="hljs-keyword">constructor</span>(<span class="hljs-params">storageFolder?: <span class="hljs-built_in">string</span></span>);
-    /**
-     * Download VSCode of given version and release quality stream
-     * @param version version to download, default latest
-     * @param quality quality stream, only acceptable values are 'stable' and 'insider', default stable
-     */
-    downloadCode(<span class="hljs-params">version?: <span class="hljs-built_in">string</span>, quality?: <span class="hljs-built_in">string</span></span>): Promise&lt;void&gt;;
-    /**
-     * Install the extension into the test instance of VS Code
-     * @param vsixFile path to extension .vsix file. If not set, default vsce path will be used
-     */
-    installVsix(<span class="hljs-params">vsixFile?: <span class="hljs-built_in">string</span></span>): void;
-    /**
-     * Download the matching chromedriver for a given VS Code version
-     * @param vscodeVersion selected versio nof VSCode, default latest
-     * @param vscodeStream VSCode release stream, default stable
-     */
-    downloadChromeDriver(<span class="hljs-params">vscodeVersion?: <span class="hljs-built_in">string</span>, vscodeStream?: <span class="hljs-built_in">string</span></span>): Promise&lt;void&gt;;
-    /**
-     * Performs all necessary setup: getting VSCode + ChromeDriver
-     * and packaging/installing extension into the test instance
-     *
-     * @param vscodeVersion version of VSCode to test against, default latest
-     * @param vscodeStream whether to use stable or insiders build, default stable
-     */
-    setupRequirements(<span class="hljs-params">vscodeVersion?: <span class="hljs-built_in">string</span>, vscodeStream?: <span class="hljs-built_in">string</span></span>): Promise&lt;void&gt;;
-    /**
-     * Performs requirements setup and runs extension tests
-     *
-     * @param vscodeVersion version of VSCode to test against, default latest
-     * @param vscodeStream whether to use stable or insiders build, default stable
-     * @param testFilesPattern glob pattern for test files to run
-     */
-    setupAndRunTests(<span class="hljs-params">vscodeVersion: <span class="hljs-built_in">string</span> | <span class="hljs-literal">undefined</span>, vscodeStream: <span class="hljs-built_in">string</span> | <span class="hljs-literal">undefined</span>, testFilesPattern: <span class="hljs-built_in">string</span></span>): Promise&lt;void&gt;;
-    /**
-     * Runs the selected test files in VS Code using mocha and webdriver
-     * @param testFilesPattern glob pattern for selected test files
-     */
-    runTests(<span class="hljs-params">testFilesPattern: <span class="hljs-built_in">string</span></span>): void;
-}</code></pre>
-				<h3 id="writing-the-tests">Writing the Tests</h3>
-				<p>The Extension Tester integrates into the <a href="https://www.npmjs.com/package/mocha">Mocha</a> test framework (other frameworks may be introduced in the future), as such requires Mocha 5.2.0 or newer to be used in your project.</p>
-				<p>To learn how to write tests using the Extension Tester, see the example test case below.
-				Two things to note here:</p>
+				<pre><code>npm install --<span class="hljs-built_in">save</span>-<span class="hljs-built_in">dev</span> vscode-extension-tester</code></pre><p>Make sure to check out the <a href="../../wiki">wiki</a> for detailed instructions.</p>
 				<ul>
-					<li>You do not need to start or quit the browser/driver, this is added automatically before and after the tests, respectively</li>
-					<li>Extension Tester exports all the <a href="https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/">Webdriver APIs</a>, so you can use pure webdriver for all your tests by simply importing it
-						<code>`</code>typescript
-						// import the webdriver and the high level browser wrapper
-					import { VSBrowser, Webdriver } from &#39;vscode-extension-tester&#39;;</li>
+					<li><a href="../../wiki/Test-Setup">How to set up the tests</a></li>
+					<li><a href="../../wiki/Writing-Simple-Tests">An example simple test case</a></li>
+					<li><a href="../../wiki/Page-Object-APIs">Page object APIs quick guide</a></li>
 				</ul>
-				<p>// Create a Mocha suite
-					describe(&#39;My Test Suite&#39;, () =&gt; {
-					let browser: VSBrowser;
-				let driver: WebDriver</p>
-				<p>  // initialize the browser and webdriver
-					before(async () =&gt; {
-					browser = VSBrowser.instance;
-					driver = browser.driver;
-				});</p>
-				<p>  // test whatever we want using webdriver
-					it(&#39;My Test Case&#39;, async () =&gt; {
-					const title = await driver.getTitle();
-					assert.equals(title, &#39;whatever&#39;);
-					});
-					});
-				<code>`</code></p>
+				<p>For the whole API reference, check out the <a href="./docs">docs</a> folder.</p>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
