@@ -1,7 +1,8 @@
-import { By } from "selenium-webdriver";
+import { By, Key } from "selenium-webdriver";
 import { BottomBarPanel } from "../../../extester";
 import { TextView, ChannelView } from "./AbstractViews";
 import { AbstractElement } from "../AbstractElement";
+import * as clipboard from 'clipboardy';
 
 /**
  * Output view of the bottom panel
@@ -30,6 +31,26 @@ export class TerminalView extends ChannelView {
     constructor(panel: BottomBarPanel = new BottomBarPanel()) {
         super(By.id('workbench.panel.terminal'), panel);
         this.actionsLabel = 'Terminal actions';
+    }
+
+    /**
+     * Execute command in the internal terminal
+     * @param command text of the command
+     */
+    async executeCommand(command: string): Promise<void> {
+        const input = await this.findElement(By.className('xterm-helper-textarea'));
+        await input.sendKeys(command, Key.ENTER);
+    }
+    
+    /**
+     * Get all text from the internal terminal
+     * Beware, no formatting.
+     */
+    async getText(): Promise<string> {
+        const menu = await this.openContextMenu();
+        await menu.select('Select All');
+        await (await this.openContextMenu()).select('Copy');
+        return clipboard.readSync();
     }
 
     /**

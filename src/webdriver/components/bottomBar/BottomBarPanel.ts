@@ -55,7 +55,7 @@ export class BottomBarPanel extends AbstractElement {
      * Open the Terminal view in the bottom panel
      */
     async openTerminalView(): Promise<TerminalView> {
-        await this.openTab('Debug Console');
+        await this.openTab('Terminal');
         return new TerminalView(this);
     }
 

@@ -1,11 +1,11 @@
-import { AbstractElement } from "../AbstractElement";
 import { By, until, Key } from 'selenium-webdriver';
 import * as clipboard from 'clipboardy';
+import { ElementWithContexMenu } from "../ElementWithContextMenu";
 
 /**
  * View with channel selector
  */
-export abstract class ChannelView extends AbstractElement {
+export abstract class ChannelView extends ElementWithContexMenu {
     protected actionsLabel!: string;
 
     /**
