@@ -38,13 +38,12 @@
     "@types/mocha": "^5.2.6",
     "@types/node": "^11.9.6",
     "@types/request": "^2.48.1",
-    "mocha": "^6.0.2",
+    "mocha": "^6.1.4",
     "rimraf": "^2.6.3",
     "typedoc": "^0.14.2",
     "typescript": "^3.3.3333"
   },
   "dependencies": {
-    "@microsoft.azure/unpack": "^1.0.19",
     "@types/selenium-webdriver": "^3.0.15",
     "clipboardy": "^2.0.0",
     "commander": "^2.19.0",
@@ -53,6 +52,8 @@
     "node-key-sender": "^1.0.11",
     "request": "^2.88.0",
     "selenium-webdriver": "^3.0.0",
+    "targz": "^1.0.1",
+    "unzip-stream": "^0.3.0",
     "vsce": "^1.57.1"
   },
   "peerDependencies": {

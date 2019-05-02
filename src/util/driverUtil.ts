@@ -3,8 +3,8 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import request = require('request');
-import * as unpack from '@microsoft.azure/unpack';
 import * as child_process from 'child_process';
+import { Unpack } from './unpack';
 
 /**
  * Handles version checks and download of ChromeDriver
@@ -36,7 +36,12 @@ export class DriverUtil {
     async downloadChromeDriver(version: string): Promise<string> {
         const file = path.join(this.downloadFolder, process.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver');
         if (fs.existsSync(file)) {
-            const localVersion = await this.getLocalDriverVersion();
+            let localVersion = '';
+            try {
+                localVersion = await this.getLocalDriverVersion();
+            } catch (err) {
+                // ignore and download
+            }
             if (localVersion.startsWith(version)) {
                 console.log(`ChromeDriver ${version} exists in local cache, skipping download`);
                 return '';
@@ -54,7 +59,7 @@ export class DriverUtil {
         });
 
         console.log(`Unpacking ChromeDriver ${version} into ${this.downloadFolder}`);
-        await unpack.unpack(fs.createReadStream(fileName), this.downloadFolder);
+        await Unpack.unpack(fileName, this.downloadFolder);
         if (process.platform !== 'win32') {
             fs.chmodSync(file, 755);
         }

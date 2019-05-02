@@ -3,9 +3,9 @@
 import request = require("request");
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import * as unpack from '@microsoft.azure/unpack';
 import * as child_process from 'child_process';
 import { VSRunner } from "../suite/runner";
+import { Unpack } from "./unpack";
 
 export enum ReleaseQuality {
     Stable = 'stable',
@@ -93,7 +93,7 @@ export class CodeUtil {
             console.log(`Downloaded VS Code into ${path.join(this.downloadFolder, fileName)}`);
     
             console.log(`Unpacking VS Code into ${this.downloadFolder}`);
-            await unpack.unpack(fs.createReadStream(path.join(this.downloadFolder, fileName)), this.downloadFolder);
+            await Unpack.unpack(path.join(this.downloadFolder, fileName), this.downloadFolder);
             console.log('Success!');
         } else {
             console.log('VS Code exists in local cache, skipping download');
