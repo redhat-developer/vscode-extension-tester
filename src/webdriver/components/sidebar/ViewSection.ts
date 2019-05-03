@@ -144,7 +144,17 @@ export abstract class ViewSection extends AbstractElement {
  * Action button on the header of a view section
  */
 export class ViewPanelAction extends AbstractElement {
+    private label: string;
+
     constructor(label: string, viewPart: ViewSection) {
         super(By.xpath(`.//a[contains(@class, 'action-label') and @role='button' and @title='${label}]'`), viewPart);
+        this.label = label;
+    }
+
+    /**
+     * Get label of the action button
+     */
+    getLabel(): string {
+        return this.label;
     }
 }

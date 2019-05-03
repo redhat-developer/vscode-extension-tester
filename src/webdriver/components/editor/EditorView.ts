@@ -18,7 +18,7 @@ export class EditorView extends AbstractElement {
     async openEditorTab(title: string): Promise<Editor> {
         const tab = await this.getTabByTitle(title);
         await tab.click();
-        return new Editor(this);
+        return new Editor(this, title);
     }
 
     /**
