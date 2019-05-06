@@ -41,7 +41,8 @@ export class VSRunner {
             await new Promise((res) => { setTimeout(res, 2000); });
         });
 
-        this.mocha.suite.afterAll(async () => {
+        this.mocha.suite.afterAll(async function() {
+            this.timeout(15000);
             await browser.quit();
         });
 
