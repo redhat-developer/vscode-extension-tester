@@ -2,3 +2,4 @@ out
 node_modules
 test-resources
 .vscode
+docs
