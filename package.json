@@ -12,7 +12,8 @@
     "extest": "./out/cli.js"
   },
   "scripts": {
-    "build": "rimraf out docs && tsc && chmod a+x ./out/cli.js && typedoc --out docs ./src/",
+    "build": "rimraf out docs && tsc && chmod a+x ./out/cli.js",
+    "doc": "typedoc --out docs ./src/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
