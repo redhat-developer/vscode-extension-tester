@@ -45,7 +45,17 @@ export class ViewTitlePart extends ElementWithContexMenu {
   * Page object representing a button inside the view title part
   */
  export class TitleActionButton extends AbstractElement {
+    private title: string;
+
     constructor(title: string, viewTitle: ViewTitlePart) {
         super(By.xpath(`.//a[@title='${title}']`), viewTitle);
+        this.title = title;
+    }
+
+    /**
+     * Get title of the button
+     */
+    getTitle(): string {
+        return this.title;
     }
  }
