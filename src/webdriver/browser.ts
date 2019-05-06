@@ -65,6 +65,9 @@ export class VSBrowser {
      * Terminates the webdriver/browser
      */
     async quit(): Promise<void> {
+        console.log('Waiting for all webdriver tasks to finish');
+        await new Promise((res) => { setTimeout(res, 2000); });
+        console.log('Shutting down the browser');
         await this._driver.quit();
     }
 }
