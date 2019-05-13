@@ -26,7 +26,7 @@ export class ContentAssist extends Menu {
             const label = await labelDiv.findElement(By.xpath(`./span/span`));
             const text = await label.getText();
 
-            items.push(new ContentAssistItem(text, this));
+            items.push(await new ContentAssistItem(text, this).wait());
         }
         return items;
     }

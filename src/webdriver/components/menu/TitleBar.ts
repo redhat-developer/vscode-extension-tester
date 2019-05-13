@@ -25,7 +25,7 @@ export class TitleBar extends Menu {
         const elements = await this.findElements(By.className('menubar-menu-button'));
 
         for (const element of elements) {
-            items.push(new TitleBarItem(await element.getAttribute('aria-label'), this));
+            items.push(await new TitleBarItem(await element.getAttribute('aria-label'), this).wait());
         }
         return items;
     }

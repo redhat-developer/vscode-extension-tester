@@ -75,7 +75,7 @@ export class Workbench extends AbstractElement {
         const elements = await container.findElements(By.className('monaco-list-row'));
         
         for (const element of elements) {
-            notifications.push(new StandaloneNotification(await element.getAttribute('id')));
+            notifications.push(await new StandaloneNotification(await element.getAttribute('id')).wait());
         }
         return notifications;
     }

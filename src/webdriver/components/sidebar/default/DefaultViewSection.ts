@@ -11,7 +11,7 @@ export class DefaultViewSection extends ViewSection {
         const items: ViewItem[] = [];
         const elements = await this.findElements(By.xpath(`.//div[@class='monaco-list-row']`));
         for (const element of elements) {
-            items.push(new DefaultViewItem(await element.getAttribute('aria-label'), this));
+            items.push(await new DefaultViewItem(await element.getAttribute('aria-label'), this).wait());
         }
         return items;
     }

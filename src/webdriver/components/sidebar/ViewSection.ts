@@ -120,7 +120,7 @@ export abstract class ViewSection extends AbstractElement {
             const elements = await act.findElements(By.xpath(`.//a[@role='button']`));
     
             for (const element of elements) {
-                actions.push(new ViewPanelAction(await element.getAttribute('title'), this));
+                actions.push(await new ViewPanelAction(await element.getAttribute('title'), this).wait());
             }
         }
         return actions;

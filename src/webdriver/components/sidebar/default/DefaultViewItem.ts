@@ -39,7 +39,7 @@ export class DefaultViewItem extends ViewItem {
                 const level1 = +await rows[i].getAttribute('aria-level');
 
                 if (setSize1 === setSize && position >= startPosition && position <= setSize && level1 === level) {
-                    items.push(new DefaultViewItem(await rows[i].getAttribute('aria-label'), <ViewSection>this.enclosingItem));
+                    items.push(await new DefaultViewItem(await rows[i].getAttribute('aria-label'), <ViewSection>this.enclosingItem).wait());
                 }
                 if (items.length >= setSize) {
                     break;

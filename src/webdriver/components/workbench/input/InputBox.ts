@@ -29,7 +29,7 @@ export class InputBox extends Input {
             .findElements(By.className('monaco-list-row'));
         
         for (const element of elements) {
-            picks.push(new QuickPickItem(+await element.getAttribute('data-index'), this));
+            picks.push(await new QuickPickItem(+await element.getAttribute('data-index'), this).wait());
         }
         return picks;
     }

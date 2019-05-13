@@ -21,7 +21,7 @@ export class QuickOpenBox extends Input {
         const elements = await tree.findElements(By.xpath(`.//div[@role='treeitem']`));
         for (const element of elements) {
             const index = +await element.getAttribute('aria-posinset');
-            picks.push(new QuickPickItem(index, this));
+            picks.push(await new QuickPickItem(index, this).wait());
         }
         return picks;
     }

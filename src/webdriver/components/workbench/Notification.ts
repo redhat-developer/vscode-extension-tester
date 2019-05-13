@@ -70,7 +70,7 @@ export abstract class Notification extends ElementWithContexMenu {
             .findElements(By.className('monaco-button'));
 
         for (const button of elements) {
-            buttons.push(new NotificationButton(await button.getAttribute('title'), this));
+            buttons.push(await new NotificationButton(await button.getAttribute('title'), this).wait());
         }
         return buttons;
     }

@@ -37,7 +37,7 @@ export class NotificationsCenter extends AbstractElement {
         for (const element of elements) {
             const not = new CenterNotification(+await element.getAttribute('data-index'));
             if (type === NotificationType.Any || await not.getType() === type) {
-                notifications.push(not);
+                notifications.push(await not.wait());
             }
         }
         return notifications;

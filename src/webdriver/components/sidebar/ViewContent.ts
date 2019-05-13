@@ -54,7 +54,7 @@ export class ViewContent extends AbstractElement {
             } catch (err) {
                 section = new CustomViewSection(title, this);
             }
-            sections.push(section);
+            sections.push(await section.wait());
         }
         return sections;
     }

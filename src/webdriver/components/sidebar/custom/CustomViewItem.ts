@@ -41,7 +41,7 @@ export class CustomViewItem extends ViewItem {
                     break;
                 }
                 const label = await rows[i].findElement(By.className('monaco-highlighted-label')).getText();
-                items.push(new CustomViewItem(label, <ViewSection>this.enclosingItem));
+                items.push(await new CustomViewItem(label, <ViewSection>this.enclosingItem).wait());
             }
         }
         return items;

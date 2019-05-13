@@ -26,7 +26,7 @@ export class ContextMenu extends Menu {
             const klass = await element.getAttribute('class');
             if (klass.indexOf('disabled') < 0) {
                 const labelItem = await element.findElement(By.className('action-label'));
-                items.push(new ContextMenuItem(await labelItem.getAttribute('aria-label'), this));
+                items.push(await new ContextMenuItem(await labelItem.getAttribute('aria-label'), this).wait());
             }
         }
         return items;

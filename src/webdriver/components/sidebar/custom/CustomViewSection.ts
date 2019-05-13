@@ -13,7 +13,7 @@ export class CustomViewSection extends ViewSection {
         const elements = await this.findElements(By.xpath(`.//div[@class='monaco-tree-row']`));
         for (const element of elements) {
             const label = await element.findElement(By.className('monaco-highlighted-label')).getText();
-            items.push(new CustomViewItem(label, this));
+            items.push(await new CustomViewItem(label, this).wait());
         }
         return items;
     }

@@ -27,7 +27,7 @@ export class ViewTitlePart extends ElementWithContexMenu {
         const elements = await this.findElements(By.className(`action-label`));
         for (const element of elements) {
             const title = await element.getAttribute('title');
-            actions.push(new TitleActionButton(title, this));
+            actions.push(await new TitleActionButton(title, this).wait());
         }
         return actions;
     }

@@ -18,7 +18,7 @@ export class ActivityBar extends ElementWithContexMenu {
         const views: ViewControl[] = [];
         const viewContainer = await this.findElement(By.xpath(`.//ul[@aria-label='Active View Switcher']`));
         for(const element of await viewContainer.findElements(By.className('action-item'))) {
-            views.push(new ViewControl(await element.getAttribute('aria-label'), this));
+            views.push(await new ViewControl(await element.getAttribute('aria-label'), this).wait());
         }
         return views;
     }
@@ -40,7 +40,7 @@ export class ActivityBar extends ElementWithContexMenu {
         const actions: ActionsControl[] = [];
         const actionContainer = await this.findElement(By.xpath(`.//ul[@aria-label='Global Actions']`));
         for(const element of await actionContainer.findElements(By.className('action-item'))) {
-            actions.push(new ActionsControl(await element.getAttribute('aria-label'), this));
+            actions.push(await new ActionsControl(await element.getAttribute('aria-label'), this).wait());
         }
         return actions;
     }
