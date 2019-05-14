@@ -9,7 +9,7 @@ import { DefaultViewItem } from "./DefaultViewItem";
 export class DefaultViewSection extends ViewSection {
     async getVisibleItems(): Promise<ViewItem[]> {
         const items: ViewItem[] = [];
-        const elements = await this.findElements(By.xpath(`.//div[@class='monaco-list-row']`));
+        const elements = await this.findElements(By.className('monaco-list-row'));
         for (const element of elements) {
             items.push(await new DefaultViewItem(await element.getAttribute('aria-label'), this).wait());
         }

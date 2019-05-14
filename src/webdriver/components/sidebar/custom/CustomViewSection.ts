@@ -10,7 +10,7 @@ export class CustomViewSection extends ViewSection {
 
     async getVisibleItems(): Promise<ViewItem[]> {
         const items: ViewItem[] = [];
-        const elements = await this.findElements(By.xpath(`.//div[@class='monaco-tree-row']`));
+        const elements = await this.findElements(By.className('monaco-tree-row'));
         for (const element of elements) {
             const label = await element.findElement(By.className('monaco-highlighted-label')).getText();
             items.push(await new CustomViewItem(label, this).wait());
