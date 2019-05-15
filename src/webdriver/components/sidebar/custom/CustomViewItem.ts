@@ -21,39 +21,40 @@ export class CustomViewItem extends ViewItem {
         return klass.indexOf('expanded') > -1;
     }
 
-    async select(): Promise<ViewItem[]> {
-        await this.click();
+    async getChildren(): Promise<ViewItem[]> {
         const items: ViewItem[] = [];
-
-        if (await this.isExpanded()) {
-            const rows = await this.enclosingItem.findElements(By.className('monaco-tree-row'));
-            const nextRowIndex = await this.findNextRow(rows);
-            const nextRow = rows[nextRowIndex];
-            const level = +await nextRow.getAttribute('aria-level');
-
-            for (let i = nextRowIndex; i < rows.length; i++) {
-                const level1 = +await rows[i].getAttribute('aria-level');
-
-                if (level1 > level) {
-                    continue;
-                }
-                if (level1 < level) {
-                    break;
-                }
-                const label = await rows[i].findElement(By.className('monaco-highlighted-label')).getText();
-                items.push(await new CustomViewItem(label, <ViewSection>this.enclosingItem).wait());
-            }
+        if (!await this.isExpanded() && this.hasChildren()) {
+            await this.click();
         }
+        const rows = await this.enclosingItem.findElements(By.className('monaco-tree-row'));
+        const baseIndex = await this.findRowIndex(rows);
+        const baseLevel = +await this.getAttribute('aria-level');
+
+        for (let i = baseIndex; i < rows.length; i++) {
+            if (i === baseIndex) { continue; }
+            const level = +await rows[i].getAttribute('aria-level');
+
+            if (level > baseLevel + 1) { continue; }
+            if (level <= baseLevel) { break; }
+
+            const label = await rows[i].findElement(By.className('monaco-highlighted-label')).getText();
+            items.push(await new CustomViewItem(label, <ViewSection>this.enclosingItem).wait());
+        }
+
         return items;
     }
 
-    private async findNextRow(rows: WebElement[]): Promise<number> {
+    async select(): Promise<void> {
+        await this.click();
+    }
+
+    private async findRowIndex(rows: WebElement[]): Promise<number> {
         for (let i = 0; i < rows.length; i++) {
             const label = await rows[i].findElement(By.className('monaco-highlighted-label')).getText();
             if (label === this.label) {
-                return i + 1;
+                return i;
             }
         }
-        throw new Error('No other row found');
+        throw new Error(`Failed to locate row ${this.getLabel()}`);
     }
 }

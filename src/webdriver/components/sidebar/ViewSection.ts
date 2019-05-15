@@ -91,10 +91,7 @@ export abstract class ViewSection extends AbstractElement {
             if (!currentItem) {
                 throw new Error(`Item ${path[i]} not found`);
             }
-            if (await currentItem.hasChildren() && await currentItem.isExpanded()) {
-                await currentItem.collapse();
-            }
-            items = await currentItem.select();
+            items = await currentItem.getChildren();
             if (items.length < 1) {
                 return items;
             }

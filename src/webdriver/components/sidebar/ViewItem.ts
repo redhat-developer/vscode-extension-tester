@@ -24,11 +24,16 @@ export abstract class ViewItem extends ElementWithContexMenu {
     abstract async isExpanded(): Promise<boolean>
 
     /**
-     * Select the item in the view and returns all child items if it ends up expanded.
+     * Select the item in the view.
      * Note that selecting the item will toggle its expand state.
+     */
+    abstract async select(): Promise<void>
+
+    /**
+     * Find children of an item, will try to expand the item in the process
      * @returns an array of ViewItems, empty array if item has no children
      */
-    abstract async select(): Promise<ViewItem[]>
+    abstract async getChildren(): Promise<ViewItem[]>
 
     /**
      * Collapse the item if expanded

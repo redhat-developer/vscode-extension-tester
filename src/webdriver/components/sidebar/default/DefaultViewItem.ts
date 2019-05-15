@@ -21,41 +21,41 @@ export class DefaultViewItem extends ViewItem {
         return twistieClass.indexOf('collapsed') < 0;
     }
 
-    async select(): Promise<ViewItem[]> {
-        await this.click();
+    async getChildren(): Promise<ViewItem[]>{
         const items: ViewItem[] = [];
-
-        if (await this.getAttribute('aria-expanded') === 'true') {
-            const rows = await this.enclosingItem.findElements(By.className('monaco-list-row'));
-            const nextRowIndex = await this.findNextRow(rows);
-            const nextRow = rows[nextRowIndex];
-            const setSize = +await nextRow.getAttribute('aria-setsize');
-            const startPosition = +await nextRow.getAttribute('aria-posinset');
-            const level = +await nextRow.getAttribute('aria-level');
-
-            for (let i = nextRowIndex; i < rows.length; i++) {
-                const setSize1 = +await rows[i].getAttribute('aria-setsize');
-                const position = +await rows[i].getAttribute('aria-posinset');
-                const level1 = +await rows[i].getAttribute('aria-level');
-
-                if (setSize1 === setSize && position >= startPosition && position <= setSize && level1 === level) {
-                    items.push(await new DefaultViewItem(await rows[i].getAttribute('aria-label'), <ViewSection>this.enclosingItem).wait());
-                }
-                if (items.length >= setSize) {
-                    break;
-                }
-            }
+        if (!await this.isExpanded() && this.hasChildren()) {
+            await this.click();
         }
+
+        const rows = await this.enclosingItem.findElements(By.className('monaco-list-row'));
+        const baseIndex = await this.findRowIndex(rows);
+        const baseLevel = +await this.getAttribute('aria-level');
+
+        for (let i = baseIndex; i < rows.length; i++) {
+            if (i === baseIndex) { continue; }
+            const level = +await rows[i].getAttribute('aria-level');
+
+            if (level > baseLevel + 1) { continue; }
+            if (level <= baseLevel) { break; }
+
+            const label = await rows[i].getAttribute('aria-label');
+            items.push(await new DefaultViewItem(label, <ViewSection>this.enclosingItem).wait());
+        }
+
         return items;
     }
 
-    private async findNextRow(rows: WebElement[]): Promise<number> {
+    async select(): Promise<void> {
+        await this.click();
+    }
+
+    private async findRowIndex(rows: WebElement[]): Promise<number> {
         for (let i = 0; i < rows.length; i++) {
             const label = await rows[i].getAttribute('aria-label');
             if (label === this.label) {
-                return i + 1;
+                return i;
             }
         }
-        throw new Error('No other row found');
+        throw new Error(`Failed to locate row ${this.getLabel()}`);
     }
 }
