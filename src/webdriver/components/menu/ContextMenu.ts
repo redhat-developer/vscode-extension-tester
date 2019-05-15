@@ -1,5 +1,5 @@
 import { Menu, MenuItem } from "../../../extester";
-import { By, WebElement } from "selenium-webdriver";
+import { By, WebElement, Key, until } from "selenium-webdriver";
 
 /**
  * Object representing a context menu
@@ -31,6 +31,14 @@ export class ContextMenu extends Menu {
         }
         return items;
     }
+
+    /**
+     * Close the context menu
+     */
+    async close(): Promise<void> {
+        await this.getDriver().actions().sendKeys(Key.ESCAPE).perform();
+        await this.getDriver().wait(until.elementIsNotVisible(this));
+    }
 }
 
 /**
@@ -38,7 +46,7 @@ export class ContextMenu extends Menu {
  */
 export class ContextMenuItem extends MenuItem {
     constructor(label: string, parent: Menu) {
-        super(By.xpath(`.//li[a/span/text()='${label}']`), parent);
+        super(By.xpath(`.//li[a/span/@aria-label='${label}']`), parent);
         this.parent = parent;
         this.label = label;
     }
