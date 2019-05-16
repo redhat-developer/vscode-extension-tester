@@ -33,4 +33,12 @@ export class InputBox extends Input {
         }
         return picks;
     }
+
+    /**
+     * Find whether the input is showing an error
+     */
+    async hasError(): Promise<boolean> {
+        const klass = await this.findElement(By.className('monaco-inputbox')).getAttribute('class');
+        return klass.indexOf('error') > -1;
+    }
 }
