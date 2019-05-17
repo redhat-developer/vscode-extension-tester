@@ -1,6 +1,6 @@
 import { AbstractElement } from "../AbstractElement";
 import { ViewContent, ViewItem, waitForAttributeValue } from "../../../extester";
-import { By } from "selenium-webdriver";
+import { By, until } from "selenium-webdriver";
 
 /**
  * Page object representing a collapsible content section of the side bar view
@@ -144,7 +144,7 @@ export class ViewPanelAction extends AbstractElement {
     private label: string;
 
     constructor(label: string, viewPart: ViewSection) {
-        super(By.xpath(`.//a[contains(@class, 'action-label') and @role='button' and @title='${label}]'`), viewPart);
+        super(By.xpath(`.//a[contains(@class, 'action-label') and @role='button' and @title='${label}']`), viewPart);
         this.label = label;
     }
 
@@ -153,5 +153,10 @@ export class ViewPanelAction extends AbstractElement {
      */
     getLabel(): string {
         return this.label;
+    }
+
+    async wait(timeout: number = 1000): Promise<this> {
+        await this.getDriver().wait(until.elementIsEnabled(this), timeout);
+        return this;
     }
 }

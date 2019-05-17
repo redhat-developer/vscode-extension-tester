@@ -35,10 +35,10 @@
   "homepage": "https://github.com/jrichter1/vscode-extension-tester#readme",
   "devDependencies": {
     "@types/clipboardy": "^1.1.0",
-    "@types/fs-extra": "^5.0.5",
+    "@types/fs-extra": "^5.1.0",
     "@types/glob": "^7.1.1",
     "@types/mocha": "^5.2.6",
-    "@types/node": "^11.9.6",
+    "@types/node": "^11.13.10",
     "@types/request": "^2.48.1",
     "mocha": "^6.1.4",
     "rimraf": "^2.6.3",
@@ -50,13 +50,13 @@
     "clipboardy": "^2.0.0",
     "commander": "^2.19.0",
     "fs-extra": "^7.0.1",
-    "glob": "^7.1.3",
+    "glob": "^7.1.4",
     "node-key-sender": "^1.0.11",
     "request": "^2.88.0",
     "selenium-webdriver": "^3.0.0",
     "targz": "^1.0.1",
     "unzip-stream": "^0.3.0",
-    "vsce": "^1.57.1"
+    "vsce": "^1.61.0"
   },
   "peerDependencies": {
     "mocha": ">=5.2.0"

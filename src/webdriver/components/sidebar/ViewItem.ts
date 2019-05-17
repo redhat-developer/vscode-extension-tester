@@ -36,6 +36,18 @@ export abstract class ViewItem extends ElementWithContexMenu {
     abstract async getChildren(): Promise<ViewItem[]>
 
     /**
+     * Find a child item with the given name
+     * @returns ViewItem object if the child item exists, undefined otherwise
+     */
+    async findChildItem(name: string): Promise<ViewItem | undefined> {
+        const children = await this.getChildren();
+        const result = children.find(item => {
+            return item.getLabel() === name;
+        });
+        return result;
+    }
+
+    /**
      * Collapse the item if expanded
      */
     async collapse(): Promise<void> {

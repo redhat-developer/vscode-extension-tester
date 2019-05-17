@@ -22,7 +22,7 @@ export class ViewTitlePart extends ElementWithContexMenu {
      * Finds action buttons inside the view title part
      * @returns array of TitleActionButton objects
      */
-    async getActionButtons(): Promise<TitleActionButton[]> {
+    async getActions(): Promise<TitleActionButton[]> {
         const actions: TitleActionButton[] = [];
         const elements = await this.findElements(By.className(`action-label`));
         for (const element of elements) {
@@ -36,7 +36,7 @@ export class ViewTitlePart extends ElementWithContexMenu {
      * Finds an action button by title
      * @param title title of the button to search for
      */
-    async getActionButton(title: string): Promise<TitleActionButton> {
+    async getAction(title: string): Promise<TitleActionButton> {
         return new TitleActionButton(title, this);
     }
  }
