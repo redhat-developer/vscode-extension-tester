@@ -41,4 +41,12 @@ export class InputBox extends Input {
         const klass = await this.findElement(By.className('monaco-inputbox')).getAttribute('class');
         return klass.indexOf('error') > -1;
     }
+
+    /**
+     * Check if the input field is masked (input type password)
+     */
+    async isPassword(): Promise<boolean> {
+        const input = await this.findElement(By.xpath(`.//input[@class='input']`));
+        return await input.getAttribute('type') === 'password';
+    }
 }
