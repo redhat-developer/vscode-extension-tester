@@ -42,7 +42,7 @@ export * from './webdriver/components/workbench/Workbench';
 
 export * from './webdriver/native/dialogHandler';
 export * from './webdriver/native/nativeDialog';
-export { OpenFolderDialog } from './webdriver/native/openFolderDialog';
+export { OpenDialog } from './webdriver/native/openDialog';
 
 export * from './webdriver/conditions/WaitForAttribute';
 

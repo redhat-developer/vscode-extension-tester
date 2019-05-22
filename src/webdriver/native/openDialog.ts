@@ -6,22 +6,22 @@ const robot = require('node-key-sender');
 /**
  * General open folder native dialog
  */
-export interface OpenFolderDialog extends NativeDialog {
+export interface OpenDialog extends NativeDialog {
     /**
      * Enters the given folder path into the dialog selection
      * @param path path to the folder to select
      */
-    selectFolder(path: string): void | Promise<void>;
+    selectPath(path: string): void | Promise<void>;
 }
 
 /**
  * Linux implementation of the folder dialog
  */
-export class LinuxFolderDialog implements OpenFolderDialog {
-    async selectFolder(path: string): Promise<void> {
+export class LinuxOpenDialog implements OpenDialog {
+    async selectPath(path: string): Promise<void> {
         const absolutePath = pathj.resolve(path);
-        if (!fs.existsSync(absolutePath) || !fs.statSync(absolutePath).isDirectory()) {
-            throw new Error('The selected path is not an existing directory');
+        if (!fs.existsSync(absolutePath)) {
+            throw new Error('The selected path does not exist');
         }
         await robot.sendKey('down');
         await robot.sendCombination(['control', 'l']);
@@ -41,8 +41,8 @@ export class LinuxFolderDialog implements OpenFolderDialog {
 /**
  * Windows implementation of the folder dialog
  */
-export class WindowsFolderDialog implements OpenFolderDialog {
-    async selectFolder(path: string): Promise<void> {
+export class WindowsOpenDialog implements OpenDialog {
+    async selectPath(path: string): Promise<void> {
         const absolutePath = pathj.resolve(path);
         if (!fs.existsSync(absolutePath) || !fs.statSync(absolutePath).isDirectory()) {
             throw new Error('The selected path is not an existing directory');

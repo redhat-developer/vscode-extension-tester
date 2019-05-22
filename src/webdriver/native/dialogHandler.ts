@@ -1,4 +1,4 @@
-import { OpenFolderDialog, LinuxFolderDialog, WindowsFolderDialog } from "./openFolderDialog";
+import { OpenDialog, LinuxOpenDialog, WindowsOpenDialog } from "./openDialog";
 
 /**
  * Handles native dialogs for different platforms
@@ -9,19 +9,19 @@ export class DialogHandler {
      * Get the appropriate native dialog for opening folders.
      * Returns platform specific dialog object.
      */
-    static async getFolderDialog(): Promise<OpenFolderDialog> {
+    static async getOpenDialog(): Promise<OpenDialog> {
         await new Promise((res) => { setTimeout(res, 1000); });
         switch (process.platform) {
             case 'win32': {
-                return new WindowsFolderDialog();
+                return new WindowsOpenDialog();
             }
             case 'darwin': {
                 break;
             }
             case 'linux': {
-                return new LinuxFolderDialog();
+                return new LinuxOpenDialog();
             }
         }
-        return new LinuxFolderDialog();
+        return new LinuxOpenDialog();
     }
 }
