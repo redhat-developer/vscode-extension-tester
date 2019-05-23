@@ -10,7 +10,7 @@ export class DialogHandler {
      * Returns platform specific dialog object.
      */
     static async getOpenDialog(): Promise<OpenDialog> {
-        await new Promise((res) => { setTimeout(res, 1000); });
+        await new Promise((res) => { setTimeout(res, 4000); });
         switch (process.platform) {
             case 'win32': {
                 return new WindowsOpenDialog();
