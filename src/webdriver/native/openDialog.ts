@@ -23,6 +23,7 @@ export class LinuxOpenDialog implements OpenDialog {
         if (!fs.existsSync(absolutePath)) {
             throw new Error('The selected path does not exist');
         }
+        await robot.sendKey('up');
         await robot.sendCombination(['control', 'l']);
         await new Promise((res) => { setTimeout(res, 1000); });
         await robot.sendText(absolutePath);
