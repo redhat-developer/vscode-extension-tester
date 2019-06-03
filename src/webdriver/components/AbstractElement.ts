@@ -47,7 +47,7 @@ export abstract class AbstractElement extends WebElement {
      * @param timeout custom timeout for the wait
      * @returns thenable self reference
      */
-    async wait(timeout: number = 1000): Promise<this> {
+    async wait(timeout: number = 5000): Promise<this> {
         await this.getDriver().wait(until.elementIsVisible(this), timeout);
         return this;
     }
