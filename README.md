@@ -23,5 +23,8 @@ Make sure to check out the [wiki](../../wiki) for detailed instructions.
  - [An example simple test case](../../wiki/Writing-Simple-Tests)
  - [Page object APIs quick guide](../../wiki/Page-Object-APIs)
  
-For the whole API reference, check out the [docs](./docs) folder.
-
+For the whole API reference, you can generate typedoc by running
+```
+npm run doc
+```
+The results can then be found in the 'docs' directory.
