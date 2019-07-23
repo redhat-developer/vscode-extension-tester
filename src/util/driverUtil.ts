@@ -109,9 +109,9 @@ export class DriverUtil {
 
     // older chromedriver versions do not match chrome versions
     private readonly chromiumVersionMap: VersionMap = {
-        69: '2.41',
-        68: '2.40',
-        67: '2.39',
+        69: '2.38',
+        68: '2.38',
+        67: '2.38',
         66: '2.38',
         65: '2.37',
         64: '2.36',
