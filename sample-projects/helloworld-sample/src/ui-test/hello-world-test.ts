@@ -34,10 +34,14 @@ describe('Hello World Example UI Tests', () => {
  * Wait conditions resolve when the first truthy value is returned.
  * In this case we choose to return the first notification object we find,
  * or undefined if none is found.
+ * Also filter out the notifications where Microsoft is trying to tell us something.
  */
 async function notificationExists(): Promise<Notification | undefined> {
     const notifications = await new Workbench().getNotifications();
-    if (notifications.length > 0) {
-        return notifications[0];
+    for (const notification of notifications) {
+        const message = await notification.getMessage();
+        if (message.indexOf('Microsoft') < 0) {
+            return notification;
+        }
     }
 }
