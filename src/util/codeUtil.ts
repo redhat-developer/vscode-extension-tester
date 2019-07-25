@@ -170,7 +170,7 @@ export class CodeUtil {
      * Check what VS Code version is present in the testing folder
      */
     private getExistingCodeVersion(): Promise<string> {
-        const command = [this.cliEnv, this.executablePath, this.cliPath, '-v'].join(' ');
+        const command = [this.cliEnv, `"${this.executablePath}"`, `"${this.cliPath}"`, '-v'].join(' ');
         return new Promise<string>((resolve, reject) => {
             child_process.exec(command, (err, stdout) => {
                 if (err) return reject(err);

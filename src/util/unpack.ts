@@ -1,4 +1,6 @@
 import * as fs from 'fs-extra';
+import { exec } from 'child_process';
+import * as path from 'path';
 const targz = require('targz');
 const unzip = require('unzip-stream');
 
@@ -14,10 +16,21 @@ export class Unpack {
                 });
             }
             else if (input.toString().endsWith('.zip')) {
-                fs.createReadStream(input)
-                    .pipe(unzip.Extract({ path: target }))
-                    .on('error', reject)
-                    .on('close', resolve);
+                if (process.platform === 'darwin') {
+                    fs.mkdirpSync(target.toString());
+                    exec(`cd ${target} && unzip ${path.basename(input.toString())}`, (err) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve();
+                        }
+                    });
+                } else {
+                    fs.createReadStream(input)
+                        .pipe(unzip.Extract({ path: target }))
+                        .on('error', reject)
+                        .on('close', resolve);
+                }
             }
             else {
                 reject(`Unsupported extension for '${input}'`);

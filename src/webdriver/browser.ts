@@ -20,12 +20,14 @@ export class VSBrowser {
     async start(codePath: string): Promise<VSBrowser> {
         const storagePath = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.resolve('test-resources');
         const userSettings = path.join(storagePath, 'settings', 'User');
-        if (!fs.existsSync(userSettings)) {
+        if (fs.existsSync(userSettings)) {
             fs.removeSync(path.join(storagePath, 'settings'));
         }
         const defaultSettings = { 
             "window.titleBarStyle": "custom",
-            "workbench.editor.enablePreview": false
+            "workbench.editor.enablePreview": false,
+            "window.restoreFullscreen": true,
+            "window.newWindowDimensions": "maximized"
         };
         fs.mkdirpSync(userSettings);
         fs.writeJSONSync(path.join(userSettings, 'settings.json'), defaultSettings);
