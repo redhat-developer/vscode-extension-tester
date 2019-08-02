@@ -28,7 +28,7 @@
 		"compile": "tsc -p ./",
 		"lint": "tslint -p ./",
 		"watch": "tsc -watch -p ./",
-		"ui-test": "npm run compile && extest setup-and-run out/ui-test/*.js"
+		"ui-test": "npm run compile && extest setup-and-run out/ui-test/*.js -o settings.json"
 	},
 	"devDependencies": {
 		"@types/chai": "^4.1.7",

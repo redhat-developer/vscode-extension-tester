@@ -125,8 +125,11 @@ export class CodeUtil {
 
     /**
      * Run tests in your test environment using mocha
+     * 
+     * @param testFilesPattern glob pattern of test files to run
+     * @param settings path to custom settings json file
      */
-    runTests(testFilesPattern: string): void {
+    runTests(testFilesPattern: string, settings: string = ''): void {
         // add chromedriver to process' path
         const finalEnv: NodeJS.ProcessEnv = {};
         Object.assign(finalEnv, process.env);
@@ -135,7 +138,7 @@ export class CodeUtil {
     
         process.env = finalEnv;
         process.env.TEST_RESOURCES = this.downloadFolder;
-        const runner = new VSRunner(this.executablePath);
+        const runner = new VSRunner(this.executablePath, this.parseSettings(settings));
         runner.runTests(testFilesPattern);
     }
 
@@ -213,6 +216,27 @@ export class CodeUtil {
             case 'linux':
                 this.executablePath = path.join(this.codeFolder, 'code');
                 break;
+        }
+    }
+
+    /**
+     * Parse JSON from a file
+     * @param path path to json file
+     */
+    private parseSettings(path: string): Object {
+        if (!path) {
+            return {};
+        }
+        let text = '';
+        try {
+            text = fs.readFileSync(path).toString();
+        } catch (err) {
+            throw new Error(`Unable to read settings from ${path}:\n ${err}`);
+        }
+        try {
+            return JSON.parse(text);
+        } catch (err) {
+            throw new Error(`Error parsing the settings file from ${path}:\n ${err}`);
         }
     }
 }

@@ -6,10 +6,12 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 
 export class VSBrowser {
+    private customSettings: Object;
     private _driver!: WebDriver;
     private static _instance: VSBrowser;
 
-    constructor() {
+    constructor(customSettings: Object = {}) {
+        this.customSettings = customSettings;
         VSBrowser._instance = this;
     };
 
@@ -23,15 +25,20 @@ export class VSBrowser {
         if (fs.existsSync(userSettings)) {
             fs.removeSync(path.join(storagePath, 'settings'));
         }
-        const defaultSettings = { 
+        let defaultSettings = { 
             "window.titleBarStyle": "custom",
             "workbench.editor.enablePreview": false,
             "window.restoreFullscreen": true,
             "window.newWindowDimensions": "maximized"
         };
+        if (Object.keys(this.customSettings).length > 0) {
+            console.log('Detected user defined code settings');
+            defaultSettings = { ...defaultSettings, ...this.customSettings };
+        }
+
         fs.mkdirpSync(userSettings);
         fs.writeJSONSync(path.join(userSettings, 'settings.json'), defaultSettings);
-        console.log(`Writing default settings to ${path.join(userSettings, 'settings.json')}`);
+        console.log(`Writing code settings to ${path.join(userSettings, 'settings.json')}`);
 
         this._driver = await new Builder()
             .forBrowser('chrome')

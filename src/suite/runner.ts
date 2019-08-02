@@ -11,10 +11,12 @@ import * as glob from 'glob';
 export class VSRunner {
     private mocha: Mocha;
     private chromeBin: string;
+    private customSettings: Object;
 
-    constructor(bin: string) {
+    constructor(bin: string, customSettings: Object = {}) {
         this.mocha = new Mocha();
         this.chromeBin = bin;
+        this.customSettings = customSettings;
     }
 
     /**
@@ -23,7 +25,7 @@ export class VSRunner {
      */
     runTests(testFilesPattern: string): void {
         let self = this;
-        let browser: VSBrowser = new VSBrowser();
+        let browser: VSBrowser = new VSBrowser(this.customSettings);
         let testFiles = glob.sync(testFilesPattern);
 
         testFiles.forEach((file) => {
