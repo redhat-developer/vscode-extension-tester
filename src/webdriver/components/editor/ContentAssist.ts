@@ -1,11 +1,11 @@
-import { Editor, Menu, MenuItem } from "../../../extester";
+import { TextEditor, Menu, MenuItem } from "../../../extester";
 import { By } from 'selenium-webdriver';
 
 /**
  * Page object representing the content assistant
  */
 export class ContentAssist extends Menu {
-    constructor(editor: Editor) {
+    constructor(editor: TextEditor) {
         super(By.className('suggest-widget'), editor);
     }
 

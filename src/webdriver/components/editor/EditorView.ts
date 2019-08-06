@@ -1,7 +1,8 @@
 import { AbstractElement } from "../AbstractElement";
-import { Editor } from "../../../extester";
+import { TextEditor } from "../../../extester";
 import { By, WebElement } from "selenium-webdriver";
 import * as path from 'path';
+import { Editor } from "./Editor";
 
 /**
  * View handling the open editors
@@ -15,10 +16,10 @@ export class EditorView extends AbstractElement {
      * Switch to an editor tab with the given title
      * @param title title of the tab
      */
-    async openEditorTab(title: string): Promise<Editor> {
+    async openEditor(title: string): Promise<Editor> {
         const tab = await this.getTabByTitle(title);
         await tab.click();
-        return new Editor(this, title);
+        return new TextEditor(this, title);
     }
 
     /**

@@ -1,5 +1,5 @@
 import { AbstractElement } from "../AbstractElement";
-import { By, WebElement, Key } from "selenium-webdriver";
+import { By, WebElement, Key, until } from "selenium-webdriver";
 import { TitleBar } from "../menu/TitleBar";
 import { SideBarView } from "../sidebar/SideBarView";
 import { ActivityBar } from "../activityBar/ActivityBar";
@@ -10,6 +10,7 @@ import { Notification, StandaloneNotification } from "./Notification";
 import { NotificationsCenter } from "./NotificationsCenter";
 import { QuickOpenBox } from "./input/QuickOpenBox";
 import { Input } from "./input/Input";
+import { SettingsEditor } from "../editor/SettingsEditor";
 
 /**
  * Handler for general workbench related actions
@@ -85,6 +86,17 @@ export class Workbench extends AbstractElement {
      */
     openNotificationsCenter(): Promise<NotificationsCenter> {
         return new StatusBar().openNotificationsCenter();
+    }
+    
+    /**
+     * Opens the settings editor
+     * 
+     * @returns promise that resolves to a SettingsEditor instance
+     */
+    async openSettings(): Promise<SettingsEditor> {
+        await this.executeCommand('open user settings');
+        await Workbench.driver.wait(until.elementLocated(By.className('editor-instance')));
+        return await new SettingsEditor().wait();
     }
 
     /**
