@@ -90,7 +90,7 @@ export class Workbench extends AbstractElement {
     
     /**
      * Opens the settings editor
-     * 
+     *
      * @returns promise that resolves to a SettingsEditor instance
      */
     async openSettings(): Promise<SettingsEditor> {

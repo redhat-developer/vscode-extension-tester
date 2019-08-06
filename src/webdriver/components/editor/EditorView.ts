@@ -3,6 +3,7 @@ import { TextEditor } from "../../../extester";
 import { By, WebElement } from "selenium-webdriver";
 import * as path from 'path';
 import { Editor } from "./Editor";
+import { SettingsEditor } from "./SettingsEditor";
 
 /**
  * View handling the open editors
@@ -19,7 +20,13 @@ export class EditorView extends AbstractElement {
     async openEditor(title: string): Promise<Editor> {
         const tab = await this.getTabByTitle(title);
         await tab.click();
-        return new TextEditor(this, title);
+
+        try {
+            await this.findElement(By.id('workbench.editors.files.textFileEditor'));
+            return new TextEditor(this, title);
+        } catch (err) {
+            return new SettingsEditor(this);
+        }
     }
 
     /**
@@ -29,6 +36,7 @@ export class EditorView extends AbstractElement {
     async closeEditor(title: string): Promise<void> {
         const tab = await this.getTabByTitle(title);
         const closeButton = await tab.findElement(By.className('tab-close'));
+        await EditorView.driver.actions().mouseMove(tab).perform();
         await closeButton.click();
     }
 
@@ -38,6 +46,7 @@ export class EditorView extends AbstractElement {
     async closeAllEditors(): Promise<void> {
         const tabs = await this.findElements(By.className('tab'));
         for (let i = 0; i < tabs.length; i++) {
+            await EditorView.driver.actions().mouseMove(tabs[i]).perform();
             await (<WebElement>tabs.pop()).findElement(By.className('tab-close')).click();
         }
     }
