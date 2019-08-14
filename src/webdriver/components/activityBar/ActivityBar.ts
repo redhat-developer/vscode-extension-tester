@@ -38,7 +38,7 @@ export class ActivityBar extends ElementWithContexMenu {
      */
     async getGlobalActions(): Promise<ActionsControl[]> {
         const actions: ActionsControl[] = [];
-        const actionContainer = await this.findElement(By.xpath(`.//ul[@aria-label='Global Actions']`));
+        const actionContainer = await this.findElement(By.className('actions-container'));
         for(const element of await actionContainer.findElements(By.className('action-item'))) {
             actions.push(await new ActionsControl(await element.getAttribute('aria-label'), this).wait());
         }
