@@ -21,6 +21,7 @@ export class ViewControl extends ElementWithContexMenu {
         const klass = await this.getAttribute('class');
         if (klass.indexOf('checked') < 0) {
             await this.click();
+            await ViewControl.driver.sleep(500);
         }
         return new SideBarView().wait();
     }
