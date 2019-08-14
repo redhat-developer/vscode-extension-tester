@@ -30,7 +30,7 @@ export class StatusBar extends AbstractElement {
      * Only works with an open editor
      */
     async openLanguageSelection(): Promise<void> {
-        await this.findElement(By.className('editor-status-mode')).click();
+        await this.findElement(By.id('status.editor.mode')).click();
     }
 
     /**
@@ -38,7 +38,7 @@ export class StatusBar extends AbstractElement {
      * Only works with an open editor
      */
     async getCurrentLanguage(): Promise<string> {
-        return await this.findElement(By.className('editor-status-mode')).getText();
+        return await this.findElement(By.id('status.editor.mode')).getText();
     }
 
     /**
@@ -46,7 +46,7 @@ export class StatusBar extends AbstractElement {
      * Only works with an open editor
      */
     async openLineEndingSelection(): Promise<void> {
-        await this.findElement(By.className('editor-status-eol')).click();
+        await this.findElement(By.id('status.editor.eol')).click();
     }
 
     /**
@@ -54,7 +54,7 @@ export class StatusBar extends AbstractElement {
      * Only works with an open editor
      */
     async getCurrentLineEnding(): Promise<string> {
-        return await this.findElement(By.className('editor-status-eol')).getText();
+        return await this.findElement(By.id('status.editor.eol')).getText();
     }
 
     /**
@@ -62,7 +62,7 @@ export class StatusBar extends AbstractElement {
      * Only works with an open editor
      */
     async openEncodingSelection(): Promise<void> {
-        await this.findElement(By.className('editor-status-encoding')).click();
+        await this.findElement(By.id('status.editor.encoding')).click();
     }
 
     /**
@@ -70,7 +70,7 @@ export class StatusBar extends AbstractElement {
      * Only works with an open editor
      */
     async getCurrentEncoding(): Promise<string> {
-        return await this.findElement(By.className('editor-status-encoding')).getText();
+        return await this.findElement(By.id('status.editor.encoding')).getText();
     }
 
     /**
@@ -78,7 +78,7 @@ export class StatusBar extends AbstractElement {
      * Only works with an open editor
      */
     async openIndentationSelection(): Promise<void> {
-        await this.findElement(By.className('editor-status-indentation')).click();
+        await this.findElement(By.id('status.editor.indentation')).click();
     }
 
     /**
@@ -86,7 +86,7 @@ export class StatusBar extends AbstractElement {
      * Only works with an open editor
      */
     async getCurrentIndentation(): Promise<string> {
-        return await this.findElement(By.className('editor-status-indentation')).getText();
+        return await this.findElement(By.id('status.editor.indentation')).getText();
     }
 
     /**
@@ -94,7 +94,7 @@ export class StatusBar extends AbstractElement {
      * Only works with an open editor
      */
     async openLineSelection(): Promise<void> {
-        await this.findElement(By.className('editor-status-selection')).click();
+        await this.findElement(By.id('status.editor.selection')).click();
     }
 
     /**
@@ -102,7 +102,7 @@ export class StatusBar extends AbstractElement {
      * Only works with an open editor
      */
     async getCurrentPosition(): Promise<string> {
-        return await this.findElement(By.className('editor-status-selection')).getText();
+        return await this.findElement(By.id('status.editor.selection')).getText();
     }
 
     /**
