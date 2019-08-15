@@ -1,0 +1,19 @@
+sudo: false
+
+language: node_js
+dist: bionic
+services:
+  - xvfb
+
+node_js:
+  - 11
+
+install:
+  - npm install
+  - npm run build
+
+before_script:
+  - cd test/test-project
+
+script:
+  - npm run ui-test
