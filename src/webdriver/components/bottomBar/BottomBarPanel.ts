@@ -32,7 +32,7 @@ export class BottomBarPanel extends AbstractElement {
      */
     async openProblemsView(): Promise<ProblemsView> {
         await this.openTab('Problems');
-        return new ProblemsView(this);
+        return new ProblemsView(this).wait();
     }
 
     /**
@@ -40,7 +40,7 @@ export class BottomBarPanel extends AbstractElement {
      */
     async openOutputView(): Promise<OutputView> {
         await this.openTab('Output');
-        return new OutputView(this);
+        return new OutputView(this).wait();
     }
 
     /**
@@ -48,7 +48,7 @@ export class BottomBarPanel extends AbstractElement {
      */
     async openDebugConsoleView(): Promise<DebugConsoleView> {
         await this.openTab('Debug Console');
-        return new DebugConsoleView(this);
+        return new DebugConsoleView(this).wait();
     }
 
     /**
@@ -56,7 +56,7 @@ export class BottomBarPanel extends AbstractElement {
      */
     async openTerminalView(): Promise<TerminalView> {
         await this.openTab('Terminal');
-        return new TerminalView(this);
+        return new TerminalView(this).wait();
     }
 
     /**
@@ -87,11 +87,11 @@ export class BottomBarPanel extends AbstractElement {
     private async resize(label: string) {
         await this.toggle(true);
         try {
-            const action = await this.findElement(By.className('actions-container'))
-            .findElement(By.xpath(`.//a[@title='${label}']`));
+            const action = await this.findElement(By.className('title-actions'))
+                .findElement(By.xpath(`.//a[@title='${label}']`));
             await action.click();
         } catch (err) {
-            // the panel is already maximized 
+            // the panel is already maximized
         }
     }
 }
