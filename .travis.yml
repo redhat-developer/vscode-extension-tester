@@ -16,4 +16,5 @@ before_script:
   - cd test/test-project
 
 script:
+  - npm install
   - npm run ui-test
