@@ -11,13 +11,20 @@ export abstract class Menu extends AbstractElement {
      * @param name name of the item to search for
      * @returns true if menu has an item with the given name, false otherwise
      */
-    abstract hasItem(name: string): Promise<boolean>;
+    async hasItem(name: string): Promise<boolean> {
+        try {
+            const displayed = (await this.getItem(name)).isDisplayed();
+            return displayed;
+        } catch (err) {
+            return false;
+        }
+    }
 
     /**
      * Return a menu item of a given name
      * @param name name of the item to search for
      */
-    abstract getItem(name: string): MenuItem;
+    abstract getItem(name: string): Promise<MenuItem>;
 
     /**
      * Get all items of a menu
@@ -41,7 +48,8 @@ export abstract class Menu extends AbstractElement {
     async select(...path: string[]): Promise<Menu | void> {
         let parent: Menu = this;
         for (const label of path) {
-            const submenu = await parent.getItem(label).select();
+            const item = await parent.getItem(label);
+            const submenu = await item.select();
             if (submenu) {
                 parent = submenu;
             } else {

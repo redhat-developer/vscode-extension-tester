@@ -9,12 +9,9 @@ export class ContentAssist extends Menu {
         super(By.className('suggest-widget'), editor);
     }
 
-    async hasItem(name: string): Promise<boolean> {
-        return await this.getItem(name).isDisplayed();
-    }
-
-    getItem(name: string): ContentAssistItem {
-        return new ContentAssistItem(name, this);
+    async getItem(name: string): Promise<ContentAssistItem> {
+        await this.findElement(By.xpath(`.//div[contains(@class, 'monaco-list-row') and div/div/div/div/a/span/span/text()='${name}']`));
+        return await new ContentAssistItem(name, this).wait();
     }
 
     async getItems(): Promise<ContentAssistItem[]> {

@@ -11,13 +11,9 @@ export class TitleBar extends Menu {
         super(By.id('workbench.parts.titlebar'), By.className('monaco-workbench'));
     }
 
-    async hasItem(name: string): Promise<boolean> {
-        const displayed = (await this.getItem(name)).isDisplayed();
-        return displayed;
-    }
-
-    getItem(name: string): TitleBarItem {
-        return new TitleBarItem(name, this);
+    async getItem(name: string): Promise<TitleBarItem> {
+        await this.findElement(By.xpath(`.//div[@aria-label='${name}']`));
+        return await new TitleBarItem(name, this).wait();
     }
 
     async getItems(): Promise<TitleBarItem[]> {
@@ -25,7 +21,9 @@ export class TitleBar extends Menu {
         const elements = await this.findElements(By.className('menubar-menu-button'));
 
         for (const element of elements) {
-            items.push(await new TitleBarItem(await element.getAttribute('aria-label'), this).wait());
+            if (await element.isDisplayed()) {
+                items.push(await new TitleBarItem(await element.getAttribute('aria-label'), this).wait());
+            }
         }
         return items;
     }

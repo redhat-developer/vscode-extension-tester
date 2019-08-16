@@ -9,13 +9,9 @@ export class ContextMenu extends Menu {
         super(By.className('monaco-menu-container'), containingElement);
     }
 
-    async hasItem(name: string): Promise<boolean> {
-        const displayed = (await this.getItem(name)).isDisplayed();
-        return displayed;
-    }
-
-    getItem(name: string): ContextMenuItem {
-        return new ContextMenuItem(name, this);
+    async getItem(name: string): Promise<ContextMenuItem> {
+        await this.findElement(By.xpath(`.//li[a/span/@aria-label='${name}']`));
+        return new ContextMenuItem(name, this).wait();
     }
 
     async getItems(): Promise<ContextMenuItem[]> {
@@ -37,7 +33,13 @@ export class ContextMenu extends Menu {
      */
     async close(): Promise<void> {
         await this.getDriver().actions().sendKeys(Key.ESCAPE).perform();
-        await this.getDriver().wait(until.elementIsNotVisible(this));
+        try {
+            await this.getDriver().wait(until.elementIsNotVisible(this));
+        } catch (err) {
+            if (err.message.indexOf('stale element reference: element is not attached to the page document') < 0) {
+                throw err;
+            }
+        }
     }
 }
 
