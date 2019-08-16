@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { TitleBar, ContextMenu, BottomBarPanel, TitleBarItem } from 'vscode-extension-tester';
+import { TitleBar, ContextMenu } from 'vscode-extension-tester';
 
 describe('ContextMenu', () => {
     let bar: TitleBar;
