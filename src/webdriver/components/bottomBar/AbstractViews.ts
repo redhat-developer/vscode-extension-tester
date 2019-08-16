@@ -57,6 +57,7 @@ export abstract class ChannelView extends ElementWithContexMenu {
                 }
             }
         }
+        throw new Error(`Channel ${name} not found`);
     }
 
     private async getOptions(): Promise<WebElement[]> {

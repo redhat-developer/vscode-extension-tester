@@ -49,7 +49,9 @@ export class TerminalView extends ChannelView {
     async getText(): Promise<string> {
         const menu = await this.openContextMenu();
         await menu.select('Select All');
-        await (await this.openContextMenu()).select('Copy');
+
+        const menu1 = await this.openContextMenu();
+        await menu1.select('Copy');
         return clipboard.readSync();
     }
 

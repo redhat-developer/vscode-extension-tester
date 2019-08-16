@@ -1,6 +1,6 @@
 import { BottomBarPanel } from "../../../extester";
 import { AbstractElement } from "../AbstractElement";
-import { By, Key } from 'selenium-webdriver';
+import { By } from 'selenium-webdriver';
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
 
 /**
@@ -19,7 +19,8 @@ export class ProblemsView extends AbstractElement {
         const filterField = await this.enclosingItem.findElement(By.className('title-actions'))
             .findElement(By.className('markers-panel-action-filter'))
             .findElement(By.tagName('input'));
-        await filterField.sendKeys(Key.chord(ProblemsView.ctlKey, 'a'), Key.BACK_SPACE, pattern);
+        await filterField.clear();            
+        await filterField.sendKeys(pattern);
     }
 
     /**
