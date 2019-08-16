@@ -96,7 +96,7 @@ export class Workbench extends AbstractElement {
     async openSettings(): Promise<SettingsEditor> {
         await this.executeCommand('open user settings');
         await Workbench.driver.wait(until.elementLocated(By.className('editor-instance')));
-        return await new SettingsEditor().wait();
+        return new SettingsEditor();
     }
 
     /**

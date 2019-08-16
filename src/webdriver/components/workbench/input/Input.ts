@@ -22,7 +22,8 @@ export abstract class Input extends AbstractElement {
     async setText(text: string): Promise<void> {
         const input = await this.findElement(By.className('monaco-inputbox'))
             .findElement(By.className('input'));
-        await input.sendKeys(Key.chord(Input.ctlKey, 'a'), text);
+        await input.clear();
+        await input.sendKeys(text);
     }
 
     /**
