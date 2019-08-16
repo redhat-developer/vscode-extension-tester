@@ -37,9 +37,8 @@ describe('QuickOpenBox', () => {
         expect(prog).is.false;
     });
 
-    it('getQuickPicks finds quick pick options', async function() {
-        this.timeout(4000);
-        await input.setText('>preferences');
+    it('getQuickPicks finds quick pick options', async () => {
+        await input.setText('>hello world');
         const picks = await input.getQuickPicks();
         expect(picks).not.empty;
     });
@@ -51,7 +50,7 @@ describe('QuickPickItem', () => {
 
     before(async () => {
         input = await new Workbench().openCommandPrompt();
-        await input.setText('>preferences');
+        await input.setText('>hello world');
         const picks = await input.getQuickPicks();
         item = picks[0];
     });
@@ -67,9 +66,7 @@ describe('QuickPickItem', () => {
     });
 
     it('select works', async () => {
-        await input.setText('>hello world');
-        const pick = (await input.getQuickPicks())[0];
-        await pick.select();
+        await item.select();
         expect(await input.isDisplayed()).is.false;
     });
 });
@@ -77,8 +74,7 @@ describe('QuickPickItem', () => {
 describe('InputBox', () => {
     let input: InputBox;
 
-    before(async function() {
-        this.timeout(4000);
+    before(async () => {
         await new TitleBar().select('File', 'New File');
         await new StatusBar().openLanguageSelection();
         input = await new InputBox().wait();
