@@ -14,7 +14,9 @@ export class NotificationsCenter extends AbstractElement {
      * Close the notifications center
      */
     async close(): Promise<void> {
-        await this.findElement(By.className('hide-all-notifications-action')).click();
+        if (await this.isDisplayed()) {
+            await this.findElement(By.className('hide-all-notifications-action')).click();
+        }
     }
 
     /**
