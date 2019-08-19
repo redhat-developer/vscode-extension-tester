@@ -50,7 +50,14 @@ export class ProblemsView extends AbstractElement {
         const markers: Marker[] = [];
         const elements = await this.findElements(By.className('monaco-list-row'));
         for (const element of elements) {
-            const marker = new Marker(await element.getAttribute('aria-label'), this);
+            let marker: Marker;
+            try {
+                const label = await element.getAttribute('aria-label');
+                await element.findElement(By.xpath(`.//div[contains(@class, 'monaco-list-row') and contains(@aria-label, "${label}")]`));
+                marker = await new Marker(await element.getAttribute('aria-label'), this).wait();
+            } catch (err) {
+                marker = await new Marker(await element.getAttribute('aria-label'), this).wait();
+            }
             if (type === MarkerType.Any || type === await marker.getType()) {
                 markers.push(marker);
             }
@@ -64,7 +71,7 @@ export class ProblemsView extends AbstractElement {
  */
 export class Marker extends ElementWithContexMenu {
     constructor(label: string, view: ProblemsView) {
-        super(By.xpath(`.//div[contains(@class, 'monaco-list-row') and contains(@aria-label, '${label}')]`), view);
+        super(By.xpath(`.//div[contains(@class, 'monaco-list-row') and contains(@aria-label, "${label}")]`), view);
     }
 
     /**

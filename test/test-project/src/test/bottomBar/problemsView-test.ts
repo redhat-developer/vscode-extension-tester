@@ -4,38 +4,42 @@ import { expect } from 'chai';
 describe('ProblemsView', () => {
     let editor: TextEditor;
     let view: ProblemsView;
+    let bar: BottomBarPanel;
 
     before(async function() {
-        this.timeout(5000);
+        this.timeout(10000);
         await new Workbench().executeCommand('open test file');
         await new Promise((res) => { setTimeout(res, 1000); });
 
-        editor = await new EditorView().openEditor('test-file.ts') as TextEditor;
-        await editor.setText('aaaa');
-        const bar = new BottomBarPanel();
+        bar = new BottomBarPanel();
         await bar.toggle(true);
         view = await bar.openProblemsView();
+
+        editor = await new EditorView().openEditor('test-file.ts') as TextEditor;
+        await editor.setText('aaaa');
+        await new Promise((res) => { setTimeout(res, 5000); });
     });
 
     after(async () => {
         await view.clearFilter();
         await editor.setText('');
         await new EditorView().closeAllEditors();
+        await bar.toggle(false);
     });
 
     it('get all markers works', async () => {
         const markers = await view.getAllMarkers(MarkerType.Any);
-        expect(markers.length).equals(3);
+        expect(markers.length).greaterThan(1);
     });
 
     it('get warnings works', async () => {
         const markers = await view.getAllMarkers(MarkerType.Warning);
-        expect(markers.length).equals(2);
+        expect(markers).empty;
     });
 
     it('get errors works', async () => {
         const markers = await view.getAllMarkers(MarkerType.Error);
-        expect(markers).empty;
+        expect(markers.length).equals(1);
     });
 
     it('get files works', async () => {
@@ -44,18 +48,16 @@ describe('ProblemsView', () => {
     });
 
     it('filtering works', async () => {
-        await view.setFilter('Missing semicolon');
+        await view.setFilter('aaaa');
         await view.getDriver().sleep(500);
         const markers = await view.getAllMarkers(MarkerType.Any);
         expect(markers.length).equals(2);
-        await view.getDriver().sleep(500);
-        await view.setFilter('*');
     });
 
     describe('Marker', () => {
         it('getType works', async () => {
-            const markers = await view.getAllMarkers(MarkerType.Warning);
-            expect(await markers[0].getType()).equals(MarkerType.Warning);
+            const markers = await view.getAllMarkers(MarkerType.Error);
+            expect(await markers[0].getType()).equals(MarkerType.Error);
         });
 
         it('getText works', async () => {
@@ -72,7 +74,7 @@ describe('ProblemsView', () => {
 
             await marker.toggleExpand(true);
             markers = await view.getAllMarkers(MarkerType.Any);
-            expect(markers.length).equals(3);
+            expect(markers.length).equals(2);
         });
     });
 });
