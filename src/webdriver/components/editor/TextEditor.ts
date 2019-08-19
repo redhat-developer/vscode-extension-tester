@@ -1,5 +1,5 @@
 import { ContentAssist } from "../../../extester";
-import { By, Key } from "selenium-webdriver";
+import { By, Key, until } from "selenium-webdriver";
 import { fileURLToPath } from "url";
 import * as clipboard from 'clipboardy';
 import { StatusBar } from "../statusBar/StatusBar";
@@ -53,6 +53,8 @@ export class TextEditor extends Editor {
         } else {
             if (klass.indexOf('visible') >= 0) {
                 await inputarea.sendKeys(Key.ESCAPE);
+                const assist = await this.findElement(By.className('suggest-widget'));
+                TextEditor.driver.wait(until.elementIsNotVisible(assist));
             }
         }
     }
@@ -71,9 +73,9 @@ export class TextEditor extends Editor {
     /**
      * Replace the contents of the editor with a given text
      * @param text text to type into the editor
-     * @param formatText format the new text, default true
+     * @param formatText format the new text, default false
      */
-    async setText(text: string, formatText: boolean = true): Promise<void> {
+    async setText(text: string, formatText: boolean = false): Promise<void> {
         const inputarea = await this.findElement(By.className('inputarea'));
         clipboard.writeSync(text);
         await inputarea.sendKeys(Key.chord(TextEditor.ctlKey, 'a'), Key.chord(TextEditor.ctlKey, 'v'));
@@ -116,6 +118,17 @@ export class TextEditor extends Editor {
      * @param text text to add
      */
     async typeText(line: number, column: number, text: string): Promise<void> {
+        await this.moveCursor(line, column);
+        const inputarea = await this.findElement(By.className('inputarea'));
+        await inputarea.sendKeys(text);
+    }
+
+    /**
+     * Move the cursor to the given coordinates
+     * @param line line number to move to
+     * @param column column number to move to
+     */
+    async moveCursor(line: number, column: number): Promise<void> {
         if (line < 1 || line > await this.getNumberOfLines()) {
             throw new Error(`Line number ${line} does not exist`);
         }
@@ -139,8 +152,6 @@ export class TextEditor extends Editor {
                 throw new Error(`Column number ${column} is not accessible on line ${line}`);
             }
         }
-
-        await inputarea.sendKeys(text);
     }
 
     /**
@@ -156,7 +167,11 @@ export class TextEditor extends Editor {
      */
     async formatDocument(): Promise<void> {
         const menu = await this.openContextMenu();
-        await menu.select('Format Document');
+        try {
+            await menu.select('Format Document');
+        } catch (err) {
+            console.log('Warn: Format Document not available for selected language');
+        }
     }
 
     /**
