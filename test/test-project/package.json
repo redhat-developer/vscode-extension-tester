@@ -12,7 +12,8 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:extension.helloWorld"
+		"onCommand:extension.helloWorld",
+		"onCommand:extension.openFile"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -20,6 +21,10 @@
 			{
 				"command": "extension.helloWorld",
 				"title": "Hello World"
+			},
+			{
+				"command": "extension.openFile",
+				"title": "Open Test File"
 			}
 		]
 	},

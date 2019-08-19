@@ -1,6 +1,6 @@
 import { BottomBarPanel } from "../../../extester";
 import { AbstractElement } from "../AbstractElement";
-import { By } from 'selenium-webdriver';
+import { By, WebElement } from 'selenium-webdriver';
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
 
 /**
@@ -16,11 +16,19 @@ export class ProblemsView extends AbstractElement {
      * @param pattern filter to use, prefferably a glob pattern
      */
     async setFilter(pattern: string): Promise<void> {
+        const filterField = await this.clearFilter();
+        await filterField.sendKeys(pattern);
+    }
+
+    /**
+     * Clear all filters
+     */
+    async clearFilter(): Promise<WebElement> {
         const filterField = await this.enclosingItem.findElement(By.className('title-actions'))
             .findElement(By.className('markers-panel-action-filter'))
             .findElement(By.tagName('input'));
-        await filterField.clear();            
-        await filterField.sendKeys(pattern);
+        await filterField.clear();
+        return filterField;
     }
 
     /**

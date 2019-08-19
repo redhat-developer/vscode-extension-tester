@@ -7,5 +7,5 @@
 		"strict": true,
 		"rootDir": "src"
 	},
-	"exclude": ["node_modules", ".vscode-test", "test-resources"]
+	"exclude": ["node_modules", ".vscode-test", "test-resources", "resources"]
 }
