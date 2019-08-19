@@ -20,7 +20,7 @@ describe('TextEditor', () => {
     });
 
     after(async () => {
-        await editor.setText('');
+        await editor.clearText();
         await view.closeAllEditors();
     });
 
@@ -56,5 +56,31 @@ describe('TextEditor', () => {
         await editor.toggleContentAssist(false);
         const klass = await assist.getAttribute('class');
         expect(klass.indexOf('visible')).lessThan(0);
+    });
+
+    describe('ContentAssist', async () => {
+        let assist: ContentAssist;
+
+        before(async function() {
+            this.timeout(5000);
+            await editor.clearText();
+            assist = await editor.toggleContentAssist(true) as ContentAssist;
+        });
+
+        after(async () => {
+            await editor.toggleContentAssist(false);
+        });
+
+        it('getItems retrieves the suggestions', async function() {
+            this.timeout(5000);
+            const items = await assist.getItems();
+            expect(items).not.empty;
+        });
+
+        it('getItem retrieves suggestion by text', async function() {
+            this.timeout(5000);
+            const item = await assist.getItem('AbortController');
+            expect(item.getLabel()).equals('AbortController');
+        });
     });
 });

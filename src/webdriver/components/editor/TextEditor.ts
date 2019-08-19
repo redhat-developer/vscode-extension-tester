@@ -1,5 +1,5 @@
 import { ContentAssist } from "../../../extester";
-import { By, Key, until } from "selenium-webdriver";
+import { By, Key } from "selenium-webdriver";
 import { fileURLToPath } from "url";
 import * as clipboard from 'clipboardy';
 import { StatusBar } from "../statusBar/StatusBar";
@@ -43,18 +43,18 @@ export class TextEditor extends Editor {
      */
     async toggleContentAssist(open: boolean): Promise<ContentAssist | void> {
         const inputarea = await this.findElement(By.className('inputarea'));
-        const klass = await this.findElement(By.className('suggest-widget')).getAttribute('class');
+        const assist = await this.findElement(By.className('suggest-widget'))
+        const klass = await assist.getAttribute('class');
+        const visibility = await assist.getCssValue('visibility');
         
         if (open) {
-            if (klass.indexOf('visible') < 0) {
+            if (klass.indexOf('visible') < 0 || visibility === 'hidden') {
                 await inputarea.sendKeys(Key.chord(Key.CONTROL, Key.SPACE));
             }
             return new ContentAssist(this).wait();
         } else {
             if (klass.indexOf('visible') >= 0) {
                 await inputarea.sendKeys(Key.ESCAPE);
-                const assist = await this.findElement(By.className('suggest-widget'));
-                TextEditor.driver.wait(until.elementIsNotVisible(assist));
             }
         }
     }
@@ -82,6 +82,15 @@ export class TextEditor extends Editor {
         if (formatText) {
             await this.formatDocument();
         }
+    }
+
+    /**
+     * Deletes all text within the editor
+     */
+    async clearText(): Promise<void> {
+        const inputarea = await this.findElement(By.className('inputarea'));
+        await inputarea.sendKeys(Key.chord(TextEditor.ctlKey, 'a'), Key.chord(TextEditor.ctlKey, 'c'));
+        await inputarea.sendKeys(Key.BACK_SPACE);
     }
 
     /**

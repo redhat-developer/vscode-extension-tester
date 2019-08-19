@@ -16,7 +16,13 @@ export abstract class ElementWithContexMenu extends AbstractElement {
 
         if (await menu.isDisplayed()) {
             await this.getDriver().actions().click(this, Button.RIGHT).perform();
-            await this.getDriver().wait(until.elementIsNotVisible(menu), 1000);
+            try {
+                await this.getDriver().wait(until.elementIsNotVisible(this), 1000);
+            } catch (err) {
+                if (err.message.indexOf('stale element reference: element is not attached to the page document') < 0) {
+                    throw err;
+                }
+            }
         }
         await this.getDriver().actions().click(this, Button.RIGHT).perform();
 
