@@ -194,6 +194,7 @@ export class CodeUtil {
             platform += arch === 'x64' ? `-${arch}` : `-ia32`;
         } else if (platform === 'win32') {
             platform += arch === 'x64' ? `-${arch}` : '';
+            platform += '-archive';
             this.cliEnv = `set ${this.cliEnv} &&`;
         }
 
