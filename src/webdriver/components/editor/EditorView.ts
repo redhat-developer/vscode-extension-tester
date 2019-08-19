@@ -22,10 +22,10 @@ export class EditorView extends AbstractElement {
         await tab.click();
 
         try {
-            await this.findElement(By.id('workbench.editors.files.textFileEditor'));
-            return new TextEditor(this, title);
-        } catch (err) {
+            await this.findElement(By.id('workbench.editor.settings2'));
             return new SettingsEditor(this);
+        } catch (err) {
+            return new TextEditor(this, title);
         }
     }
 
