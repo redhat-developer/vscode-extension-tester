@@ -93,7 +93,12 @@ export class CodeUtil {
             console.log(`Downloaded VS Code into ${path.join(this.downloadFolder, fileName)}`);
     
             console.log(`Unpacking VS Code into ${this.downloadFolder}`);
-            await Unpack.unpack(path.join(this.downloadFolder, fileName), this.downloadFolder);
+            let target = this.downloadFolder;
+            if (process.platform === 'win32') {
+                target = path.join(this.downloadFolder, `VSCode-${this.downloadPlatform}`);
+                fs.mkdirpSync(target);
+            }
+            await Unpack.unpack(path.join(this.downloadFolder, fileName), target);
             console.log('Success!');
         } else {
             console.log('VS Code exists in local cache, skipping download');
