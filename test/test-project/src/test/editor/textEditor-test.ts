@@ -5,7 +5,7 @@ describe('TextEditor', () => {
     let editor: TextEditor;
     let view: EditorView;
 
-    const testText = `line1\nline2\nline3`;
+    const testText = process.platform === 'win32' ? `line1\r\nline2\r\nline3` : `line1\nline2\nline3`;
 
     before(async function() {
         this.timeout(8000);
@@ -33,14 +33,14 @@ describe('TextEditor', () => {
     it('can get and set text at line', async () => {
         await editor.setTextAtLine(2, 'line5');
         const line = await editor.getTextAtLine(2);
-        expect(line).equals('line5');
+        expect(line).has.string('line5');
     });
 
     it('can type text at given coordinates', async function() {
         this.timeout(5000);
         await editor.typeText(1, 6, '1');
         const line = await editor.getTextAtLine(1);
-        expect(line).equals('line11');
+        expect(line).has.string('line11');
     });
 
     it('getNumberOfLines works', async () => {

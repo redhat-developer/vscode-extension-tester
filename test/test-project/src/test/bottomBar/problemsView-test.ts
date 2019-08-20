@@ -22,7 +22,10 @@ describe('ProblemsView', () => {
 
     after(async () => {
         await view.clearFilter();
-        await editor.setText('');
+        await editor.clearText();
+        if (await editor.isDirty()) {
+            await editor.save();
+        }
         await new EditorView().closeAllEditors();
         await bar.toggle(false);
     });

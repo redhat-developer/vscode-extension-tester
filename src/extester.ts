@@ -2,7 +2,6 @@
 
 import { CodeUtil, ReleaseQuality } from './util/codeUtil';
 import { DriverUtil } from './util/driverUtil';
-import * as path from 'path';
 import * as fs from 'fs-extra';
 
 export * from 'selenium-webdriver';
@@ -76,11 +75,7 @@ export class ExTester {
      */
     installVsix(vsixFile?: string): void {
         if (!vsixFile) {
-            const pjson = require(path.resolve('package.json'));
-            const vsixPath = path.resolve(`${pjson.name}-${pjson.version}.vsix`);
-            if (!fs.existsSync(vsixPath)) {
-                this.code.packageExtension();
-            }
+            this.code.packageExtension();
         } else if (!fs.existsSync(vsixFile)) {
             throw new Error(`File ${vsixFile} does not exist`);
         }
@@ -109,6 +104,9 @@ export class ExTester {
         const quality = vscodeStream === 'insider' ? ReleaseQuality.Insider : ReleaseQuality.Stable;
         await this.downloadCode(vscodeVersion, quality);
         await this.downloadChromeDriver(vscodeVersion, vscodeStream);
+        if (process.platform === 'win32') {
+            this.installVsix();
+        }
     }
 
     /**

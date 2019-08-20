@@ -48,13 +48,15 @@ describe('Output View/Text Views', () => {
 
     describe('Terminal View', () => {
         let terminal: TerminalView;
+        const terminalName = process.platform === 'win32' ? 'powershell' : 'bash';
 
         before(async () => {
             terminal = await panel.openTerminalView();
         });
 
-        it('getText returns all current text', async () => {
-            await terminal.selectChannel('1: bash');
+        it('getText returns all current text', async function() {
+            this.timeout(5000);
+            await terminal.selectChannel(`1: ${terminalName}`);
             const text = await terminal.getText();
             expect(text).not.empty;
         });
@@ -62,14 +64,14 @@ describe('Output View/Text Views', () => {
         it('newTerminal opens a new term channel', async () => {
             await terminal.newTerminal();
             const channel = await terminal.getCurrentChannel();
-            expect(channel).equals('2: bash');
+            expect(channel).equals(`2: ${terminalName}`);
         });
 
         it('killTerminal destroys the current term channel', async () => {
             await terminal.killTerminal();
             const channels = await terminal.getChannelNames();
-            expect(channels).not.contains('2: bash');
-            expect(await terminal.getCurrentChannel()).equals('1: bash');
+            expect(channels).not.contains(`2: ${terminalName}`);
+            expect(await terminal.getCurrentChannel()).equals(`1: ${terminalName}`);
         });
     });
 });

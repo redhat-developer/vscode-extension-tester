@@ -138,7 +138,7 @@ export class CodeUtil {
         // add chromedriver to process' path
         const finalEnv: NodeJS.ProcessEnv = {};
         Object.assign(finalEnv, process.env);
-        const key = process.platform === 'win32' ? 'Path' : 'PATH';
+        const key = 'PATH';
         finalEnv[key] = [this.downloadFolder, process.env[key]].join(path.delimiter);
     
         process.env = finalEnv;

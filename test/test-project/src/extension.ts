@@ -6,7 +6,8 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.showInformationMessage('Hello World!');
 	});
 	let openCommand = vscode.commands.registerCommand('extension.openFile', async () => {
-		const document = await vscode.workspace.openTextDocument(vscode.Uri.file(path.resolve('./resources/test-file.ts')));
+		const document = await vscode.workspace.openTextDocument(vscode.Uri.file(
+			path.resolve(__dirname, '..', 'resources', 'test-file.ts')));
 		await vscode.window.showTextDocument(document);
 	});
 

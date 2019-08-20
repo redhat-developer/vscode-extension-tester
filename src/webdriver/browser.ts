@@ -36,10 +36,12 @@ export class VSBrowser {
             defaultSettings = { ...defaultSettings, ...this.customSettings };
         }
 
-        fs.mkdirpSync(userSettings);
+        fs.mkdirpSync(path.join(userSettings, 'globalStorage'));
+        if (process.platform === 'win32') {
+            fs.copyFileSync(path.resolve(__dirname, '..', '..', 'resources', 'state.vscdb'), path.join(userSettings, 'globalStorage', 'state.vscdb'));
+        }
         fs.writeJSONSync(path.join(userSettings, 'settings.json'), defaultSettings);
         console.log(`Writing code settings to ${path.join(userSettings, 'settings.json')}`);
-
         this._driver = await new Builder()
             .forBrowser('chrome')
             .setChromeOptions(new Options().setChromeBinaryPath(codePath)

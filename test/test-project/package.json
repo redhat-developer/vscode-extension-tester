@@ -1,10 +1,10 @@
 {
-	"name": "helloworld-sample",
-	"displayName": "helloworld-sample",
-	"description": "HelloWorld example for VS Code Extension Tester",
+	"name": "test-project",
+	"displayName": "test-project",
+	"description": "Test Project for VS Code Extension Tester",
 	"version": "0.0.1",
-	"publisher": "vscode-samples",
-	"repository": "https://github.com/jrichter1/vscode-extension-tester/examples/helloworld-sample",
+	"publisher": "vscode-extension-tester",
+	"repository": "https://github.com/jrichter1/vscode-extension-tester/test/test-project/",
 	"engines": {
 		"vscode": "^1.34.0"
 	},
@@ -33,7 +33,7 @@
 		"compile": "tsc -p ./",
 		"lint": "tslint -p ./",
 		"watch": "tsc -watch -p ./",
-		"ui-test": "npm run compile && extest setup-and-run 'out/test/**/*.js'"
+		"ui-test": "npm run compile && extest setup-and-run './out/test/**/*.js'"
 	},
 	"devDependencies": {
 		"@types/chai": "^4.1.7",

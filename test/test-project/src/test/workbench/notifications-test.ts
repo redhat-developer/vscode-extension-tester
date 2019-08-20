@@ -14,14 +14,16 @@ describe('NotificationsCenter', () => {
 
     it('getNotifications works', async () => {
         await new Workbench().executeCommand('hello world');
-        await center.getDriver().sleep(200);
+        await center.getDriver().sleep(500);
+        center = await new Workbench().openNotificationsCenter();
         const notifications = await center.getNotifications(NotificationType.Any);
         expect(notifications).not.empty;
     });
 
     it('clearAllNotifications works', async () => {
         await new Workbench().executeCommand('hello world');
-        await center.getDriver().sleep(200);
+        await center.getDriver().sleep(500);
+        center = await new Workbench().openNotificationsCenter();
         const notifications = await center.getNotifications(NotificationType.Any);
         expect(notifications).not.empty;
 

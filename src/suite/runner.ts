@@ -26,7 +26,8 @@ export class VSRunner {
     runTests(testFilesPattern: string): void {
         let self = this;
         let browser: VSBrowser = new VSBrowser(this.customSettings);
-        let testFiles = glob.sync(testFilesPattern);
+        const universalPattern = testFilesPattern.replace(/'/g, '');
+        const testFiles = glob.sync(universalPattern);
 
         testFiles.forEach((file) => {
             if (fs.existsSync(file) && file.substr(-3) === '.js') {

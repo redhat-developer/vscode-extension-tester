@@ -3,6 +3,7 @@ import { BottomBarPanel } from "../../../extester";
 import { TextView, ChannelView } from "./AbstractViews";
 import { AbstractElement } from "../AbstractElement";
 import * as clipboard from 'clipboardy';
+import { Workbench } from "../../../extester";
 
 /**
  * Output view of the bottom panel
@@ -47,11 +48,10 @@ export class TerminalView extends ChannelView {
      * Beware, no formatting.
      */
     async getText(): Promise<string> {
-        const menu = await this.openContextMenu();
-        await menu.select('Select All');
-
-        const menu1 = await this.openContextMenu();
-        await menu1.select('Copy');
+        const workbench = new Workbench();
+        await workbench.executeCommand('terminal select all');
+        await workbench.getDriver().sleep(500);
+        await workbench.executeCommand('terminal copy selection');
         return clipboard.readSync();
     }
 
