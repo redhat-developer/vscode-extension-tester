@@ -52,8 +52,8 @@ export class LinuxOpenDialog implements OpenDialog {
 export class WindowsOpenDialog implements OpenDialog {
     async selectPath(path: string): Promise<void> {
         const absolutePath = pathj.resolve(path);
-        if (!fs.existsSync(absolutePath) || !fs.statSync(absolutePath).isDirectory()) {
-            throw new Error('The selected path is not an existing directory');
+        if (!fs.existsSync(absolutePath)) {
+            throw new Error('The selected path does not exist');
         }
         await robot.sendText(absolutePath);
         await new Promise((res) => { setTimeout(res, 500); });
