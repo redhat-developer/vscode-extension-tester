@@ -1,17 +1,17 @@
 import { ViewSection } from "../ViewSection";
 import { ViewItem } from "../../../../extester";
 import { By, Key } from 'selenium-webdriver';
-import { DefaultViewItem } from "./DefaultViewItem";
+import { DefaultTreeItem } from "./DefaultTreeItem";
 
 /**
  * Default view section
  */
-export class DefaultViewSection extends ViewSection {
+export class DefaultTreeSection extends ViewSection {
     async getVisibleItems(): Promise<ViewItem[]> {
         const items: ViewItem[] = [];
         const elements = await this.findElements(By.className('monaco-list-row'));
         for (const element of elements) {
-            items.push(await new DefaultViewItem(await element.getAttribute('aria-label'), this).wait());
+            items.push(await new DefaultTreeItem(await element.getAttribute('aria-label'), this).wait());
         }
         return items;
     }
@@ -26,7 +26,7 @@ export class DefaultViewSection extends ViewSection {
                 const temp = await container.findElement(By.xpath(`.//div[contains(@class, 'monaco-list-row') and @aria-label='${label}']`));
                 const level = +await temp.getAttribute('aria-level');
                 if (maxLevel < 1 || level <= maxLevel) {
-                    item = new DefaultViewItem(label, this);
+                    item = new DefaultTreeItem(label, this);
                 }
             } catch (err) {
                 try {

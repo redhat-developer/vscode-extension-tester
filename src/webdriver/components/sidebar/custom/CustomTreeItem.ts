@@ -1,33 +1,32 @@
 import { ViewItem } from "../ViewItem";
-import { ViewSection } from "../../../../extester";
-import { By, WebElement } from 'selenium-webdriver';
+import { ViewSection } from "../ViewSection";
+import { By, WebElement } from "selenium-webdriver";
 
 /**
- * Default tree item base on the items in explorer view
+ * View item in a custom-made content section (e.g. an extension tree view)
  */
-export class DefaultViewItem extends ViewItem {
+export class CustomTreeItem extends ViewItem {
     constructor(label: string, viewPart: ViewSection) {
-        super(By.xpath(`.//div[@role='treeitem' and @aria-label='${label}']`), viewPart);
+        super(By.xpath(`.//div[@role='treeitem' and .//span[text()='${label}']]`), viewPart);
         this.label = label;
     }
 
     async hasChildren(): Promise<boolean> {
-        const twistieClass = await this.findElement(By.className('monaco-tl-twistie')).getAttribute('class');
-        return twistieClass.indexOf('collapsible') > -1;
+        const klass = await this.getAttribute('class');
+        return klass.indexOf('has-children') > -1;
     }
 
     async isExpanded(): Promise<boolean> {
-        const twistieClass = await this.findElement(By.className('monaco-tl-twistie')).getAttribute('class');
-        return twistieClass.indexOf('collapsed') < 0;
+        const klass = await this.getAttribute('class');
+        return klass.indexOf('expanded') > -1;
     }
 
-    async getChildren(): Promise<ViewItem[]>{
+    async getChildren(): Promise<ViewItem[]> {
         const items: ViewItem[] = [];
         if (!await this.isExpanded() && this.hasChildren()) {
             await this.click();
         }
-
-        const rows = await this.enclosingItem.findElements(By.className('monaco-list-row'));
+        const rows = await this.enclosingItem.findElements(By.className('monaco-tree-row'));
         const baseIndex = await this.findRowIndex(rows);
         const baseLevel = +await this.getAttribute('aria-level');
 
@@ -38,8 +37,8 @@ export class DefaultViewItem extends ViewItem {
             if (level > baseLevel + 1) { continue; }
             if (level <= baseLevel) { break; }
 
-            const label = await rows[i].getAttribute('aria-label');
-            items.push(await new DefaultViewItem(label, <ViewSection>this.enclosingItem).wait());
+            const label = await rows[i].findElement(By.className('monaco-highlighted-label')).getText();
+            items.push(await new CustomTreeItem(label, <ViewSection>this.enclosingItem).wait());
         }
 
         return items;
@@ -51,7 +50,7 @@ export class DefaultViewItem extends ViewItem {
 
     private async findRowIndex(rows: WebElement[]): Promise<number> {
         for (let i = 0; i < rows.length; i++) {
-            const label = await rows[i].getAttribute('aria-label');
+            const label = await rows[i].findElement(By.className('monaco-highlighted-label')).getText();
             if (label === this.label) {
                 return i;
             }

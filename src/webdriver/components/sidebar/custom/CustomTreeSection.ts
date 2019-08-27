@@ -1,19 +1,19 @@
 import { ViewSection } from "../ViewSection";
 import { ViewItem } from "../ViewItem";
-import { CustomViewItem } from "./CustomViewItem";
+import { CustomTreeItem } from "./CustomTreeItem";
 import { By, Key } from "selenium-webdriver";
 
 /**
  * Custom tree view, e.g. contributed by an extension
  */
-export class CustomViewSection extends ViewSection {
+export class CustomTreeSection extends ViewSection {
 
     async getVisibleItems(): Promise<ViewItem[]> {
         const items: ViewItem[] = [];
         const elements = await this.findElements(By.className('monaco-tree-row'));
         for (const element of elements) {
             const label = await element.findElement(By.className('monaco-highlighted-label')).getText();
-            items.push(await new CustomViewItem(label, this).wait());
+            items.push(await new CustomTreeItem(label, this).wait());
         }
         return items;
     }
@@ -28,7 +28,7 @@ export class CustomViewSection extends ViewSection {
                 .findElement(By.xpath(`.//span[contains(text(), '${label}')]`));
             const level = +await temp.getAttribute('aria-level');
             if (maxLevel < 1 || level <= maxLevel) {
-                item = new CustomViewItem(label, this);
+                item = new CustomTreeItem(label, this);
             }
         } catch (err) {
             console.log(err);
