@@ -106,6 +106,14 @@ export class StatusBar extends AbstractElement {
     }
 
     /**
+     * Get the name of specified Status Bar item by ID as text
+     * Only works with an open editor
+     */
+    async getItemByID(id: string): Promise<string> {
+        return await this.findElement(By.id(id)).getText();
+    }
+
+    /**
      * Open/Close notification centre
      * @param open true to open, false to close
      */

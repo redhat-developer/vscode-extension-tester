@@ -42,7 +42,7 @@
     "@types/request": "^2.48.1",
     "mocha": "^6.1.4",
     "rimraf": "^2.6.3",
-    "typedoc": "^0.14.2",
+    "typedoc": "^0.15.0",
     "typescript": "^3.3.3333"
   },
   "dependencies": {
