@@ -1,4 +1,4 @@
-import { ActivityBar, ExtensionsViewSection, TextEditor, EditorView, ExtensionsViewItem } from "vscode-extension-tester";
+import { ActivityBar, ExtensionsViewSection, EditorView, ExtensionsViewItem } from "vscode-extension-tester";
 import { expect } from 'chai';
 
 describe('ExtensionsView', () => {
@@ -7,7 +7,7 @@ describe('ExtensionsView', () => {
 
     before(async () => {
         const view = await new ActivityBar().getViewControl('Extensions').openView();
-        section = await view.getContent().getSection('Enabled') as ExtensionsViewSection;
+        section = await view.getContent().getSection('Recommended') as ExtensionsViewSection;
     });
 
     after(async function()  {
@@ -17,12 +17,12 @@ describe('ExtensionsView', () => {
 
     it('getTitle works', async () => {
         const title = await section.getTitle();
-        expect(title).equals('Enabled');
+        expect(title).equals('Recommended');
     });
 
     it('getVisibleItems works', async () => {
         const items = await section.getVisibleItems();
-        expect(items).not.empty;
+        expect(items).not.undefined;
     });
 
     it('findItem works', async function() {
