@@ -1,12 +1,12 @@
-import { ViewItem } from "../ViewItem";
-import { ViewSection } from "../ViewSection";
+import { TreeItem } from "../../ViewItem";
 import { By, WebElement } from "selenium-webdriver";
+import { TreeSection } from "../TreeSection";
 
 /**
  * View item in a custom-made content section (e.g. an extension tree view)
  */
-export class CustomTreeItem extends ViewItem {
-    constructor(label: string, viewPart: ViewSection) {
+export class CustomTreeItem extends TreeItem {
+    constructor(label: string, viewPart: TreeSection) {
         super(By.xpath(`.//div[@role='treeitem' and .//span[text()='${label}']]`), viewPart);
         this.label = label;
     }
@@ -21,8 +21,8 @@ export class CustomTreeItem extends ViewItem {
         return klass.indexOf('expanded') > -1;
     }
 
-    async getChildren(): Promise<ViewItem[]> {
-        const items: ViewItem[] = [];
+    async getChildren(): Promise<TreeItem[]> {
+        const items: TreeItem[] = [];
         if (!await this.isExpanded() && this.hasChildren()) {
             await this.click();
         }
@@ -38,7 +38,7 @@ export class CustomTreeItem extends ViewItem {
             if (level <= baseLevel) { break; }
 
             const label = await rows[i].findElement(By.className('monaco-highlighted-label')).getText();
-            items.push(await new CustomTreeItem(label, <ViewSection>this.enclosingItem).wait());
+            items.push(await new CustomTreeItem(label, <TreeSection>this.enclosingItem).wait());
         }
 
         return items;

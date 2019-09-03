@@ -25,15 +25,15 @@ export abstract class AbstractElement extends WebElement {
             enclosingItem = item;
         }
 
+        if (enclosingItem instanceof WebElement) {
+            item = enclosingItem;
+        } else {
+            item = AbstractElement.driver.findElement(enclosingItem);
+        }
+
         if (base instanceof WebElement) {
-            item = base;
             super(AbstractElement.driver, base.getId());
         } else {
-            if (enclosingItem instanceof WebElement) {
-                item = enclosingItem;
-            } else {
-                item = AbstractElement.driver.findElement(enclosingItem);
-            }
             super(
                 AbstractElement.driver,
                 item.findElement(base).getId()

@@ -23,6 +23,13 @@ export * from './webdriver/components/sidebar/ViewContent';
 export * from './webdriver/components/sidebar/ViewSection';
 export * from './webdriver/components/sidebar/ViewItem';
 
+export * from './webdriver/components/sidebar/tree/default/DefaultTreeSection';
+export * from './webdriver/components/sidebar/tree/default/DefaultTreeItem';
+export * from './webdriver/components/sidebar/tree/custom/CustomTreeSection';
+export * from './webdriver/components/sidebar/tree/custom/CustomTreeItem';
+export * from './webdriver/components/sidebar/extensions/ExtensionsViewSection';
+export * from './webdriver/components/sidebar/extensions/ExtensionsViewItem';
+
 export * from './webdriver/components/bottomBar/BottomBarPanel';
 export * from './webdriver/components/bottomBar/ProblemsView';
 export * from './webdriver/components/bottomBar/Views';

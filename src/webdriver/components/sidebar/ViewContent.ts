@@ -1,8 +1,9 @@
 import { AbstractElement } from "../AbstractElement";
 import { SideBarView, ViewSection } from "../../../extester";
-import { By } from "selenium-webdriver";
-import { DefaultTreeSection } from "./default/DefaultTreeSection";
-import { CustomTreeSection } from "./custom/CustomTreeSection";
+import { By, WebElement } from "selenium-webdriver";
+import { DefaultTreeSection } from "./tree/default/DefaultTreeSection";
+import { CustomTreeSection } from "./tree/custom/CustomTreeSection";
+import { ExtensionsViewSection } from "./extensions/ExtensionsViewSection";
 
 /**
  * Page object representing the view container of a side bar view
@@ -30,13 +31,20 @@ export class ViewContent extends AbstractElement {
      * @returns a ViewSection object
      */
     async getSection(title: string): Promise<ViewSection> {
-        const section = new DefaultTreeSection(title, this);
-        try {
-            await section.findElement(By.className('monaco-list'));
-            return section;
-        } catch (err) {
-            return new CustomTreeSection(title, this);
+        const elements = await this.findElements(By.className('split-view-view'));
+        let panel!: WebElement;
+
+        for (const element of elements) {
+            const currentTitle = await element.findElement(By.xpath(`.//h3[@class='title']`));
+            if (await currentTitle.getAttribute('textContent') === title) {
+                panel = element;
+                break;
+            }
         }
+        if (!panel) {
+            throw new Error(`No section with title '${title}' found`);
+        }
+        return await this.createSection(panel);
     }
 
     /**
@@ -47,15 +55,24 @@ export class ViewContent extends AbstractElement {
         const sections: ViewSection[] = [];
         const elements = await this.findElements(By.className('split-view-view'));
         for (const element of elements) {
-            const title = await element.findElement(By.xpath(`.//h3[@class='title']`)).getAttribute('textContent');
-            let section: ViewSection = new DefaultTreeSection(title, this);
-            try {
-                await section.findElement(By.className('monaco-list'));
-            } catch (err) {
-                section = new CustomTreeSection(title, this);
-            }
+            let section = await this.createSection(element);
             sections.push(await section.wait());
         }
         return sections;
+    }
+
+    private async createSection(panel: WebElement): Promise<ViewSection> {
+        let section: ViewSection = new DefaultTreeSection(panel, this);
+        try {
+            await section.findElement(By.className('explorer-folders-view'));
+        } catch (err) {
+            try {
+                await section.findElement(By.className('extensions-list'));
+                section = new ExtensionsViewSection(panel, this);
+            } catch (err) {
+                section = new CustomTreeSection(panel, this);
+            }
+        }
+        return section;
     }
 }

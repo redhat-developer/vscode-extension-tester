@@ -1,20 +1,22 @@
 import { AbstractElement } from "../AbstractElement";
 import { ViewContent, ViewItem, waitForAttributeValue } from "../../../extester";
-import { By, until } from "selenium-webdriver";
+import { By, until, WebElement } from "selenium-webdriver";
 
 /**
  * Page object representing a collapsible content section of the side bar view
  */
 export abstract class ViewSection extends AbstractElement {
-    private title: string;
 
-    constructor(title: string, content: ViewContent) {
-        super(By.xpath(`.//div[@class='split-view-view' and translate(div/div/h3/text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='${title.toLowerCase()}']`), content);
-        this.title = title;
+    constructor(panel: WebElement, content: ViewContent) {
+        super(panel, content);
     }
 
-    getTitle(): string {
-        return this.title;
+    /**
+     * Get the title of the section as string
+     */
+    async getTitle(): Promise<string> {
+        const title = await this.findElement(By.className('title'));
+        return await title.getAttribute('textContent');
     }
 
     /**
@@ -79,30 +81,13 @@ export abstract class ViewSection extends AbstractElement {
      * The label sequence is handled in order. If a leaf item (a file for example) is found in the middle
      * of the sequence, the rest is ignored.
      * 
+     * If the item structure is flat, use the item's title to search by.
+     * 
      * @param path Sequence of labels that make up the path to a given item.
      * @returns array of ViewItem objects representing the last item's children.
      * If the last item is a leaf, empty array is returned.
      */
-    async openItem(...path: string[]): Promise<ViewItem[]> {
-        let currentItem = await this.findItem(path[0], 1);
-        let items: ViewItem[] = [];
-
-        for (let i = 0; i < path.length; i++) {
-            if (!currentItem) {
-                throw new Error(`Item ${path[i]} not found`);
-            }
-            items = await currentItem.getChildren();
-            if (items.length < 1) {
-                return items;
-            }
-            if (i + 1 < path.length) {
-                currentItem = items.find((value) => {
-                    return value.getLabel() === path[i + 1];
-                });
-            }
-        }
-        return items;
-    }
+    abstract async openItem(...path: string[]): Promise<ViewItem[] | void>
 
     /**
      * Retrieve the action buttons on the section's header

@@ -3,9 +3,20 @@ import { AbstractElement } from "../AbstractElement";
 import { By, WebElement } from "selenium-webdriver";
 
 /**
- * Page object representing a row in the tree inside a view content section
+ * Arbitrary item in the side bar view
  */
 export abstract class ViewItem extends ElementWithContexMenu {
+    /**
+     * Select the item in the view.
+     */
+    abstract select(): Promise<void>
+}
+
+
+/**
+ * Abstract representation of a row in the tree inside a view content section
+ */
+export abstract class TreeItem extends ViewItem {
     protected label!: string;
 
     /**
@@ -35,13 +46,13 @@ export abstract class ViewItem extends ElementWithContexMenu {
      * Find children of an item, will try to expand the item in the process
      * @returns an array of ViewItems, empty array if item has no children
      */
-    abstract async getChildren(): Promise<ViewItem[]>
+    abstract async getChildren(): Promise<TreeItem[]>
 
     /**
      * Find a child item with the given name
      * @returns ViewItem object if the child item exists, undefined otherwise
      */
-    async findChildItem(name: string): Promise<ViewItem | undefined> {
+    async findChildItem(name: string): Promise<TreeItem | undefined> {
         const children = await this.getChildren();
         const result = children.find(item => {
             return item.getLabel() === name;
@@ -103,7 +114,7 @@ export abstract class ViewItem extends ElementWithContexMenu {
 export class ViewItemAction extends AbstractElement {
     private label: string;
 
-    constructor(label: string, viewItem: ViewItem) {
+    constructor(label: string, viewItem: TreeItem) {
         super(By.xpath(`.//a[contains(@class, 'action-label') and @role='button' and @title='${label}']`), viewItem);
         this.label = label;
     }

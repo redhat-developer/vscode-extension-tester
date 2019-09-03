@@ -1,12 +1,12 @@
-import { ViewItem } from "../ViewItem";
-import { ViewSection } from "../../../../extester";
+import { TreeItem } from "../../ViewItem";
 import { By, WebElement } from 'selenium-webdriver';
+import { TreeSection } from "../TreeSection";
 
 /**
  * Default tree item base on the items in explorer view
  */
-export class DefaultTreeItem extends ViewItem {
-    constructor(label: string, viewPart: ViewSection) {
+export class DefaultTreeItem extends TreeItem {
+    constructor(label: string, viewPart: TreeSection) {
         super(By.xpath(`.//div[@role='treeitem' and @aria-label='${label}']`), viewPart);
         this.label = label;
     }
@@ -21,9 +21,9 @@ export class DefaultTreeItem extends ViewItem {
         return twistieClass.indexOf('collapsed') < 0;
     }
 
-    async getChildren(): Promise<ViewItem[]>{
-        const items: ViewItem[] = [];
-        if (!await this.isExpanded() && this.hasChildren()) {
+    async getChildren(): Promise<TreeItem[]>{
+        const items: TreeItem[] = [];
+        if (!await this.isExpanded() && await this.hasChildren()) {
             await this.click();
         }
 
@@ -39,7 +39,7 @@ export class DefaultTreeItem extends ViewItem {
             if (level <= baseLevel) { break; }
 
             const label = await rows[i].getAttribute('aria-label');
-            items.push(await new DefaultTreeItem(label, <ViewSection>this.enclosingItem).wait());
+            items.push(await new DefaultTreeItem(label, <TreeSection>this.enclosingItem).wait());
         }
 
         return items;

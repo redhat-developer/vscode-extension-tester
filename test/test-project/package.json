@@ -13,7 +13,9 @@
 	],
 	"activationEvents": [
 		"onCommand:extension.helloWorld",
-		"onCommand:extension.openFile"
+		"onCommand:extension.openFile",
+		"onCommand:extension.openFolder",
+		"onCommand:extension.closeFolder"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -25,6 +27,14 @@
 			{
 				"command": "extension.openFile",
 				"title": "Open Test File"
+			},
+			{
+				"command": "extension.openFolder",
+				"title": "Open Test Folder"
+			},
+			{
+				"command": "extension.closeFolder",
+				"title": "Close Test Folder"
 			}
 		]
 	},
@@ -33,7 +43,7 @@
 		"compile": "tsc -p ./",
 		"lint": "tslint -p ./",
 		"watch": "tsc -watch -p ./",
-		"ui-test": "npm run compile && extest setup-and-run './out/test/**/*.js'"
+		"ui-test": "npm run compile && extest setup-and-run './out/test/**/*test.js'"
 	},
 	"devDependencies": {
 		"@types/chai": "^4.1.7",
