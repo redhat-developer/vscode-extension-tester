@@ -53,11 +53,14 @@ export class ExtensionsViewSection extends ViewSection {
         let sectionTitle = this.getSectionForCategory(title);
 
         const section = await parent.getSection(sectionTitle) as ExtensionsViewSection;
+        const titleParts = title.split(' ');
+        if (titleParts[0].startsWith('@')) {
+            title = title.split(' ').slice(-1)[0];
+        }
 
         try {
-            item = await new ExtensionsViewItem(title.split(' ').slice(-1)[0], section).wait();
+            item = await new ExtensionsViewItem(title, section).wait();
         } catch(err) {
-            console.log(err)
             // ignore and return undefined
         }
         return item;
