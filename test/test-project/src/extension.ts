@@ -7,11 +7,11 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 	let openCommand = vscode.commands.registerCommand('extension.openFile', async () => {
 		const document = await vscode.workspace.openTextDocument(vscode.Uri.file(
-			path.resolve(__dirname, '..', 'resources', 'test-file.ts')));
+			path.resolve(__dirname, '..', '..', 'resources', 'test-file.ts')));
 		await vscode.window.showTextDocument(document);
 	});
 	let openFolder = vscode.commands.registerCommand('extension.openFolder', async () => {
-		const dirpath = path.resolve(__dirname, '..', 'resources', 'test-folder');
+		const dirpath = path.resolve(__dirname, '..', '..', 'resources', 'test-folder');
 		await vscode.workspace.updateWorkspaceFolders(vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders.length : 0,
 			null, { uri: vscode.Uri.file(dirpath) });
 	});

@@ -111,9 +111,7 @@ export class ExTester {
         const quality = vscodeStream === 'insider' ? ReleaseQuality.Insider : ReleaseQuality.Stable;
         await this.downloadCode(vscodeVersion, quality);
         await this.downloadChromeDriver(vscodeVersion, vscodeStream);
-        if (process.platform === 'win32') {
-            this.installVsix();
-        }
+        this.installVsix();
     }
 
     /**

@@ -4,6 +4,17 @@ import { By, until, Key } from "selenium-webdriver";
 import { ViewContent } from "../ViewContent";
 
 /**
+ * Categories of extensions to search for
+ */
+enum ExtensionCategory {
+    Installed = '@installed',
+    Enabled = '@enabled',
+    Disabled = '@disabled',
+    Outdated = '@outdated',
+    Recommended = '@recommended'
+}
+
+/**
  * View section containing extensions
  */
 export class ExtensionsViewSection extends ViewSection {
@@ -21,11 +32,12 @@ export class ExtensionsViewSection extends ViewSection {
     /**
      * Search for an extension by title. This utilizes the search bar
      * in the Extensions view, which switches the perspective to the
-     * 'Marketplace' section and temporarily hides all other sections.
+     * section representing the chosen category and temporarily hides all other sections.
      * If you wish to continue working with the initial view section
      * (i.e. Enabled), use the clearSearch method to reset it back to default
      * 
-     * @param title title to search for
+     * @param title title to search for in '@category name' format,
+     * e.g '@installed extension'. If no @category is present, marketplace will be searched
      */
     async findItem(title: string): Promise<ExtensionsViewItem | undefined> {
         let item!: ExtensionsViewItem;
@@ -38,10 +50,12 @@ export class ExtensionsViewSection extends ViewSection {
         await this.getDriver().wait(until.elementIsNotVisible(progress));
 
         const parent = this.enclosingItem as ViewContent;
-        const marketplace = await parent.getSection('Marketplace') as ExtensionsViewSection;
+        let sectionTitle = this.getSectionForCategory(title);
+
+        const section = await parent.getSection(sectionTitle) as ExtensionsViewSection;
 
         try {
-            item = await new ExtensionsViewItem(title, marketplace).wait();
+            item = await new ExtensionsViewItem(title.split(' ').slice(-1)[0], section).wait();
         } catch(err) {
             console.log(err)
             // ignore and return undefined
@@ -75,6 +89,24 @@ export class ExtensionsViewSection extends ViewSection {
         const item = await this.findItem(title);
         if (item) {
             await item.click();
+        }
+    }
+
+    private getSectionForCategory(title: string): string {
+        const category = title.split(' ')[0].toLowerCase();
+        switch(category) {
+            case ExtensionCategory.Disabled:
+                return 'Disabled';
+            case ExtensionCategory.Enabled:
+                return 'Enabled';
+            case ExtensionCategory.Installed:
+                return 'Installed';
+            case ExtensionCategory.Outdated:
+                return 'Outdated';
+            case ExtensionCategory.Recommended:
+                return 'Other Recommendations';
+            default:
+                return 'Marketplace';
         }
     }
 }

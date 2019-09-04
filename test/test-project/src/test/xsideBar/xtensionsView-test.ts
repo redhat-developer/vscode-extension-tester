@@ -1,5 +1,6 @@
 import { ActivityBar, ExtensionsViewSection, EditorView, ExtensionsViewItem } from "vscode-extension-tester";
 import { expect } from 'chai';
+import pjson from '../../../package.json';
 
 describe('ExtensionsView', () => {
     let section: ExtensionsViewSection;
@@ -7,7 +8,7 @@ describe('ExtensionsView', () => {
 
     before(async () => {
         const view = await new ActivityBar().getViewControl('Extensions').openView();
-        section = await view.getContent().getSection('Recommended') as ExtensionsViewSection;
+        section = await view.getContent().getSection('Enabled') as ExtensionsViewSection;
     });
 
     after(async function()  {
@@ -17,7 +18,7 @@ describe('ExtensionsView', () => {
 
     it('getTitle works', async () => {
         const title = await section.getTitle();
-        expect(title).equals('Recommended');
+        expect(title).equals('Enabled');
     });
 
     it('getVisibleItems works', async () => {
@@ -27,7 +28,7 @@ describe('ExtensionsView', () => {
 
     it('findItem works', async function() {
         this.timeout(10000);
-        item = await section.findItem('colorize') as ExtensionsViewItem;
+        item = await section.findItem(`@installed ${pjson.name}`) as ExtensionsViewItem;
         expect(item).not.undefined;
     });
 
@@ -39,36 +40,33 @@ describe('ExtensionsView', () => {
 
         it('getTitle works', async () => {
             const title = item.getTitle();
-            expect(title).equals('colorize');
+            expect(title).equals(pjson.name);
         });
 
         it('getVersion works', async () => {
             const version = await item.getVersion();
-            expect(version).matches(/\d+\.\d+\.\d+/);
+            expect(version).equals(pjson.version);
         });
 
         it('getAuthor works', async () => {
             const author = await item.getAuthor();
-            expect(author).not.empty;
+            expect(author).equals(pjson.publisher);
         });
 
         it('getDescription works', async () => {
             const desc = await item.getDescription();
-            expect(desc).not.empty;
+            expect(desc).equals(pjson.description);
         });
 
         it('isInstalled works', async () => {
             const installed = await item.isInstalled();
-            expect(installed).is.false;
+            expect(installed).is.true;
         });
 
         it('manage works', async () => {
-            try {
-                await item.manage();
-                expect.fail();
-            } catch (err) {
-                expect(err.message).has.string(`Extension 'colorize' is not installed`);
-            }
+            const menu = await item.manage();
+            expect(menu).not.undefined;
+            await menu.close();
         });
     });
 });

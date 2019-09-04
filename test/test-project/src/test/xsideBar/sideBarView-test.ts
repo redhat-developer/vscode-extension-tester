@@ -46,7 +46,7 @@ describe('SideBarView', () => {
         before(async function() {
             this.timeout(6000);
             await new Workbench().executeCommand('open test folder');
-            await new Promise((res) => { setTimeout(res, 3000); });
+            await new Promise((res) => { setTimeout(res, 2000); });
             view = await new ActivityBar().getViewControl('Explorer').openView();
             await new Promise((res) => { setTimeout(res, 1000); });
             content = view.getContent();

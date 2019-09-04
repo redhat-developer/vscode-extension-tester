@@ -17,7 +17,7 @@
 		"onCommand:extension.openFolder",
 		"onCommand:extension.closeFolder"
 	],
-	"main": "./out/extension.js",
+	"main": "./out/src/extension.js",
 	"contributes": {
 		"commands": [
 			{
@@ -43,7 +43,7 @@
 		"compile": "tsc -p ./",
 		"lint": "tslint -p ./",
 		"watch": "tsc -watch -p ./",
-		"ui-test": "npm run compile && extest setup-and-run './out/test/**/*test.js'"
+		"ui-test": "npm run compile && extest setup-and-run './out/src/test/**/*test.js'"
 	},
 	"devDependencies": {
 		"@types/chai": "^4.1.7",
