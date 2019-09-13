@@ -16,8 +16,8 @@ export class BottomBarPanel extends AbstractElement {
      * @param open true to open. false to close
      */
     async toggle(open: boolean): Promise<void> {
-        const css = await this.getCssValue('height');
-        if ((open && css === '0px') || !open && css !== '0px') {
+        const height = (await this.getSize()).height;
+        if ((open && height === 0) || !open && height > 0) {
             await this.getDriver().actions().sendKeys(Key.chord(BottomBarPanel.ctlKey, 'j')).perform();
             if (open) {
                 await this.wait();
