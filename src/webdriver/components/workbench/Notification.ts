@@ -1,5 +1,4 @@
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
-import { By } from "selenium-webdriver";
 import { AbstractElement } from "../AbstractElement";
 
 /**
@@ -21,14 +20,14 @@ export abstract class Notification extends ElementWithContexMenu {
      * Get the message of the notification
      */
     async getMessage(): Promise<string> {
-        return await this.findElement(By.className('notification-list-item-message')).getText();
+        return await this.findElement(Notification.locators.Notification.message).getText();
     }
 
     /**
      * Get the type of the notification
      */
     async getType(): Promise<NotificationType> {
-        const iconType = await this.findElement(By.className('notification-list-item-icon')).getAttribute('class');
+        const iconType = await this.findElement(Notification.locators.Notification.icon).getAttribute('class');
         if (iconType.indexOf('icon-info') > -1) {
             return NotificationType.Info;
         } else if (iconType.indexOf('icon-warning')) {
@@ -42,14 +41,14 @@ export abstract class Notification extends ElementWithContexMenu {
      * Get the source of the notification as text
      */
     async getSource(): Promise<string> {
-        return await this.findElement(By.className('notification-list-item-source')).getAttribute('title');
+        return await this.findElement(Notification.locators.Notification.source).getAttribute('title');
     }
 
     /**
      * Find whether the notification has an active progress bar
      */
     async hasProgress(): Promise<boolean> {
-        const klass = await this.findElement(By.className('monaco-progress-container')).getAttribute('class');
+        const klass = await this.findElement(Notification.locators.Notification.progress).getAttribute('class');
         return klass.indexOf('done') < 0;
     }
 
@@ -57,7 +56,7 @@ export abstract class Notification extends ElementWithContexMenu {
      * Dismiss the notification
      */
     async dismiss(): Promise<void> {
-        await this.findElement(By.className('clear-notification-action')).click();
+        await this.findElement(Notification.locators.Notification.dismiss).click();
     }
 
     /**
@@ -66,11 +65,11 @@ export abstract class Notification extends ElementWithContexMenu {
      */
     async getActions(): Promise<NotificationButton[]> {
         const buttons: NotificationButton[] = [];
-        const elements = await this.findElement(By.className('notification-list-item-buttons-container'))
-            .findElements(By.className('monaco-button'));
+        const elements = await this.findElement(Notification.locators.Notification.actions)
+            .findElements(Notification.locators.Notification.action);
 
         for (const button of elements) {
-            buttons.push(await new NotificationButton(await button.getAttribute('title'), this).wait());
+            buttons.push(await new NotificationButton(await button.getAttribute(Notification.locators.Notification.actionLabel), this).wait());
         }
         return buttons;
     }
@@ -89,7 +88,7 @@ export abstract class Notification extends ElementWithContexMenu {
  */
 export class StandaloneNotification extends Notification {
     constructor(id: string) {
-        super(By.xpath(`.//div[contains(@class, 'monaco-list-row') and @id='${id}']`), By.className('notifications-toasts'));
+        super(StandaloneNotification.locators.Notification.standalone(id), StandaloneNotification.locators.Notification.standaloneContainer);
     }
 }
 
@@ -98,7 +97,7 @@ export class StandaloneNotification extends Notification {
  */
 export class CenterNotification extends Notification {
     constructor(index: number) {
-        super(By.xpath(`.//div[contains(@class, 'monaco-list-row') and @data-index='${index}']`), By.className('notifications-center'));
+        super(CenterNotification.locators.Notification.center(index), CenterNotification.locators.NotificationsCenter.constructor);
     }
 }
 
@@ -109,7 +108,7 @@ class NotificationButton extends AbstractElement {
     private title: string;
 
     constructor(title: string, notification: Notification) {
-        super(By.xpath(`.//a[@role='button' and @title='${title}']`), notification);
+        super(NotificationButton.locators.Notification.buttonConstructor(title), notification);
         this.title = title;
     }
 

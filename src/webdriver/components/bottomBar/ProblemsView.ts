@@ -1,6 +1,6 @@
 import { BottomBarPanel } from "../../../extester";
 import { AbstractElement } from "../AbstractElement";
-import { By, WebElement } from 'selenium-webdriver';
+import { WebElement } from 'selenium-webdriver';
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
 
 /**
@@ -8,7 +8,7 @@ import { ElementWithContexMenu } from "../ElementWithContextMenu";
  */
 export class ProblemsView extends AbstractElement {
     constructor(panel: BottomBarPanel = new BottomBarPanel()) {
-        super(By.id('workbench.panel.markers'), panel);
+        super(ProblemsView.locators.ProblemsView.constructor, panel);
     }
 
     /**
@@ -24,9 +24,9 @@ export class ProblemsView extends AbstractElement {
      * Clear all filters
      */
     async clearFilter(): Promise<WebElement> {
-        const filterField = await this.enclosingItem.findElement(By.className('title-actions'))
-            .findElement(By.className('markers-panel-action-filter'))
-            .findElement(By.tagName('input'));
+        const filterField = await this.enclosingItem.findElement(ProblemsView.locators.BottomBarPanel.actions)
+            .findElement(ProblemsView.locators.ProblemsView.markersFilter)
+            .findElement(ProblemsView.locators.ProblemsView.input);
         await filterField.clear();
         return filterField;
     }
@@ -35,8 +35,8 @@ export class ProblemsView extends AbstractElement {
      * Collapse all collapsible markers in the problems view
      */
     async collapseAll(): Promise<void> {
-        const button = await this.enclosingItem.findElement(By.className('title-actions'))
-            .findElement(By.className('collapse-all'));
+        const button = await this.enclosingItem.findElement(ProblemsView.locators.BottomBarPanel.actions)
+            .findElement(ProblemsView.locators.ProblemsView.collapseAll);
         await button.click();
     }
 
@@ -48,15 +48,15 @@ export class ProblemsView extends AbstractElement {
      */
     async getAllMarkers(type: MarkerType): Promise<Marker[]> {
         const markers: Marker[] = [];
-        const elements = await this.findElements(By.className('monaco-list-row'));
+        const elements = await this.findElements(ProblemsView.locators.ProblemsView.markerRow);
         for (const element of elements) {
             let marker: Marker;
             try {
-                const label = await element.getAttribute('aria-label');
-                await element.findElement(By.xpath(`.//div[contains(@class, 'monaco-list-row') and contains(@aria-label, "${label}")]`));
-                marker = await new Marker(await element.getAttribute('aria-label'), this).wait();
+                const label = await element.getAttribute(ProblemsView.locators.ProblemsView.rowLabel);
+                await element.findElement(ProblemsView.locators.ProblemsView.markerContructor(label));
+                marker = await new Marker(await element.getAttribute(ProblemsView.locators.ProblemsView.rowLabel), this).wait();
             } catch (err) {
-                marker = await new Marker(await element.getAttribute('aria-label'), this).wait();
+                marker = await new Marker(await element.getAttribute(ProblemsView.locators.ProblemsView.rowLabel), this).wait();
             }
             if (type === MarkerType.Any || type === await marker.getType()) {
                 markers.push(marker);
@@ -71,7 +71,7 @@ export class ProblemsView extends AbstractElement {
  */
 export class Marker extends ElementWithContexMenu {
     constructor(label: string, view: ProblemsView) {
-        super(By.xpath(`.//div[contains(@class, 'monaco-list-row') and contains(@aria-label, "${label}")]`), view);
+        super(ProblemsView.locators.ProblemsView.markerContructor(label), view);
     }
 
     /**
@@ -79,7 +79,7 @@ export class Marker extends ElementWithContexMenu {
      * Possible types are: File, Error, Warning
      */
     async getType(): Promise<MarkerType> {
-        const twist = await this.findElement(By.className('monaco-tl-twistie'));
+        const twist = await this.findElement(ProblemsView.locators.ProblemsView.markerTwistie);
         if ((await twist.getAttribute('class')).indexOf('collapsible') > -1) {
             return MarkerType.File;            
         }
@@ -95,7 +95,7 @@ export class Marker extends ElementWithContexMenu {
      * Get the full text of the marker
      */
     async getText(): Promise<string> {
-        return await this.getAttribute('aria-label');
+        return await this.getAttribute(ProblemsView.locators.ProblemsView.rowLabel);
     }
 
     /**
@@ -104,7 +104,7 @@ export class Marker extends ElementWithContexMenu {
      */
     async toggleExpand(expand: boolean) {
         if (await this.getType() === MarkerType.File) {
-            const klass = await this.findElement(By.className('monaco-tl-twistie')).getAttribute('class');
+            const klass = await this.findElement(ProblemsView.locators.ProblemsView.markerTwistie).getAttribute('class');
             if ((klass.indexOf('collapsed') > -1) === expand) {
                 await this.click();
             }

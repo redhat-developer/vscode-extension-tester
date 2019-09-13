@@ -1,5 +1,5 @@
 import { TreeItem } from "../../ViewItem";
-import { By, WebElement } from 'selenium-webdriver';
+import { WebElement } from 'selenium-webdriver';
 import { TreeSection } from "../TreeSection";
 
 /**
@@ -7,17 +7,17 @@ import { TreeSection } from "../TreeSection";
  */
 export class DefaultTreeItem extends TreeItem {
     constructor(label: string, viewPart: TreeSection) {
-        super(By.xpath(`.//div[@role='treeitem' and @aria-label='${label}']`), viewPart);
+        super(DefaultTreeItem.locators.DefaultTreeItem.constructor(label), viewPart);
         this.label = label;
     }
 
     async hasChildren(): Promise<boolean> {
-        const twistieClass = await this.findElement(By.className('monaco-tl-twistie')).getAttribute('class');
+        const twistieClass = await this.findElement(DefaultTreeItem.locators.DefaultTreeItem.twistie).getAttribute('class');
         return twistieClass.indexOf('collapsible') > -1;
     }
 
     async isExpanded(): Promise<boolean> {
-        const twistieClass = await this.findElement(By.className('monaco-tl-twistie')).getAttribute('class');
+        const twistieClass = await this.findElement(DefaultTreeItem.locators.DefaultTreeItem.twistie).getAttribute('class');
         return twistieClass.indexOf('collapsed') < 0;
     }
 
@@ -27,18 +27,18 @@ export class DefaultTreeItem extends TreeItem {
             await this.click();
         }
 
-        const rows = await this.enclosingItem.findElements(By.className('monaco-list-row'));
+        const rows = await this.enclosingItem.findElements(DefaultTreeItem.locators.DefaultTreeSection.itemRow);
         const baseIndex = await this.findRowIndex(rows);
-        const baseLevel = +await this.getAttribute('aria-level');
+        const baseLevel = +await this.getAttribute(DefaultTreeItem.locators.ViewSection.level);
 
         for (let i = baseIndex; i < rows.length; i++) {
             if (i === baseIndex) { continue; }
-            const level = +await rows[i].getAttribute('aria-level');
+            const level = +await rows[i].getAttribute(DefaultTreeItem.locators.ViewSection.level);
 
             if (level > baseLevel + 1) { continue; }
             if (level <= baseLevel) { break; }
 
-            const label = await rows[i].getAttribute('aria-label');
+            const label = await rows[i].getAttribute(DefaultTreeItem.locators.DefaultTreeSection.itemLabel);
             items.push(await new DefaultTreeItem(label, <TreeSection>this.enclosingItem).wait());
         }
 
@@ -51,7 +51,7 @@ export class DefaultTreeItem extends TreeItem {
 
     private async findRowIndex(rows: WebElement[]): Promise<number> {
         for (let i = 0; i < rows.length; i++) {
-            const label = await rows[i].getAttribute('aria-label');
+            const label = await rows[i].getAttribute(DefaultTreeItem.locators.DefaultTreeSection.itemLabel);
             if (label === this.label) {
                 return i;
             }

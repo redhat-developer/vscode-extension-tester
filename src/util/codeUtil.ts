@@ -133,8 +133,14 @@ export class CodeUtil {
      * 
      * @param testFilesPattern glob pattern of test files to run
      * @param settings path to custom settings json file
+     * @param vscodeVersion version of VSCode to test against, default latest
      */
-    runTests(testFilesPattern: string, settings: string = ''): void {
+    runTests(testFilesPattern: string, vscodeVersion: string = 'latest', quality: ReleaseQuality = ReleaseQuality.Stable, settings: string = ''): void {
+        if (vscodeVersion !== 'latest' && this.availableVersions[quality].indexOf(vscodeVersion) < 0) {
+            throw new Error(`Version ${vscodeVersion} is not available in ${quality} stream`);
+        }
+        const literalVersion = vscodeVersion === 'latest' ? this.availableVersions[quality][0] : vscodeVersion;
+
         // add chromedriver to process' path
         const finalEnv: NodeJS.ProcessEnv = {};
         Object.assign(finalEnv, process.env);
@@ -143,7 +149,7 @@ export class CodeUtil {
     
         process.env = finalEnv;
         process.env.TEST_RESOURCES = this.downloadFolder;
-        const runner = new VSRunner(this.executablePath, this.parseSettings(settings));
+        const runner = new VSRunner(this.executablePath, literalVersion, this.parseSettings(settings));
         runner.runTests(testFilesPattern);
     }
 

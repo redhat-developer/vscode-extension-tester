@@ -1,5 +1,6 @@
 import { WebElement, WebDriver, Locator, until, By, Key } from "selenium-webdriver";
 import { VSBrowser } from "../browser";
+import { Locators } from "../locators/locators";
 
 /**
  * Default wrapper for webelement
@@ -8,6 +9,7 @@ export abstract class AbstractElement extends WebElement {
 
     public static ctlKey = process.platform === 'darwin' ? Key.COMMAND : Key.CONTROL;
     protected static driver: WebDriver;
+    protected static locators: Locators;
     protected enclosingItem: WebElement;
 
     /**
@@ -20,6 +22,7 @@ export abstract class AbstractElement extends WebElement {
         if (!AbstractElement.driver) {
             AbstractElement.driver = VSBrowser.instance.driver;
         }
+
         let item: WebElement = AbstractElement.driver.findElement(By.tagName('body'));
         if (!enclosingItem) {
             enclosingItem = item;
@@ -59,4 +62,9 @@ export abstract class AbstractElement extends WebElement {
         return this.enclosingItem;
     }
 
+    static loadLocators(browser: VSBrowser): void {
+        if (!AbstractElement.locators) {
+            AbstractElement.locators = browser.locators;
+        }
+    }
 }

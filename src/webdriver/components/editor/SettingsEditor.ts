@@ -1,6 +1,6 @@
 import { Editor } from "./Editor";
 import { ContextMenu } from "../menu/ContextMenu";
-import { By, WebElement, until, Key } from "selenium-webdriver";
+import { WebElement, until, Key } from "selenium-webdriver";
 import { AbstractElement } from "../AbstractElement";
 import { EditorView } from "../../../extester";
 
@@ -9,8 +9,8 @@ import { EditorView } from "../../../extester";
  */
 export class SettingsEditor extends Editor {
     
-    constructor(view: EditorView = new EditorView(), title: string = 'Settings') {
-        super(view, title);
+    constructor(view: EditorView = new EditorView()) {
+        super(view, SettingsEditor.locators.SettingsEditor.title);
     }
 
     /**
@@ -23,13 +23,13 @@ export class SettingsEditor extends Editor {
      * @returns promise resolving to a Setting object if found, undefined otherwise
      */
     async findSetting(title: string, category: string): Promise<Setting> {
-        const searchBox = await this.findElement(By.className('inputarea'));
+        const searchBox = await this.findElement(SettingsEditor.locators.Editor.inputArea);
         await searchBox.sendKeys(Key.chord(SettingsEditor.ctlKey, 'a'));
         await searchBox.sendKeys(`${category}: ${title}`);
         await SettingsEditor.driver.sleep(2000);
 
         let setting!: Setting;
-        const items = await this.findElements(By.className('monaco-list-row'));
+        const items = await this.findElements(SettingsEditor.locators.SettingsEditor.itemRow);
 
         for (const item of items) {
             try {
@@ -48,10 +48,10 @@ export class SettingsEditor extends Editor {
      * @returns promise that resolves when the appropriate button is clicked
      */
     async switchToPerspective(perspective: 'User' | 'Workspace'): Promise<void> {
-        const actions = await this.findElement(By.className('settings-header'))
-            .findElement(By.className('settings-tabs-widget'))
-            .findElement(By.className('actions-container'));
-        await actions.findElement(By.xpath(`.//a[@title='${perspective}']`)).click();
+        const actions = await this.findElement(SettingsEditor.locators.SettingsEditor.header)
+            .findElement(SettingsEditor.locators.SettingsEditor.tabs)
+            .findElement(SettingsEditor.locators.SettingsEditor.actions);
+        await actions.findElement(SettingsEditor.locators.SettingsEditor.action(perspective)).click();
     }
 
     /**
@@ -62,25 +62,25 @@ export class SettingsEditor extends Editor {
     }
 
     private async createSetting(element: WebElement, title: string, category: string): Promise<Setting> {
-        await element.findElement(By.xpath(`.//div[@class='monaco-tl-row' and .//span/text()='${title}' and .//span/text()='${category}: ']`));
+        await element.findElement(SettingsEditor.locators.SettingsEditor.settingConstructor(title, category));
         try {
             // try a combo setting
-            await element.findElement(By.tagName('select'));
+            await element.findElement(SettingsEditor.locators.SettingsEditor.comboSetting);
             return new ComboSetting(title, category, this);
         } catch (err) {
             try {
                 // try text setting
-                await element.findElement(By.tagName('input'));
+                await element.findElement(SettingsEditor.locators.SettingsEditor.textSetting);
                 return new TextSetting(title, category, this);
             } catch (err) {
                 try {
                     // try checkbox setting
-                    await element.findElement(By.className('setting-value-checkbox'));
+                    await element.findElement(SettingsEditor.locators.SettingsEditor.checkboxSetting);
                     return new CheckboxSetting(title, category, this);
                 } catch (err) {
                     // try link setting
                     try {
-                        await element.findElement(By.className('edit-in-settings-button'));
+                        await element.findElement(SettingsEditor.locators.SettingsEditor.linkButton);
                         return new LinkSetting(title, category, this);
                     } catch (err) {
                         throw new Error('Setting type not supported');
@@ -100,7 +100,7 @@ export abstract class Setting extends AbstractElement {
     private category: string;
 
     constructor(title: string, category: string, settings: SettingsEditor) {
-        super(By.xpath(`.//div[@class='monaco-tl-row' and .//span/text()='${title}' and .//span/text()='${category}: ']`), settings);
+        super(SettingsEditor.locators.SettingsEditor.settingConstructor(title, category), settings);
         this.title = title;
         this.category = category;
     }
@@ -131,7 +131,7 @@ export abstract class Setting extends AbstractElement {
      * Get description of the setting
      */
     async getDescription(): Promise<string> {
-        const desc = await this.findElement(By.className('setting-item-description-markdown'));
+        const desc = await this.findElement(SettingsEditor.locators.SettingsEditor.settingDesctiption);
         return await desc.getText();
     }
 
@@ -148,7 +148,7 @@ export abstract class Setting extends AbstractElement {
  */
 export class ComboSetting extends Setting {
     async getValue(): Promise<string> {
-        const combo = await this.findElement(By.tagName('select'));
+        const combo = await this.findElement(SettingsEditor.locators.SettingsEditor.comboSetting);
         return await combo.getAttribute('title');
     }
 
@@ -156,7 +156,7 @@ export class ComboSetting extends Setting {
         const rows = await this.getOptions();
         for (let i = 0; i < rows.length; i++) {
             if ((await rows[i].getAttribute('class')).indexOf('disabled') < 0) {
-                const text = await rows[i].findElement(By.className('option-text')).getText();
+                const text = await rows[i].findElement(SettingsEditor.locators.SettingsEditor.comboOption).getText();
                 if (value === text) {
                     return await rows[i].click();
                 }
@@ -172,20 +172,20 @@ export class ComboSetting extends Setting {
         const rows = await this.getOptions();
 
         for (const row of rows) {
-            values.push(await row.findElement(By.className('option-text')).getText())
+            values.push(await row.findElement(SettingsEditor.locators.SettingsEditor.comboOption).getText())
         }
         return values;
     }
 
     private async getOptions(): Promise<WebElement[]> {
         const menu = await this.openCombo();
-        return await menu.findElements(By.className('monaco-list-row'));
+        return await menu.findElements(SettingsEditor.locators.SettingsEditor.itemRow);
     }
 
     private async openCombo(): Promise<WebElement> {
-        const combo = await this.enclosingItem.findElement(By.tagName('select'));
-        const workbench = await this.getDriver().findElement(By.className('monaco-workbench'));
-        const menu = await workbench.findElement(By.className('context-view'));
+        const combo = await this.enclosingItem.findElement(SettingsEditor.locators.SettingsEditor.comboSetting);
+        const workbench = await this.getDriver().findElement(SettingsEditor.locators.Workbench.constructor);
+        const menu = await workbench.findElement(SettingsEditor.locators.ContextMenu.contextView);
 
         if (await menu.isDisplayed()) {
             await combo.click();
@@ -201,12 +201,12 @@ export class ComboSetting extends Setting {
  */
 export class TextSetting extends Setting {
     async getValue(): Promise<string> {
-        const input = await this.findElement(By.tagName('input'));
+        const input = await this.findElement(SettingsEditor.locators.SettingsEditor.textSetting);
         return await input.getAttribute('value');
     }
 
     async setValue(value: string): Promise<void> {
-        const input = await this.findElement(By.tagName('input'));
+        const input = await this.findElement(SettingsEditor.locators.SettingsEditor.textSetting);
         await input.clear();
         await input.sendKeys(value);
     } 
@@ -217,8 +217,8 @@ export class TextSetting extends Setting {
  */
 export class CheckboxSetting extends Setting {
     async getValue(): Promise<boolean> {
-        const checkbox = await this.findElement(By.className('setting-value-checkbox'));
-        const checked = await checkbox.getAttribute('aria-checked');
+        const checkbox = await this.findElement(SettingsEditor.locators.SettingsEditor.checkboxSetting);
+        const checked = await checkbox.getAttribute(SettingsEditor.locators.SettingsEditor.checkboxChecked);
         if (checked === 'true') {
             return true;
         }
@@ -226,7 +226,7 @@ export class CheckboxSetting extends Setting {
     }
 
     async setValue(value: boolean): Promise<void> {
-        const checkbox = await this.findElement(By.className('setting-value-checkbox'));
+        const checkbox = await this.findElement(SettingsEditor.locators.SettingsEditor.checkboxSetting);
         if (await this.getValue() !== value) {
             await checkbox.click();
         }
@@ -249,7 +249,7 @@ export class LinkSetting extends Setting {
      * Open the link that leads to the value in settings.json
      */
     async openLink(): Promise<void> {
-        const link = await this.findElement(By.className('edit-in-settings-button'));
+        const link = await this.findElement(SettingsEditor.locators.SettingsEditor.linkButton);
         await link.click();
     }
 }

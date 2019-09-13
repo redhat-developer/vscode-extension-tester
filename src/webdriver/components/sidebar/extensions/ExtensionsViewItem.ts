@@ -1,6 +1,6 @@
 import { ViewItem } from "../ViewItem";
 import { ExtensionsViewSection } from "./ExtensionsViewSection";
-import { By, until } from "selenium-webdriver";
+import { until } from "selenium-webdriver";
 import { ContextMenu } from "../../menu/ContextMenu";
 
 /**
@@ -10,7 +10,7 @@ export class ExtensionsViewItem extends ViewItem {
     private title: string;
 
     constructor(title: string, section: ExtensionsViewSection) {
-        super(By.xpath(`.//div[contains(@class, 'monaco-list-row') and .//span/text()='${title}']`), section);
+        super(ExtensionsViewItem.locators.ExtensionsViewItem.constructor(title), section);
         this.title = title;
     }
 
@@ -29,7 +29,7 @@ export class ExtensionsViewItem extends ViewItem {
      * Get version of the extension
      */
     async getVersion(): Promise<string> {
-        const version = await this.findElement(By.className('version'));
+        const version = await this.findElement(ExtensionsViewItem.locators.ExtensionsViewItem.version);
         return await version.getText();
     }
 
@@ -37,7 +37,7 @@ export class ExtensionsViewItem extends ViewItem {
      * Get the author of the extension
      */
     async getAuthor(): Promise<string> {
-        const author = await this.findElement(By.className('author'));
+        const author = await this.findElement(ExtensionsViewItem.locators.ExtensionsViewItem.author);
         return await author.getText();
     }
 
@@ -45,7 +45,7 @@ export class ExtensionsViewItem extends ViewItem {
      * Get the description of the extension
      */
     async getDescription(): Promise<string> {
-        const description = await this.findElement(By.className('description'));
+        const description = await this.findElement(ExtensionsViewItem.locators.ExtensionsViewItem.description);
         return await description.getText();
     }
     
@@ -53,7 +53,7 @@ export class ExtensionsViewItem extends ViewItem {
      * Find if the extension is installed
      */
     async isInstalled(): Promise<boolean> {
-        const button = await this.findElement(By.className('install'));
+        const button = await this.findElement(ExtensionsViewItem.locators.ExtensionsViewItem.install);
         if ((await button.getAttribute('class')).indexOf('disabled') > -1) {
             return true;
         }
@@ -64,7 +64,7 @@ export class ExtensionsViewItem extends ViewItem {
      * Open the management context menu if the extension is installed
      */
     async manage(): Promise<ContextMenu> {
-        const button = await this.findElement(By.className('manage'));
+        const button = await this.findElement(ExtensionsViewItem.locators.ExtensionsViewItem.manage);
         if ((await button.getAttribute('class')).indexOf('disabled') > -1) {
             throw new Error(`Extension '${this.title}' is not installed`);
         }
@@ -78,7 +78,7 @@ export class ExtensionsViewItem extends ViewItem {
         if (await this.isInstalled()) {
             return;
         }
-        const button = await this.findElement(By.className('install'));
+        const button = await this.findElement(ExtensionsViewItem.locators.ExtensionsViewItem.install);
         await button.click();
         await this.getDriver().wait(until.elementIsNotVisible(button));
     }

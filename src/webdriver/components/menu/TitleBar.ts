@@ -1,28 +1,27 @@
 import { WindowControls, ContextMenu } from "../../../extester";
 import { Menu } from "./Menu";
 import { MenuItem } from "./MenuItem";
-import { By } from "selenium-webdriver";
 
 /**
  * Page object representing the custom VSCode title bar
  */
 export class TitleBar extends Menu {
     constructor() {
-        super(By.id('workbench.parts.titlebar'), By.className('monaco-workbench'));
+        super(TitleBar.locators.TitleBar.constructor, TitleBar.locators.Workbench.constructor);
     }
 
     async getItem(name: string): Promise<TitleBarItem> {
-        await this.findElement(By.xpath(`.//div[@aria-label='${name}']`));
+        await this.findElement(TitleBar.locators.TitleBar.itemConstructor(name));
         return await new TitleBarItem(name, this).wait();
     }
 
     async getItems(): Promise<TitleBarItem[]> {
         const items: TitleBarItem[] = [];
-        const elements = await this.findElements(By.className('menubar-menu-button'));
+        const elements = await this.findElements(TitleBar.locators.TitleBar.itemElement);
 
         for (const element of elements) {
             if (await element.isDisplayed()) {
-                items.push(await new TitleBarItem(await element.getAttribute('aria-label'), this).wait());
+                items.push(await new TitleBarItem(await element.getAttribute(TitleBar.locators.TitleBar.itemLabel), this).wait());
             }
         }
         return items;
@@ -32,7 +31,7 @@ export class TitleBar extends Menu {
      * Get the window title
      */
     async getTitle(): Promise<string> {
-        return this.findElement(By.className('window-title')).getText();
+        return this.findElement(TitleBar.locators.TitleBar.title).getText();
     }
 
     getWindowControls(): WindowControls {
@@ -45,7 +44,7 @@ export class TitleBar extends Menu {
  */
 export class TitleBarItem extends MenuItem {
     constructor(label: string, parent: Menu) {
-        super(By.xpath(`.//div[@aria-label='${label}']`), parent);
+        super(TitleBar.locators.TitleBar.itemConstructor(label), parent);
         this.parent = parent;
         this.label = label;
     }

@@ -1,20 +1,20 @@
 import { AbstractElement } from "../AbstractElement";
 import { TitleBar } from "../../../extester";
-import { By, WebElement } from "selenium-webdriver";
+import { WebElement } from "selenium-webdriver";
 
 /**
  * Page object for the windows controls part of the title bar
  */
 export class WindowControls extends AbstractElement {
     constructor(bar: TitleBar = new TitleBar()) {
-        super(By.className('window-controls-container'), bar);
+        super(WindowControls.locators.WindowControls.constructor, bar);
     }
 
     /**
      * Use the minimize window button
      */
     async minimize(): Promise<void> {
-        const minButton = this.findElement(By.className('window-minimize'));
+        const minButton = this.findElement(WindowControls.locators.WindowControls.minimize);
         await minButton.click();
     }
 
@@ -24,7 +24,7 @@ export class WindowControls extends AbstractElement {
     async maximize(): Promise<void> {
         let maxButton: WebElement;
         try {
-            maxButton = await this.findElement(By.className('window-maximize'));
+            maxButton = await this.findElement(WindowControls.locators.WindowControls.maximize);
             await maxButton.click();
         } catch (err) {
             console.log('Window is already maximized');
@@ -37,7 +37,7 @@ export class WindowControls extends AbstractElement {
     async restore(): Promise<void> {
         let maxButton: WebElement;
         try {
-            maxButton = await this.findElement(By.className('window-unmaximize'));
+            maxButton = await this.findElement(WindowControls.locators.WindowControls.restore);
             await maxButton.click();
         } catch (err) {
             console.log('Window is not maximized');
@@ -48,7 +48,7 @@ export class WindowControls extends AbstractElement {
      * Use the window close button. Use at your own risk.
      */
     async close(): Promise<void> {
-        const closeButton = this.findElement(By.className('window-close'));
+        const closeButton = this.findElement(WindowControls.locators.WindowControls.close);
         await closeButton.click();
     }
 }

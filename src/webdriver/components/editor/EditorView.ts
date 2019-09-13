@@ -1,6 +1,6 @@
 import { AbstractElement } from "../AbstractElement";
 import { TextEditor } from "../../../extester";
-import { By, WebElement } from "selenium-webdriver";
+import { WebElement } from "selenium-webdriver";
 import * as path from 'path';
 import { Editor } from "./Editor";
 import { SettingsEditor } from "./SettingsEditor";
@@ -10,7 +10,7 @@ import { SettingsEditor } from "./SettingsEditor";
  */
 export class EditorView extends AbstractElement {
     constructor() {
-        super(By.className('editor-group-container'), By.id('workbench.parts.editor'));
+        super(EditorView.locators.EditorView.constructor, EditorView.locators.EditorView.parent);
     }
 
     /**
@@ -22,7 +22,7 @@ export class EditorView extends AbstractElement {
         await tab.click();
 
         try {
-            await this.findElement(By.id('workbench.editor.settings2'));
+            await this.findElement(EditorView.locators.EditorView.settingsEditor);
             return new SettingsEditor(this);
         } catch (err) {
             return new TextEditor(this, title);
@@ -35,7 +35,7 @@ export class EditorView extends AbstractElement {
      */
     async closeEditor(title: string): Promise<void> {
         const tab = await this.getTabByTitle(title);
-        const closeButton = await tab.findElement(By.className('tab-close'));
+        const closeButton = await tab.findElement(EditorView.locators.EditorView.closeTab);
         await EditorView.driver.actions().mouseMove(tab).perform();
         await closeButton.click();
     }
@@ -44,10 +44,10 @@ export class EditorView extends AbstractElement {
      * Close all open editor tabs
      */
     async closeAllEditors(): Promise<void> {
-        const tabs = await this.findElements(By.className('tab'));
+        const tabs = await this.findElements(EditorView.locators.EditorView.tab);
         for (let i = 0; i < tabs.length; i++) {
             await EditorView.driver.actions().mouseMove(tabs[i]).perform();
-            await (<WebElement>tabs.pop()).findElement(By.className('tab-close')).click();
+            await (<WebElement>tabs.pop()).findElement(EditorView.locators.EditorView.closeTab).click();
         }
     }
 
@@ -55,20 +55,20 @@ export class EditorView extends AbstractElement {
      * Retrieve all open editor tab titles in an array
      */
     async getOpenEditorTitles(): Promise<string[]> {
-        const tabs = await this.findElements(By.className('tab'));
+        const tabs = await this.findElements(EditorView.locators.EditorView.tab);
         const titles = [];
         for (const tab of tabs) {
-            const title = path.basename(await tab.getAttribute('title'));
+            const title = path.basename(await tab.getAttribute(EditorView.locators.EditorView.tabTitle));
             titles.push(title);
         }
         return titles;
     }
 
     private async getTabByTitle(title: string): Promise<WebElement> {
-        const tabs = await this.findElements(By.className('tab'));
+        const tabs = await this.findElements(EditorView.locators.EditorView.tab);
         let tab!: WebElement;
         for (const element of tabs) {
-            const label = await element.getAttribute('aria-label');
+            const label = await element.getAttribute(EditorView.locators.EditorView.tabLabel);
             if (label.startsWith(title)) {
                 tab = element;
                 break;

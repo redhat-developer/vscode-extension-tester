@@ -1,6 +1,6 @@
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
 import { AbstractElement } from "../AbstractElement";
-import { By, WebElement } from "selenium-webdriver";
+import { WebElement } from "selenium-webdriver";
 
 /**
  * Arbitrary item in the side bar view
@@ -78,15 +78,15 @@ export abstract class TreeItem extends ViewItem {
     async getActionButtons(): Promise<ViewItemAction[]> {
         let container: WebElement;
         try {
-            container = await this.findElement(By.className('actions-container'));
+            container = await this.findElement(TreeItem.locators.TreeItem.actions);
         } catch(err) {
             return [];
         }
         const actions: ViewItemAction[] = [];
-        const items = await container.findElements(By.className('action-label'));
+        const items = await container.findElements(TreeItem.locators.TreeItem.actionLabel);
         
         for (const item of items) {
-            const label = await item.getAttribute('title');
+            const label = await item.getAttribute(TreeItem.locators.TreeItem.actionTitle);
             actions.push(await new ViewItemAction(label, this));
         }
         return actions;
@@ -115,7 +115,7 @@ export class ViewItemAction extends AbstractElement {
     private label: string;
 
     constructor(label: string, viewItem: TreeItem) {
-        super(By.xpath(`.//a[contains(@class, 'action-label') and @role='button' and @title='${label}']`), viewItem);
+        super(ViewItemAction.locators.ViewSection.actionConstructor(label), viewItem);
         this.label = label;
     }
 

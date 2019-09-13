@@ -1,5 +1,5 @@
 import { AbstractElement } from "../AbstractElement";
-import { By, Key, until } from "selenium-webdriver";
+import { Key, until } from "selenium-webdriver";
 import { TitleBar } from "../menu/TitleBar";
 import { ProblemsView, OutputView, DebugConsoleView, TerminalView } from "../../../extester";
 
@@ -8,7 +8,7 @@ import { ProblemsView, OutputView, DebugConsoleView, TerminalView } from "../../
  */
 export class BottomBarPanel extends AbstractElement {
     constructor() {
-        super(By.id('workbench.parts.panel'), By.className('monaco-workbench'));
+        super(BottomBarPanel.locators.BottomBarPanel.constructor, BottomBarPanel.locators.Workbench.constructor);
     }
 
     /**
@@ -31,7 +31,7 @@ export class BottomBarPanel extends AbstractElement {
      * Open the Problems view in the bottom panel
      */
     async openProblemsView(): Promise<ProblemsView> {
-        await this.openTab('Problems');
+        await this.openTab(BottomBarPanel.locators.BottomBarPanel.problemsTab);
         return new ProblemsView(this).wait();
     }
 
@@ -39,7 +39,7 @@ export class BottomBarPanel extends AbstractElement {
      * Open the Output view in the bottom panel
      */
     async openOutputView(): Promise<OutputView> {
-        await this.openTab('Output');
+        await this.openTab(BottomBarPanel.locators.BottomBarPanel.outputTab);
         return new OutputView(this).wait();
     }
 
@@ -47,7 +47,7 @@ export class BottomBarPanel extends AbstractElement {
      * Open the Debug Console view in the bottom panel
      */
     async openDebugConsoleView(): Promise<DebugConsoleView> {
-        await this.openTab('Debug Console');
+        await this.openTab(BottomBarPanel.locators.BottomBarPanel.debugTab);
         return new DebugConsoleView(this).wait();
     }
 
@@ -55,7 +55,7 @@ export class BottomBarPanel extends AbstractElement {
      * Open the Terminal view in the bottom panel
      */
     async openTerminalView(): Promise<TerminalView> {
-        await this.openTab('Terminal');
+        await this.openTab(BottomBarPanel.locators.BottomBarPanel.terminalTab);
         return new TerminalView(this).wait();
     }
 
@@ -63,21 +63,21 @@ export class BottomBarPanel extends AbstractElement {
      * Maximize the the bottom panel if not maximized
      */
     async maximize(): Promise<void> {
-        await this.resize('Maximize Panel Size');
+        await this.resize(BottomBarPanel.locators.BottomBarPanel.maximize);
     }
 
     /**
      * Restore the the bottom panel if maximized
      */
     async restore(): Promise<void> {
-        await this.resize('Restore Panel Size');
+        await this.resize(BottomBarPanel.locators.BottomBarPanel.restore);
     }
 
     private async openTab(title: string) {
         await this.toggle(true);
-        const tabContainer = await this.findElement(By.className('panel-switcher-container'));
+        const tabContainer = await this.findElement(BottomBarPanel.locators.BottomBarPanel.tabContainer);
         try {
-            const tab = tabContainer.findElement(By.xpath(`.//li[starts-with(@title, '${title}')]`));
+            const tab = tabContainer.findElement(BottomBarPanel.locators.BottomBarPanel.tab(title));
             await tab.click();
         } catch (err) {
             await new TitleBar().select('View', title);
@@ -87,8 +87,8 @@ export class BottomBarPanel extends AbstractElement {
     private async resize(label: string) {
         await this.toggle(true);
         try {
-            const action = await this.findElement(By.className('title-actions'))
-                .findElement(By.xpath(`.//a[@title='${label}']`));
+            const action = await this.findElement(BottomBarPanel.locators.BottomBarPanel.actions)
+                .findElement(BottomBarPanel.locators.BottomBarPanel.action(label));
             await action.click();
         } catch (err) {
             // the panel is already maximized

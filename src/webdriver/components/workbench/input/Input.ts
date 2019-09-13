@@ -1,5 +1,5 @@
 import { AbstractElement } from "../../AbstractElement";
-import { By, Key } from "selenium-webdriver";
+import { Key } from "selenium-webdriver";
 import { QuickOpenBox } from "../../../../extester";
 
 /**
@@ -11,8 +11,8 @@ export abstract class Input extends AbstractElement {
      * Get current text of the input field
      */
     async getText(): Promise<string> {
-        return await this.findElement(By.className('monaco-inputbox'))
-            .findElement(By.className('input')).getText();
+        return await this.findElement(Input.locators.Input.inputBox)
+            .findElement(Input.locators.Input.input).getText();
     }
 
     /**
@@ -20,8 +20,8 @@ export abstract class Input extends AbstractElement {
      * @param text text to set into the input field
      */
     async setText(text: string): Promise<void> {
-        const input = await this.findElement(By.className('monaco-inputbox'))
-            .findElement(By.className('input'));
+        const input = await this.findElement(Input.locators.Input.inputBox)
+            .findElement(Input.locators.Input.input);
         await input.clear();
         await input.sendKeys(text);
     }
@@ -30,16 +30,16 @@ export abstract class Input extends AbstractElement {
      * Get the placeholder text for the input field
      */
     async getPlaceHolder(): Promise<string> {
-        return await this.findElement(By.className('monaco-inputbox'))
-            .findElement(By.className('input')).getAttribute('placeholder');
+        return await this.findElement(Input.locators.Input.inputBox)
+            .findElement(Input.locators.Input.input).getAttribute('placeholder');
     }
 
     /**
      * Confirm the input field by pressing Enter
      */
     async confirm(): Promise<void> {
-        const input = await this.findElement(By.className('monaco-inputbox'))
-            .findElement(By.className('input'));
+        const input = await this.findElement(Input.locators.Input.inputBox)
+            .findElement(Input.locators.Input.input);
         await input.sendKeys(Key.ENTER);
     }
 
@@ -47,8 +47,8 @@ export abstract class Input extends AbstractElement {
      * Cancel the input field by pressing Escape
      */
     async cancel(): Promise<void> {
-        const input = await this.findElement(By.className('monaco-inputbox'))
-            .findElement(By.className('input'));
+        const input = await this.findElement(Input.locators.Input.inputBox)
+            .findElement(Input.locators.Input.input);
         await input.sendKeys(Key.ESCAPE);
     }
 
@@ -93,11 +93,11 @@ export class QuickPickItem extends AbstractElement {
     private index: number;
 
     constructor(index: number, input: Input) {
-        let xpath = `.//div[@role='treeitem' and @data-index='${index}']`;
+        let locator = Input.locators.Input.quickPickIndex(index);
         if (input instanceof QuickOpenBox) {
-            xpath = `.//div[@role='treeitem' and @aria-posinset='${index}']`;
+            locator = Input.locators.Input.quickPickPosition(index);
         }
-        super(By.xpath(xpath), input);
+        super(locator, input);
         this.index = index;
     }
 
@@ -105,7 +105,7 @@ export class QuickPickItem extends AbstractElement {
      * Get the text of the quick pick item
      */
     async getText(): Promise<string> {
-        return await this.findElement(By.className('monaco-highlighted-label')).getText();
+        return await this.findElement(Input.locators.Input.quickPickText).getText();
     }
 
     /**

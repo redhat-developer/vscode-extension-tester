@@ -1,6 +1,6 @@
 import { AbstractElement } from "../AbstractElement";
 import { ViewContent, ViewItem, waitForAttributeValue } from "../../../extester";
-import { By, until, WebElement } from "selenium-webdriver";
+import { until, WebElement } from "selenium-webdriver";
 
 /**
  * Page object representing a collapsible content section of the side bar view
@@ -15,8 +15,8 @@ export abstract class ViewSection extends AbstractElement {
      * Get the title of the section as string
      */
     async getTitle(): Promise<string> {
-        const title = await this.findElement(By.className('title'));
-        return await title.getAttribute('textContent');
+        const title = await this.findElement(ViewSection.locators.ViewSection.title);
+        return await title.getAttribute(ViewSection.locators.ViewSection.titleText);
     }
 
     /**
@@ -27,9 +27,9 @@ export abstract class ViewSection extends AbstractElement {
             return;
         }
         if (!await this.isExpanded()) {
-            const panel = await this.findElement(By.className('panel-header'));
+            const panel = await this.findElement(ViewSection.locators.ViewSection.header);
             await panel.click();
-            await this.getDriver().wait(waitForAttributeValue(panel, 'aria-expanded', 'true'), 1000);
+            await this.getDriver().wait(waitForAttributeValue(panel, ViewSection.locators.ViewSection.headerExpanded, 'true'), 1000);
         }
     }
 
@@ -41,9 +41,9 @@ export abstract class ViewSection extends AbstractElement {
             return;
         }
         if (await this.isExpanded()) {
-            const panel = await this.findElement(By.className('panel-header'));
+            const panel = await this.findElement(ViewSection.locators.ViewSection.header);
             await panel.click();
-            await this.getDriver().wait(waitForAttributeValue(panel, 'aria-expanded', 'false'), 1000);
+            await this.getDriver().wait(waitForAttributeValue(panel, ViewSection.locators.ViewSection.headerExpanded, 'false'), 1000);
         }
     }
 
@@ -51,8 +51,8 @@ export abstract class ViewSection extends AbstractElement {
      * Finds whether the section is expanded
      */
     async isExpanded(): Promise<boolean>  {
-        const header = await this.findElement(By.className('panel-header'));
-        const expanded = await header.getAttribute('aria-expanded');
+        const header = await this.findElement(ViewSection.locators.ViewSection.header);
+        const expanded = await header.getAttribute(ViewSection.locators.ViewSection.headerExpanded);
         return expanded === 'true';
     }
 
@@ -97,12 +97,12 @@ export abstract class ViewSection extends AbstractElement {
         const actions: ViewPanelAction[] = [];
 
         if (!await this.isHeaderHidden()) {
-            const header = await this.findElement(By.className('panel-header'));
-            const act = await header.findElement(By.className('actions'));
-            const elements = await act.findElements(By.xpath(`.//a[@role='button']`));
+            const header = await this.findElement(ViewSection.locators.ViewSection.header);
+            const act = await header.findElement(ViewSection.locators.ViewSection.actions);
+            const elements = await act.findElements(ViewSection.locators.ViewSection.button);
     
             for (const element of elements) {
-                actions.push(await new ViewPanelAction(await element.getAttribute('title'), this).wait());
+                actions.push(await new ViewPanelAction(await element.getAttribute(ViewSection.locators.ViewSection.buttonLabel), this).wait());
             }
         }
         return actions;
@@ -117,7 +117,7 @@ export abstract class ViewSection extends AbstractElement {
     }
 
     private async isHeaderHidden(): Promise<boolean> {
-        const header = await this.findElement(By.className('panel-header'));
+        const header = await this.findElement(ViewSection.locators.ViewSection.header);
         return (await header.getAttribute('class')).indexOf('hidden') > -1;
     }
 }
@@ -129,7 +129,7 @@ export class ViewPanelAction extends AbstractElement {
     private label: string;
 
     constructor(label: string, viewPart: ViewSection) {
-        super(By.xpath(`.//a[contains(@class, 'action-label') and @role='button' and @title='${label}']`), viewPart);
+        super(ViewPanelAction.locators.ViewSection.actionConstructor(label), viewPart);
         this.label = label;
     }
 

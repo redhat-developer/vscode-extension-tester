@@ -1,6 +1,5 @@
 import { ActivityBar, ContextMenu } from "../../../extester";
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
-import { By } from "selenium-webdriver";
 
 /**
  * Page object representing the global action controls on the bottom of the action bar
@@ -9,7 +8,7 @@ export class ActionsControl extends ElementWithContexMenu {
     private title: string;
 
     constructor(title: string, bar: ActivityBar) {
-        super(By.xpath(`.//li[@aria-label='${title}']`), bar);
+        super(ActionsControl.locators.ActionsControl.constructor(title), bar);
         this.title = title;
     }
 

@@ -1,4 +1,4 @@
-import { By, Key } from "selenium-webdriver";
+import { Key } from "selenium-webdriver";
 import { BottomBarPanel } from "../../../extester";
 import { TextView, ChannelView } from "./AbstractViews";
 import { AbstractElement } from "../AbstractElement";
@@ -10,8 +10,8 @@ import { Workbench } from "../../../extester";
  */
 export class OutputView extends TextView {
     constructor(panel: BottomBarPanel = new BottomBarPanel()) {
-        super(By.id('workbench.panel.output'), panel);
-        this.actionsLabel = 'Output actions';
+        super(OutputView.locators.OutputView.constructor, panel);
+        this.actionsLabel = OutputView.locators.OutputView.actionsLabel;
     }
 }
 
@@ -21,7 +21,7 @@ export class OutputView extends TextView {
  */
 export class DebugConsoleView extends AbstractElement {
     constructor(panel: BottomBarPanel = new BottomBarPanel()) {
-        super(By.id('workbench.panel.repl'), panel);
+        super(DebugConsoleView.locators.DebugConsoleView.constructor, panel);
     }
 }
 
@@ -30,8 +30,8 @@ export class DebugConsoleView extends AbstractElement {
  */
 export class TerminalView extends ChannelView {
     constructor(panel: BottomBarPanel = new BottomBarPanel()) {
-        super(By.id('workbench.panel.terminal'), panel);
-        this.actionsLabel = 'Terminal actions';
+        super(TerminalView.locators.TerminalView.constructor, panel);
+        this.actionsLabel = TerminalView.locators.TerminalView.actionsLabel;
     }
 
     /**
@@ -39,7 +39,7 @@ export class TerminalView extends ChannelView {
      * @param command text of the command
      */
     async executeCommand(command: string): Promise<void> {
-        const input = await this.findElement(By.className('xterm-helper-textarea'));
+        const input = await this.findElement(TerminalView.locators.TerminalView.textArea);
         await input.sendKeys(command, Key.ENTER);
     }
     
@@ -59,15 +59,15 @@ export class TerminalView extends ChannelView {
      * Destroy the currently open terminal
      */
     async killTerminal(): Promise<void> {
-        await this.enclosingItem.findElement(By.xpath(`.//ul[@aria-label='${this.actionsLabel}']`))
-            .findElement(By.xpath(`.//a[@title='Kill Terminal']`)).click();
+        await this.enclosingItem.findElement(TerminalView.locators.BottomBarViews.actionsContainer(this.actionsLabel))
+            .findElement(TerminalView.locators.TerminalView.killTerminal).click();
     }
 
     /**
      * Initiate new terminal creation
      */
     async newTerminal(): Promise<void> {
-        await this.enclosingItem.findElement(By.xpath(`.//ul[@aria-label='${this.actionsLabel}']`))
-            .findElement(By.xpath(`.//a[starts-with(@title,'New Terminal')]`)).click();
+        await this.enclosingItem.findElement(TerminalView.locators.BottomBarViews.actionsContainer(this.actionsLabel))
+            .findElement(TerminalView.locators.TerminalView.newTerminal).click();
     }
 }

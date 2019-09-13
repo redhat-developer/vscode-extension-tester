@@ -1,5 +1,5 @@
 import { AbstractElement } from "../AbstractElement";
-import { By, WebElement, Key, until } from "selenium-webdriver";
+import { WebElement, Key, until } from "selenium-webdriver";
 import { TitleBar } from "../menu/TitleBar";
 import { SideBarView } from "../sidebar/SideBarView";
 import { ActivityBar } from "../activityBar/ActivityBar";
@@ -17,7 +17,7 @@ import { SettingsEditor } from "../editor/SettingsEditor";
  */
 export class Workbench extends AbstractElement {
     constructor() {
-        super(By.className('monaco-workbench'));
+        super(Workbench.locators.Workbench.constructor);
     }
 
     /**
@@ -69,11 +69,11 @@ export class Workbench extends AbstractElement {
         const notifications: Notification[] = [];
         let container: WebElement;
         try {
-            container = await this.findElement(By.className('notification-toast-container'));
+            container = await this.findElement(Workbench.locators.Workbench.notificationContainer);
         } catch (err) {
             return [];
         }
-        const elements = await container.findElements(By.className('monaco-list-row'));
+        const elements = await container.findElements(Workbench.locators.Workbench.notificationItem);
         
         for (const element of elements) {
             notifications.push(await new StandaloneNotification(await element.getAttribute('id')).wait());
@@ -95,7 +95,8 @@ export class Workbench extends AbstractElement {
      */
     async openSettings(): Promise<SettingsEditor> {
         await this.executeCommand('open user settings');
-        await Workbench.driver.wait(until.elementLocated(By.className('editor-instance')));
+        await Workbench.driver.wait(until.elementLocated(Workbench.locators.Editor.constructor));
+        await new Promise((res) => setTimeout(res, 500));
         return new SettingsEditor();
     }
 

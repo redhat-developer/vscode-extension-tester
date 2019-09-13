@@ -1,28 +1,28 @@
 import { Menu, MenuItem } from "../../../extester";
-import { By, WebElement, Key, until } from "selenium-webdriver";
+import { WebElement, Key, until } from "selenium-webdriver";
 
 /**
  * Object representing a context menu
  */
 export class ContextMenu extends Menu {
     constructor(containingElement: WebElement) {
-        super(By.className('monaco-menu-container'), containingElement);
+        super(ContextMenu.locators.ContextMenu.constructor, containingElement);
     }
 
     async getItem(name: string): Promise<ContextMenuItem> {
-        await this.findElement(By.xpath(`.//li[a/span/@aria-label='${name}']`));
+        await this.findElement(ContextMenu.locators.ContextMenu.itemConstructor(name));
         return new ContextMenuItem(name, this).wait();
     }
 
     async getItems(): Promise<ContextMenuItem[]> {
         const items: ContextMenuItem[] = [];
-        const elements = await this.findElements(By.className('action-item'));
+        const elements = await this.findElements(ContextMenu.locators.ContextMenu.itemElement);
 
         for (const element of elements) {
             const klass = await element.getAttribute('class');
             if (klass.indexOf('disabled') < 0) {
-                const labelItem = await element.findElement(By.className('action-label'));
-                items.push(await new ContextMenuItem(await labelItem.getAttribute('aria-label'), this).wait());
+                const labelItem = await element.findElement(ContextMenu.locators.ContextMenu.itemLabel);
+                items.push(await new ContextMenuItem(await labelItem.getAttribute(ContextMenu.locators.ContextMenu.itemText), this).wait());
             }
         }
         return items;
@@ -48,7 +48,7 @@ export class ContextMenu extends Menu {
  */
 export class ContextMenuItem extends MenuItem {
     constructor(label: string, parent: Menu) {
-        super(By.xpath(`.//li[a/span/@aria-label='${label}']`), parent);
+        super(ContextMenu.locators.ContextMenu.itemConstructor(label), parent);
         this.parent = parent;
         this.label = label;
     }
@@ -62,7 +62,7 @@ export class ContextMenuItem extends MenuItem {
 
     private async isNesting(): Promise<boolean> {
         try {
-            return await this.findElement(By.className('submenu-indicator')).isDisplayed();
+            return await this.findElement(ContextMenu.locators.ContextMenu.itemNesting).isDisplayed();
         } catch (err) {
             return false;
         }

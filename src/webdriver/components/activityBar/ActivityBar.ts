@@ -1,13 +1,12 @@
 import { ActionsControl, ViewControl } from "../../../extester";
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
-import { By } from "selenium-webdriver";
 
 /**
  * Page object representing the left side activity bar in VS Code
  */
 export class ActivityBar extends ElementWithContexMenu {
     constructor() {
-        super(By.id('workbench.parts.activitybar'), By.className('monaco-workbench'));
+        super(ActivityBar.locators.ActivityBar.constructor, ActivityBar.locators.Workbench.constructor);
     }
 
     /**
@@ -16,9 +15,9 @@ export class ActivityBar extends ElementWithContexMenu {
      */
     async getViewControls(): Promise<ViewControl[]> {
         const views: ViewControl[] = [];
-        const viewContainer = await this.findElement(By.xpath(`.//ul[@aria-label='Active View Switcher']`));
-        for(const element of await viewContainer.findElements(By.className('action-item'))) {
-            views.push(await new ViewControl(await element.getAttribute('aria-label'), this).wait());
+        const viewContainer = await this.findElement(ActivityBar.locators.ActivityBar.viewContainer);
+        for(const element of await viewContainer.findElements(ActivityBar.locators.ActivityBar.actionItem)) {
+            views.push(await new ViewControl(await element.getAttribute(ActivityBar.locators.ActivityBar.label), this).wait());
         }
         return views;
     }
@@ -38,9 +37,9 @@ export class ActivityBar extends ElementWithContexMenu {
      */
     async getGlobalActions(): Promise<ActionsControl[]> {
         const actions: ActionsControl[] = [];
-        const actionContainer = await this.findElement(By.className('actions-container'));
-        for(const element of await actionContainer.findElements(By.className('action-item'))) {
-            actions.push(await new ActionsControl(await element.getAttribute('aria-label'), this).wait());
+        const actionContainer = await this.findElement(ActivityBar.locators.ActivityBar.actionsContainer);
+        for(const element of await actionContainer.findElements(ActivityBar.locators.ActivityBar.actionItem)) {
+            actions.push(await new ActionsControl(await element.getAttribute(ActivityBar.locators.ActivityBar.label), this).wait());
         }
         return actions;
     }

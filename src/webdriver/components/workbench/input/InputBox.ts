@@ -1,4 +1,3 @@
-import { By } from "selenium-webdriver";
 import { Input, QuickPickItem } from "../../../../extester";
 
 /**
@@ -6,27 +5,27 @@ import { Input, QuickPickItem } from "../../../../extester";
  */
 export class InputBox extends Input {
     constructor() {
-        super(By.className('quick-input-widget'), By.className('monaco-workbench'));
+        super(InputBox.locators.InputBox.constructor, InputBox.locators.Workbench.constructor);
     }
 
     /**
      * Get the message below the input field
      */
     async getMessage(): Promise<string> {
-        return await this.findElement(By.className('quick-input-message')).getText();
+        return await this.findElement(InputBox.locators.InputBox.message).getText();
     }
 
     async hasProgress(): Promise<boolean> {
-        const klass = await this.findElement(By.className('quick-input-progress'))
+        const klass = await this.findElement(InputBox.locators.InputBox.progress)
             .getAttribute('class');
         return klass.indexOf('done') < 0;
     }
 
     async getQuickPicks(): Promise<QuickPickItem[]> {
         const picks: QuickPickItem[] = [];
-        const elements = await this.findElement(By.className('quick-input-list'))
-            .findElement(By.className('monaco-list-rows'))
-            .findElements(By.className('monaco-list-row'));
+        const elements = await this.findElement(InputBox.locators.InputBox.quickList)
+            .findElement(InputBox.locators.InputBox.rows)
+            .findElements(InputBox.locators.InputBox.row);
         
         for (const element of elements) {
             picks.push(await new QuickPickItem(+await element.getAttribute('data-index'), this).wait());
@@ -38,7 +37,7 @@ export class InputBox extends Input {
      * Find whether the input is showing an error
      */
     async hasError(): Promise<boolean> {
-        const klass = await this.findElement(By.className('monaco-inputbox')).getAttribute('class');
+        const klass = await this.findElement(InputBox.locators.Input.inputBox).getAttribute('class');
         return klass.indexOf('error') > -1;
     }
 
@@ -46,7 +45,7 @@ export class InputBox extends Input {
      * Check if the input field is masked (input type password)
      */
     async isPassword(): Promise<boolean> {
-        const input = await this.findElement(By.xpath(`.//input[@class='input']`));
+        const input = await this.findElement(InputBox.locators.Input.input);
         return await input.getAttribute('type') === 'password';
     }
 }

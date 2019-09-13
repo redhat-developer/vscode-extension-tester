@@ -1,5 +1,4 @@
 import { AbstractElement } from "../AbstractElement";
-import { By } from "selenium-webdriver";
 import { Notification, CenterNotification, NotificationType } from "./Notification";
 
 /**
@@ -7,7 +6,7 @@ import { Notification, CenterNotification, NotificationType } from "./Notificati
  */
 export class NotificationsCenter extends AbstractElement {
     constructor() {
-        super(By.className('notifications-center'), By.className('monaco-workbench'));
+        super(NotificationsCenter.locators.NotificationsCenter.constructor, NotificationsCenter.locators.Workbench.constructor);
     }
 
     /**
@@ -15,7 +14,7 @@ export class NotificationsCenter extends AbstractElement {
      */
     async close(): Promise<void> {
         if (await this.isDisplayed()) {
-            await this.findElement(By.className('hide-all-notifications-action')).click();
+            await this.findElement(NotificationsCenter.locators.NotificationsCenter.close).click();
         }
     }
 
@@ -24,7 +23,7 @@ export class NotificationsCenter extends AbstractElement {
      * Note that this will also hide the notifications center
      */
     async clearAllNotifications(): Promise<void> {
-        await this.findElement(By.className('clear-all-notifications-action')).click();
+        await this.findElement(NotificationsCenter.locators.NotificationsCenter.clear).click();
     }
 
     /**
@@ -34,7 +33,7 @@ export class NotificationsCenter extends AbstractElement {
      */
     async getNotifications(type: NotificationType): Promise<Notification[]> {
         const notifications: Notification[] = [];
-        const elements = await this.findElements(By.className('monaco-list-row'));
+        const elements = await this.findElements(NotificationsCenter.locators.NotificationsCenter.row);
 
         for (const element of elements) {
             const not = new CenterNotification(+await element.getAttribute('data-index'));

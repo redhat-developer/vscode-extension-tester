@@ -1,5 +1,5 @@
 import { ContentAssist } from "../../../extester";
-import { By, Key } from "selenium-webdriver";
+import { Key } from "selenium-webdriver";
 import { fileURLToPath } from "url";
 import * as clipboard from 'clipboardy';
 import { StatusBar } from "../statusBar/StatusBar";
@@ -14,7 +14,7 @@ export class TextEditor extends Editor {
      * Find whether the active editor has unsaved changes
      */
     async isDirty(): Promise<boolean> {
-        const tab = await this.enclosingItem.findElement(By.css('div.tab.active'));
+        const tab = await this.enclosingItem.findElement(TextEditor.locators.TextEditor.activeTab);
         const klass = await tab.getAttribute('class');
         return klass.indexOf('dirty') >= 0;
     }
@@ -23,7 +23,7 @@ export class TextEditor extends Editor {
      * Saves the active editor
      */
     async save(): Promise<void> {
-        const inputarea = await this.findElement(By.className('inputarea'));
+        const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
         await inputarea.sendKeys(Key.chord(TextEditor.ctlKey, 's'));
     }
 
@@ -31,8 +31,8 @@ export class TextEditor extends Editor {
      * Retrieve the path to the file opened in the active editor
      */
     async getFilePath(): Promise<string> {
-        const ed = await this.findElement(By.className('monaco-editor'));
-        const url = await ed.getAttribute('data-uri');
+        const ed = await this.findElement(TextEditor.locators.TextEditor.editorContainer);
+        const url = await ed.getAttribute(TextEditor.locators.TextEditor.dataUri);
         return fileURLToPath(url);
     }
 
@@ -42,8 +42,8 @@ export class TextEditor extends Editor {
      * @param open true to open, false to close
      */
     async toggleContentAssist(open: boolean): Promise<ContentAssist | void> {
-        const inputarea = await this.findElement(By.className('inputarea'));
-        const assist = await this.findElement(By.className('suggest-widget'))
+        const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
+        const assist = await this.findElement(TextEditor.locators.ContentAssist.constructor)
         const klass = await assist.getAttribute('class');
         const visibility = await assist.getCssValue('visibility');
         
@@ -63,7 +63,7 @@ export class TextEditor extends Editor {
      * Get all text from the editor
      */
     async getText(): Promise<string> {
-        const inputarea = await this.findElement(By.className('inputarea'));
+        const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
         await inputarea.sendKeys(Key.chord(TextEditor.ctlKey, 'a'), Key.chord(TextEditor.ctlKey, 'c'));
         const text = clipboard.readSync();
         await inputarea.getDriver().actions().sendKeys(Key.UP).perform();
@@ -76,7 +76,7 @@ export class TextEditor extends Editor {
      * @param formatText format the new text, default false
      */
     async setText(text: string, formatText: boolean = false): Promise<void> {
-        const inputarea = await this.findElement(By.className('inputarea'));
+        const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
         clipboard.writeSync(text);
         await inputarea.sendKeys(Key.chord(TextEditor.ctlKey, 'a'), Key.chord(TextEditor.ctlKey, 'v'));
         if (formatText) {
@@ -88,8 +88,8 @@ export class TextEditor extends Editor {
      * Deletes all text within the editor
      */
     async clearText(): Promise<void> {
-        const inputarea = await this.findElement(By.className('inputarea'));
-        await inputarea.sendKeys(Key.chord(TextEditor.ctlKey, 'a'), Key.chord(TextEditor.ctlKey, 'c'));
+        const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
+        await inputarea.sendKeys(Key.chord(TextEditor.ctlKey, 'a'));
         await inputarea.sendKeys(Key.BACK_SPACE);
     }
 
@@ -128,7 +128,7 @@ export class TextEditor extends Editor {
      */
     async typeText(line: number, column: number, text: string): Promise<void> {
         await this.moveCursor(line, column);
-        const inputarea = await this.findElement(By.className('inputarea'));
+        const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
         await inputarea.sendKeys(text);
     }
 
@@ -144,7 +144,7 @@ export class TextEditor extends Editor {
         if (column < 1) {
             throw new Error(`Column number ${column} does not exist`);
         }
-        const inputarea = await this.findElement(By.className('inputarea'));
+        const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
         let coordinates = await this.getCoordinates();
         const lineGap = coordinates[0] - line;
         const lineKey = lineGap >= 0 ? Key.UP : Key.DOWN;

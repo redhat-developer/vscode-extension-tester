@@ -12,11 +12,13 @@ export class VSRunner {
     private mocha: Mocha;
     private chromeBin: string;
     private customSettings: Object;
+    private codeVersion: string;
 
-    constructor(bin: string, customSettings: Object = {}) {
+    constructor(bin: string, codeVersion: string, customSettings: Object = {}) {
         this.mocha = new Mocha();
         this.chromeBin = bin;
         this.customSettings = customSettings;
+        this.codeVersion = codeVersion;
     }
 
     /**
@@ -25,7 +27,7 @@ export class VSRunner {
      */
     runTests(testFilesPattern: string): void {
         let self = this;
-        let browser: VSBrowser = new VSBrowser(this.customSettings);
+        let browser: VSBrowser = new VSBrowser(this.codeVersion, this.customSettings);
         const universalPattern = testFilesPattern.replace(/'/g, '');
         const testFiles = glob.sync(universalPattern);
 

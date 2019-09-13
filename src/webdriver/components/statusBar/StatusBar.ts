@@ -1,5 +1,4 @@
 import { AbstractElement } from "../AbstractElement";
-import { By } from "selenium-webdriver";
 import { NotificationsCenter } from "../workbench/NotificationsCenter";
 
 /**
@@ -7,7 +6,7 @@ import { NotificationsCenter } from "../workbench/NotificationsCenter";
  */
 export class StatusBar extends AbstractElement {
     constructor() {
-        super(By.id('workbench.parts.statusbar'), By.className('monaco-workbench'));
+        super(StatusBar.locators.StatusBar.constructor, StatusBar.locators.Workbench.constructor);
     }
 
     /**
@@ -30,7 +29,7 @@ export class StatusBar extends AbstractElement {
      * Only works with an open editor
      */
     async openLanguageSelection(): Promise<void> {
-        await this.findElement(By.id('status.editor.mode')).click();
+        await this.findElement(StatusBar.locators.StatusBar.language).click();
     }
 
     /**
@@ -38,7 +37,7 @@ export class StatusBar extends AbstractElement {
      * Only works with an open editor
      */
     async getCurrentLanguage(): Promise<string> {
-        return await this.findElement(By.id('status.editor.mode')).getText();
+        return await this.findElement(StatusBar.locators.StatusBar.language).getText();
     }
 
     /**
@@ -46,7 +45,7 @@ export class StatusBar extends AbstractElement {
      * Only works with an open editor
      */
     async openLineEndingSelection(): Promise<void> {
-        await this.findElement(By.id('status.editor.eol')).click();
+        await this.findElement(StatusBar.locators.StatusBar.lines).click();
     }
 
     /**
@@ -54,7 +53,7 @@ export class StatusBar extends AbstractElement {
      * Only works with an open editor
      */
     async getCurrentLineEnding(): Promise<string> {
-        return await this.findElement(By.id('status.editor.eol')).getText();
+        return await this.findElement(StatusBar.locators.StatusBar.lines).getText();
     }
 
     /**
@@ -62,7 +61,7 @@ export class StatusBar extends AbstractElement {
      * Only works with an open editor
      */
     async openEncodingSelection(): Promise<void> {
-        await this.findElement(By.id('status.editor.encoding')).click();
+        await this.findElement(StatusBar.locators.StatusBar.encoding).click();
     }
 
     /**
@@ -70,7 +69,7 @@ export class StatusBar extends AbstractElement {
      * Only works with an open editor
      */
     async getCurrentEncoding(): Promise<string> {
-        return await this.findElement(By.id('status.editor.encoding')).getText();
+        return await this.findElement(StatusBar.locators.StatusBar.encoding).getText();
     }
 
     /**
@@ -78,7 +77,7 @@ export class StatusBar extends AbstractElement {
      * Only works with an open editor
      */
     async openIndentationSelection(): Promise<void> {
-        await this.findElement(By.id('status.editor.indentation')).click();
+        await this.findElement(StatusBar.locators.StatusBar.indent).click();
     }
 
     /**
@@ -86,7 +85,7 @@ export class StatusBar extends AbstractElement {
      * Only works with an open editor
      */
     async getCurrentIndentation(): Promise<string> {
-        return await this.findElement(By.id('status.editor.indentation')).getText();
+        return await this.findElement(StatusBar.locators.StatusBar.indent).getText();
     }
 
     /**
@@ -94,7 +93,7 @@ export class StatusBar extends AbstractElement {
      * Only works with an open editor
      */
     async openLineSelection(): Promise<void> {
-        await this.findElement(By.id('status.editor.selection')).click();
+        await this.findElement(StatusBar.locators.StatusBar.selection).click();
     }
 
     /**
@@ -102,7 +101,7 @@ export class StatusBar extends AbstractElement {
      * Only works with an open editor
      */
     async getCurrentPosition(): Promise<string> {
-        return await this.findElement(By.id('status.editor.selection')).getText();
+        return await this.findElement(StatusBar.locators.StatusBar.selection).getText();
     }
 
     /**
@@ -112,13 +111,13 @@ export class StatusBar extends AbstractElement {
     private async toggleNotificationsCentre(open: boolean): Promise<void> {
         let visible = false;
         try {
-            const klass = await this.enclosingItem.findElement(By.className('notifications-center')).getAttribute('class');
+            const klass = await this.enclosingItem.findElement(StatusBar.locators.StatusBar.notifications).getAttribute('class');
             visible = klass.indexOf('visible') > -1;
         } catch (err) {
             // element doesn't exist until the button is first clicked
         }
         if (visible !== open) {
-            await this.findElement(By.className('octicon-bell')).click();
+            await this.findElement(StatusBar.locators.StatusBar.bell).click();
         }
     }
 }

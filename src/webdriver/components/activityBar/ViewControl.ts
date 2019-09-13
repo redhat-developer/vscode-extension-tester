@@ -1,5 +1,4 @@
 import { ActivityBar, SideBarView } from "../../../extester";
-import { By } from "selenium-webdriver";
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
 
 /**
@@ -9,7 +8,7 @@ export class ViewControl extends ElementWithContexMenu {
     private title: string;
 
     constructor(title: string, bar: ActivityBar) {
-        super(By.xpath(`.//li[contains(@aria-label, '${title}')]`), bar);
+        super(ViewControl.locators.ViewControl.constructor(title), bar);
         this.title = title;
     }
 
@@ -18,8 +17,8 @@ export class ViewControl extends ElementWithContexMenu {
      * @returns View object representing the opened view
      */
     async openView(): Promise<SideBarView> {
-        const klass = await this.getAttribute('class');
-        if (klass.indexOf('checked') < 0) {
+        const klass = await this.getAttribute(ViewControl.locators.ViewControl.attribute);
+        if (klass.indexOf(ViewControl.locators.ViewControl.klass) < 0) {
             await this.click();
             await ViewControl.driver.sleep(500);
         }
@@ -30,8 +29,8 @@ export class ViewControl extends ElementWithContexMenu {
      * Closes the associated view if not already closed
      */
     async closeView(): Promise<void> {        
-        const klass = await this.getAttribute('class');
-        if (klass.indexOf('checked') > -1) {
+        const klass = await this.getAttribute(ViewControl.locators.ViewControl.attribute);
+        if (klass.indexOf(ViewControl.locators.ViewControl.klass) > -1) {
             await this.click();
         }
     }

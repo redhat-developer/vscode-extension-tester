@@ -4,14 +4,20 @@ import { WebDriver, Builder, until, By } from 'selenium-webdriver';
 import { Options } from 'selenium-webdriver/chrome';
 import * as path from 'path';
 import * as fs from 'fs-extra';
+import { Locators } from './locators/locators';
+import { LocatorLoader } from './locators/loader';
+import { AbstractElement } from './components/AbstractElement';
 
 export class VSBrowser {
     private customSettings: Object;
     private _driver!: WebDriver;
+    private codeVersion: string;
+    private _locators!: Locators;
     private static _instance: VSBrowser;
 
-    constructor(customSettings: Object = {}) {
+    constructor(codeVersion: string, customSettings: Object = {}) {
         this.customSettings = customSettings;
+        this.codeVersion = codeVersion;
         VSBrowser._instance = this;
     };
 
@@ -42,12 +48,14 @@ export class VSBrowser {
         }
         fs.writeJSONSync(path.join(userSettings, 'settings.json'), defaultSettings);
         console.log(`Writing code settings to ${path.join(userSettings, 'settings.json')}`);
+        this._locators = new LocatorLoader(this.codeVersion).loadLocators();
         this._driver = await new Builder()
             .forBrowser('chrome')
             .setChromeOptions(new Options().setChromeBinaryPath(codePath)
             .addArguments(`--extensionDevelopmentPath=${process.cwd()}`, `--user-data-dir=${path.join(storagePath, 'settings')}`))
             .build();
         VSBrowser._instance = this;
+        AbstractElement.loadLocators(this);
         return this;
     }
 
@@ -56,6 +64,20 @@ export class VSBrowser {
      */
     get driver(): WebDriver {
         return this._driver;
+    }
+
+    /**
+     * Returns the vscode version as string
+     */
+    get version(): string {
+        return this.codeVersion;
+    }
+
+    /**
+     * Returns a reference to the current locators
+     */
+    get locators(): Locators {
+        return this._locators;
     }
 
     /**

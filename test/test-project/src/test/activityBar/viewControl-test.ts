@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { ActivityBar, ViewControl } from 'vscode-extension-tester';
 
-describe('ActionsControl', () => {
+describe('ViewControl', () => {
     let bar: ActivityBar;
     let control: ViewControl;
 

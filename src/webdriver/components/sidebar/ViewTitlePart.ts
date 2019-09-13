@@ -1,21 +1,20 @@
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
 import { AbstractElement } from "../AbstractElement";
 import { SideBarView } from "../../../extester";
-import { By } from 'selenium-webdriver';
 
 /**
  * Page object representing the top (title) part of a side bar view
  */
 export class ViewTitlePart extends ElementWithContexMenu {
     constructor(view: SideBarView = new SideBarView()) {
-        super(By.className('composite title'), view);
+        super(ViewTitlePart.locators.ViewTitlePart.constructor, view);
     }
 
     /**
      * Returns the displayed title of the view
      */
     async getTitle(): Promise<string> {
-        return await this.findElement(By.tagName('h2')).getText();
+        return await this.findElement(ViewTitlePart.locators.ViewTitlePart.title).getText();
     }
 
     /**
@@ -24,9 +23,9 @@ export class ViewTitlePart extends ElementWithContexMenu {
      */
     async getActions(): Promise<TitleActionButton[]> {
         const actions: TitleActionButton[] = [];
-        const elements = await this.findElements(By.className(`action-label`));
+        const elements = await this.findElements(ViewTitlePart.locators.ViewTitlePart.action);
         for (const element of elements) {
-            const title = await element.getAttribute('title');
+            const title = await element.getAttribute(ViewTitlePart.locators.ViewTitlePart.actionLabel);
             actions.push(await new TitleActionButton(title, this).wait());
         }
         return actions;
@@ -48,7 +47,7 @@ export class ViewTitlePart extends ElementWithContexMenu {
     private title: string;
 
     constructor(title: string, viewTitle: ViewTitlePart) {
-        super(By.xpath(`.//a[@title='${title}']`), viewTitle);
+        super(TitleActionButton.locators.ViewTitlePart.actionContstructor(title), viewTitle);
         this.title = title;
     }
 

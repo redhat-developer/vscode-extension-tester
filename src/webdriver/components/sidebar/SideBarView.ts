@@ -1,13 +1,12 @@
 import { AbstractElement } from "../AbstractElement";
 import { ViewTitlePart, ViewContent } from "../../../extester";
-import { By } from 'selenium-webdriver';
 
 /**
  * Page object for the side bar view
  */
 export class SideBarView extends AbstractElement {
     constructor() {
-        super(By.id('workbench.parts.sidebar'), By.className('monaco-workbench'));
+        super(SideBarView.locators.SideBarView.constructor, SideBarView.locators.Workbench.constructor);
     }
 
     /**

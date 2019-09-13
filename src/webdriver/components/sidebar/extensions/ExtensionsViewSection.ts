@@ -1,6 +1,6 @@
 import { ViewSection } from "../ViewSection";
 import { ExtensionsViewItem } from "./ExtensionsViewItem";
-import { By, until, Key } from "selenium-webdriver";
+import { until, Key } from "selenium-webdriver";
 import { ViewContent } from "../ViewContent";
 
 /**
@@ -20,10 +20,10 @@ enum ExtensionCategory {
 export class ExtensionsViewSection extends ViewSection {
     async getVisibleItems(): Promise<ExtensionsViewItem[]> {
         const items: ExtensionsViewItem[] = [];
-        const elements = await this.findElements(By.className('monaco-list-row'));
+        const elements = await this.findElements(ExtensionsViewSection.locators.ExtensionsViewSection.itemRow);
 
         for (const element of elements) {
-            const title = await element.findElement(By.className('name')).getText();
+            const title = await element.findElement(ExtensionsViewSection.locators.ExtensionsViewSection.itemTitle).getText();
             items.push(await new ExtensionsViewItem(title, this).wait());
         }
         return items;
@@ -42,8 +42,8 @@ export class ExtensionsViewSection extends ViewSection {
     async findItem(title: string): Promise<ExtensionsViewItem | undefined> {
         let item!: ExtensionsViewItem;
         await this.clearSearch();
-        const progress = await this.enclosingItem.findElement(By.className('monaco-progress-container'));
-        const searchField = await this.enclosingItem.findElement(By.className('inputarea'));
+        const progress = await this.enclosingItem.findElement(ExtensionsViewSection.locators.ViewContent.progress);
+        const searchField = await this.enclosingItem.findElement(ExtensionsViewSection.locators.ExtensionsViewSection.searchBox);
         await searchField.sendKeys(title);
 
         await this.getDriver().wait(until.elementIsVisible(progress));
@@ -70,12 +70,12 @@ export class ExtensionsViewSection extends ViewSection {
      * Clears the search bar on top of the view
      */
     async clearSearch(): Promise<void> {
-        const progress = await this.enclosingItem.findElement(By.className('monaco-progress-container'));
-        const searchField = await this.enclosingItem.findElement(By.className('inputarea'));
-        const textField = await this.enclosingItem.findElement(By.className('view-line'));
+        const progress = await this.enclosingItem.findElement(ExtensionsViewSection.locators.ViewContent.progress);
+        const searchField = await this.enclosingItem.findElement(ExtensionsViewSection.locators.ExtensionsViewSection.searchBox);
+        const textField = await this.enclosingItem.findElement(ExtensionsViewSection.locators.ExtensionsViewSection.textContainer);
 
         try {
-            await textField.findElement(By.className('mtk1'));
+            await textField.findElement(ExtensionsViewSection.locators.ExtensionsViewSection.textField);
             await searchField.sendKeys(Key.chord(ExtensionsViewItem.ctlKey, 'a'), Key.BACK_SPACE);
             await this.getDriver().wait(until.elementIsVisible(progress));
             await this.getDriver().wait(until.elementIsNotVisible(progress));

@@ -124,15 +124,21 @@ export class ExTester {
      */
     async setupAndRunTests(vscodeVersion: string = 'latest', vscodeStream: string = 'stable', testFilesPattern: string, settings: string = ''): Promise<void> {
         await this.setupRequirements(vscodeVersion, vscodeStream);
-        this.runTests(testFilesPattern, settings);
+        this.runTests(testFilesPattern, vscodeVersion, vscodeStream, settings);
     }
 
     /**
      * Runs the selected test files in VS Code using mocha and webdriver
      * @param testFilesPattern glob pattern for selected test files
+     * @param vscodeStream whether to use stable or insiders build, default stable
      * @param settings path to a custom vscode settings json file
+     * @param vscodeVersion version of VSCode to test against, default latest
      */
-    runTests(testFilesPattern: string, settings: string = ''): void {
-        return this.code.runTests(testFilesPattern, settings);
+    runTests(testFilesPattern: string, vscodeVersion: string = 'latest', vscodeStream: string = 'stable', settings: string = ''): void {
+        let stream = ReleaseQuality.Stable;
+        if (vscodeStream === 'insider') {
+            stream = ReleaseQuality.Insider;
+        }
+        return this.code.runTests(testFilesPattern, vscodeVersion, stream, settings);
     }
 }
