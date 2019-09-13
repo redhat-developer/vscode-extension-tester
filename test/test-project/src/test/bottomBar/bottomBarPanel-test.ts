@@ -58,7 +58,6 @@ describe('BottomBarPanel', () => {
 });
 
 async function getHeight(element: WebElement): Promise<number> {
-    const css = await element.getCssValue('height');
-    const match = css.match(/(\d+)\s?px/) as RegExpMatchArray;
-    return +match[1];
+    const size = await element.getSize();
+    return size.height;
 }
