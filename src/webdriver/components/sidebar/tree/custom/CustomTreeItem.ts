@@ -12,13 +12,13 @@ export class CustomTreeItem extends TreeItem {
     }
 
     async hasChildren(): Promise<boolean> {
-        const klass = await this.getAttribute('class');
-        return klass.indexOf('has-children') > -1;
+        const attr = await this.getAttribute(CustomTreeItem.locators.CustomTreeItem.expandedAttr);
+        return attr !== null;
     }
 
     async isExpanded(): Promise<boolean> {
-        const klass = await this.getAttribute('class');
-        return klass.indexOf('expanded') > -1;
+        const attr = await this.getAttribute(CustomTreeItem.locators.CustomTreeItem.expandedAttr);
+        return attr === CustomTreeItem.locators.CustomTreeItem.expandedValue;
     }
 
     async getChildren(): Promise<TreeItem[]> {
@@ -42,10 +42,6 @@ export class CustomTreeItem extends TreeItem {
         }
 
         return items;
-    }
-
-    async select(): Promise<void> {
-        await this.click();
     }
 
     private async findRowIndex(rows: WebElement[]): Promise<number> {

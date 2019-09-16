@@ -195,6 +195,8 @@ export interface Locators {
     }
     CustomTreeItem: {
         constructor: (label: string) => By
+        expandedAttr: string
+        expandedValue: string
     }
     ExtensionsViewSection: {
         itemRow: By

@@ -23,16 +23,19 @@ export class CustomTreeSection extends TreeSection {
         const container = await this.findElement(CustomTreeSection.locators.CustomTreeSection.rowContainer);
         await container.sendKeys(Key.HOME);
         let item: TreeItem | undefined = undefined;
-        try {
-            const temp = await container.findElement(CustomTreeSection.locators.CustomTreeSection.itemRow)
-                .findElement(CustomTreeSection.locators.CustomTreeSection.rowWithLabel(label));
-            const level = +await temp.getAttribute(CustomTreeSection.locators.ViewSection.level);
-            if (maxLevel < 1 || level <= maxLevel) {
-                item = new CustomTreeItem(label, this);
+        
+        const elements = await container.findElements(CustomTreeSection.locators.CustomTreeSection.itemRow);
+        for (const element of elements) {
+            try {
+               const temp = await element.findElement(CustomTreeSection.locators.CustomTreeSection.rowWithLabel(label));
+               const level = +await temp.getAttribute(CustomTreeSection.locators.ViewSection.level);
+               if (maxLevel < 1 || level <= maxLevel) {
+                   item = new CustomTreeItem(label, this);
+               }
+            } catch(err) {
+                // ignore
             }
-        } catch (err) {
-            console.log(err);
-        }
+        }            
         return item;
     }
 }

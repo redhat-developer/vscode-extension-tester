@@ -8,8 +8,11 @@ import { WebElement } from "selenium-webdriver";
 export abstract class ViewItem extends ElementWithContexMenu {
     /**
      * Select the item in the view.
-     */
-    abstract select(): Promise<void>
+     * Note that selecting the item will toggle its expand state when applicable.
+     */    
+    async select(): Promise<void> {
+        await this.click();
+    }
 }
 
 
@@ -35,12 +38,6 @@ export abstract class TreeItem extends ViewItem {
      * Finds whether the item is expanded. Always returns false if item has no children.
      */
     abstract async isExpanded(): Promise<boolean>
-
-    /**
-     * Select the item in the view.
-     * Note that selecting the item will toggle its expand state.
-     */
-    abstract async select(): Promise<void>
 
     /**
      * Find children of an item, will try to expand the item in the process

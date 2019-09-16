@@ -14,10 +14,6 @@ export class ExtensionsViewItem extends ViewItem {
         this.title = title;
     }
 
-    async select(): Promise<void> {
-        await this.click();
-    }
-
     /**
      * Get title of the extension
      */

@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { TreeView } from './treeView';
 
 export function activate(context: vscode.ExtensionContext) {
 	let disposable = vscode.commands.registerCommand('extension.helloWorld', () => {
@@ -12,17 +13,19 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 	let openFolder = vscode.commands.registerCommand('extension.openFolder', async () => {
 		const dirpath = path.resolve(__dirname, '..', '..', 'resources', 'test-folder');
-		await vscode.workspace.updateWorkspaceFolders(vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders.length : 0,
+		vscode.workspace.updateWorkspaceFolders(vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders.length : 0,
 			null, { uri: vscode.Uri.file(dirpath) });
 	});
 	let closeFolder = vscode.commands.registerCommand('extension.closeFolder', async () => {
-		await vscode.workspace.updateWorkspaceFolders(0, 1);
+		vscode.workspace.updateWorkspaceFolders(0, 1);
 	});
 
 	context.subscriptions.push(disposable);
 	context.subscriptions.push(openCommand);
 	context.subscriptions.push(openFolder);
 	context.subscriptions.push(closeFolder);
+
+	new TreeView(context);
 }
 
 export function deactivate() {}

@@ -4,7 +4,6 @@
 		"target": "es6",
 		"outDir": "out",
 		"sourceMap": true,
-		"strict": true,
 		"rootDir": ".",
 		"resolveJsonModule": true,
 		"esModuleInterop": true

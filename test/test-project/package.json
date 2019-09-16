@@ -12,6 +12,8 @@
 		"Other"
 	],
 	"activationEvents": [
+		"onView:fileExplorer",
+		"onView:testView",
 		"onCommand:extension.helloWorld",
 		"onCommand:extension.openFile",
 		"onCommand:extension.openFolder",
@@ -36,7 +38,15 @@
 				"command": "extension.closeFolder",
 				"title": "Close Test Folder"
 			}
-		]
+		],
+		"views": {
+			"explorer": [
+				{
+					"id": "testView",
+					"name": "Test View"
+				}
+			]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",

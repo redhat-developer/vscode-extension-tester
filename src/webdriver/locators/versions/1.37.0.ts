@@ -155,7 +155,7 @@ const sideBar = {
         constructor: By.className('content'),
         progress: By.className('monaco-progress-container'),
         section: By.className('split-view-view'),
-        sectionTitle: By.xpath(`.//h3[@class='title']`),
+        sectionTitle: By.className('title'),
         sectionText: 'textContent',
         defaultView: By.className('explorer-folders-view'),
         extensionsView: By.className('extensions-list')
@@ -188,13 +188,15 @@ const sideBar = {
         twistie: By.className('monaco-tl-twistie')
     },
     CustomTreeSection: {
-        itemRow: By.className('monaco-tree-row'),
+        itemRow: By.className('monaco-list-row'),
         itemLabel: By.className('monaco-highlighted-label'),
-        rowContainer: By.className('monaco-tree'),
+        rowContainer: By.className('monaco-list'),
         rowWithLabel: (label: string) => By.xpath(`.//span[contains(text(), '${label}')]`)
     },
     CustomTreeItem: {
-        constructor: (label: string) => By.xpath(`.//div[@role='treeitem' and .//span[text()='${label}']]`)
+        constructor: (label: string) => By.xpath(`.//div[@role='treeitem' and .//span[text()='${label}']]`),
+        expandedAttr: 'aria-expanded',
+        expandedValue: 'true'
     },
     ExtensionsViewSection: {
         itemRow: By.className('monaco-list-row'),
