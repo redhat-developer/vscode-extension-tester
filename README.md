@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/jrichter1/vscode-extension-tester.svg?branch=master)](https://travis-ci.org/jrichter1/vscode-extension-tester)
+
 # vscode-extension-tester
 
 VSCode Extension Tester is a package designed to help you run UI tests for your VS Code extensions using [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver). 
