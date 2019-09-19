@@ -15,7 +15,8 @@
     "prepack": "npm run build",
     "build": "rimraf out docs && tsc && chmod a+x ./out/cli.js",
     "doc": "typedoc --out docs ./src/",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prepare-test": "cd test/test-project && npm install",
+    "test": "npm run build && cd test/test-project && npm run ui-test"
   },
   "repository": {
     "type": "git",

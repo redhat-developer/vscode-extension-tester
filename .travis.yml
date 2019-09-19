@@ -13,8 +13,7 @@ install:
   - npm run build
 
 before_script:
-  - cd test/test-project
+  - npm run prepare-test
 
 script:
-  - npm install
-  - npm run ui-test
+  - npm test
