@@ -9,6 +9,7 @@ import { LocatorLoader } from './locators/loader';
 import { AbstractElement } from './components/AbstractElement';
 
 export class VSBrowser {
+    private storagePath: string;
     private customSettings: Object;
     private _driver!: WebDriver;
     private codeVersion: string;
@@ -16,6 +17,7 @@ export class VSBrowser {
     private static _instance: VSBrowser;
 
     constructor(codeVersion: string, customSettings: Object = {}) {
+        this.storagePath = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.resolve('test-resources');
         this.customSettings = customSettings;
         this.codeVersion = codeVersion;
         VSBrowser._instance = this;
@@ -26,10 +28,9 @@ export class VSBrowser {
      * @param codePath path to code binary
      */
     async start(codePath: string): Promise<VSBrowser> {
-        const storagePath = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.resolve('test-resources');
-        const userSettings = path.join(storagePath, 'settings', 'User');
+        const userSettings = path.join(this.storagePath, 'settings', 'User');
         if (fs.existsSync(userSettings)) {
-            fs.removeSync(path.join(storagePath, 'settings'));
+            fs.removeSync(path.join(this.storagePath, 'settings'));
         }
         let defaultSettings = { 
             "window.titleBarStyle": "custom",
@@ -43,6 +44,7 @@ export class VSBrowser {
         }
 
         fs.mkdirpSync(path.join(userSettings, 'globalStorage'));
+        fs.remove(path.join(this.storagePath, 'screenshots'));
         if (process.platform === 'win32') {
             fs.copyFileSync(path.resolve(__dirname, '..', '..', 'resources', 'state.vscdb'), path.join(userSettings, 'globalStorage', 'state.vscdb'));
         }
@@ -52,7 +54,7 @@ export class VSBrowser {
         this._driver = await new Builder()
             .forBrowser('chrome')
             .setChromeOptions(new Options().setChromeBinaryPath(codePath)
-            .addArguments(`--extensionDevelopmentPath=${process.cwd()}`, `--user-data-dir=${path.join(storagePath, 'settings')}`))
+            .addArguments(`--extensionDevelopmentPath=${process.cwd()}`, `--user-data-dir=${path.join(this.storagePath, 'settings')}`))
             .build();
         VSBrowser._instance = this;
         AbstractElement.loadLocators(this);
@@ -102,5 +104,16 @@ export class VSBrowser {
         await new Promise((res) => { setTimeout(res, 2000); });
         console.log('Shutting down the browser');
         await this._driver.quit();
+    }
+
+    /**
+     * Take a screenshot of the browser
+     * @param name file name of the screenshot without extension
+     */
+    async takeScreenshot(name: string): Promise<void> {
+        const data = await this._driver.takeScreenshot();
+        const dir = path.join(this.storagePath, 'screenshots');
+        fs.mkdirpSync(dir);
+        fs.writeFileSync(path.join(dir, `${name}.png`), data, 'base64');
     }
 }

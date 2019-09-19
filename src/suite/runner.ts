@@ -37,6 +37,16 @@ export class VSRunner {
             }
         });
 
+        this.mocha.suite.afterEach(async function () {
+            if (this.currentTest && this.currentTest.state !== 'passed') {
+                try {
+                    await browser.takeScreenshot(this.currentTest.fullTitle());
+                } catch (err) {
+                    console.log('Screenshot capture failed');
+                }
+            }
+        });
+
         this.mocha.suite.beforeAll(async function () {
             this.timeout(15000);
             await browser.start(self.chromeBin);
