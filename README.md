@@ -28,3 +28,21 @@ For the whole API reference, you can generate typedoc by running
 npm run doc
 ```
 The results can then be found in the 'docs' directory.
+
+## Requirements
+
+Extension Tester runs with all its features on Linux and Windows OSes.
+MacOS support is limited, due to the title bar and context menus being native only, therefore unavailable for webdriver to handle.
+
+In order to run the tests successfully you will need the following:
+ - Nodejs 10 or newer
+ - Java 8 or newer
+
+**NOTE:** Some Linux (CentOS based) users have reported their tests getting stuck on launch. This is likely due to a missing dependency of ChromeDriver that runs underneath. If such scenario occurs, we recommend installing the Chrome browser rpm, since it depends on all the required libraries.
+
+## Get Involved
+
+If you'd like to help us get better, we appreciate it!
+
+Check out our [Contribution Guide](CONTRIBUTING.md) on how to do that.
+

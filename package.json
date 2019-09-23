@@ -15,7 +15,7 @@
     "prepack": "npm run build",
     "build": "rimraf out docs && tsc && chmod a+x ./out/cli.js",
     "doc": "typedoc --out docs ./src/",
-    "prepare-test": "cd test/test-project && npm install",
+    "prepare-test": "cd test/test-project && npm install && rimraf package-lock.json",
     "test": "npm run build && cd test/test-project && npm run ui-test"
   },
   "repository": {
