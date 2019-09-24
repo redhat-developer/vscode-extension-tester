@@ -47,6 +47,8 @@ This release was focused mostly on bugfixes and test coverage.
  - add password check for input box
  - experimental OpenDialog for basic handling of native open file/folder dialogs
  - ViewItem buttons support
+ - SettingsEditor added for handling the VS Code settings
+ - add the ability to pass in custom settings file for VS Code as json
 
 ### Removed
  - typedoc removed from the repo due to diff pollution, still available to generate locally
