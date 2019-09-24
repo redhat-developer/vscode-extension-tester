@@ -20,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jrichter1/vscode-extension-tester.git"
+    "url": "git+https://github.com/redhat-developer/vscode-extension-tester.git"
   },
   "keywords": [
     "webdriver",
@@ -28,12 +28,12 @@
     "vscode",
     "extension"
   ],
-  "author": "Jan Richter",
+  "author": "Red Hat",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/jrichter1/vscode-extension-tester/issues"
+    "url": "https://github.com/redhat-developer/vscode-extension-tester/issues"
   },
-  "homepage": "https://github.com/jrichter1/vscode-extension-tester#readme",
+  "homepage": "https://github.com/redhat-developer/vscode-extension-tester#readme",
   "devDependencies": {
     "@types/clipboardy": "^2.0.1",
     "@types/fs-extra": "^8.0.0",
