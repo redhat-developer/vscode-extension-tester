@@ -23,7 +23,7 @@ The first step is to Fork this repository and clone your new fork. We also recom
 ```
 $ git clone https://github.com/<your user name>/vscode-extension-tester
 $ cd vscode-extension-tester
-$ git remote add upstream https://github.com/jrichter1/vscode-extension-tester
+$ git remote add upstream https://github.com/redhat-developer/vscode-extension-tester
 ```
 
 ### Build It
