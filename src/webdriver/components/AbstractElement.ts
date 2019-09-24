@@ -62,6 +62,10 @@ export abstract class AbstractElement extends WebElement {
         return this.enclosingItem;
     }
 
+    /**
+     * Initialize the locators, do nothing if already initialized
+     * @param browser VSBrowser instance
+     */
     static loadLocators(browser: VSBrowser): void {
         if (!AbstractElement.locators) {
             AbstractElement.locators = browser.locators;

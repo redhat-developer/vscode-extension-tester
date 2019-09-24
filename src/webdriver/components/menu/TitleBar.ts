@@ -10,11 +10,20 @@ export class TitleBar extends Menu {
         super(TitleBar.locators.TitleBar.constructor, TitleBar.locators.Workbench.constructor);
     }
 
+    /**
+     * Get title bar item by name
+     * @param name name of the item to search by
+     * @returns Promise resolving to TitleBarItem object
+     */
     async getItem(name: string): Promise<TitleBarItem> {
         await this.findElement(TitleBar.locators.TitleBar.itemConstructor(name));
         return await new TitleBarItem(name, this).wait();
     }
 
+    /**
+     * Get all title bar items
+     * @returns Promise resolving to array of TitleBarItem objects
+     */
     async getItems(): Promise<TitleBarItem[]> {
         const items: TitleBarItem[] = [];
         const elements = await this.findElements(TitleBar.locators.TitleBar.itemElement);
@@ -29,11 +38,15 @@ export class TitleBar extends Menu {
 
     /**
      * Get the window title
+     * @returns Promise resolving to the window title
      */
     async getTitle(): Promise<string> {
         return this.findElement(TitleBar.locators.TitleBar.title).getText();
     }
 
+    /**
+     * Get a reference to the WindowControls
+     */
     getWindowControls(): WindowControls {
         return new WindowControls(this);
     }

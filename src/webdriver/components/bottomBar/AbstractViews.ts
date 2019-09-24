@@ -10,7 +10,7 @@ export abstract class ChannelView extends ElementWithContexMenu {
 
     /**
     * Get names of all selectable channels
-    * @returns array of strings - channel names
+    * @returns Promise resolving to array of strings - channel names
     */
     async getChannelNames(): Promise<string[]> {
         const names: string[] = [];
@@ -28,6 +28,7 @@ export abstract class ChannelView extends ElementWithContexMenu {
 
     /**
      * Get name of the current channel
+     * @returns Promise resolving to the current channel name
      */
     async getCurrentChannel(): Promise<string> {
         let text!: string;
@@ -82,6 +83,7 @@ export abstract class TextView extends ChannelView {
 
     /**
      * Get all text from the currently open channel
+     * @returns Promise resolving to the view's text
      */
     async getText(): Promise<string> {
         const textarea = await this.findElement(ChannelView.locators.BottomBarViews.textArea);
@@ -94,6 +96,7 @@ export abstract class TextView extends ChannelView {
 
     /**
      * Clear the text in the current channel
+     * @returns Promise resolving when the clear text button is pressed
      */
     async clearText(): Promise<void> {
         await this.enclosingItem.findElement(ChannelView.locators.BottomBarViews.actionsContainer(this.actionsLabel))

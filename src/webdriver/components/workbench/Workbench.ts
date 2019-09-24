@@ -9,7 +9,6 @@ import { BottomBarPanel } from "../bottomBar/BottomBarPanel";
 import { Notification, StandaloneNotification } from "./Notification";
 import { NotificationsCenter } from "./NotificationsCenter";
 import { QuickOpenBox } from "./input/QuickOpenBox";
-import { Input } from "./input/Input";
 import { SettingsEditor } from "../editor/SettingsEditor";
 
 /**
@@ -64,6 +63,7 @@ export class Workbench extends AbstractElement {
 
     /**
      * Get all standalone notifications (notifications outside the notifications center)
+     * @returns Promise resolving to array of Notification objects
      */
     async getNotifications(): Promise<Notification[]> {
         const notifications: Notification[] = [];
@@ -83,6 +83,7 @@ export class Workbench extends AbstractElement {
 
     /**
      * Opens the notifications center
+     * @returns Promise resolving to NotificationsCenter object
      */
     openNotificationsCenter(): Promise<NotificationsCenter> {
         return new StatusBar().openNotificationsCenter();
@@ -102,8 +103,9 @@ export class Workbench extends AbstractElement {
 
     /**
      * Open the VS Code command line prompt
+     * @returns Promise resolving to QuickOpenBox object
      */
-    async openCommandPrompt(): Promise<Input> {
+    async openCommandPrompt(): Promise<QuickOpenBox> {
         await this.getDriver().actions().sendKeys(Key.F1).perform();
         return new QuickOpenBox().wait();
     }
@@ -111,6 +113,7 @@ export class Workbench extends AbstractElement {
     /**
      * Open the command prompt, type in a command and execute
      * @param command text of the command to be executed
+     * @returns Promise resolving when the command prompt is confirmed
      */
     async executeCommand(command: string): Promise<void> {
         const prompt = await this.openCommandPrompt();

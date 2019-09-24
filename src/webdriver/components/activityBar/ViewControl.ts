@@ -14,7 +14,7 @@ export class ViewControl extends ElementWithContexMenu {
 
     /**
      * Opens the associated view if not already open
-     * @returns View object representing the opened view
+     * @returns Promise resolving to SideBarView object representing the opened view
      */
     async openView(): Promise<SideBarView> {
         const klass = await this.getAttribute(ViewControl.locators.ViewControl.attribute);
@@ -27,6 +27,7 @@ export class ViewControl extends ElementWithContexMenu {
 
     /**
      * Closes the associated view if not already closed
+     * @returns Promise resolving when the view closes
      */
     async closeView(): Promise<void> {        
         const klass = await this.getAttribute(ViewControl.locators.ViewControl.attribute);

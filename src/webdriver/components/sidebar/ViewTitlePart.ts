@@ -12,6 +12,7 @@ export class ViewTitlePart extends ElementWithContexMenu {
 
     /**
      * Returns the displayed title of the view
+     * @returns Promise resolving to displayed title
      */
     async getTitle(): Promise<string> {
         return await this.findElement(ViewTitlePart.locators.ViewTitlePart.title).getText();
@@ -19,7 +20,7 @@ export class ViewTitlePart extends ElementWithContexMenu {
 
     /**
      * Finds action buttons inside the view title part
-     * @returns array of TitleActionButton objects
+     * @returns Promise resolving to array of TitleActionButton objects
      */
     async getActions(): Promise<TitleActionButton[]> {
         const actions: TitleActionButton[] = [];
@@ -34,6 +35,7 @@ export class ViewTitlePart extends ElementWithContexMenu {
     /**
      * Finds an action button by title
      * @param title title of the button to search for
+     * @returns Promise resolving to TitleActionButton object
      */
     async getAction(title: string): Promise<TitleActionButton> {
         return new TitleActionButton(title, this);

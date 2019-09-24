@@ -11,6 +11,7 @@ export class StatusBar extends AbstractElement {
 
     /**
      * Open the notifications center
+     * @returns Promise resolving to NotificationsCenter object
      */
     async openNotificationsCenter(): Promise<NotificationsCenter> {
         await this.toggleNotificationsCentre(true);
@@ -19,6 +20,7 @@ export class StatusBar extends AbstractElement {
 
     /**
      * Close the notifications center
+     * @returns Promise resolving when the notifications center is closed
      */
     async closeNotificationsCenter(): Promise<void> {
         await this.toggleNotificationsCentre(false);
@@ -27,6 +29,7 @@ export class StatusBar extends AbstractElement {
     /**
      * Open the language selection quick pick
      * Only works with an open editor
+     * @returns Promise resolving when the language selection is opened
      */
     async openLanguageSelection(): Promise<void> {
         await this.findElement(StatusBar.locators.StatusBar.language).click();
@@ -35,6 +38,7 @@ export class StatusBar extends AbstractElement {
     /**
      * Get the current language label text
      * Only works with an open editor
+     * @returns Promise resolving to string representation of current language
      */
     async getCurrentLanguage(): Promise<string> {
         return await this.findElement(StatusBar.locators.StatusBar.language).getText();
@@ -43,6 +47,7 @@ export class StatusBar extends AbstractElement {
     /**
      * Open the quick pick for line endings selection
      * Only works with an open editor
+     * @returns Promise resolving when the line ending selection is opened
      */
     async openLineEndingSelection(): Promise<void> {
         await this.findElement(StatusBar.locators.StatusBar.lines).click();
@@ -51,6 +56,7 @@ export class StatusBar extends AbstractElement {
     /**
      * Get the currently selected line ending as text
      * Only works with an open editor
+     * @returns Promise resolving to string representation of current line ending
      */
     async getCurrentLineEnding(): Promise<string> {
         return await this.findElement(StatusBar.locators.StatusBar.lines).getText();
@@ -59,6 +65,7 @@ export class StatusBar extends AbstractElement {
     /**
      * Open the encoding selection quick pick
      * Only works with an open editor
+     * @returns Promise resolving when the encoding selection is opened
      */
     async openEncodingSelection(): Promise<void> {
         await this.findElement(StatusBar.locators.StatusBar.encoding).click();
@@ -67,6 +74,7 @@ export class StatusBar extends AbstractElement {
     /**
      * Get the name of the current encoding as text
      * Only works with an open editor
+     * @returns Promise resolving to string representation of current encoding
      */
     async getCurrentEncoding(): Promise<string> {
         return await this.findElement(StatusBar.locators.StatusBar.encoding).getText();
@@ -75,6 +83,7 @@ export class StatusBar extends AbstractElement {
     /**
      * Open the indentation selection quick pick
      * Only works with an open editor
+     * @returns Promise resolving when the indentation selection is opened
      */
     async openIndentationSelection(): Promise<void> {
         await this.findElement(StatusBar.locators.StatusBar.indent).click();
@@ -83,6 +92,7 @@ export class StatusBar extends AbstractElement {
     /**
      * Get the current indentation option label as text
      * Only works with an open editor
+     * @returns Promise resolving to string representation of current indentation
      */
     async getCurrentIndentation(): Promise<string> {
         return await this.findElement(StatusBar.locators.StatusBar.indent).getText();
@@ -91,6 +101,7 @@ export class StatusBar extends AbstractElement {
     /**
      * Open the line selection input box
      * Only works with an open editor
+     * @returns Promise resolving when the line selection is opened
      */
     async openLineSelection(): Promise<void> {
         await this.findElement(StatusBar.locators.StatusBar.selection).click();
@@ -99,6 +110,7 @@ export class StatusBar extends AbstractElement {
     /**
      * Get the current editor coordinates as text
      * Only works with an open editor
+     * @returns Promise resolving to string representation of current position in the editor
      */
     async getCurrentPosition(): Promise<string> {
         return await this.findElement(StatusBar.locators.StatusBar.selection).getText();

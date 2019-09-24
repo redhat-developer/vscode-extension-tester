@@ -14,6 +14,7 @@ export class BottomBarPanel extends AbstractElement {
     /**
      * Open/Close the bottom bar panel
      * @param open true to open. false to close
+     * @returns Promise resolving when the view visibility is toggled
      */
     async toggle(open: boolean): Promise<void> {
         const height = (await this.getSize()).height;
@@ -29,6 +30,7 @@ export class BottomBarPanel extends AbstractElement {
 
     /**
      * Open the Problems view in the bottom panel
+     * @returns Promise resolving to a ProblemsView object
      */
     async openProblemsView(): Promise<ProblemsView> {
         await this.openTab(BottomBarPanel.locators.BottomBarPanel.problemsTab);
@@ -37,6 +39,7 @@ export class BottomBarPanel extends AbstractElement {
 
     /**
      * Open the Output view in the bottom panel
+     * @returns Promise resolving to OutputView object
      */
     async openOutputView(): Promise<OutputView> {
         await this.openTab(BottomBarPanel.locators.BottomBarPanel.outputTab);
@@ -45,6 +48,7 @@ export class BottomBarPanel extends AbstractElement {
 
     /**
      * Open the Debug Console view in the bottom panel
+     * @returns Promise resolving to DebugConsoleView object
      */
     async openDebugConsoleView(): Promise<DebugConsoleView> {
         await this.openTab(BottomBarPanel.locators.BottomBarPanel.debugTab);
@@ -53,6 +57,7 @@ export class BottomBarPanel extends AbstractElement {
 
     /**
      * Open the Terminal view in the bottom panel
+     * @returns Promise resolving to TerminalView object
      */
     async openTerminalView(): Promise<TerminalView> {
         await this.openTab(BottomBarPanel.locators.BottomBarPanel.terminalTab);
@@ -61,6 +66,7 @@ export class BottomBarPanel extends AbstractElement {
 
     /**
      * Maximize the the bottom panel if not maximized
+     * @returns Promise resolving when the maximize button is pressed
      */
     async maximize(): Promise<void> {
         await this.resize(BottomBarPanel.locators.BottomBarPanel.maximize);
@@ -68,6 +74,7 @@ export class BottomBarPanel extends AbstractElement {
 
     /**
      * Restore the the bottom panel if maximized
+     * @returns Promise resolving when the restore button is pressed
      */
     async restore(): Promise<void> {
         await this.resize(BottomBarPanel.locators.BottomBarPanel.restore);

@@ -13,6 +13,7 @@ export abstract class ViewSection extends AbstractElement {
 
     /**
      * Get the title of the section as string
+     * @returns Promise resolving to section title
      */
     async getTitle(): Promise<string> {
         const title = await this.findElement(ViewSection.locators.ViewSection.title);
@@ -21,6 +22,7 @@ export abstract class ViewSection extends AbstractElement {
 
     /**
      * Expand the section if collapsed
+     * @returns Promise resolving when the section is expanded
      */
     async expand(): Promise<void> {
         if (await this.isHeaderHidden()) {
@@ -35,6 +37,7 @@ export abstract class ViewSection extends AbstractElement {
 
     /**
      * Collapse the section if expanded
+     * @returns Promise resolving when the section is collapsed
      */
     async collapse(): Promise<void> {
         if (await this.isHeaderHidden()) {
@@ -49,6 +52,7 @@ export abstract class ViewSection extends AbstractElement {
 
     /**
      * Finds whether the section is expanded
+     * @returns Promise resolving to true/false
      */
     async isExpanded(): Promise<boolean>  {
         const header = await this.findElement(ViewSection.locators.ViewSection.header);
@@ -59,7 +63,7 @@ export abstract class ViewSection extends AbstractElement {
     /**
      * Retrieve all items currently visible in the view section.
      * Note that any item currently beyond the visible list, i.e. not scrolled to, will not be retrieved.
-     * @returns array of ViewItem objects
+     * @returns Promise resolving to array of ViewItem objects
      */
     abstract async getVisibleItems(): Promise<ViewItem[]>
 
@@ -68,6 +72,7 @@ export abstract class ViewSection extends AbstractElement {
      * Does however scroll through all the expanded content. Will find items beyond the current scroll range.
      * @param label Label of the item to search for.
      * @param maxLevel Limit how deep the algorithm should look into any expanded items, default unlimited (0)
+     * @returns Promise resolving to ViewItem object is such item exists, undefined otherwise
      */
     abstract async findItem(label: string, maxLevel?: number): Promise<ViewItem | undefined>
 
@@ -84,14 +89,14 @@ export abstract class ViewSection extends AbstractElement {
      * If the item structure is flat, use the item's title to search by.
      * 
      * @param path Sequence of labels that make up the path to a given item.
-     * @returns array of ViewItem objects representing the last item's children.
+     * @returns Promise resolving to array of ViewItem objects representing the last item's children.
      * If the last item is a leaf, empty array is returned.
      */
     abstract async openItem(...path: string[]): Promise<ViewItem[] | void>
 
     /**
      * Retrieve the action buttons on the section's header
-     * @returns array of ViewPanelAction objects
+     * @returns Promise resolving to array of ViewPanelAction objects
      */
     async getActions(): Promise<ViewPanelAction[]> {
         const actions: ViewPanelAction[] = [];
@@ -111,6 +116,7 @@ export abstract class ViewSection extends AbstractElement {
     /**
      * Retrieve an action button on the sections's header by its label
      * @param label label/title of the button
+     * @returns ViewPanelAction object
      */
     getAction(label: string): ViewPanelAction {
         return new ViewPanelAction(label, this);

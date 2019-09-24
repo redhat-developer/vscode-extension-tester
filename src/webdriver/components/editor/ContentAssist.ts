@@ -9,6 +9,11 @@ export class ContentAssist extends Menu {
         super(ContentAssist.locators.ContentAssist.constructor, editor);
     }
 
+    /**
+     * Get content assist item by name/text
+     * @param name name/text to search by
+     * @returns Promise resolving to ContentAssistItem object
+     */
     async getItem(name: string): Promise<ContentAssistItem> {
         const message = await this.findElement(ContentAssist.locators.ContentAssist.message);
         await this.getDriver().wait(until.elementIsNotVisible(message));
@@ -17,6 +22,10 @@ export class ContentAssist extends Menu {
         return await new ContentAssistItem(name, this).wait();
     }
 
+    /**
+     * Get all visible content assist items
+     * @returns Promise resolving to array of ContentAssistItem objects
+     */
     async getItems(): Promise<ContentAssistItem[]> {
         const message = await this.findElement(ContentAssist.locators.ContentAssist.message);
         await this.getDriver().wait(until.elementIsNotVisible(message));

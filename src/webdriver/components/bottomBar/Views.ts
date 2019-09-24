@@ -37,6 +37,7 @@ export class TerminalView extends ChannelView {
     /**
      * Execute command in the internal terminal
      * @param command text of the command
+     * @returns Promise resolving when the command is filled in and enter is pressed
      */
     async executeCommand(command: string): Promise<void> {
         const input = await this.findElement(TerminalView.locators.TerminalView.textArea);
@@ -46,6 +47,7 @@ export class TerminalView extends ChannelView {
     /**
      * Get all text from the internal terminal
      * Beware, no formatting.
+     * @returns Promise resolving to all terminal text
      */
     async getText(): Promise<string> {
         const workbench = new Workbench();
@@ -57,6 +59,7 @@ export class TerminalView extends ChannelView {
 
     /**
      * Destroy the currently open terminal
+     * @returns Promise resolving when Kill Terminal button is pressed
      */
     async killTerminal(): Promise<void> {
         await this.enclosingItem.findElement(TerminalView.locators.BottomBarViews.actionsContainer(this.actionsLabel))
@@ -65,6 +68,7 @@ export class TerminalView extends ChannelView {
 
     /**
      * Initiate new terminal creation
+     * @returns Promise resolving when New Terminal button is pressed
      */
     async newTerminal(): Promise<void> {
         await this.enclosingItem.findElement(TerminalView.locators.BottomBarViews.actionsContainer(this.actionsLabel))

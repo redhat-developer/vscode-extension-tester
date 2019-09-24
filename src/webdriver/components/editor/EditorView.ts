@@ -16,6 +16,7 @@ export class EditorView extends AbstractElement {
     /**
      * Switch to an editor tab with the given title
      * @param title title of the tab
+     * @returns Promise resolving to Editor object
      */
     async openEditor(title: string): Promise<Editor> {
         const tab = await this.getTabByTitle(title);
@@ -32,6 +33,7 @@ export class EditorView extends AbstractElement {
     /**
      * Close an editor tab with the given title
      * @param title title of the tab
+     * @returns Promise resolving when the tab's close button is pressed
      */
     async closeEditor(title: string): Promise<void> {
         const tab = await this.getTabByTitle(title);
@@ -42,6 +44,7 @@ export class EditorView extends AbstractElement {
 
     /**
      * Close all open editor tabs
+     * @returns Promise resolving once all tabs have had their close button pressed
      */
     async closeAllEditors(): Promise<void> {
         const tabs = await this.findElements(EditorView.locators.EditorView.tab);
@@ -53,6 +56,7 @@ export class EditorView extends AbstractElement {
 
     /**
      * Retrieve all open editor tab titles in an array
+     * @returns Promise resolving to array of editor titles
      */
     async getOpenEditorTitles(): Promise<string[]> {
         const tabs = await this.findElements(EditorView.locators.EditorView.tab);

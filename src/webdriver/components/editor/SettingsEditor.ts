@@ -20,7 +20,7 @@ export class SettingsEditor extends Editor {
      *
      * @param title title of the setting
      * @param category category of the setting
-     * @returns promise resolving to a Setting object if found, undefined otherwise
+     * @returns Promise resolving to a Setting object if found, undefined otherwise
      */
     async findSetting(title: string, category: string): Promise<Setting> {
         const searchBox = await this.findElement(SettingsEditor.locators.Editor.inputArea);
@@ -45,7 +45,7 @@ export class SettingsEditor extends Editor {
      * Works only if your vscode instance has both user and workspace settings available
      * 
      * @param perspective User or Workspace
-     * @returns promise that resolves when the appropriate button is clicked
+     * @returns Promise that resolves when the appropriate button is clicked
      */
     async switchToPerspective(perspective: 'User' | 'Workspace'): Promise<void> {
         const actions = await this.findElement(SettingsEditor.locators.SettingsEditor.header)
@@ -129,6 +129,7 @@ export abstract class Setting extends AbstractElement {
 
     /**
      * Get description of the setting
+     * @returns Promise resolving to setting description
      */
     async getDescription(): Promise<string> {
         const desc = await this.findElement(SettingsEditor.locators.SettingsEditor.settingDesctiption);
@@ -166,6 +167,7 @@ export class ComboSetting extends Setting {
 
     /**
      * Get the labels of all options from the combo
+     * @returns Promise resolving to array of string values
      */
     async getValues(): Promise<string[]> {
         const values = [];
@@ -247,6 +249,7 @@ export class LinkSetting extends Setting {
 
     /**
      * Open the link that leads to the value in settings.json
+     * @returns Promise resolving when the link has been clicked
      */
     async openLink(): Promise<void> {
         const link = await this.findElement(SettingsEditor.locators.SettingsEditor.linkButton);

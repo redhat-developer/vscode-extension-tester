@@ -23,6 +23,7 @@ export class ExtensionsViewItem extends ViewItem {
 
     /**
      * Get version of the extension
+     * @returns Promise resolving to version string
      */
     async getVersion(): Promise<string> {
         const version = await this.findElement(ExtensionsViewItem.locators.ExtensionsViewItem.version);
@@ -31,6 +32,7 @@ export class ExtensionsViewItem extends ViewItem {
 
     /**
      * Get the author of the extension
+     * @returns Promise resolving to displayed author
      */
     async getAuthor(): Promise<string> {
         const author = await this.findElement(ExtensionsViewItem.locators.ExtensionsViewItem.author);
@@ -39,6 +41,7 @@ export class ExtensionsViewItem extends ViewItem {
 
     /**
      * Get the description of the extension
+     * @returns Promise resolving to description
      */
     async getDescription(): Promise<string> {
         const description = await this.findElement(ExtensionsViewItem.locators.ExtensionsViewItem.description);
@@ -47,6 +50,7 @@ export class ExtensionsViewItem extends ViewItem {
     
     /**
      * Find if the extension is installed
+     * @returns Promise resolving to true/false
      */
     async isInstalled(): Promise<boolean> {
         const button = await this.findElement(ExtensionsViewItem.locators.ExtensionsViewItem.install);
@@ -58,6 +62,7 @@ export class ExtensionsViewItem extends ViewItem {
 
     /**
      * Open the management context menu if the extension is installed
+     * @returns Promise resolving to ContextMenu object
      */
     async manage(): Promise<ContextMenu> {
         const button = await this.findElement(ExtensionsViewItem.locators.ExtensionsViewItem.manage);
@@ -69,6 +74,7 @@ export class ExtensionsViewItem extends ViewItem {
 
     /**
      * Install the extension if not installed already
+     * @returns Promise resolving when the Install button is clicked or not found at all
      */
     async install(): Promise<void> {
         if (await this.isInstalled()) {

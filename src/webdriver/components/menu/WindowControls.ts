@@ -12,6 +12,7 @@ export class WindowControls extends AbstractElement {
 
     /**
      * Use the minimize window button
+     * @returns Promise resolving when minimize button is pressed
      */
     async minimize(): Promise<void> {
         const minButton = this.findElement(WindowControls.locators.WindowControls.minimize);
@@ -20,6 +21,7 @@ export class WindowControls extends AbstractElement {
 
     /**
      * Use the maximize window button if the window is not maximized
+     * @returns Promise resolving when maximize button is pressed
      */
     async maximize(): Promise<void> {
         let maxButton: WebElement;
@@ -33,6 +35,7 @@ export class WindowControls extends AbstractElement {
 
     /**
      * Use the restore window button if the window is maximized
+     * @returns Promise resolving when restore button is pressed
      */
     async restore(): Promise<void> {
         let maxButton: WebElement;
@@ -46,6 +49,7 @@ export class WindowControls extends AbstractElement {
 
     /**
      * Use the window close button. Use at your own risk.
+     * @returns Promise resolving when close button is pressed
      */
     async close(): Promise<void> {
         const closeButton = this.findElement(WindowControls.locators.WindowControls.close);

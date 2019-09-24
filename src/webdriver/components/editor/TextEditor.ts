@@ -12,6 +12,7 @@ export class TextEditor extends Editor {
 
     /**
      * Find whether the active editor has unsaved changes
+     * @returns Promise resolving to true/false
      */
     async isDirty(): Promise<boolean> {
         const tab = await this.enclosingItem.findElement(TextEditor.locators.TextEditor.activeTab);
@@ -21,6 +22,7 @@ export class TextEditor extends Editor {
 
     /**
      * Saves the active editor
+     * @returns Promise resolving when ctrl+s is invoked
      */
     async save(): Promise<void> {
         const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
@@ -29,6 +31,7 @@ export class TextEditor extends Editor {
 
     /**
      * Retrieve the path to the file opened in the active editor
+     * @returns Promise resolving to editor's underlying file path
      */
     async getFilePath(): Promise<string> {
         const ed = await this.findElement(TextEditor.locators.TextEditor.editorContainer);
@@ -40,6 +43,7 @@ export class TextEditor extends Editor {
      * Open/Close the content assistant at the current position in the editor by sending the default
      * keyboard shortcut signal
      * @param open true to open, false to close
+     * @returns Promise resolving to ContentAssist object when opening, void otherwise
      */
     async toggleContentAssist(open: boolean): Promise<ContentAssist | void> {
         const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
@@ -61,6 +65,7 @@ export class TextEditor extends Editor {
 
     /**
      * Get all text from the editor
+     * @returns Promise resolving to editor text
      */
     async getText(): Promise<string> {
         const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
@@ -74,6 +79,7 @@ export class TextEditor extends Editor {
      * Replace the contents of the editor with a given text
      * @param text text to type into the editor
      * @param formatText format the new text, default false
+     * @returns Promise resolving once the new text is copied over
      */
     async setText(text: string, formatText: boolean = false): Promise<void> {
         const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
@@ -86,6 +92,7 @@ export class TextEditor extends Editor {
 
     /**
      * Deletes all text within the editor
+     * @returns Promise resolving once the text is deleted
      */
     async clearText(): Promise<void> {
         const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
@@ -96,6 +103,7 @@ export class TextEditor extends Editor {
     /**
      * Get text from a given line
      * @param line number of the line to retrieve
+     * @returns Promise resolving to text at the given line number
      */
     async getTextAtLine(line: number): Promise<string> {
         const text = await this.getText();
@@ -110,6 +118,7 @@ export class TextEditor extends Editor {
      * Replace the contents of a line with a given text
      * @param line number of the line to edit
      * @param text text to set at the line
+     * @returns Promise resolving when the text is typed in
      */
     async setTextAtLine(line: number, text: string): Promise<void> {
         if (line < 1 || line > await this.getNumberOfLines()) {
@@ -125,6 +134,7 @@ export class TextEditor extends Editor {
      * @param line number of the line to type into
      * @param column number of the column to start typing at
      * @param text text to add
+     * @returns Promise resolving when the text is typed in
      */
     async typeText(line: number, column: number, text: string): Promise<void> {
         await this.moveCursor(line, column);
@@ -136,6 +146,7 @@ export class TextEditor extends Editor {
      * Move the cursor to the given coordinates
      * @param line line number to move to
      * @param column column number to move to
+     * @returns Promise resolving when the cursor has reached the given coordinates
      */
     async moveCursor(line: number, column: number): Promise<void> {
         if (line < 1 || line > await this.getNumberOfLines()) {
@@ -165,6 +176,7 @@ export class TextEditor extends Editor {
 
     /**
      * Get number of lines in the editor
+     * @returns Promise resolving to number of lines
      */
     async getNumberOfLines(): Promise<number> {
         const lines = (await this.getText()).split('\n');
@@ -173,6 +185,7 @@ export class TextEditor extends Editor {
 
     /**
      * Use the built-in 'Format Document' option to format the text
+     * @returns Promise resolving when the Format Document command is invoked
      */
     async formatDocument(): Promise<void> {
         const menu = await this.openContextMenu();

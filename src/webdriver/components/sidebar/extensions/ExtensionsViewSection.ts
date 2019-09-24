@@ -38,6 +38,8 @@ export class ExtensionsViewSection extends ViewSection {
      * 
      * @param title title to search for in '@category name' format,
      * e.g '@installed extension'. If no @category is present, marketplace will be searched
+     * 
+     * @returns Promise resolving to ExtensionsViewItem if such item exists, undefined otherwise
      */
     async findItem(title: string): Promise<ExtensionsViewItem | undefined> {
         let item!: ExtensionsViewItem;
@@ -68,6 +70,7 @@ export class ExtensionsViewSection extends ViewSection {
 
     /**
      * Clears the search bar on top of the view
+     * @returns Promise resolving when the search box is cleared
      */
     async clearSearch(): Promise<void> {
         const progress = await this.enclosingItem.findElement(ExtensionsViewSection.locators.ViewContent.progress);
@@ -87,6 +90,7 @@ export class ExtensionsViewSection extends ViewSection {
     /**
      * Find and open an extension item
      * @param title title of the extension
+     * @returns Promise resolving when the item is clicked
      */
     async openItem(title: string): Promise<void> {
         const item = await this.findItem(title);

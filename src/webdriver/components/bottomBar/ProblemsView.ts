@@ -14,6 +14,7 @@ export class ProblemsView extends AbstractElement {
     /**
      * Set the filter using the input box on the problems view
      * @param pattern filter to use, prefferably a glob pattern
+     * @returns Promise resolving when the filter pattern is filled in
      */
     async setFilter(pattern: string): Promise<void> {
         const filterField = await this.clearFilter();
@@ -22,6 +23,7 @@ export class ProblemsView extends AbstractElement {
 
     /**
      * Clear all filters
+     * @returns Promise resolving to the filter field WebElement 
      */
     async clearFilter(): Promise<WebElement> {
         const filterField = await this.enclosingItem.findElement(ProblemsView.locators.BottomBarPanel.actions)
@@ -33,6 +35,7 @@ export class ProblemsView extends AbstractElement {
 
     /**
      * Collapse all collapsible markers in the problems view
+     * @returns Promise resolving when the collapse all button is pressed
      */
     async collapseAll(): Promise<void> {
         const button = await this.enclosingItem.findElement(ProblemsView.locators.BottomBarPanel.actions)
@@ -44,7 +47,7 @@ export class ProblemsView extends AbstractElement {
      * Get all markers from the problems view with the given type.
      * To get all markers regardless of type, use MarkerType.Any
      * @param type type of markers to retrieve
-     * @returns array of Marker objects
+     * @returns Promise resolving to array of Marker objects
      */
     async getAllMarkers(type: MarkerType): Promise<Marker[]> {
         const markers: Marker[] = [];
@@ -77,6 +80,7 @@ export class Marker extends ElementWithContexMenu {
     /**
      * Get the type of the marker
      * Possible types are: File, Error, Warning
+     * @returns Promise resolving to a MarkerType
      */
     async getType(): Promise<MarkerType> {
         const twist = await this.findElement(ProblemsView.locators.ProblemsView.markerTwistie);
@@ -93,6 +97,7 @@ export class Marker extends ElementWithContexMenu {
 
     /**
      * Get the full text of the marker
+     * @returns Promise resolving to marker text
      */
     async getText(): Promise<string> {
         return await this.getAttribute(ProblemsView.locators.ProblemsView.rowLabel);
@@ -101,8 +106,9 @@ export class Marker extends ElementWithContexMenu {
     /**
      * Expand/Collapse the marker if possible
      * @param expand true to expand, false to collapse
+     * @returns Promise resolving when the expand/collapse twistie is clicked
      */
-    async toggleExpand(expand: boolean) {
+    async toggleExpand(expand: boolean): Promise<void> {
         if (await this.getType() === MarkerType.File) {
             const klass = await this.findElement(ProblemsView.locators.ProblemsView.markerTwistie).getAttribute('class');
             if ((klass.indexOf('collapsed') > -1) === expand) {

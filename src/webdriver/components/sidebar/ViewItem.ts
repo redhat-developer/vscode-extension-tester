@@ -9,6 +9,7 @@ export abstract class ViewItem extends ElementWithContexMenu {
     /**
      * Select the item in the view.
      * Note that selecting the item will toggle its expand state when applicable.
+     * @returns Promise resolving when the item has been clicked
      */    
     async select(): Promise<void> {
         await this.click();
@@ -31,23 +32,25 @@ export abstract class TreeItem extends ViewItem {
 
     /**
      * Finds whether the item has children (whether it is collapsible)
+     * @returns Promise resolving to true/false
      */
     abstract async hasChildren(): Promise<boolean>
 
     /**
      * Finds whether the item is expanded. Always returns false if item has no children.
+     * @returns Promise resolving to true/false
      */
     abstract async isExpanded(): Promise<boolean>
 
     /**
      * Find children of an item, will try to expand the item in the process
-     * @returns an array of ViewItems, empty array if item has no children
+     * @returns Promise resolving to array of TreeItem objects, empty array if item has no children
      */
     abstract async getChildren(): Promise<TreeItem[]>
 
     /**
      * Find a child item with the given name
-     * @returns ViewItem object if the child item exists, undefined otherwise
+     * @returns Promise resolving to TreeItem object if the child item exists, undefined otherwise
      */
     async findChildItem(name: string): Promise<TreeItem | undefined> {
         const children = await this.getChildren();

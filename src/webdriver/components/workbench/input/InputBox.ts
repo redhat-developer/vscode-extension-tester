@@ -35,6 +35,7 @@ export class InputBox extends Input {
 
     /**
      * Find whether the input is showing an error
+     * @returns Promise resolving to notification message
      */
     async hasError(): Promise<boolean> {
         const klass = await this.findElement(InputBox.locators.Input.inputBox).getAttribute('class');
@@ -43,6 +44,7 @@ export class InputBox extends Input {
 
     /**
      * Check if the input field is masked (input type password)
+     * @returns Promise resolving to notification message
      */
     async isPassword(): Promise<boolean> {
         const input = await this.findElement(InputBox.locators.Input.input);

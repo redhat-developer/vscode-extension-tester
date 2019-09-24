@@ -15,6 +15,7 @@ export class ViewContent extends AbstractElement {
 
     /**
      * Finds whether a progress bar is active at the top of the view
+     * @returns Promise resolving to true/false
      */
     async hasProgress(): Promise<boolean> {
         const progress = await this.findElement(ViewContent.locators.ViewContent.progress);
@@ -28,7 +29,7 @@ export class ViewContent extends AbstractElement {
     /**
      * Retrieves a collapsible view content section by its title
      * @param title Title of the section
-     * @returns a ViewSection object
+     * @returns Promise resolving to ViewSection object
      */
     async getSection(title: string): Promise<ViewSection> {
         const elements = await this.findElements(ViewContent.locators.ViewContent.section);
@@ -49,7 +50,7 @@ export class ViewContent extends AbstractElement {
 
     /**
      * Retrieves all the collapsible view content sections
-     * @returns array of ViewSection objects
+     * @returns Promise resolving to array of ViewSection objects
      */
     async getSections(): Promise<ViewSection[]> {
         const sections: ViewSection[] = [];

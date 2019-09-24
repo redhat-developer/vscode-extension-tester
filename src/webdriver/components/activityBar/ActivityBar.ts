@@ -11,7 +11,7 @@ export class ActivityBar extends ElementWithContexMenu {
 
     /**
      * Find all view containers displayed in the activity bar
-     * @returns array of ViewControl objects
+     * @returns Promise resolving to array of ViewControl objects
      */
     async getViewControls(): Promise<ViewControl[]> {
         const views: ViewControl[] = [];
@@ -33,7 +33,7 @@ export class ActivityBar extends ElementWithContexMenu {
 
     /**
      * Find all global action controls displayed on the bottom of the activity bar
-     * @returns array of ActionsControl objects
+     * @returns Promise resolving to array of ActionsControl objects
      */
     async getGlobalActions(): Promise<ActionsControl[]> {
         const actions: ActionsControl[] = [];

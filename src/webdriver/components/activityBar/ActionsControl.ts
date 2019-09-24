@@ -14,7 +14,7 @@ export class ActionsControl extends ElementWithContexMenu {
 
     /**
      * Open the context menu bound to this global action
-     * @returns ContextMenu object representing the action's menu
+     * @returns Promise resolving to ContextMenu object representing the action's menu
      */
     async openActionMenu(): Promise<ContextMenu> {
         return this.openContextMenu();

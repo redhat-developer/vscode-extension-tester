@@ -18,6 +18,7 @@ export abstract class Notification extends ElementWithContexMenu {
 
     /**
      * Get the message of the notification
+     * @returns Promise resolving to notification message
      */
     async getMessage(): Promise<string> {
         return await this.findElement(Notification.locators.Notification.message).getText();
@@ -25,6 +26,7 @@ export abstract class Notification extends ElementWithContexMenu {
 
     /**
      * Get the type of the notification
+     * @returns Promise resolving to NotificationType
      */
     async getType(): Promise<NotificationType> {
         const iconType = await this.findElement(Notification.locators.Notification.icon).getAttribute('class');
@@ -39,6 +41,7 @@ export abstract class Notification extends ElementWithContexMenu {
 
     /**
      * Get the source of the notification as text
+     * @returns Promise resolving to notification source
      */
     async getSource(): Promise<string> {
         return await this.findElement(Notification.locators.Notification.source).getAttribute('title');
@@ -46,6 +49,7 @@ export abstract class Notification extends ElementWithContexMenu {
 
     /**
      * Find whether the notification has an active progress bar
+     * @returns Promise resolving to true/false
      */
     async hasProgress(): Promise<boolean> {
         const klass = await this.findElement(Notification.locators.Notification.progress).getAttribute('class');
@@ -54,6 +58,7 @@ export abstract class Notification extends ElementWithContexMenu {
 
     /**
      * Dismiss the notification
+     * @returns Promise resolving when notification is dismissed
      */
     async dismiss(): Promise<void> {
         await this.findElement(Notification.locators.Notification.dismiss).click();
@@ -62,6 +67,7 @@ export abstract class Notification extends ElementWithContexMenu {
     /**
      * Get the action buttons of the notification as an array
      * of NotificationButton objects
+     * @returns Promise resolving to array of NotificationButton objects
      */
     async getActions(): Promise<NotificationButton[]> {
         const buttons: NotificationButton[] = [];
@@ -77,6 +83,7 @@ export abstract class Notification extends ElementWithContexMenu {
     /**
      * Click on an action button with the given title
      * @param title title of the action/button
+     * @returns Promise resolving when the select button is pressed
      */
     async takeAction(title: string): Promise<void> {
         await new NotificationButton(title, this).click();
