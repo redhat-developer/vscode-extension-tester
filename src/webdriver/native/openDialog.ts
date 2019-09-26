@@ -1,6 +1,7 @@
 import { NativeDialog } from "./nativeDialog";
 import * as pathj from 'path';
 import * as fs from 'fs-extra';
+import * as clipboard from 'clipboardy';
 const robot = require('node-key-sender');
 
 /**
@@ -33,7 +34,8 @@ export class LinuxOpenDialog implements OpenDialog {
         await new Promise((res) => { setTimeout(res, 500); });
         await robot.sendCombination(['control', 'l']);
         await new Promise((res) => { setTimeout(res, 500); });
-        await robot.sendText(absolutePath);
+        clipboard.writeSync(absolutePath);
+        await robot.sendCombination(['control', 'v']);
     }
 
     async confirm(): Promise<void> {
@@ -55,10 +57,8 @@ export class WindowsOpenDialog implements OpenDialog {
         if (!fs.existsSync(absolutePath)) {
             throw new Error('The selected path does not exist');
         }
-        const layout = robot.getKeyboardLayout();
-        layout[':'] = 'shift-semicolon';
-        robot.setKeyboardLayout(layout);
-        await robot.sendText(absolutePath);
+        clipboard.writeSync(absolutePath);
+        await robot.sendCombination(['control', 'v']);
         await new Promise((res) => { setTimeout(res, 500); });
         if (fs.statSync(absolutePath).isDirectory()) {
             await robot.sendKey('tab');
