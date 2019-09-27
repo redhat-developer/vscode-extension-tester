@@ -57,7 +57,7 @@ export class ExtensionsViewSection extends ViewSection {
         const section = await parent.getSection(sectionTitle) as ExtensionsViewSection;
         const titleParts = title.split(' ');
         if (titleParts[0].startsWith('@')) {
-            title = title.split(' ').slice(-1)[0];
+            title = titleParts.slice(1).join(' ');
         }
 
         try {

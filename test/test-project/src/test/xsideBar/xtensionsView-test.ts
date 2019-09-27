@@ -28,7 +28,7 @@ describe('ExtensionsView', () => {
 
     it('findItem works', async function() {
         this.timeout(10000);
-        item = await section.findItem(`@installed ${pjson.name}`) as ExtensionsViewItem;
+        item = await section.findItem(`@installed ${pjson.displayName}`) as ExtensionsViewItem;
         expect(item).not.undefined;
     });
 
@@ -40,7 +40,7 @@ describe('ExtensionsView', () => {
 
         it('getTitle works', async () => {
             const title = item.getTitle();
-            expect(title).equals(pjson.name);
+            expect(title).equals(pjson.displayName);
         });
 
         it('getVersion works', async () => {
