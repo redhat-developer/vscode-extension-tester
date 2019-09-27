@@ -1,6 +1,6 @@
 {
 	"name": "test-project",
-	"displayName": "test-project",
+	"displayName": "Test Project",
 	"description": "Test Project for VS Code Extension Tester",
 	"version": "0.0.1",
 	"publisher": "vscode-extension-tester",
