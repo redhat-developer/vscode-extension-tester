@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.0.2 (October 1)
+ - Fixed missing dependency
+
 ## 2.0.1 (October 1)
  - Fixed open dialogs not working properly with different keyboard layouts
  - Fixed ExtensionsViewSection not handling extensions with spaces properly
