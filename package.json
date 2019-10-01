@@ -43,7 +43,6 @@
     "@types/request": "^2.48.1",
     "mocha": "^6.1.4",
     "rimraf": "^3.0.0",
-    "ts-essentials": "^3.0.2",
     "typedoc": "^0.15.0",
     "typescript": "^3.6.3"
   },
@@ -58,6 +57,7 @@
     "request": "^2.88.0",
     "selenium-webdriver": "^3.0.0",
     "targz": "^1.0.1",
+    "ts-essentials": "^3.0.2",
     "unzip-stream": "^0.3.0",
     "vsce": "^1.66.0"
   },
