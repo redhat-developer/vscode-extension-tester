@@ -3,6 +3,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import compareVersions = require('compare-versions');
 import { Merge, DeepPartial, DeepRequired } from 'ts-essentials';
+const merge = require('merge-deep');
 
 /**
  * Utility for loading locators for a given vscode version
@@ -50,7 +51,7 @@ export class LocatorLoader {
         for (let i = 0; i < versions.length; i++) {
             const diff = require(`./versions/${versions[i]}`).diff as LocatorDiff;
 
-            const newLocators: Merge<Locators, DeepPartial<Locators>> = { ...this.locators, ...diff.locators };
+            const newLocators: Merge<Locators, DeepPartial<Locators>> = merge(this.locators, diff.locators);
             this.locators = newLocators as DeepRequired<Merge<Locators, DeepPartial<Locators>>>;
         }
         return this.locators;
