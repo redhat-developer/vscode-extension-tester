@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.0.3 (October 18)
+ - Locators from multiple versions will now do a proper deep merging
+ - Updated button locators for VS Code version 1.39.x
+
 ## 2.0.2 (October 1)
  - Fixed missing dependency
 
