@@ -6,7 +6,8 @@
   "types": "out/extester.d.ts",
   "files": [
     "out/**/*.js",
-    "out/**/*.d.ts"
+    "out/**/*.d.ts",
+    "resources/*"
   ],
   "bin": {
     "extest": "./out/cli.js"
