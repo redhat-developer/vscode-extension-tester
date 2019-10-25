@@ -205,8 +205,9 @@ const sideBar = {
         textContainer: By.className('view-line'),
         textField: By.className('mtk1')
     },
-    ExtensionsViewItem: {
-        constructor: (title: string) => By.xpath(`.//div[contains(@class, 'monaco-list-row') and .//span/text()='${title}']`),
+    ExtensionsViewItem: { 
+        // Source: https://devhints.io/xpath#class-check
+        constructor: (title: string) => By.xpath(`.//div[contains(concat(' ',normalize-space(@class),' '),' monaco-list-row ') and .//span/text()='${title}']`),
         version: By.className('version'),
         author: By.className('author'),
         description: By.className('description'),
