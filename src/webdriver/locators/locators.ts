@@ -199,6 +199,7 @@ export interface Locators {
         expandedValue: string
     }
     ExtensionsViewSection: {
+        items: By
         itemRow: By
         itemTitle: By
         searchBox: By
@@ -206,7 +207,6 @@ export interface Locators {
         textField: By
     }
     ExtensionsViewItem: {
-        constructor: (title: string) => By
         version: By
         author: By
         description: By

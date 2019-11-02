@@ -19,14 +19,10 @@ enum ExtensionCategory {
  */
 export class ExtensionsViewSection extends ViewSection {
     async getVisibleItems(): Promise<ExtensionsViewItem[]> {
-        const items: ExtensionsViewItem[] = [];
-        const elements = await this.findElements(ExtensionsViewSection.locators.ExtensionsViewSection.itemRow);
+        const extensionTable = await this.findElement(ExtensionsViewSection.locators.ExtensionsViewSection.items);
+        const extensionRows = await extensionTable.findElements(ExtensionsViewSection.locators.ExtensionsViewSection.itemRow);
 
-        for (const element of elements) {
-            const title = await element.findElement(ExtensionsViewSection.locators.ExtensionsViewSection.itemTitle).getText();
-            items.push(await new ExtensionsViewItem(title, this).wait());
-        }
-        return items;
+        return Promise.all(extensionRows.map(async row => new ExtensionsViewItem(row, this).wait()));
     }
 
     /**
@@ -42,7 +38,6 @@ export class ExtensionsViewSection extends ViewSection {
      * @returns Promise resolving to ExtensionsViewItem if such item exists, undefined otherwise
      */
     async findItem(title: string): Promise<ExtensionsViewItem | undefined> {
-        let item!: ExtensionsViewItem;
         await this.clearSearch();
         const progress = await this.enclosingItem.findElement(ExtensionsViewSection.locators.ViewContent.progress);
         const searchField = await this.enclosingItem.findElement(ExtensionsViewSection.locators.ExtensionsViewSection.searchBox);
@@ -55,17 +50,21 @@ export class ExtensionsViewSection extends ViewSection {
         let sectionTitle = this.getSectionForCategory(title);
 
         const section = await parent.getSection(sectionTitle) as ExtensionsViewSection;
+        
         const titleParts = title.split(' ');
         if (titleParts[0].startsWith('@')) {
             title = titleParts.slice(1).join(' ');
         }
 
-        try {
-            item = await new ExtensionsViewItem(title, section).wait();
-        } catch(err) {
-            // ignore and return undefined
+        const extensions = await section.getVisibleItems();
+
+        for (const extension of extensions) {
+            if (await extension.getTitle() === title) {
+                return extension;
+            }
         }
-        return item;
+
+        return undefined;
     }
 
     /**
