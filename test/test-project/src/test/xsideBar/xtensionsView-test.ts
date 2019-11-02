@@ -39,7 +39,7 @@ describe('ExtensionsView', () => {
         });
 
         it('getTitle works', async () => {
-            const title = item.getTitle();
+            const title = await item.getTitle();
             expect(title).equals(pjson.displayName);
         });
 

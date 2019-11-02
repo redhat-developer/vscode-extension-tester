@@ -1,24 +1,23 @@
 import { ViewItem } from "../ViewItem";
-import { ExtensionsViewSection } from "./ExtensionsViewSection";
-import { until } from "selenium-webdriver";
+import { until, WebElement } from "selenium-webdriver";
 import { ContextMenu } from "../../menu/ContextMenu";
+import { ExtensionsViewSection } from "./ExtensionsViewSection";
 
 /**
  * Page object representing an extension in the extensions view
  */
 export class ExtensionsViewItem extends ViewItem {
-    private title: string;
 
-    constructor(title: string, section: ExtensionsViewSection) {
-        super(ExtensionsViewItem.locators.ExtensionsViewItem.constructor(title), section);
-        this.title = title;
+    constructor(extensionElement: WebElement, section: ExtensionsViewSection) {
+        super(extensionElement, section);
     }
 
     /**
      * Get title of the extension
      */
-    getTitle(): string {
-        return this.title;
+    async getTitle(): Promise<string> {
+        const title = await this.findElement(ExtensionsViewItem.locators.ExtensionsViewSection.itemTitle);
+        return title.getText();
     }
 
     /**
@@ -27,7 +26,7 @@ export class ExtensionsViewItem extends ViewItem {
      */
     async getVersion(): Promise<string> {
         const version = await this.findElement(ExtensionsViewItem.locators.ExtensionsViewItem.version);
-        return await version.getText();
+        return version.getText();
     }
 
     /**
@@ -36,7 +35,7 @@ export class ExtensionsViewItem extends ViewItem {
      */
     async getAuthor(): Promise<string> {
         const author = await this.findElement(ExtensionsViewItem.locators.ExtensionsViewItem.author);
-        return await author.getText();
+        return author.getText();
     }
 
     /**
@@ -45,7 +44,7 @@ export class ExtensionsViewItem extends ViewItem {
      */
     async getDescription(): Promise<string> {
         const description = await this.findElement(ExtensionsViewItem.locators.ExtensionsViewItem.description);
-        return await description.getText();
+        return description.getText();
     }
     
     /**
@@ -67,9 +66,9 @@ export class ExtensionsViewItem extends ViewItem {
     async manage(): Promise<ContextMenu> {
         const button = await this.findElement(ExtensionsViewItem.locators.ExtensionsViewItem.manage);
         if ((await button.getAttribute('class')).indexOf('disabled') > -1) {
-            throw new Error(`Extension '${this.title}' is not installed`);
+            throw new Error(`Extension '${await this.getTitle()}' is not installed`);
         }
-        return await this.openContextMenu();
+        return this.openContextMenu();
     }
 
     /**

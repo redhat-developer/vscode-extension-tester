@@ -199,6 +199,7 @@ const sideBar = {
         expandedValue: 'true'
     },
     ExtensionsViewSection: {
+        items: By.className('monaco-list-rows'),
         itemRow: By.className('monaco-list-row'),
         itemTitle: By.className('name'),
         searchBox: By.className('inputarea'),
@@ -206,7 +207,6 @@ const sideBar = {
         textField: By.className('mtk1')
     },
     ExtensionsViewItem: {
-        constructor: (title: string) => By.xpath(`.//div[contains(@class, 'monaco-list-row') and .//span/text()='${title}']`),
         version: By.className('version'),
         author: By.className('author'),
         description: By.className('description'),
