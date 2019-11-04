@@ -31,9 +31,10 @@ program.command('install-vsix')
     .description('Install extension from vsix file into test instance of VSCode')
     .option('-s, --storage <storage>', 'Use this folder for all test resources')
     .option('-f, --vsix_file <file>', 'vsix file containing the extension')
+    .option('-y, --yarn', 'Use yarn to build the extension via vsce instead of npm', false)
     .action((cmd) => {
         const extest = new ExTester(cmd.storage);
-        extest.installVsix(cmd.vsix_file);
+        extest.installVsix({vsixFile: cmd.vsix_file, useYarn: cmd.yarn});
     });
 
 program.command('setup-tests')
@@ -41,9 +42,10 @@ program.command('setup-tests')
     .option('-s, --storage <storage>', 'Use this folder for all test resources')
     .option('-c, --code_version <version>', 'Version of VSCode to download')
     .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
+    .option('-y, --yarn', 'Use yarn to build the extension via vsce instead of npm', false)
     .action(async (cmd) => {
         const extest = new ExTester(cmd.storage);
-        await extest.setupRequirements(cmd.code_version, cmd.type);
+        await extest.setupRequirements(cmd.code_version, cmd.type, cmd.yarn);
     });
 
 program.command('run-tests <testFiles>')
@@ -61,9 +63,10 @@ program.command('setup-and-run <testFiles>')
     .option('-c, --code_version <version>', 'Version of VSCode to download')
     .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
     .option('-o, --code_settings <settings.json>', 'Path to custom settings for VS Code json file')
+    .option('-y, --yarn', 'Use yarn to build the extension via vsce instead of npm', false)
     .action(async (testFiles, cmd) => {
         const extest = new ExTester(cmd.storage);
-        await extest.setupAndRunTests(cmd.code_version, cmd.type, testFiles, cmd.code_settings);
+        await extest.setupAndRunTests(cmd.code_version, cmd.type, testFiles, cmd.code_settings, cmd.yarn);
     });
 
 program.parse(process.argv);

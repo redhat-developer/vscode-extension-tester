@@ -79,10 +79,11 @@ export class ExTester {
     /**
      * Install the extension into the test instance of VS Code
      * @param vsixFile path to extension .vsix file. If not set, default vsce path will be used
+     * @param useYarn when true run `vsce package` with the `--yarn` flag
      */
-    installVsix(vsixFile?: string): void {
+    installVsix({vsixFile, useYarn}: {vsixFile?: string, useYarn?: boolean} = {}): void {
         if (!vsixFile) {
-            this.code.packageExtension();
+            this.code.packageExtension(useYarn);
         } else if (!fs.existsSync(vsixFile)) {
             throw new Error(`File ${vsixFile} does not exist`);
         }
@@ -106,12 +107,13 @@ export class ExTester {
      * 
      * @param vscodeVersion version of VSCode to test against, default latest
      * @param vscodeStream whether to use stable or insiders build, default stable
+     * @param useYarn when true run `vsce package` with the `--yarn` flag
      */
-    async setupRequirements(vscodeVersion: string = 'latest', vscodeStream: string = 'stable'): Promise<void> {
+    async setupRequirements(vscodeVersion: string = 'latest', vscodeStream: string = 'stable', useYarn?: boolean): Promise<void> {
         const quality = vscodeStream === 'insider' ? ReleaseQuality.Insider : ReleaseQuality.Stable;
         await this.downloadCode(vscodeVersion, quality);
         await this.downloadChromeDriver(vscodeVersion, vscodeStream);
-        this.installVsix();
+        this.installVsix({useYarn});
     }
 
     /**
@@ -121,9 +123,10 @@ export class ExTester {
      * @param vscodeStream whether to use stable or insiders build, default stable
      * @param testFilesPattern glob pattern for test files to run
      * @param settings path to a custom vscode settings json file
+     * @param useYarn when true run `vsce package` with the `--yarn` flag
      */
-    async setupAndRunTests(vscodeVersion: string = 'latest', vscodeStream: string = 'stable', testFilesPattern: string, settings: string = ''): Promise<void> {
-        await this.setupRequirements(vscodeVersion, vscodeStream);
+    async setupAndRunTests(vscodeVersion: string = 'latest', vscodeStream: string = 'stable', testFilesPattern: string, settings: string = '', useYarn?: boolean): Promise<void> {
+        await this.setupRequirements(vscodeVersion, vscodeStream, useYarn);
         this.runTests(testFilesPattern, vscodeVersion, vscodeStream, settings);
     }
 
