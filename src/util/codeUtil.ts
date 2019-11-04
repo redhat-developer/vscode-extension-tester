@@ -117,15 +117,16 @@ export class CodeUtil {
         child_process.execSync(command, { stdio: 'inherit' });
     }
 
-    packageExtension(): void {
+    packageExtension(useYarn?: boolean): void {
         // add vsce to process' path
         const binFolder = path.join(__dirname, '..', '..', 'node_modules', '.bin');
         const finalEnv: NodeJS.ProcessEnv = {};
         Object.assign(finalEnv, process.env);
         const key = process.platform === 'win32' ? 'Path' : 'PATH';
         finalEnv[key] = [binFolder, process.env[key]].join(path.delimiter);
+        const cliCall = `vsce package${useYarn ? ' --yarn' : ''}`;
 
-        child_process.execSync('vsce package', { stdio: 'inherit', env: finalEnv });
+        child_process.execSync(cliCall, { stdio: 'inherit', env: finalEnv });
     }
 
     /**
