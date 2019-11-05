@@ -7,7 +7,7 @@ describe('ProblemsView', () => {
     let bar: BottomBarPanel;
 
     before(async function() {
-        this.timeout(10000);
+        this.timeout(12000);
         await new Workbench().executeCommand('open test file');
         await new Promise((res) => { setTimeout(res, 1000); });
 
@@ -17,7 +17,7 @@ describe('ProblemsView', () => {
 
         editor = await new EditorView().openEditor('test-file.ts') as TextEditor;
         await editor.setText('aaaa');
-        await new Promise((res) => { setTimeout(res, 5000); });
+        await view.getDriver().wait(() => { return problemsExist(view); }, 8800);
     });
 
     after(async () => {
@@ -81,3 +81,8 @@ describe('ProblemsView', () => {
         });
     });
 });
+
+async function problemsExist(view: ProblemsView) {
+    const markers = await view.getAllMarkers(MarkerType.Any);
+    return markers.length > 0;
+}
