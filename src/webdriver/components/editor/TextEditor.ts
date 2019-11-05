@@ -50,7 +50,11 @@ export class TextEditor extends Editor {
         const assist = await this.findElement(TextEditor.locators.ContentAssist.constructor)
         const klass = await assist.getAttribute('class');
         const visibility = await assist.getCssValue('visibility');
-        
+        const isHidden = async () => {
+            const clas = await assist.getAttribute('class');
+            return clas.indexOf('visible') < 0;
+        }
+
         if (open) {
             if (klass.indexOf('visible') < 0 || visibility === 'hidden') {
                 await inputarea.sendKeys(Key.chord(Key.CONTROL, Key.SPACE));
@@ -59,10 +63,13 @@ export class TextEditor extends Editor {
         } else {
             if (klass.indexOf('visible') >= 0) {
                 await inputarea.sendKeys(Key.ESCAPE);
-                await this.getDriver().wait(async () => {
-                    const clas = await assist.getAttribute('class');
-                    return clas.indexOf('visible') < 0;
-                }, 1500);
+                try {
+                    await this.getDriver().wait(() => { return isHidden(); }, 500);
+                } catch (err) {
+                    // sometimes a single escape is not enough to close the assistant
+                    await inputarea.sendKeys(Key.ESCAPE);
+                    await this.getDriver().wait(() => { return isHidden(); }, 500);
+                }
             }
         }
     }
