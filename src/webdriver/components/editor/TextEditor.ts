@@ -59,6 +59,10 @@ export class TextEditor extends Editor {
         } else {
             if (klass.indexOf('visible') >= 0) {
                 await inputarea.sendKeys(Key.ESCAPE);
+                await this.getDriver().wait(async () => {
+                    const clas = await assist.getAttribute('class');
+                    return clas.indexOf('visible') < 0;
+                }, 1500);
             }
         }
     }
