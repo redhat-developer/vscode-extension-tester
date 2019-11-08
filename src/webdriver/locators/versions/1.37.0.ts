@@ -224,7 +224,7 @@ const statusBar = {
         indent: By.id('status.editor.indentation'),
         selection: By.id('status.editor.selection'),
         notifications: By.className('notifications-center'),
-        bell: By.className('octicon-bell')
+        bell: By.id('status.notifications')
     }
 }
 
