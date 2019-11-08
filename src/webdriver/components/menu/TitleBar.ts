@@ -15,9 +15,13 @@ export class TitleBar extends Menu {
      * @param name name of the item to search by
      * @returns Promise resolving to TitleBarItem object
      */
-    async getItem(name: string): Promise<TitleBarItem> {
-        await this.findElement(TitleBar.locators.TitleBar.itemConstructor(name));
-        return await new TitleBarItem(name, this).wait();
+    async getItem(name: string): Promise<TitleBarItem | undefined> {
+        try {
+            await this.findElement(TitleBar.locators.TitleBar.itemConstructor(name));
+            return await new TitleBarItem(name, this).wait();
+        } catch (err) {
+            return undefined;
+        }
     }
 
     /**

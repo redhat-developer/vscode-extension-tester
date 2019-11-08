@@ -62,13 +62,14 @@ export class TextEditor extends Editor {
             return new ContentAssist(this).wait();
         } else {
             if (klass.indexOf('visible') >= 0) {
-                await inputarea.sendKeys(Key.ESCAPE);
-                try {
-                    await this.getDriver().wait(() => { return isHidden(); }, 500);
-                } catch (err) {
-                    // sometimes a single escape is not enough to close the assistant
+                for (let i = 0; i < 5; i ++) {
                     await inputarea.sendKeys(Key.ESCAPE);
-                    await this.getDriver().wait(() => { return isHidden(); }, 500);
+                    try {
+                        await this.getDriver().wait(() => { return isHidden(); }, 500);
+                        break;
+                    } catch (err) {
+                        // content assist is still open, try again
+                    }
                 }
             }
         }

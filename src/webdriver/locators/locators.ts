@@ -93,7 +93,7 @@ export interface Locators {
     ContentAssist: {
         constructor: By
         message: By
-        itemConstructor: (label: string) => By
+        itemRows: By
         itemRow: By
         itemLabel: By
         itemText: By

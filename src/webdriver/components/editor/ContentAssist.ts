@@ -1,5 +1,5 @@
 import { TextEditor, Menu, MenuItem } from "../../../extester";
-import { until } from 'selenium-webdriver';
+import { until, WebElement } from 'selenium-webdriver';
 
 /**
  * Page object representing the content assistant
@@ -14,12 +14,14 @@ export class ContentAssist extends Menu {
      * @param name name/text to search by
      * @returns Promise resolving to ContentAssistItem object
      */
-    async getItem(name: string): Promise<ContentAssistItem> {
-        const message = await this.findElement(ContentAssist.locators.ContentAssist.message);
-        await this.getDriver().wait(until.elementIsNotVisible(message));
-
-        await this.findElement(ContentAssist.locators.ContentAssist.itemConstructor(name));
-        return await new ContentAssistItem(name, this).wait();
+    async getItem(name: string): Promise<ContentAssistItem | undefined> {
+        const items = await this.getItems();
+        
+        for (const item of items) {
+            if (await item.getLabel() === name) {
+                return await new ContentAssistItem(item, this).wait();
+            }
+        }
     }
 
     /**
@@ -30,18 +32,12 @@ export class ContentAssist extends Menu {
         const message = await this.findElement(ContentAssist.locators.ContentAssist.message);
         await this.getDriver().wait(until.elementIsNotVisible(message));
 
-        const items: ContentAssistItem[] = [];
-        const elements = await this.findElements(ContentAssist.locators.ContentAssist.itemRow);
+        const elements = await this.findElement(ContentAssist.locators.ContentAssist.itemRows)
+            .findElements(ContentAssist.locators.ContentAssist.itemRow);
 
-        for (const element of elements) {
-            const labelDiv = await element.findElement(ContentAssist.locators.ContentAssist.itemLabel);
-            const label = await labelDiv.findElement(ContentAssist.locators.ContentAssist.itemText);
-            const text = await label.getText();
-
-            const item = await new ContentAssistItem(text, this).wait();
-            items.push(item);
-        }
-        return items;
+        return Promise.all(elements.map(async (item) => {
+            return await new ContentAssistItem(item, this).wait();
+        }));
     }
 }
 
@@ -49,9 +45,14 @@ export class ContentAssist extends Menu {
  * Page object for a content assist item
  */
 export class ContentAssistItem extends MenuItem {
-    constructor(label: string, contentAssist: ContentAssist) {
-        super(ContentAssist.locators.ContentAssist.itemConstructor(label), contentAssist);
-        this.label = label;
+    constructor(item: WebElement, contentAssist: ContentAssist) {
+        super(item, contentAssist);
         this.parent = contentAssist;
+    }
+
+    async getLabel(): Promise<string> {
+        const labelDiv = await this.findElement(ContentAssist.locators.ContentAssist.itemLabel);
+        const label = await labelDiv.findElement(ContentAssist.locators.ContentAssist.itemText);
+        return label.getText();
     }
 }
