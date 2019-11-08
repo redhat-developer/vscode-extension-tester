@@ -24,7 +24,7 @@ export abstract class Input extends AbstractElement {
     async setText(text: string): Promise<void> {
         const input = await this.findElement(Input.locators.Input.inputBox)
             .findElement(Input.locators.Input.input);
-        await input.clear();
+        await this.clear();
         await input.sendKeys(text);
     }
 
@@ -55,6 +55,17 @@ export abstract class Input extends AbstractElement {
         const input = await this.findElement(Input.locators.Input.inputBox)
             .findElement(Input.locators.Input.input);
         await input.sendKeys(Key.ESCAPE);
+    }
+
+    /**
+     * Clear the inpur field
+     * @returns Promise resolving when the field is cleared
+     */
+    async clear(): Promise<void> {
+        const input = await this.findElement(Input.locators.Input.inputBox)
+            .findElement(Input.locators.Input.input);
+        // VS Code 1.40 breaks the default clear method, use select all + back space instead
+        await input.sendKeys(Key.chord(Input.ctlKey, 'a'), Key.BACK_SPACE);
     }
 
     /**
