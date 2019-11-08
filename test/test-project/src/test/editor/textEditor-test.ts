@@ -1,6 +1,36 @@
 import { expect } from 'chai';
 import { TextEditor, TitleBar, EditorView, StatusBar, InputBox, ContentAssist, Workbench } from "vscode-extension-tester";
 
+describe('ContentAssist', async () => {
+    let assist: ContentAssist;
+    let editor: TextEditor;
+
+    before(async function() {
+        this.timeout(15000);
+        await new Workbench().executeCommand('open test file');
+        await new Promise((res) => { setTimeout(res, 1000); });
+        editor = new TextEditor(new EditorView(), 'test-file.ts');
+        assist = await editor.toggleContentAssist(true) as ContentAssist;
+    });
+
+    after(async () => {
+        await editor.toggleContentAssist(false);
+        await new EditorView().closeAllEditors();
+    });
+
+    it('getItems retrieves the suggestions', async function() {
+        this.timeout(5000);
+        const items = await assist.getItems();
+        expect(items).not.empty;
+    });
+
+    it('getItem retrieves suggestion by text', async function() {
+        this.timeout(5000);
+        const item = await assist.getItem('AbortController');
+        expect(await item.getLabel()).equals('AbortController');
+    });
+});
+
 describe('TextEditor', () => {
     let editor: TextEditor;
     let view: EditorView;
@@ -48,7 +78,8 @@ describe('TextEditor', () => {
         expect(lines).equals(3);
     });
 
-    it('toggleContentAssist works', async () => {
+    it('toggleContentAssist works', async function() {
+        this.timeout(15000);
         await editor.moveCursor(2, 6);
         const assist = await editor.toggleContentAssist(true) as ContentAssist;
         expect(await assist.isDisplayed()).is.true;
@@ -56,36 +87,5 @@ describe('TextEditor', () => {
         await editor.toggleContentAssist(false);
         const klass = await assist.getAttribute('class');
         expect(klass.indexOf('visible')).lessThan(0);
-    });
-});
-
-
-describe('ContentAssist', async () => {
-    let assist: ContentAssist;
-    let editor: TextEditor;
-
-    before(async function() {
-        this.timeout(15000);
-        await new Workbench().executeCommand('open test file');
-        await new Promise((res) => { setTimeout(res, 1000); });
-        editor = new TextEditor(new EditorView(), 'test-file.ts');
-        assist = await editor.toggleContentAssist(true) as ContentAssist;
-    });
-
-    after(async () => {
-        await editor.toggleContentAssist(false);
-        await new EditorView().closeAllEditors();
-    });
-
-    it('getItems retrieves the suggestions', async function() {
-        this.timeout(5000);
-        const items = await assist.getItems();
-        expect(items).not.empty;
-    });
-
-    it('getItem retrieves suggestion by text', async function() {
-        this.timeout(5000);
-        const item = await assist.getItem('AbortController');
-        expect(await item.getLabel()).equals('AbortController');
     });
 });
