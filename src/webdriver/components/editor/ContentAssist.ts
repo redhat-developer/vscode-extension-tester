@@ -1,5 +1,5 @@
 import { TextEditor, Menu, MenuItem } from "../../../extester";
-import { until, WebElement } from 'selenium-webdriver';
+import { WebElement } from 'selenium-webdriver';
 
 /**
  * Page object representing the content assistant
@@ -29,8 +29,7 @@ export class ContentAssist extends Menu {
      * @returns Promise resolving to array of ContentAssistItem objects
      */
     async getItems(): Promise<ContentAssistItem[]> {
-        const message = await this.findElement(ContentAssist.locators.ContentAssist.message);
-        await this.getDriver().wait(until.elementIsNotVisible(message));
+        await this.getDriver().wait(() => { return this.isLoaded(); });
 
         const elements = await this.findElement(ContentAssist.locators.ContentAssist.itemRows)
             .findElements(ContentAssist.locators.ContentAssist.itemRow);
@@ -38,6 +37,22 @@ export class ContentAssist extends Menu {
         return Promise.all(elements.map(async (item) => {
             return await new ContentAssistItem(item, this).wait();
         }));
+    }
+
+    /**
+     * Find if the content assist is still loading the suggestions
+     * @returns promise that resolves to true when suggestions are done loading,
+     * to false otherwise
+     */
+    async isLoaded(): Promise<boolean> {
+        const message = await this.findElement(ContentAssist.locators.ContentAssist.message);
+        if (await message.isDisplayed()) {
+            if ((await message.getText()).startsWith('No suggestions')) {
+                return true;
+            }
+            return false;
+        }
+        return true;
     }
 }
 

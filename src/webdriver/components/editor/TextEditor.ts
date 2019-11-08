@@ -59,7 +59,9 @@ export class TextEditor extends Editor {
             if (klass.indexOf('visible') < 0 || visibility === 'hidden') {
                 await inputarea.sendKeys(Key.chord(Key.CONTROL, Key.SPACE));
             }
-            return new ContentAssist(this).wait();
+            const assist = await new ContentAssist(this).wait();
+            await this.getDriver().wait(() => { return assist.isLoaded(); }, 10000);
+            return assist;
         } else {
             if (klass.indexOf('visible') >= 0) {
                 for (let i = 0; i < 5; i ++) {
