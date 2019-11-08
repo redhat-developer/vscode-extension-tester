@@ -14,9 +14,13 @@ export class ContextMenu extends Menu {
      * @param name name of the item to search by
      * @returns Promise resolving to ContextMenuItem object
      */
-    async getItem(name: string): Promise<ContextMenuItem> {
-        await this.findElement(ContextMenu.locators.ContextMenu.itemConstructor(name));
-        return new ContextMenuItem(name, this).wait();
+    async getItem(name: string): Promise<ContextMenuItem | undefined> {
+        try {
+            await this.findElement(ContextMenu.locators.ContextMenu.itemConstructor(name));
+            return new ContextMenuItem(name, this).wait();
+        } catch (err) {
+            return undefined;
+        }
     }
 
     /**
