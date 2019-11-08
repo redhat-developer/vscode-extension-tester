@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { TextEditor, TitleBar, EditorView, StatusBar, InputBox, ContentAssist } from "vscode-extension-tester";
+import { TextEditor, TitleBar, EditorView, StatusBar, InputBox, ContentAssist, Workbench } from "vscode-extension-tester";
 
 describe('TextEditor', () => {
     let editor: TextEditor;
@@ -57,30 +57,35 @@ describe('TextEditor', () => {
         const klass = await assist.getAttribute('class');
         expect(klass.indexOf('visible')).lessThan(0);
     });
+});
 
-    describe('ContentAssist', async () => {
-        let assist: ContentAssist;
 
-        before(async function() {
-            this.timeout(5000);
-            await editor.clearText();
-            assist = await editor.toggleContentAssist(true) as ContentAssist;
-        });
+describe('ContentAssist', async () => {
+    let assist: ContentAssist;
+    let editor: TextEditor;
 
-        after(async () => {
-            await editor.toggleContentAssist(false);
-        });
+    before(async function() {
+        this.timeout(15000);
+        await new Workbench().executeCommand('open test file');
+        await new Promise((res) => { setTimeout(res, 1000); });
+        editor = new TextEditor(new EditorView(), 'test-file.ts');
+        assist = await editor.toggleContentAssist(true) as ContentAssist;
+    });
 
-        it('getItems retrieves the suggestions', async function() {
-            this.timeout(5000);
-            const items = await assist.getItems();
-            expect(items).not.empty;
-        });
+    after(async () => {
+        await editor.toggleContentAssist(false);
+        await new EditorView().closeAllEditors();
+    });
 
-        it('getItem retrieves suggestion by text', async function() {
-            this.timeout(5000);
-            const item = await assist.getItem('AbortController');
-            expect(item.getLabel()).equals('AbortController');
-        });
+    it('getItems retrieves the suggestions', async function() {
+        this.timeout(5000);
+        const items = await assist.getItems();
+        expect(items).not.empty;
+    });
+
+    it('getItem retrieves suggestion by text', async function() {
+        this.timeout(5000);
+        const item = await assist.getItem('AbortController');
+        expect(await item.getLabel()).equals('AbortController');
     });
 });

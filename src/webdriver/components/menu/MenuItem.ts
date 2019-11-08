@@ -28,7 +28,7 @@ export abstract class MenuItem extends AbstractElement {
     /**
      * Returns the label of the menu item
      */
-    getLabel(): string {
+    getLabel(): string | Promise<string> {
         return this.label;
     }
 }

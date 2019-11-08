@@ -15,7 +15,7 @@ describe('TitleBar', () => {
     });
 
     it('getWindowControls works', async () => {
-        const controls = await bar.getWindowControls();
+        const controls = bar.getWindowControls();
         expect(controls).not.undefined;
     });
 

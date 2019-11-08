@@ -91,7 +91,7 @@ const editor = {
     ContentAssist: {
         constructor: By.className('suggest-widget'),
         message: By.className('message'),
-        itemConstructor: (label: string) => By.xpath(`.//div[contains(@class, 'monaco-list-row') and div/div/div/div/a/span/span/text()='${label}']`),
+        itemRows: By.className('monaco-list-rows'),
         itemRow: By.className('monaco-list-row'),
         itemLabel: By.className('label-name'),
         itemText: By.xpath(`./span/span`)
