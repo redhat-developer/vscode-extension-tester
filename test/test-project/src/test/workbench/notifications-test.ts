@@ -12,7 +12,8 @@ describe('NotificationsCenter', () => {
         await center.close();
     });
 
-    it('getNotifications works', async () => {
+    it('getNotifications works', async function() {
+        this.timeout(4000);
         await new Workbench().executeCommand('hello world');
         await center.getDriver().sleep(500);
         center = await new Workbench().openNotificationsCenter();

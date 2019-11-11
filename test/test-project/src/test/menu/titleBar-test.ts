@@ -24,7 +24,8 @@ describe('TitleBar', () => {
         expect(item.getLabel()).equals('File');
     });
 
-    it('getItems returns all top menu items', async () => {
+    it('getItems returns all top menu items', async function() {
+        this.timeout(4000);
         const items = (await bar.getItems()).map((item) => { return item.getLabel(); });
         expect(items.length).greaterThan(5);
         expect(items).contains.members(['File', 'Edit', 'View', 'Help', 'Selection']);
