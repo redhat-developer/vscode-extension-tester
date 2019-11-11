@@ -50,10 +50,6 @@ export class TextEditor extends Editor {
         const assist = await this.findElement(TextEditor.locators.ContentAssist.constructor)
         const klass = await assist.getAttribute('class');
         const visibility = await assist.getCssValue('visibility');
-        const isHidden = async () => {
-            const clas = await assist.getAttribute('class');
-            return clas.indexOf('visible') < 0;
-        }
 
         if (open) {
             if (klass.indexOf('visible') < 0 || visibility === 'hidden') {
@@ -64,14 +60,11 @@ export class TextEditor extends Editor {
             return assist;
         } else {
             if (klass.indexOf('visible') >= 0) {
-                for (let i = 0; i < 5; i ++) {
-                    await inputarea.sendKeys(Key.ESCAPE);
-                    try {
-                        await this.getDriver().wait(() => { return isHidden(); }, 500);
-                        break;
-                    } catch (err) {
-                        // content assist is still open, try again
-                    }
+                const col = (await this.getCoordinates())[1];
+                await inputarea.sendKeys(Key.LEFT);
+                await inputarea.sendKeys(Key.RIGHT);
+                if (col < 2) {
+                    await inputarea.sendKeys(Key.LEFT);
                 }
             }
         }
