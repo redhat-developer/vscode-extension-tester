@@ -14,7 +14,8 @@ describe('ContextMenu', () => {
         await menu.close();
     });
 
-    it('getItems finds all menu items', async () => {
+    it('getItems finds all menu items', async function() {
+        this.timeout(4000);
         const items = await menu.getItems();
         expect(items).not.empty;
     });

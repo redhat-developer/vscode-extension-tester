@@ -95,7 +95,8 @@ describe('InputBox', () => {
         expect(prog).is.false;
     });
 
-    it('getQuickPicks works', async () => {
+    it('getQuickPicks works', async function() {
+        this.timeout(4000);
         const picks = await input.getQuickPicks();
         expect(picks).not.empty;
     });
