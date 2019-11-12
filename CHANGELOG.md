@@ -1,5 +1,29 @@
 # Change Log
 
+## 2.1.0 (November 12)
+
+### Fixes
+ - Extension item lookup no longer returns only the first item in the list
+ - `TextEditor#toggleContentAssist` should no longer get stuck when closing the assistant
+ - ContentAssist item retrieval should no longer get stuck when no suggestions are available
+ - Fix `unknown error: DevToolsActivePort file doesn't exist` on chrome start
+
+### Improvements
+ - --extensionDevelopmentPath flag removed from launch, since a vsix file is being used instead
+ - Menu items lookup changed to be more robust
+ - ContentAssist items lookup updated in accordance to menu items
+ - `TextEditor#toggleContentAssist` will now wait for the content assist to finish loading
+ - Removed the wait period from the end of the test suite
+
+### Minor API Changes
+ - `MenuItem#getLabel` is now async (returns `Promise<string>`)
+ - `ExtensionsViewItem#getTitle` is now async (returns `Promise<string>`)
+ - `Menu#getItem` now returns `Promise<undefined>` when the item was not found
+
+### Added
+ - Support for VS Code 1.40.x locators
+ - `-y / --yarn` flag added to setup commands and API to allow packaging extensions with yarn instead of npm
+
 ## 2.0.3 (October 18)
  - Locators from multiple versions will now do a proper deep merging
  - Updated button locators for VS Code version 1.39.x
