@@ -54,7 +54,7 @@ export class VSBrowser {
         this._driver = await new Builder()
             .forBrowser('chrome')
             .setChromeOptions(new Options().setChromeBinaryPath(codePath)
-            .addArguments(`--user-data-dir=${path.join(this.storagePath, 'settings')}`))
+            .addArguments('--no-sandbox', `--user-data-dir=${path.join(this.storagePath, 'settings')}`))
             .build();
         VSBrowser._instance = this;
         AbstractElement.loadLocators(this);
