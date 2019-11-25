@@ -111,7 +111,7 @@ export class CodeUtil {
     installExtension(vsix?: string): void {
         const pjson = require(path.resolve('package.json'));
         const vsixPath = path.resolve(vsix ? vsix : `${pjson.name}-${pjson.version}.vsix`);
-        const command = `${this.cliEnv} ${this.executablePath} ${this.cliPath} --install-extension ${vsixPath}`;
+        const command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --install-extension "${vsixPath}"`;
         
         console.log(`Installing ${pjson.name}-${pjson.version}.vsix`);
         child_process.execSync(command, { stdio: 'inherit' });
