@@ -15,7 +15,9 @@ describe('Hello World Example UI Tests', () => {
     });
 
     // Test the Hello World command does what we expect
-    it('Hello World Command should show a notification with the correct text', async () => {
+    it('Hello World Command should show a notification with the correct text', async function () {
+        // Set a timeout for the test case (default is 2000 ms)
+        this.timeout(4000);
 
         // Execute the Hello World command from the command palette
         await new Workbench().executeCommand('hello world');

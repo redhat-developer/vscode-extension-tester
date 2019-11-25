@@ -85,6 +85,7 @@ describe('TextEditor', () => {
         expect(await assist.isDisplayed()).is.true;
 
         await editor.toggleContentAssist(false);
+        await new Promise(res => setTimeout(res, 500));
         const klass = await assist.getAttribute('class');
         expect(klass.indexOf('visible')).lessThan(0);
     });

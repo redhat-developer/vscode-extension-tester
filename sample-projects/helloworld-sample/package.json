@@ -3,7 +3,7 @@
 	"displayName": "helloworld-sample",
 	"description": "HelloWorld example for VS Code Extension Tester",
 	"version": "0.0.1",
-	"publisher": "vscode-samples",
+	"publisher": "extest-samples",
 	"license": "MIT",
 	"repository": "https://github.com/redhat-developer/vscode-extension-tester/examples/helloworld-sample",
 	"engines": {
@@ -39,6 +39,6 @@
 		"mocha": "^6.2.0",
 		"tslint": "^5.16.0",
 		"typescript": "^3.5.1",
-		"vscode-extension-tester": "^2.0.4"
+		"vscode-extension-tester": "^2.1.0"
 	}
 }
