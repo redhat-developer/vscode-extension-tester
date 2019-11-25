@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.1.1 (November 25)
+
+### Fixes
+ - Installing the extension from vsix now works when the location contains spaces.
+
 ## 2.1.0 (November 12)
 
 ### Fixes
