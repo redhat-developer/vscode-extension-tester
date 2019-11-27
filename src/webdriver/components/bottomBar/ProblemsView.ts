@@ -54,13 +54,7 @@ export class ProblemsView extends AbstractElement {
         const elements = await this.findElements(ProblemsView.locators.ProblemsView.markerRow);
         for (const element of elements) {
             let marker: Marker;
-            try {
-                const label = await element.getAttribute(ProblemsView.locators.ProblemsView.rowLabel);
-                await element.findElement(ProblemsView.locators.ProblemsView.markerContructor(label));
-                marker = await new Marker(await element.getAttribute(ProblemsView.locators.ProblemsView.rowLabel), this).wait();
-            } catch (err) {
-                marker = await new Marker(await element.getAttribute(ProblemsView.locators.ProblemsView.rowLabel), this).wait();
-            }
+            marker = await new Marker(element, this).wait();
             if (type === MarkerType.Any || type === await marker.getType()) {
                 markers.push(marker);
             }
@@ -73,8 +67,8 @@ export class ProblemsView extends AbstractElement {
  * Page object for marker in problems view
  */
 export class Marker extends ElementWithContexMenu {
-    constructor(label: string, view: ProblemsView) {
-        super(ProblemsView.locators.ProblemsView.markerContructor(label), view);
+    constructor(element: WebElement, view: ProblemsView) {
+        super(element, view);
     }
 
     /**

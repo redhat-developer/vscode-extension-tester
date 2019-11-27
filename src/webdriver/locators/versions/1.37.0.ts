@@ -49,7 +49,6 @@ const bottomBar = {
         collapseAll: By.className('collapse-all'),
         markerRow: By.className('monaco-list-row'),
         rowLabel: 'aria-label',
-        markerContructor: (label: string) => By.xpath(`.//div[contains(@class, 'monaco-list-row') and contains(@aria-label, "${label}")]`),
         markerTwistie: By.className('monaco-tl-twistie')
     },
     TerminalView: {
