@@ -52,7 +52,6 @@ export interface Locators {
         collapseAll: By
         markerRow: By
         rowLabel: string
-        markerContructor: (label: string) => By
         markerTwistie: By
     }
     TerminalView: {
