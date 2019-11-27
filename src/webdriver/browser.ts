@@ -7,6 +7,7 @@ import * as fs from 'fs-extra';
 import { Locators } from './locators/locators';
 import { LocatorLoader } from './locators/loader';
 import { AbstractElement } from './components/AbstractElement';
+import compareVersions = require('compare-versions');
 
 export class VSBrowser {
     private storagePath: string;
@@ -50,11 +51,17 @@ export class VSBrowser {
         }
         fs.writeJSONSync(path.join(userSettings, 'settings.json'), defaultSettings);
         console.log(`Writing code settings to ${path.join(userSettings, 'settings.json')}`);
+        
+        const args = ['--no-sandbox', `--user-data-dir=${path.join(this.storagePath, 'settings')}`];
+        if (compareVersions(this.codeVersion, '1.39.0') < 0) {
+            args.push(`--extensionDevelopmentPath=${process.cwd()}`);
+        }
+
         this._locators = new LocatorLoader(this.codeVersion).loadLocators();
         this._driver = await new Builder()
             .forBrowser('chrome')
             .setChromeOptions(new Options().setChromeBinaryPath(codePath)
-            .addArguments('--no-sandbox', `--user-data-dir=${path.join(this.storagePath, 'settings')}`))
+            .addArguments(...args))
             .build();
         VSBrowser._instance = this;
         AbstractElement.loadLocators(this);
