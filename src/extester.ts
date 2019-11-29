@@ -127,7 +127,7 @@ export class ExTester {
      */
     async setupAndRunTests(vscodeVersion: string = 'latest', vscodeStream: string = 'stable', testFilesPattern: string, settings: string = '', useYarn?: boolean): Promise<void> {
         await this.setupRequirements(vscodeVersion, vscodeStream, useYarn);
-        this.runTests(testFilesPattern, vscodeVersion, vscodeStream, settings);
+        await this.runTests(testFilesPattern, vscodeVersion, vscodeStream, settings);
     }
 
     /**
@@ -137,11 +137,11 @@ export class ExTester {
      * @param settings path to a custom vscode settings json file
      * @param vscodeVersion version of VSCode to test against, default latest
      */
-    runTests(testFilesPattern: string, vscodeVersion: string = 'latest', vscodeStream: string = 'stable', settings: string = ''): void {
+    async runTests(testFilesPattern: string, vscodeVersion: string = 'latest', vscodeStream: string = 'stable', settings: string = ''): Promise<void> {
         let stream = ReleaseQuality.Stable;
         if (vscodeStream === 'insider') {
             stream = ReleaseQuality.Insider;
         }
-        return this.code.runTests(testFilesPattern, vscodeVersion, stream, settings);
+        await this.code.runTests(testFilesPattern, vscodeVersion, stream, settings);
     }
 }
