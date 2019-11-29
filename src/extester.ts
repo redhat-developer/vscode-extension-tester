@@ -124,10 +124,11 @@ export class ExTester {
      * @param testFilesPattern glob pattern for test files to run
      * @param settings path to a custom vscode settings json file
      * @param useYarn when true run `vsce package` with the `--yarn` flag
+     * @param cleanup true to uninstall the tested extension after the run, false otherwise
      */
-    async setupAndRunTests(vscodeVersion: string = 'latest', vscodeStream: string = 'stable', testFilesPattern: string, settings: string = '', useYarn?: boolean): Promise<void> {
+    async setupAndRunTests(vscodeVersion: string = 'latest', vscodeStream: string = 'stable', testFilesPattern: string, settings: string = '', useYarn?: boolean, cleanup?: boolean): Promise<void> {
         await this.setupRequirements(vscodeVersion, vscodeStream, useYarn);
-        await this.runTests(testFilesPattern, vscodeVersion, vscodeStream, settings);
+        await this.runTests(testFilesPattern, vscodeVersion, vscodeStream, settings, cleanup);
     }
 
     /**
@@ -136,12 +137,13 @@ export class ExTester {
      * @param vscodeStream whether to use stable or insiders build, default stable
      * @param settings path to a custom vscode settings json file
      * @param vscodeVersion version of VSCode to test against, default latest
+     * @param cleanup true to uninstall the tested extension after the run, false otherwise
      */
-    async runTests(testFilesPattern: string, vscodeVersion: string = 'latest', vscodeStream: string = 'stable', settings: string = ''): Promise<void> {
+    async runTests(testFilesPattern: string, vscodeVersion: string = 'latest', vscodeStream: string = 'stable', settings: string = '', cleanup?: boolean): Promise<void> {
         let stream = ReleaseQuality.Stable;
         if (vscodeStream === 'insider') {
             stream = ReleaseQuality.Insider;
         }
-        await this.code.runTests(testFilesPattern, vscodeVersion, stream, settings);
+        await this.code.runTests(testFilesPattern, vscodeVersion, stream, settings, cleanup);
     }
 }

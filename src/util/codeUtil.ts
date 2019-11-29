@@ -112,6 +112,10 @@ export class CodeUtil {
         child_process.execSync(command, { stdio: 'inherit' });
     }
 
+    /**
+     * Package extension into a vsix file
+     * @param useYarn false to use npm as packaging system, true to use yarn instead
+     */
     packageExtension(useYarn?: boolean): void {
         // add vsce to process' path
         const binFolder = path.join(__dirname, '..', '..', 'node_modules', '.bin');
@@ -125,13 +129,24 @@ export class CodeUtil {
     }
 
     /**
+     * Uninstall the tested extension from the test instance of VS Code
+     */
+    uninstallExtension(): void {
+        const pjson = require(path.resolve('package.json'));
+        const extension = `${pjson.publisher}.${pjson.name}`;
+        const command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --uninstall-extension "${extension}"`;
+
+        child_process.execSync(command, { stdio: 'inherit' });
+    }
+
+    /**
      * Run tests in your test environment using mocha
      * 
      * @param testFilesPattern glob pattern of test files to run
      * @param settings path to custom settings json file
      * @param vscodeVersion version of VSCode to test against, default latest
      */
-    async runTests(testFilesPattern: string, vscodeVersion: string = 'latest', quality: ReleaseQuality = ReleaseQuality.Stable, settings: string = ''): Promise<void> {
+    async runTests(testFilesPattern: string, vscodeVersion: string = 'latest', quality: ReleaseQuality = ReleaseQuality.Stable, settings: string = '', cleanup?: boolean): Promise<void> {
         await this.checkCodeVersion(vscodeVersion, quality);
         const literalVersion = vscodeVersion === 'latest' ? this.availableVersions[quality][0] : vscodeVersion;
 
@@ -143,8 +158,8 @@ export class CodeUtil {
 
         process.env = finalEnv;
         process.env.TEST_RESOURCES = this.downloadFolder;
-        const runner = new VSRunner(this.executablePath, literalVersion, this.parseSettings(settings));
-        runner.runTests(testFilesPattern);
+        const runner = new VSRunner(this.executablePath, literalVersion, this.parseSettings(settings), cleanup);
+        runner.runTests(testFilesPattern, this);
     }
 
     /**
