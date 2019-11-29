@@ -4,6 +4,7 @@ import { VSBrowser } from '../webdriver/browser';
 import * as fs from 'fs-extra';
 import Mocha = require('mocha');
 import * as glob from 'glob';
+import { CodeUtil } from '../util/codeUtil';
 
 /**
  * Mocha runner wrapper
@@ -13,19 +14,21 @@ export class VSRunner {
     private chromeBin: string;
     private customSettings: Object;
     private codeVersion: string;
+    private cleanup: boolean;
 
-    constructor(bin: string, codeVersion: string, customSettings: Object = {}) {
+    constructor(bin: string, codeVersion: string, customSettings: Object = {}, cleanup: boolean = false) {
         this.mocha = new Mocha();
         this.chromeBin = bin;
         this.customSettings = customSettings;
         this.codeVersion = codeVersion;
+        this.cleanup = cleanup;
     }
 
     /**
      * Set up mocha suite, add vscode instance handling, run tests
      * @param testFilesPattern glob pattern of test files to run
      */
-    runTests(testFilesPattern: string): void {
+    runTests(testFilesPattern: string, code: CodeUtil): void {
         let self = this;
         let browser: VSBrowser = new VSBrowser(this.codeVersion, this.customSettings);
         const universalPattern = testFilesPattern.replace(/'/g, '');
@@ -57,6 +60,10 @@ export class VSRunner {
         this.mocha.suite.afterAll(async function() {
             this.timeout(15000);
             await browser.quit();
+
+            if (self.cleanup) {
+                code.uninstallExtension();
+            }
         });
 
         this.mocha.run((failures) => {

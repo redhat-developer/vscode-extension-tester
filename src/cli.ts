@@ -54,9 +54,10 @@ program.command('run-tests <testFiles>')
     .option('-c, --code_version <version>', 'Version of VSCode to be used')
     .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
     .option('-o, --code_settings <settings.json>', 'Path to custom settings for VS Code json file')
+    .option('-u, --uninstall_extension', 'Uninstall the extension after the test run', false)
     .action(async (testFiles, cmd) => {
         const extest = new ExTester(cmd.storage);
-        await extest.runTests(testFiles, cmd.code_version, cmd.type, cmd.code_settings);
+        await extest.runTests(testFiles, cmd.code_version, cmd.type, cmd.code_settings, cmd.uninstall_extension);
     });
 
 program.command('setup-and-run <testFiles>')
@@ -66,9 +67,10 @@ program.command('setup-and-run <testFiles>')
     .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
     .option('-o, --code_settings <settings.json>', 'Path to custom settings for VS Code json file')
     .option('-y, --yarn', 'Use yarn to build the extension via vsce instead of npm', false)
+    .option('-u, --uninstall_extension', 'Uninstall the extension after the test run', false)
     .action(async (testFiles, cmd) => {
         const extest = new ExTester(cmd.storage);
-        await extest.setupAndRunTests(cmd.code_version, cmd.type, testFiles, cmd.code_settings, cmd.yarn);
+        await extest.setupAndRunTests(cmd.code_version, cmd.type, testFiles, cmd.code_settings, cmd.yarn, cmd.uninstall_extension);
     });
 
 program.parse(process.argv);
