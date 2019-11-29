@@ -69,12 +69,7 @@ export class CodeUtil {
      * @param quality Chooses stable or insiders stream, default stable
      */
     async downloadVSCode(version: string = 'latest', quality: ReleaseQuality = ReleaseQuality.Stable): Promise<void> {
-        if (this.availableVersions[quality].length < 1) {
-            this.availableVersions[quality] = await this.getVSCodeVersions(quality);
-        }
-        if (version !== 'latest' && this.availableVersions[quality].indexOf(version) < 0) {
-            throw new Error(`Version ${version} is not available in ${quality} stream`);
-        }
+        await this.checkCodeVersion(version, quality);
 
         const literalVersion = version === 'latest' ? this.availableVersions[quality][0] : version;
         if (!fs.existsSync(this.executablePath) || await this.getExistingCodeVersion() !== literalVersion) {
@@ -136,10 +131,8 @@ export class CodeUtil {
      * @param settings path to custom settings json file
      * @param vscodeVersion version of VSCode to test against, default latest
      */
-    runTests(testFilesPattern: string, vscodeVersion: string = 'latest', quality: ReleaseQuality = ReleaseQuality.Stable, settings: string = ''): void {
-        if (vscodeVersion !== 'latest' && this.availableVersions[quality].indexOf(vscodeVersion) < 0) {
-            throw new Error(`Version ${vscodeVersion} is not available in ${quality} stream`);
-        }
+    async runTests(testFilesPattern: string, vscodeVersion: string = 'latest', quality: ReleaseQuality = ReleaseQuality.Stable, settings: string = ''): Promise<void> {
+        await this.checkCodeVersion(vscodeVersion, quality);
         const literalVersion = vscodeVersion === 'latest' ? this.availableVersions[quality][0] : vscodeVersion;
 
         // add chromedriver to process' path
@@ -147,7 +140,7 @@ export class CodeUtil {
         Object.assign(finalEnv, process.env);
         const key = 'PATH';
         finalEnv[key] = [this.downloadFolder, process.env[key]].join(path.delimiter);
-    
+
         process.env = finalEnv;
         process.env.TEST_RESOURCES = this.downloadFolder;
         const runner = new VSRunner(this.executablePath, literalVersion, this.parseSettings(settings));
@@ -162,12 +155,7 @@ export class CodeUtil {
      * @param quality release stream, default stable
      */
     async getChromiumVersion(codeVersion: string = 'latest', quality: ReleaseQuality = ReleaseQuality.Stable): Promise<string> {
-        if (this.availableVersions[quality].length < 1) {
-            this.availableVersions[quality] = await this.getVSCodeVersions(quality);
-        }
-        if (codeVersion !== 'latest' && this.availableVersions[quality].indexOf(codeVersion) < 0) {
-            throw new Error(`VSCode version ${codeVersion} is not available in ${quality} stream`);
-        }
+        await this.checkCodeVersion(codeVersion, quality);
         const literalVersion = codeVersion === 'latest' ? this.availableVersions[quality][0] : codeVersion;
 
         const fileName = 'manifest.json';
@@ -179,6 +167,18 @@ export class CodeUtil {
         });
         const manifest = require(path.join(this.downloadFolder, fileName));
         return manifest.registrations[0].version;
+    }
+
+    /**
+     * Check if given version is available in the given stream
+     */
+    private async checkCodeVersion(vscodeVersion: string, quality: ReleaseQuality): Promise<void> {
+        if (this.availableVersions[quality].length < 1) {
+            this.availableVersions[quality] = await this.getVSCodeVersions(quality);
+        }
+        if (vscodeVersion !== 'latest' && this.availableVersions[quality].indexOf(vscodeVersion) < 0) {
+            throw new Error(`Version ${vscodeVersion} is not available in ${quality} stream`);
+        }
     }
 
     /**
