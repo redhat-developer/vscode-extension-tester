@@ -14,7 +14,8 @@
   },
   "scripts": {
     "prepack": "npm run build",
-    "build": "rimraf out docs && tsc && chmod a+x ./out/cli.js",
+    "prebuild": "cd api-handler && npm install",
+    "build": "tsc && chmod a+x ./out/cli.js && cd api-handler && npm run build && cp *.vsix ../resources",
     "doc": "typedoc --out docs ./src/",
     "prepare-test": "cd test/test-project && npm install && rimraf package-lock.json",
     "test": "npm run build && cd test/test-project && npm run ui-test"
