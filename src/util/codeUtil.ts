@@ -107,8 +107,6 @@ export class CodeUtil {
         const pjson = require(path.resolve('package.json'));
         const vsixPath = path.resolve(vsix ? vsix : `${pjson.name}-${pjson.version}.vsix`);
         const command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --install-extension "${vsixPath}"`;
-        
-        console.log(`Installing ${pjson.name}-${pjson.version}.vsix`);
         child_process.execSync(command, { stdio: 'inherit' });
     }
 
@@ -134,9 +132,12 @@ export class CodeUtil {
     uninstallExtension(): void {
         const pjson = require(path.resolve('package.json'));
         const extension = `${pjson.publisher}.${pjson.name}`;
+        const helper = `vscode-extension-tester.api-handler`;
         const command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --uninstall-extension "${extension}"`;
+        const command2 = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --uninstall-extension "${helper}"`;
 
         child_process.execSync(command, { stdio: 'inherit' });
+        child_process.execSync(command2, { stdio: 'inherit' });
     }
 
     /**

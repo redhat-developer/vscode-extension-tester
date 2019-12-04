@@ -1,5 +1,6 @@
+import * as path from 'path';
 import { expect } from 'chai';
-import { SideBarView, ActivityBar, ViewTitlePart, Workbench, ViewItem, ViewContent, ViewSection, DefaultTreeSection, DefaultTreeItem, TextEditor, EditorView } from "vscode-extension-tester";
+import { SideBarView, ActivityBar, ViewTitlePart, Workbench, ViewItem, ViewContent, ViewSection, DefaultTreeSection, DefaultTreeItem, TextEditor, EditorView, until, By, InputBox } from "vscode-extension-tester";
 
 describe('SideBarView', () => {
     let view: SideBarView;
@@ -45,8 +46,12 @@ describe('SideBarView', () => {
 
         before(async function() {
             this.timeout(6000);
-            await new Workbench().executeCommand('open test folder');
-            await new Promise((res) => { setTimeout(res, 2000); });
+            await new Workbench().executeCommand('extest open folder');
+            await view.getDriver().wait(until.elementLocated(By.className('quick-input-widget')));
+            const input = await new InputBox().wait();
+            await input.setText(path.resolve(__dirname, '..', '..', '..', '..', 'resources', 'test-folder'));
+            await input.confirm();
+
             view = await new ActivityBar().getViewControl('Explorer').openView();
             await new Promise((res) => { setTimeout(res, 1000); });
             content = view.getContent();

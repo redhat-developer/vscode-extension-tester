@@ -1,4 +1,5 @@
-import { Workbench, TextEditor, EditorView, ProblemsView, BottomBarPanel, MarkerType } from "vscode-extension-tester";
+import * as path from 'path';
+import { Workbench, TextEditor, EditorView, ProblemsView, BottomBarPanel, MarkerType, VSBrowser, until, By, InputBox } from "vscode-extension-tester";
 import { expect } from 'chai';
 
 describe('ProblemsView', () => {
@@ -8,7 +9,11 @@ describe('ProblemsView', () => {
 
     before(async function() {
         this.timeout(12000);
-        await new Workbench().executeCommand('open test file');
+        await new Workbench().executeCommand('extest open file');
+        await VSBrowser.instance.driver.wait(until.elementLocated(By.className('quick-input-widget')));
+        const input = await new InputBox().wait();
+        await input.setText(path.resolve(__dirname, '..', '..', '..', '..', 'resources', 'test-file.ts'));
+        await input.confirm();
         await new Promise((res) => { setTimeout(res, 1000); });
 
         bar = new BottomBarPanel();
