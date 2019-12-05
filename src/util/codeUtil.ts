@@ -107,8 +107,6 @@ export class CodeUtil {
         const pjson = require(path.resolve('package.json'));
         const vsixPath = path.resolve(vsix ? vsix : `${pjson.name}-${pjson.version}.vsix`);
         const command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --install-extension "${vsixPath}"`;
-        
-        console.log(`Installing ${pjson.name}-${pjson.version}.vsix`);
         child_process.execSync(command, { stdio: 'inherit' });
     }
 
@@ -131,12 +129,17 @@ export class CodeUtil {
     /**
      * Uninstall the tested extension from the test instance of VS Code
      */
-    uninstallExtension(): void {
+    uninstallExtension(cleanup?: boolean): void {
         const pjson = require(path.resolve('package.json'));
         const extension = `${pjson.publisher}.${pjson.name}`;
-        const command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --uninstall-extension "${extension}"`;
+        const helper = `vscode-extension-tester.api-handler`;
+        const command2 = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --uninstall-extension "${helper}"`;
+        child_process.execSync(command2, { stdio: 'inherit' });
 
-        child_process.execSync(command, { stdio: 'inherit' });
+        if (cleanup) {
+            const command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --uninstall-extension "${extension}"`;
+            child_process.execSync(command, { stdio: 'inherit' });
+        }
     }
 
     /**

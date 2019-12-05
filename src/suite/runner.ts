@@ -61,9 +61,7 @@ export class VSRunner {
             this.timeout(15000);
             await browser.quit();
 
-            if (self.cleanup) {
-                code.uninstallExtension();
-            }
+            code.uninstallExtension(self.cleanup);
         });
 
         this.mocha.run((failures) => {

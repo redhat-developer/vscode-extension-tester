@@ -3,6 +3,7 @@
 import { CodeUtil, ReleaseQuality } from './util/codeUtil';
 import { DriverUtil } from './util/driverUtil';
 import * as fs from 'fs-extra';
+import * as path from 'path';
 
 export * from 'selenium-webdriver';
 export * from './webdriver/browser';
@@ -114,6 +115,7 @@ export class ExTester {
         await this.downloadCode(vscodeVersion, quality);
         await this.downloadChromeDriver(vscodeVersion, vscodeStream);
         this.installVsix({useYarn});
+        this.installVsix({ vsixFile: path.join(__dirname, '..', 'resources', 'api-handler.vsix')});
     }
 
     /**

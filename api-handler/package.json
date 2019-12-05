@@ -1,0 +1,54 @@
+{
+	"name": "api-handler",
+	"displayName": "API Handler",
+	"description": "API Handler for VS Code Extension Tester",
+	"version": "0.0.1",
+	"publisher": "vscode-extension-tester",
+	"license": "MIT",
+	"repository": "https://github.com/redhat-developer/vscode-extension-tester/api-handler/",
+	"engines": {
+		"vscode": "^1.34.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onCommand:extest.openFolder",
+		"onCommand:extest.addFolder",
+		"onCommand:extest.openFile"
+	],
+	"main": "./out/src/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "extest.openFolder",
+				"title": "Open Folder",
+				"category": "Extest"
+			},
+			{
+				"command": "extest.addFolder",
+				"title": "Add Folder To Workspace",
+				"category": "Extest"
+			},
+			{
+				"command": "extest.openFile",
+				"title": "Open File",
+				"category": "Extest"
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "rimraf out && tsc -p ./",
+		"lint": "tslint -p ./",
+		"watch": "tsc -watch -p ./",
+		"build": "vsce package"
+	},
+	"devDependencies": {
+		"@types/node": "^8.10.25",
+		"@types/vscode": "^1.34.0",
+		"rimraf": "^3.0.0",
+		"typescript": "^3.5.1",
+		"vsce": "^1.70.0"
+	}
+}
