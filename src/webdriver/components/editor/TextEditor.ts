@@ -79,6 +79,7 @@ export class TextEditor extends Editor {
         await inputarea.sendKeys(Key.chord(TextEditor.ctlKey, 'a'), Key.chord(TextEditor.ctlKey, 'c'));
         const text = clipboard.readSync();
         await inputarea.getDriver().actions().sendKeys(Key.UP).perform();
+        clipboard.writeSync('');
         return text;
     }
 
@@ -92,6 +93,7 @@ export class TextEditor extends Editor {
         const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
         clipboard.writeSync(text);
         await inputarea.sendKeys(Key.chord(TextEditor.ctlKey, 'a'), Key.chord(TextEditor.ctlKey, 'v'));
+        clipboard.writeSync('');
         if (formatText) {
             await this.formatDocument();
         }
