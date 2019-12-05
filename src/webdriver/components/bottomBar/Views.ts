@@ -54,7 +54,10 @@ export class TerminalView extends ChannelView {
         await workbench.executeCommand('terminal select all');
         await workbench.getDriver().sleep(500);
         await workbench.executeCommand('terminal copy selection');
-        return clipboard.readSync();
+        await workbench.getDriver().sleep(500);
+        const text = clipboard.readSync();
+        clipboard.writeSync('');
+        return text;
     }
 
     /**

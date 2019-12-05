@@ -36,6 +36,7 @@ export class LinuxOpenDialog implements OpenDialog {
         await new Promise((res) => { setTimeout(res, 500); });
         clipboard.writeSync(absolutePath);
         await robot.sendCombination(['control', 'v']);
+        clipboard.writeSync('');
     }
 
     async confirm(): Promise<void> {
@@ -64,6 +65,7 @@ export class WindowsOpenDialog implements OpenDialog {
             await robot.sendKey('tab');
             await new Promise((res) => { setTimeout(res, 500); });
         }
+        clipboard.writeSync('');
     }
 
     async confirm(): Promise<void> {

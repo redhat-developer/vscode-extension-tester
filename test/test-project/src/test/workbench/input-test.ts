@@ -85,6 +85,15 @@ describe('InputBox', () => {
         await new EditorView().closeAllEditors();
     });
 
+    it('text handling works', async () => {
+        const text = 'text';
+        await input.setText(text);
+        expect(await input.getText()).equals(text);
+
+        await input.clear();
+        expect(await input.getText()).empty;
+    });
+
     it('getMessage works', async () => {
         const message = await input.getMessage();
         expect(message).empty;

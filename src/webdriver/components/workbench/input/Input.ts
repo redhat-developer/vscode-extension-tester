@@ -1,6 +1,7 @@
 import { AbstractElement } from "../../AbstractElement";
 import { Key } from "selenium-webdriver";
 import { QuickOpenBox } from "../../../../extester";
+import * as clipboard from 'clipboardy';
 
 /**
  * Abstract page object for input fields
@@ -12,8 +13,12 @@ export abstract class Input extends AbstractElement {
      * @returns Promise resolving to text of the input field
      */
     async getText(): Promise<string> {
-        return await this.findElement(Input.locators.Input.inputBox)
-            .findElement(Input.locators.Input.input).getText();
+        const input = await this.findElement(Input.locators.Input.inputBox)
+            .findElement(Input.locators.Input.input);
+        await input.sendKeys(Key.chord(Input.ctlKey, 'a'), Key.chord(Input.ctlKey, 'c'));
+        const text = clipboard.readSync();
+        clipboard.writeSync('');
+        return text;
     }
 
     /**

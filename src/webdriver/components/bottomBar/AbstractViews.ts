@@ -91,6 +91,7 @@ export abstract class TextView extends ChannelView {
         await textarea.sendKeys(Key.chord(TextView.ctlKey, 'c'));
         const text = clipboard.readSync();
         await textarea.click();
+        clipboard.writeSync('');
         return text;
     }
 
