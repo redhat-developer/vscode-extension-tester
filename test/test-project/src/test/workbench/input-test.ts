@@ -77,7 +77,7 @@ describe('InputBox', () => {
     before(async () => {
         await new TitleBar().select('File', 'New File');
         await new StatusBar().openLanguageSelection();
-        input = await new InputBox().wait();
+        input = await InputBox.create();;
     });
 
     after(async() => {
