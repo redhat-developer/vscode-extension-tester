@@ -9,8 +9,7 @@ describe('ContentAssist', async () => {
     before(async function() {
         this.timeout(15000);
         await new Workbench().executeCommand('extest open file');
-        await VSBrowser.instance.driver.wait(until.elementLocated(By.className('quick-input-widget')));
-        const input = await new InputBox().wait();
+        const input = await InputBox.create();
         await input.setText(path.resolve(__dirname, '..', '..', '..', '..', 'resources', 'test-file.ts'));
         await input.confirm();
 
@@ -50,7 +49,7 @@ describe('TextEditor', () => {
         editor = new TextEditor(view, 'Untitled-1');
 
         await new StatusBar().openLanguageSelection();
-        const input = await new InputBox().wait();
+        const input = await InputBox.create();
         await input.setText('typescript');
         await input.confirm();
     });

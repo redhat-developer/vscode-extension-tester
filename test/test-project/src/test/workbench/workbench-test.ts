@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { StatusBar, TitleBar, EditorView, InputBox, QuickOpenBox, Workbench } from 'vscode-extension-tester';
+import { EditorView, Workbench } from 'vscode-extension-tester';
 
 describe('Workbench', () => {
     let bench: Workbench;

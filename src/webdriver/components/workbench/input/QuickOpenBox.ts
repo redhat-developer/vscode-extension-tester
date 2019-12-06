@@ -9,6 +9,15 @@ export class QuickOpenBox extends Input {
         super(QuickOpenBox.locators.QuickOpenBox.constructor, QuickOpenBox.locators.Workbench.constructor);
     }
 
+    /**
+     * Construct a new QuickOpenBox instance after waiting for its underlying element to exist
+     * Use when a quick open box is scheduled to appear.
+     */
+    static async create(): Promise<QuickOpenBox> {
+        await QuickOpenBox.driver.wait(until.elementLocated(QuickOpenBox.locators.QuickOpenBox.constructor));
+        return new QuickOpenBox().wait();
+    }
+
     async hasProgress(): Promise<boolean> {
         const klass = await this.findElement(QuickOpenBox.locators.QuickOpenBox.progress)
             .getAttribute('class');

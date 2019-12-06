@@ -23,7 +23,7 @@ describe('StatusBar', () => {
 
     it('openLanguageSelection works', async () => {
         await bar.openLanguageSelection();
-        const input = await new InputBox().wait();
+        const input = await InputBox.create();
         expect(await input.getPlaceHolder()).equals('Select Language Mode');
         await input.cancel();
     });
@@ -35,7 +35,7 @@ describe('StatusBar', () => {
 
     it('openLineEndingSelection works', async () => {
         await bar.openLineEndingSelection();
-        const input = await new InputBox().wait();
+        const input = await InputBox.create();
         expect(await input.getPlaceHolder()).equals('Select End of Line Sequence');
         await input.cancel();
     });
@@ -47,7 +47,7 @@ describe('StatusBar', () => {
 
     it('openEncodingSelection works', async () => {
         await bar.openEncodingSelection();
-        const input = await new InputBox().wait();
+        const input = await InputBox.create();
         expect(await input.getPlaceHolder()).equals('Select File Encoding to Save with');
         await input.cancel();
     });
@@ -59,7 +59,7 @@ describe('StatusBar', () => {
 
     it('openIndentationSelection works', async () => {
         await bar.openIndentationSelection();
-        const input = await new InputBox().wait();
+        const input = await InputBox.create();
         expect(await input.getPlaceHolder()).equals('Select Action');
         await input.cancel();
     });
@@ -71,7 +71,7 @@ describe('StatusBar', () => {
 
     it('openLineSelection works', async () => {
         await bar.openLineSelection();
-        const input = await new QuickOpenBox().wait();
+        const input = await QuickOpenBox.create();
         expect(await input.isDisplayed()).is.true;
         await input.cancel();
     });

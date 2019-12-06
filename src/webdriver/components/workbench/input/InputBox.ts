@@ -1,4 +1,5 @@
 import { Input, QuickPickItem } from "../../../../extester";
+import { until } from "selenium-webdriver";
 
 /**
  * Plain input box variation of the input page object
@@ -6,6 +7,15 @@ import { Input, QuickPickItem } from "../../../../extester";
 export class InputBox extends Input {
     constructor() {
         super(InputBox.locators.InputBox.constructor, InputBox.locators.Workbench.constructor);
+    }
+
+    /**
+     * Construct a new InputBox instance after waiting for its underlying element to exist
+     * Use when an input box is scheduled to appear.
+     */
+    static async create(): Promise<InputBox> {
+        await InputBox.driver.wait(until.elementLocated(InputBox.locators.InputBox.constructor), 5000);
+        return new InputBox().wait();
     }
 
     /**

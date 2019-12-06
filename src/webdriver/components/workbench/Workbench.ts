@@ -107,7 +107,7 @@ export class Workbench extends AbstractElement {
      */
     async openCommandPrompt(): Promise<QuickOpenBox> {
         await this.getDriver().actions().sendKeys(Key.F1).perform();
-        return new QuickOpenBox().wait();
+        return QuickOpenBox.create();
     }
 
     /**
