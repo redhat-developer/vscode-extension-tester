@@ -38,7 +38,7 @@
 		"chai": "^4.2.0",
 		"mocha": "^6.2.0",
 		"tslint": "^5.16.0",
-		"typescript": "^3.5.1",
-		"vscode-extension-tester": "^2.1.0"
+		"typescript": "^3.7.3",
+		"vscode-extension-tester": "^2.1.1"
 	}
 }
