@@ -1,5 +1,26 @@
 # Change Log
 
+## 2.2.0 (December 9)
+
+### New Features
+ - `-u` flag added to commands that run the tests
+   - use this flag to uninstall the extension after the test run
+   - adequate changes made to the API (argument added to the corresponding methods)
+ - small api-handler extension has been added for easier workspace manipulation
+   - adds 3 new commands to VS Code: `Extest: Open File`, `Extest: Open Folder`, `Extest: Add Folder to Workspace`
+   - use these commands to open files or folders without the need for native dialogs
+ - static `create` method added to `InputBox` and `QuickOpenBox`
+   - method waits for the underlying DOM element to be generated, then creates a new page object instance
+   - use this method to safely instantiate either class
+
+### Fixes
+ - `run-tests` command should now properly pass the custom settings file
+ - problem marker lookup should no longer fail when the marker text contains special characters
+ - methods that handled text via clipboard should now clean after themselves
+   - fixes a situation where values from one method could slip into another through the clipboard
+ - `Input#getText` should no longer return empty string
+ - `Getting Started` page should no longer open in a browser for older versions of vscode
+
 ## 2.1.1 (November 25)
 
 ### Fixes
