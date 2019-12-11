@@ -2,7 +2,7 @@ import { NativeDialog } from "./nativeDialog";
 import * as pathj from 'path';
 import * as fs from 'fs-extra';
 import * as clipboard from 'clipboardy';
-const robot = require('node-key-sender');
+import * as robot from 'robotjs';
 
 /**
  * General open native dialog
@@ -15,65 +15,75 @@ export interface OpenDialog extends NativeDialog {
     selectPath(path: string): void | Promise<void>;
 }
 
+abstract class AbstractOpenDialog implements OpenDialog {
+    selectPath(path: string): void | Promise<void> {
+        throw new Error("Method not implemented.");
+    }
+    async confirm(): Promise<void> {
+        robot.keyTap('enter');
+        await new Promise((res) => { setTimeout(res, 4000); });
+    }
+    async cancel(): Promise<void> {
+        robot.keyTap('escape');
+    }
+}
+
 /**
  * Linux implementation of the open dialog
  */
-export class LinuxOpenDialog implements OpenDialog {
+export class LinuxOpenDialog extends AbstractOpenDialog {
     async selectPath(path: string): Promise<void> {
         const absolutePath = pathj.resolve(path);
         if (!fs.existsSync(absolutePath)) {
             throw new Error('The selected path does not exist');
         }
-        await robot.sendKey('left');
+        robot.keyTap('left');
+        robot.keyTap('up');
+        robot.keyTap('down');
+        robot.keyTap('enter');
         await new Promise((res) => { setTimeout(res, 500); });
-        await robot.sendKey('up');
-        await new Promise((res) => { setTimeout(res, 500); });
-        await robot.sendKey('down');
-        await new Promise((res) => { setTimeout(res, 500); });
-        await robot.sendKey('enter');
-        await new Promise((res) => { setTimeout(res, 500); });
-        await robot.sendCombination(['control', 'l']);
+        robot.keyTap('l', 'control');
         await new Promise((res) => { setTimeout(res, 500); });
         clipboard.writeSync(absolutePath);
-        await robot.sendCombination(['control', 'v']);
+        robot.keyTap('v', 'control');
         clipboard.writeSync('');
-    }
-
-    async confirm(): Promise<void> {
-        await robot.sendKey('enter');
-        await new Promise((res) => { setTimeout(res, 4000); });
-    }
-
-    async cancel(): Promise<void> {
-        await robot.sendKey('escape');
     }
 }
 
 /**
  * Windows implementation of the open dialog
  */
-export class WindowsOpenDialog implements OpenDialog {
+export class WindowsOpenDialog extends AbstractOpenDialog {
     async selectPath(path: string): Promise<void> {
         const absolutePath = pathj.resolve(path);
         if (!fs.existsSync(absolutePath)) {
             throw new Error('The selected path does not exist');
         }
         clipboard.writeSync(absolutePath);
-        await robot.sendCombination(['control', 'v']);
+        robot.keyTap('v', 'control');
         await new Promise((res) => { setTimeout(res, 500); });
         if (fs.statSync(absolutePath).isDirectory()) {
-            await robot.sendKey('tab');
+            robot.keyTap('tab');
             await new Promise((res) => { setTimeout(res, 500); });
         }
         clipboard.writeSync('');
     }
+}
 
-    async confirm(): Promise<void> {
-        await robot.sendKey('enter');
-        await new Promise((res) => { setTimeout(res, 4000); });
-    }
-
-    async cancel(): Promise<void> {
-        await robot.sendKey('escape');
+/**
+ * MacOS implementation of the open dialog
+ */
+export class MacOpenDialog extends AbstractOpenDialog {
+    async selectPath(path: string): Promise<void> {
+        const absolutePath = pathj.resolve(path);
+        if (!fs.existsSync(absolutePath)) {
+            throw new Error('The selected path does not exist');
+        }
+        clipboard.writeSync(absolutePath);
+        robot.keyTap('g', ['command', 'shift']);
+        await new Promise((res) => { setTimeout(res, 500); });
+        robot.keyTap('v', 'command');
+        robot.keyTap('enter');
+        clipboard.writeSync('');
     }
 }
