@@ -1,4 +1,4 @@
-import { OpenDialog, LinuxOpenDialog, WindowsOpenDialog } from "./openDialog";
+import { OpenDialog, LinuxOpenDialog, WindowsOpenDialog, MacOpenDialog } from "./openDialog";
 
 /**
  * Handles native dialogs for different platforms
@@ -16,7 +16,7 @@ export class DialogHandler {
                 return new WindowsOpenDialog();
             }
             case 'darwin': {
-                break;
+                return new MacOpenDialog();
             }
             case 'linux': {
                 return new LinuxOpenDialog();
