@@ -8,6 +8,12 @@ services:
 node_js:
   - 11
 
+env:
+  - CODE_VERSION=1.37.0
+  - CODE_VERSION=1.39.0
+  - CODE_VERSION=1.40.0
+  - CODE_VERSION=latest
+
 install:
   - npm install
   - npm run build

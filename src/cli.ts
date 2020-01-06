@@ -14,7 +14,8 @@ program.command('get-vscode')
     .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
     .action(async (cmd) => {
         const extest = new ExTester(cmd.storage);
-        await extest.downloadCode(cmd.code_version, cmd.type);
+        const version = loadCodeVersion(cmd.code_version);
+        await extest.downloadCode(version, cmd.type);
     });
 
 program.command('get-chromedriver')
@@ -24,7 +25,8 @@ program.command('get-chromedriver')
     // .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
     .action(async (cmd) => {
         const extest = new ExTester(cmd.storage);
-        await extest.downloadChromeDriver(cmd.code_version);
+        const version = loadCodeVersion(cmd.code_version);
+        await extest.downloadChromeDriver(version);
     });
 
 program.command('install-vsix')
@@ -45,7 +47,8 @@ program.command('setup-tests')
     .option('-y, --yarn', 'Use yarn to build the extension via vsce instead of npm', false)
     .action(async (cmd) => {
         const extest = new ExTester(cmd.storage);
-        await extest.setupRequirements(cmd.code_version, cmd.type, cmd.yarn);
+        const version = loadCodeVersion(cmd.code_version);
+        await extest.setupRequirements(version, cmd.type, cmd.yarn);
     });
 
 program.command('run-tests <testFiles>')
@@ -57,7 +60,8 @@ program.command('run-tests <testFiles>')
     .option('-u, --uninstall_extension', 'Uninstall the extension after the test run', false)
     .action(async (testFiles, cmd) => {
         const extest = new ExTester(cmd.storage);
-        await extest.runTests(testFiles, cmd.code_version, cmd.type, cmd.code_settings, cmd.uninstall_extension);
+        const version = loadCodeVersion(cmd.code_version);
+        await extest.runTests(testFiles, version, cmd.type, cmd.code_settings, cmd.uninstall_extension);
     });
 
 program.command('setup-and-run <testFiles>')
@@ -70,7 +74,16 @@ program.command('setup-and-run <testFiles>')
     .option('-u, --uninstall_extension', 'Uninstall the extension after the test run', false)
     .action(async (testFiles, cmd) => {
         const extest = new ExTester(cmd.storage);
-        await extest.setupAndRunTests(cmd.code_version, cmd.type, testFiles, cmd.code_settings, cmd.yarn, cmd.uninstall_extension);
+        const version = loadCodeVersion(cmd.code_version);
+        await extest.setupAndRunTests(version, cmd.type, testFiles, cmd.code_settings, cmd.yarn, cmd.uninstall_extension);
     });
 
 program.parse(process.argv);
+
+function loadCodeVersion(version: string | undefined) {
+    const envVersion = process.env.CODE_VERSION;
+    if (!version && envVersion) {
+        return envVersion;
+    }
+    return version;
+}
