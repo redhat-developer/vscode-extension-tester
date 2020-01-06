@@ -115,7 +115,6 @@ export class ExTester {
         await this.downloadCode(vscodeVersion, quality);
         await this.downloadChromeDriver(vscodeVersion, vscodeStream);
         this.installVsix({useYarn});
-        this.installVsix({ vsixFile: path.join(__dirname, '..', 'resources', 'api-handler.vsix')});
     }
 
     /**
@@ -142,6 +141,7 @@ export class ExTester {
      * @param cleanup true to uninstall the tested extension after the run, false otherwise
      */
     async runTests(testFilesPattern: string, vscodeVersion: string = 'latest', vscodeStream: string = 'stable', settings: string = '', cleanup?: boolean): Promise<void> {
+        this.installVsix({ vsixFile: path.join(__dirname, '..', 'resources', 'api-handler.vsix')});
         let stream = ReleaseQuality.Stable;
         if (vscodeStream === 'insider') {
             stream = ReleaseQuality.Insider;
