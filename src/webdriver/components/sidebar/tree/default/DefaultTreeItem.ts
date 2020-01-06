@@ -23,16 +23,17 @@ export class DefaultTreeItem extends TreeItem {
 
     async getChildren(): Promise<TreeItem[]>{
         const items: TreeItem[] = [];
-        if (!await this.isExpanded() && await this.hasChildren()) {
+        if (!await this.hasChildren()) {
+            return items;
+        }
+        if (!await this.isExpanded()) {
             await this.click();
         }
-
         const rows = await this.enclosingItem.findElements(DefaultTreeItem.locators.DefaultTreeSection.itemRow);
         const baseIndex = await this.findRowIndex(rows);
-        const baseLevel = +await this.getAttribute(DefaultTreeItem.locators.ViewSection.level);
+        const baseLevel = +await rows[baseIndex].getAttribute(DefaultTreeItem.locators.ViewSection.level);
 
-        for (let i = baseIndex; i < rows.length; i++) {
-            if (i === baseIndex) { continue; }
+        for (let i = baseIndex + 1; i < rows.length; i++) {
             const level = +await rows[i].getAttribute(DefaultTreeItem.locators.ViewSection.level);
 
             if (level > baseLevel + 1) { continue; }
@@ -43,10 +44,6 @@ export class DefaultTreeItem extends TreeItem {
         }
 
         return items;
-    }
-
-    async select(): Promise<void> {
-        await this.click();
     }
 
     private async findRowIndex(rows: WebElement[]): Promise<number> {
