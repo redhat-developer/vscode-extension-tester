@@ -28,10 +28,9 @@ export class CustomTreeItem extends TreeItem {
         }
         const rows = await this.enclosingItem.findElements(CustomTreeItem.locators.CustomTreeSection.itemRow);
         const baseIndex = await this.findRowIndex(rows);
-        const baseLevel = +await this.getAttribute(CustomTreeItem.locators.ViewSection.level);
+        const baseLevel = +await rows[baseIndex].getAttribute(CustomTreeItem.locators.ViewSection.level);
 
-        for (let i = baseIndex; i < rows.length; i++) {
-            if (i === baseIndex) { continue; }
+        for (let i = baseIndex + 1; i < rows.length; i++) {
             const level = +await rows[i].getAttribute(CustomTreeItem.locators.ViewSection.level);
 
             if (level > baseLevel + 1) { continue; }
