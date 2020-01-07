@@ -38,6 +38,10 @@
 			{
 				"command": "extension.closeFolder",
 				"title": "Close Test Folder"
+			},
+			{
+				"command": "extension.test",
+				"title": "Test Command"
 			}
 		],
 		"views": {

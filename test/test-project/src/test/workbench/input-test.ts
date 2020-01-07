@@ -55,8 +55,8 @@ describe('QuickPickItem', () => {
         item = picks[0];
     });
 
-    it('getText returns label', async () => {
-        const text = await item.getText();
+    it('getLabel returns label', async () => {
+        const text = await item.getLabel();
         expect(text).not.empty;
     });
 
@@ -68,6 +68,15 @@ describe('QuickPickItem', () => {
     it('select works', async () => {
         await item.select();
         expect(await input.isDisplayed()).is.false;
+    });
+
+    it('getDescription works', async function() {
+        this.timeout(4000);
+        await new Workbench().executeCommand('Test Command');
+        const inputbox = await InputBox.create();
+        const pick = (await inputbox.getQuickPicks())[0];
+        const desc = await pick.getDescription();
+        expect(desc).has.string('Test Description');
     });
 });
 

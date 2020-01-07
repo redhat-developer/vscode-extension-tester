@@ -126,10 +126,21 @@ export class QuickPickItem extends AbstractElement {
     }
 
     /**
-     * Get the text of the quick pick item
+     * Get the label of the quick pick item
      */
-    async getText(): Promise<string> {
-        return await this.findElement(Input.locators.Input.quickPickText).getText();
+    async getLabel(): Promise<string> {
+        return this.findElement(Input.locators.Input.quickPickLabel).getText();
+    }
+
+    /**
+     * Get the description of the quick pick item
+     */
+    async getDescription(): Promise<string | undefined> {
+        try {
+            return await this.findElement(Input.locators.Input.quickPickDescription).getText();
+        } catch (err) {
+            return undefined;
+        }
     }
 
     /**
