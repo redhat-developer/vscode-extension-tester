@@ -261,7 +261,8 @@ const input = {
         input: By.className('input'),
         quickPickIndex: (index: number) => By.xpath(`.//div[@role='treeitem' and @data-index='${index}']`),
         quickPickPosition: (index: number) => By.xpath(`.//div[@role='treeitem' and @aria-posinset='${index}']`),
-        quickPickText: By.className('monaco-highlighted-label')
+        quickPickLabel: By.className('label-name'),
+        quickPickDescription: By.className('label-description')
     },
     InputBox: {
         constructor: By.className('quick-input-widget'),

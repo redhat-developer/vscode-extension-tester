@@ -19,11 +19,15 @@ export function activate(context: vscode.ExtensionContext) {
 	let closeFolder = vscode.commands.registerCommand('extension.closeFolder', async () => {
 		vscode.workspace.updateWorkspaceFolders(0, 1);
 	});
+	let testCommand = vscode.commands.registerCommand('extension.test', async () => {
+		vscode.window.showQuickPick([{ label: 'TestLabel', description: 'Test Description' }]);
+	})
 
 	context.subscriptions.push(disposable);
 	context.subscriptions.push(openCommand);
 	context.subscriptions.push(openFolder);
 	context.subscriptions.push(closeFolder);
+	context.subscriptions.push(testCommand);
 
 	new TreeView(context);
 }
