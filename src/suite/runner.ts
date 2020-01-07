@@ -5,6 +5,8 @@ import * as fs from 'fs-extra';
 import Mocha = require('mocha');
 import * as glob from 'glob';
 import { CodeUtil } from '../util/codeUtil';
+import * as path from 'path';
+import * as yaml from 'js-yaml';
 
 /**
  * Mocha runner wrapper
@@ -16,12 +18,13 @@ export class VSRunner {
     private codeVersion: string;
     private cleanup: boolean;
 
-    constructor(bin: string, codeVersion: string, customSettings: Object = {}, cleanup: boolean = false) {
-        this.mocha = new Mocha();
+    constructor(bin: string, codeVersion: string, customSettings: Object = {}, cleanup: boolean = false, config?: string) {
+        const conf = this.loadConfig(config);
+        this.mocha = new Mocha(conf);
         this.chromeBin = bin;
         this.customSettings = customSettings;
         this.codeVersion = codeVersion;
-        this.cleanup = cleanup;
+        this.cleanup = cleanup; 
     }
 
     /**
@@ -67,5 +70,43 @@ export class VSRunner {
         this.mocha.run((failures) => {
             process.exitCode = failures ? 1 : 0;
         });
+    }
+
+    private loadConfig(config?: string): Mocha.MochaOptions {
+        const defaultFiles = ['.mocharc.js', '.mocharc.json', '.mocharc.yml', '.mocharc.yaml']
+        let conf: Mocha.MochaOptions = {};
+        let file = config;
+        if (!config) {
+            file = path.resolve('.')
+            for (let i = 0; i < defaultFiles.length; i++) {
+                if (fs.existsSync(path.join(file, defaultFiles[i]))) {
+                    file = path.join(file, defaultFiles[i]);
+                    break;
+                }
+            }
+            if (file) {
+                console.log(`Found mocha configuration file at ${file}`);
+            }
+        }
+
+        if (file) {
+            console.log(`Loading mocha configuration from ${file}`);
+            if (/\.(yml|yaml)$/.test(file)) {
+                try {
+                    conf = yaml.safeLoad(fs.readFileSync(file, 'utf-8'));
+                } catch (err) {
+                    console.log('Invalid mocha configuration file, will be ignored');
+                }
+            } else if (/\.(js|json)$/.test(file)) {
+                try {
+                    conf = require(path.resolve(file));
+                } catch (err) {
+                    console.log('Invalid mocha configuration file, will be ignored');
+                }
+            } else {
+                console.log('Unsupported mocha configuration file extension, make sure to use .js, .json, .yml or .yaml file');
+            }
+        }
+        return conf;
     }
 }
