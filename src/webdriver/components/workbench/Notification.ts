@@ -61,6 +61,7 @@ export abstract class Notification extends ElementWithContexMenu {
      * @returns Promise resolving when notification is dismissed
      */
     async dismiss(): Promise<void> {
+        await this.getDriver().actions().mouseMove(this).perform();
         await this.findElement(Notification.locators.Notification.dismiss).click();
     }
 
