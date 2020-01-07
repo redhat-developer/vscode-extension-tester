@@ -45,6 +45,10 @@ describe('NotificationsCenter', () => {
             notification = (await center.getNotifications(NotificationType.Any))[0];
         });
 
+        after(async () => {
+            await notification.dismiss();
+        });
+
         it('getMessage gets the text', async () => {
             const message = await notification.getMessage();
             expect(message).has.string('Hello World');
