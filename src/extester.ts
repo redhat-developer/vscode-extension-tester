@@ -5,6 +5,7 @@ import { DriverUtil } from './util/driverUtil';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
+export { MochaOptions } from 'mocha';
 export * from 'selenium-webdriver';
 export * from './webdriver/browser';
 
@@ -127,9 +128,9 @@ export class ExTester {
      * @param useYarn when true run `vsce package` with the `--yarn` flag
      * @param cleanup true to uninstall the tested extension after the run, false otherwise
      */
-    async setupAndRunTests(vscodeVersion: string = 'latest', vscodeStream: string = 'stable', testFilesPattern: string, settings: string = '', useYarn?: boolean, cleanup?: boolean): Promise<void> {
+    async setupAndRunTests(vscodeVersion: string = 'latest', vscodeStream: string = 'stable', testFilesPattern: string, settings: string = '', useYarn?: boolean, cleanup?: boolean, config?: string): Promise<void> {
         await this.setupRequirements(vscodeVersion, vscodeStream, useYarn);
-        await this.runTests(testFilesPattern, vscodeVersion, vscodeStream, settings, cleanup);
+        await this.runTests(testFilesPattern, vscodeVersion, vscodeStream, settings, cleanup, config);
     }
 
     /**
@@ -140,12 +141,12 @@ export class ExTester {
      * @param vscodeVersion version of VSCode to test against, default latest
      * @param cleanup true to uninstall the tested extension after the run, false otherwise
      */
-    async runTests(testFilesPattern: string, vscodeVersion: string = 'latest', vscodeStream: string = 'stable', settings: string = '', cleanup?: boolean): Promise<void> {
+    async runTests(testFilesPattern: string, vscodeVersion: string = 'latest', vscodeStream: string = 'stable', settings: string = '', cleanup?: boolean, config?: string): Promise<void> {
         this.installVsix({ vsixFile: path.join(__dirname, '..', 'resources', 'api-handler.vsix')});
         let stream = ReleaseQuality.Stable;
         if (vscodeStream === 'insider') {
             stream = ReleaseQuality.Insider;
         }
-        await this.code.runTests(testFilesPattern, vscodeVersion, stream, settings, cleanup);
+        await this.code.runTests(testFilesPattern, vscodeVersion, stream, settings, cleanup, config);
     }
 }

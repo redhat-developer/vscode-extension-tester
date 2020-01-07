@@ -58,10 +58,11 @@ program.command('run-tests <testFiles>')
     .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
     .option('-o, --code_settings <settings.json>', 'Path to custom settings for VS Code json file')
     .option('-u, --uninstall_extension', 'Uninstall the extension after the test run', false)
+    .option('-m, --mocha_config', 'Path to Mocha configuration file')
     .action(async (testFiles, cmd) => {
         const extest = new ExTester(cmd.storage);
         const version = loadCodeVersion(cmd.code_version);
-        await extest.runTests(testFiles, version, cmd.type, cmd.code_settings, cmd.uninstall_extension);
+        await extest.runTests(testFiles, version, cmd.type, cmd.code_settings, cmd.uninstall_extension, cmd.mocha_config);
     });
 
 program.command('setup-and-run <testFiles>')
@@ -72,10 +73,11 @@ program.command('setup-and-run <testFiles>')
     .option('-o, --code_settings <settings.json>', 'Path to custom settings for VS Code json file')
     .option('-y, --yarn', 'Use yarn to build the extension via vsce instead of npm', false)
     .option('-u, --uninstall_extension', 'Uninstall the extension after the test run', false)
+    .option('-m, --mocha_config <mocharc.js>', 'Path to Mocha configuration file')
     .action(async (testFiles, cmd) => {
         const extest = new ExTester(cmd.storage);
         const version = loadCodeVersion(cmd.code_version);
-        await extest.setupAndRunTests(version, cmd.type, testFiles, cmd.code_settings, cmd.yarn, cmd.uninstall_extension);
+        await extest.setupAndRunTests(version, cmd.type, testFiles, cmd.code_settings, cmd.yarn, cmd.uninstall_extension, cmd.mocha_config);
     });
 
 program.parse(process.argv);
