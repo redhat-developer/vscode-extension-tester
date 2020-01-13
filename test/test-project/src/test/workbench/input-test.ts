@@ -83,7 +83,8 @@ describe('QuickPickItem', () => {
 describe('InputBox', () => {
     let input: InputBox;
 
-    before(async () => {
+    before(async function () {
+        this.timeout(6000);
         await new Workbench().executeCommand('File: New File');
         await new Promise(res => setTimeout(res, 500));
         await new StatusBar().openLanguageSelection();

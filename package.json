@@ -18,7 +18,8 @@
     "build": "tsc && chmod a+x ./out/cli.js && cd api-handler && npm run build && cp *.vsix ../resources/api-handler.vsix",
     "doc": "typedoc --out docs ./src/",
     "prepare-test": "cd test/test-project && npm install && rimraf package-lock.json",
-    "test": "npm run build && cd test/test-project && npm run ui-test"
+    "test": "npm run build && cd test/test-project && npm run ui-test",
+    "ci-test": "npm run build && cd test/test-project && npm run ci-test"
   },
   "repository": {
     "type": "git",

@@ -8,7 +8,7 @@ describe('ProblemsView', () => {
     let bar: BottomBarPanel;
 
     before(async function() {
-        this.timeout(12000);
+        this.timeout(15000);
         await new Workbench().executeCommand('extest open file');
         const input = await InputBox.create();
         await input.setText(path.resolve(__dirname, '..', '..', '..', '..', 'resources', 'test-file.ts'));
