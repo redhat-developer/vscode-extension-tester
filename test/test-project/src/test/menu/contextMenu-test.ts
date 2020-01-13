@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { TitleBar, ContextMenu } from 'vscode-extension-tester';
 
-describe('ContextMenu', () => {
+(process.platform === 'darwin' ? describe.skip : describe)('ContextMenu', () => {
     let bar: TitleBar;
     let menu: ContextMenu;
 

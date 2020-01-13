@@ -71,7 +71,7 @@ describe('QuickPickItem', () => {
     });
 
     it('getDescription works', async function() {
-        this.timeout(4000);
+        this.timeout(8000);
         await new Workbench().executeCommand('Test Command');
         const inputbox = await InputBox.create();
         const pick = (await inputbox.getQuickPicks())[0];
@@ -84,7 +84,8 @@ describe('InputBox', () => {
     let input: InputBox;
 
     before(async () => {
-        await new TitleBar().select('File', 'New File');
+        await new Workbench().executeCommand('File: New File');
+        await new Promise(res => setTimeout(res, 500));
         await new StatusBar().openLanguageSelection();
         input = await InputBox.create();;
     });

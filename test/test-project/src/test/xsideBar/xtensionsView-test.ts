@@ -63,7 +63,7 @@ describe('ExtensionsView', () => {
             expect(installed).is.true;
         });
 
-        it('manage works', async () => {
+        (process.platform === 'darwin' ? it.skip : it)('manage works', async () => {
             const menu = await item.manage();
             expect(menu).not.undefined;
             await menu.close();

@@ -22,7 +22,7 @@ describe('NotificationsCenter', () => {
     });
 
     it('clearAllNotifications works', async function () {
-        this.timeout(4000);
+        this.timeout(8000);
         await new Workbench().executeCommand('hello world');
         await center.getDriver().sleep(500);
         center = await new Workbench().openNotificationsCenter();
@@ -30,6 +30,7 @@ describe('NotificationsCenter', () => {
         expect(notifications).not.empty;
 
         await center.clearAllNotifications();
+        await center.getDriver().sleep(1000);
         center = await new Workbench().openNotificationsCenter();
         const cleared = await center.getNotifications(NotificationType.Any);
         expect(cleared).empty;

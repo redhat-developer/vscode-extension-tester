@@ -4,7 +4,8 @@ import { SettingsEditor, Workbench, EditorView, ComboSetting, TextSetting, Check
 describe('SettingsEditor', () => {
     let editor: SettingsEditor;
 
-    before(async () => {
+    before(async function() {
+        this.timeout(5000);
         editor = await new Workbench().openSettings();
     });
 
@@ -13,7 +14,7 @@ describe('SettingsEditor', () => {
     });
 
     it('findSetting works', async function() {
-        this.timeout(5000);
+        this.timeout(8000);
         const setting = await editor.findSetting('Title Bar Style', 'Window');
         expect(setting).not.undefined;
     });
@@ -22,7 +23,7 @@ describe('SettingsEditor', () => {
         let setting: ComboSetting;
 
         before(async function() {
-            this.timeout(5000);
+            this.timeout(8000);
             setting = await editor.findSetting('Title Bar Style', 'Window') as ComboSetting;
         });
 
@@ -56,7 +57,7 @@ describe('SettingsEditor', () => {
         let setting: TextSetting;
 
         before(async function() {
-            this.timeout(5000);
+            this.timeout(8000);
             setting = await editor.findSetting('Auto Save Delay', 'Files') as TextSetting;
         });
 
@@ -76,7 +77,7 @@ describe('SettingsEditor', () => {
         let setting: CheckboxSetting;
 
         before(async function() {
-            this.timeout(5000);
+            this.timeout(8000);
             setting = await editor.findSetting('Code Lens', 'Editor') as CheckboxSetting;
         });
 
