@@ -46,14 +46,14 @@ export class VSBrowser {
 
         fs.mkdirpSync(path.join(userSettings, 'globalStorage'));
         fs.remove(path.join(this.storagePath, 'screenshots'));
-        if (process.platform === 'win32') {
-            fs.copyFileSync(path.resolve(__dirname, '..', '..', 'resources', 'state.vscdb'), path.join(userSettings, 'globalStorage', 'state.vscdb'));
-        }
         fs.writeJSONSync(path.join(userSettings, 'settings.json'), defaultSettings);
         console.log(`Writing code settings to ${path.join(userSettings, 'settings.json')}`);
         
         const args = ['--no-sandbox', `--user-data-dir=${path.join(this.storagePath, 'settings')}`];
         if (compareVersions(this.codeVersion, '1.39.0') < 0) {
+            if (process.platform === 'win32') {
+                fs.copyFileSync(path.resolve(__dirname, '..', '..', 'resources', 'state.vscdb'), path.join(userSettings, 'globalStorage', 'state.vscdb'));
+            }
             args.push(`--extensionDevelopmentPath=${process.cwd()}`);
         }
 

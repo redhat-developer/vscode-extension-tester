@@ -86,7 +86,7 @@ export abstract class Input extends AbstractElement {
         const picks = await this.getQuickPicks();
         for (const pick of picks) {
             if (typeof indexOrText === 'string') {
-                const text = await pick.getText();
+                const text = await pick.getLabel();
                 if (text.indexOf(indexOrText) > -1) {
                     return pick.select();
                 }
@@ -137,7 +137,7 @@ export class QuickPickItem extends AbstractElement {
      */
     async getDescription(): Promise<string | undefined> {
         try {
-            return await this.findElement(Input.locators.Input.quickPickDescription).getText();
+            return this.findElement(Input.locators.Input.quickPickDescription).getText();
         } catch (err) {
             return undefined;
         }
