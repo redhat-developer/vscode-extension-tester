@@ -8,7 +8,7 @@ describe('ProblemsView', () => {
     let bar: BottomBarPanel;
 
     before(async function() {
-        this.timeout(15000);
+        this.timeout(25000);
         await new Workbench().executeCommand('extest open file');
         const input = await InputBox.create();
         await input.setText(path.resolve(__dirname, '..', '..', '..', '..', 'resources', 'test-file.ts'));
@@ -21,7 +21,7 @@ describe('ProblemsView', () => {
 
         editor = await new EditorView().openEditor('test-file.ts') as TextEditor;
         await editor.setText('aaaa');
-        await view.getDriver().wait(() => { return problemsExist(view); }, 8800);
+        await view.getDriver().wait(() => { return problemsExist(view); }, 15000);
     });
 
     after(async () => {
