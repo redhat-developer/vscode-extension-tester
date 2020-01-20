@@ -4,7 +4,8 @@ import { StatusBar, EditorView, InputBox, QuickOpenBox, Workbench } from 'vscode
 describe('StatusBar', () => {
     let bar: StatusBar;
 
-    before(async () => {
+    before(async function() {
+        this.timeout(5000);
         await new Workbench().executeCommand('File: New File');
         bar = new StatusBar();
     });
