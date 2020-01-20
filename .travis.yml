@@ -1,12 +1,16 @@
 sudo: false
 
+os:
+ - linux
+ - osx
+
 language: node_js
 dist: bionic
 services:
   - xvfb
 
 node_js:
-  - 11
+  - 12
 
 env:
   - CODE_VERSION=1.37.0
@@ -22,4 +26,4 @@ before_script:
   - npm run prepare-test
 
 script:
-  - npm test
+  - npm run ci-test

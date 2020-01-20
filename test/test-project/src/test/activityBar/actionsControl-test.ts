@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { ActivityBar, ActionsControl } from 'vscode-extension-tester';
 
-describe('ActionsControl', () => {
+(process.platform === 'darwin' ? describe.skip : describe)('ActionsControl', () => {
     let bar: ActivityBar;
     let control: ActionsControl;
 
-    before(async () => {
+    before(async function() {
         bar = new ActivityBar();
-        control = await bar.getGlobalAction('Manage');
+        control = bar.getGlobalAction('Manage');
     });
 
     it('openActionsMenu displays context menu', async () => {

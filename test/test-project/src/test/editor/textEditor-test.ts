@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { expect } from 'chai';
-import { TextEditor, TitleBar, EditorView, StatusBar, InputBox, ContentAssist, Workbench, VSBrowser, until, By } from "vscode-extension-tester";
+import { TextEditor, EditorView, StatusBar, InputBox, ContentAssist, Workbench } from "vscode-extension-tester";
 
 describe('ContentAssist', async () => {
     let assist: ContentAssist;
@@ -44,7 +44,8 @@ describe('TextEditor', () => {
 
     before(async function() {
         this.timeout(8000);
-        await new TitleBar().select('File', 'New File');
+        await new Workbench().executeCommand('File: New File');
+        await new Promise((res) => { setTimeout(res, 1000); });
         view = new EditorView();
         editor = new TextEditor(view, 'Untitled-1');
 

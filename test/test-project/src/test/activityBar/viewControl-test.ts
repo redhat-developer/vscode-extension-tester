@@ -7,7 +7,7 @@ describe('ViewControl', () => {
 
     before(async () => {
         bar = new ActivityBar();
-        control = await bar.getViewControl('Explorer');
+        control = bar.getViewControl('Explorer');
     });
 
     it('openView opens the underlying view', async () => {
@@ -34,7 +34,7 @@ describe('ViewControl', () => {
         expect(title).equals('Explorer');
     });
 
-    it('openContextMenu shows context menu', async () => {
+    (process.platform === 'darwin' ? it.skip : it)('openContextMenu shows context menu', async () => {
         const menu = await control.openContextMenu();
         expect(await menu.isDisplayed()).is.true;
         await menu.close();

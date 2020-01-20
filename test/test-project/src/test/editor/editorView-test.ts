@@ -1,15 +1,16 @@
 import { expect } from 'chai';
-import { EditorView, TitleBar } from 'vscode-extension-tester';
+import { EditorView, Workbench } from 'vscode-extension-tester';
 
 describe('EditorView', () => {
     let view: EditorView;
 
     before(async function() {
-        this.timeout(3000);
+        this.timeout(8000);
         view = new EditorView();
-        await new TitleBar().select('File', 'New File');
-        await new TitleBar().select('File', 'New File');
-        await new Promise((res) => { setTimeout(res, 1000); });
+        await new Workbench().executeCommand('File: New File');
+        await new Promise((res) => { setTimeout(res, 500); });
+        await new Workbench().executeCommand('File: New File');
+        await new Promise((res) => { setTimeout(res, 500); });
     });
 
     after(async () => {

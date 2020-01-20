@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { BottomBarPanel, OutputView, TerminalView } from 'vscode-extension-tester';
 
-describe('Output View/Text Views', () => {
+(process.platform === 'darwin' ? describe.skip : describe)('Output View/Text Views', () => {
     let panel: BottomBarPanel;
     let view: OutputView;
 

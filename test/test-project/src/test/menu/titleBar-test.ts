@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { TitleBar, ContextMenu, BottomBarPanel, TitleBarItem } from 'vscode-extension-tester';
 
-describe('TitleBar', () => {
+(process.platform === 'darwin' ? describe.skip : describe)('TitleBar', () => {
     let bar: TitleBar;
 
     before(async () => {

@@ -28,7 +28,7 @@ describe('ActivityBar', () => {
         expect(action).not.undefined;
     });
 
-    it('openContextMenu shows context menu', async () => {
+    (process.platform === 'darwin' ? it.skip : it)('openContextMenu shows context menu', async () => {
         const menu = await bar.openContextMenu();
         expect(await menu.isDisplayed()).is.true;
         await menu.close();

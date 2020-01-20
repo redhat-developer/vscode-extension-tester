@@ -1,11 +1,12 @@
 import { expect } from 'chai';
-import { StatusBar, TitleBar, EditorView, InputBox, QuickOpenBox } from 'vscode-extension-tester';
+import { StatusBar, EditorView, InputBox, QuickOpenBox, Workbench } from 'vscode-extension-tester';
 
 describe('StatusBar', () => {
     let bar: StatusBar;
 
-    before(async () => {
-        await new TitleBar().select('File', 'New File');
+    before(async function() {
+        this.timeout(5000);
+        await new Workbench().executeCommand('File: New File');
         bar = new StatusBar();
     });
 

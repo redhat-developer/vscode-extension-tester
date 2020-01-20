@@ -1,7 +1,6 @@
 import { AbstractElement } from "../../AbstractElement";
 import { Key } from "selenium-webdriver";
 import { QuickOpenBox } from "../../../../extester";
-import * as clipboard from 'clipboardy';
 
 /**
  * Abstract page object for input fields
@@ -15,10 +14,7 @@ export abstract class Input extends AbstractElement {
     async getText(): Promise<string> {
         const input = await this.findElement(Input.locators.Input.inputBox)
             .findElement(Input.locators.Input.input);
-        await input.sendKeys(Key.chord(Input.ctlKey, 'a'), Key.chord(Input.ctlKey, 'c'));
-        const text = clipboard.readSync();
-        clipboard.writeSync('');
-        return text;
+        return input.getAttribute('value');
     }
 
     /**
@@ -70,7 +66,7 @@ export abstract class Input extends AbstractElement {
         const input = await this.findElement(Input.locators.Input.inputBox)
             .findElement(Input.locators.Input.input);
         // VS Code 1.40 breaks the default clear method, use select all + back space instead
-        await input.sendKeys(Key.chord(Input.ctlKey, 'a'), Key.BACK_SPACE);
+        await input.sendKeys(Key.chord(Key.SHIFT, Key.HOME), Key.BACK_SPACE);
     }
 
     /**

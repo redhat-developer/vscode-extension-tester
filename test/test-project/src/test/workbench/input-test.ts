@@ -12,21 +12,24 @@ describe('QuickOpenBox', () => {
         await input.cancel();
     });
 
-    it('selectQuickPick works', async () => {
+    it('selectQuickPick works', async function() {
+        this.timeout(5000);
         await input.setText('>hello world');
         await input.selectQuickPick('Hello World');
         expect(await input.isDisplayed()).is.false;
         input = await new Workbench().openCommandPrompt();
     });
 
-    it('can set and retrieve the text', async () => {
+    it('can set and retrieve the text', async function() {
+        this.timeout(5000);
         const testText = 'test-text';
         await input.setText(testText);
         const text = await input.getText();
         expect(testText).has.string(text);
     });
 
-    it('getPlaceholder returns placeholder text', async () => {
+    it('getPlaceholder returns placeholder text', async function() {
+        this.timeout(5000);
         await input.setText('');
         const holder = await input.getPlaceHolder();
         expect(holder).has.string(`Type '?' to get help`);
@@ -48,7 +51,8 @@ describe('QuickPickItem', () => {
     let item: QuickPickItem;
     let input: QuickOpenBox;
 
-    before(async () => {
+    before(async function() {
+        this.timeout(5000);
         input = await new Workbench().openCommandPrompt();
         await input.setText('>hello world');
         const picks = await input.getQuickPicks();
@@ -71,7 +75,7 @@ describe('QuickPickItem', () => {
     });
 
     it('getDescription works', async function() {
-        this.timeout(4000);
+        this.timeout(8000);
         await new Workbench().executeCommand('Test Command');
         const inputbox = await InputBox.create();
         const pick = (await inputbox.getQuickPicks())[0];
@@ -83,8 +87,10 @@ describe('QuickPickItem', () => {
 describe('InputBox', () => {
     let input: InputBox;
 
-    before(async () => {
-        await new TitleBar().select('File', 'New File');
+    before(async function () {
+        this.timeout(6000);
+        await new Workbench().executeCommand('File: New File');
+        await new Promise(res => setTimeout(res, 500));
         await new StatusBar().openLanguageSelection();
         input = await InputBox.create();;
     });
@@ -94,7 +100,8 @@ describe('InputBox', () => {
         await new EditorView().closeAllEditors();
     });
 
-    it('text handling works', async () => {
+    it('text handling works', async function() {
+        this.timeout(5000);
         const text = 'text';
         await input.setText(text);
         expect(await input.getText()).equals(text);
