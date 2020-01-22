@@ -1,5 +1,27 @@
 # Change Log
 
+## 2.3.0 (January 22)
+ - we are no longer using java to handle the native dialogs
+   - recommend updating nodejs to at least version 11 when using this framework
+   - for those trying to build this project, we now also require a c/c++ compiler to do so
+
+### New Features
+ - VS Code 1.41.x support
+ - macOS native open dialog implemented (finally)
+ - Mocha runner can now be configured using configuration files - more details in the wiki
+ - QuickPickItem#getText has been replaced with 2 new methods - getLabel and getDescription
+   - getLabel now returns the label getText used to
+   - getDescription returns the description on the right of the label if it exists
+   - getText is now the default webdriver method that returns all text found in the element
+
+### Fixes
+ - Error: stdout maxBuffer length exceeded in mac now fixed
+ - Input#getText and Input#clearText should now work on mac
+ - runTests command should now also have the API-handler available
+ - Notification#dismiss should no longer throw an error on some VS Code versions
+ - Input#selectQuickPick fixed on windows
+ - the project's own test suite is now runnable on macOS (though tests using context menus are skipped)
+
 ## 2.2.0 (December 9)
 
 ### New Features

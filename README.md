@@ -22,6 +22,7 @@ npm install --save-dev vscode-extension-tester
 
 Make sure to check out the [wiki](../../wiki) for detailed instructions.
  - [How to set up the tests](../../wiki/Test-Setup)
+ - [Configuring Mocha](../../wiki/Mocha-Configuration)
  - [An example simple test case](../../wiki/Writing-Simple-Tests)
  - [Page object APIs quick guide](../../wiki/Page-Object-APIs)
  
@@ -37,8 +38,12 @@ Extension Tester runs with all its features on Linux and Windows OSes.
 MacOS support is limited, due to the title bar and context menus being native only, therefore unavailable for webdriver to handle.
 
 In order to run the tests successfully you will need the following:
- - Nodejs 10 or newer
- - Java 8 or newer
+ - Nodejs 11 or newer
+
+Building the project will also require a c/c++ compiler
+ - GCC or similar for linux
+ - MS Built Tools for windows
+ - Xcode command line tools for macos
 
 **NOTE:** Some Linux (CentOS based) users have reported their tests getting stuck on launch. This is likely due to a missing dependency of ChromeDriver that runs underneath. If such scenario occurs, we recommend installing the Chrome browser rpm, since it depends on all the required libraries.
 
