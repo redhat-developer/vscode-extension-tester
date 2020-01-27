@@ -84,12 +84,9 @@ export class VSRunner {
                     break;
                 }
             }
-            if (file) {
-                console.log(`Found mocha configuration file at ${file}`);
-            }
         }
 
-        if (file) {
+        if (file && fs.existsSync(file) && fs.statSync(file).isFile()) {
             console.log(`Loading mocha configuration from ${file}`);
             if (/\.(yml|yaml)$/.test(file)) {
                 try {
