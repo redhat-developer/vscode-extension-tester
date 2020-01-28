@@ -40,6 +40,7 @@ export * from './webdriver/components/statusBar/StatusBar';
 export * from './webdriver/components/editor/EditorView';
 export * from './webdriver/components/editor/TextEditor';
 export * from './webdriver/components/editor/SettingsEditor';
+export * from './webdriver/components/editor/WebView';
 export * from './webdriver/components/editor/ContentAssist';
 
 export { Notification, NotificationType } from './webdriver/components/workbench/Notification';

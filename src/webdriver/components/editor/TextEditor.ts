@@ -6,7 +6,7 @@ import { StatusBar } from "../statusBar/StatusBar";
 import { Editor } from "./Editor";
 
 /**
- * Page object representing the active editor
+ * Page object representing the active text editor
  */
 export class TextEditor extends Editor {
 

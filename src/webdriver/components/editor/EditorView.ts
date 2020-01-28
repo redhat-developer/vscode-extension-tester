@@ -4,6 +4,7 @@ import { WebElement } from "selenium-webdriver";
 import * as path from 'path';
 import { Editor } from "./Editor";
 import { SettingsEditor } from "./SettingsEditor";
+import { WebView } from "./WebView";
 
 /**
  * View handling the open editors
@@ -24,9 +25,17 @@ export class EditorView extends AbstractElement {
 
         try {
             await this.findElement(EditorView.locators.EditorView.settingsEditor);
+            console.log('settings')
             return new SettingsEditor(this);
         } catch (err) {
-            return new TextEditor(this, title);
+            try {
+                await this.findElement(EditorView.locators.EditorView.webView);
+                console.log('web')
+                return new WebView(this, title);
+            } catch (err) {
+                console.log('text')
+                return new TextEditor(this, title);
+            }
         }
     }
 

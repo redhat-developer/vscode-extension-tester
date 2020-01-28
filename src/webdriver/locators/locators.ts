@@ -74,6 +74,7 @@ export interface Locators {
         constructor: By
         parent: By
         settingsEditor: By
+        webView: By
         tab: By
         closeTab: By
         tabTitle: string
