@@ -6,6 +6,8 @@ import { Locator, WebElement } from "selenium-webdriver";
  */
 export class WebView extends Editor {
 
+    private static handle: string | undefined;
+
     /**
      * Search for an element inside the webview iframe.
      * Requires webdriver being switched to the webview iframe first.
@@ -37,6 +39,10 @@ export class WebView extends Editor {
      * Use the switchBack method to switch to the original context.
      */
     async switchToFrame(): Promise<void> {
+        if (!WebView.handle) {
+            WebView.handle = await this.getDriver().getWindowHandle();
+        }
+
         const handles = await this.getDriver().getAllWindowHandles();
         for (const handle of handles) {
 			await this.getDriver().switchTo().window(handle);
@@ -49,10 +55,12 @@ export class WebView extends Editor {
     }
 
     /**
-     * Switch the underlying webdriver to 
-     * the default context (the main application window)
+     * Switch the underlying webdriver back to the original window
      */
     async switchBack(): Promise<void> {
-		await this.getDriver().switchTo().defaultContent();
+        if (!WebView.handle) {
+            WebView.handle = await this.getDriver().getWindowHandle();
+        }
+        return this.getDriver().switchTo().window(WebView.handle);
     }
 }
