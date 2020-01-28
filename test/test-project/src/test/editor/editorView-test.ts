@@ -5,14 +5,14 @@ describe('EditorView', () => {
     let view: EditorView;
 
     before(async function() {
-        this.timeout(18000);
+        this.timeout(25000);
         view = new EditorView();
         await new Workbench().executeCommand('File: New File');
         await new Promise((res) => { setTimeout(res, 500); });
         await new Workbench().executeCommand('File: New File');
         await new Promise((res) => { setTimeout(res, 500); });
         await new Workbench().executeCommand('Webview Test');
-        await new Promise((res) => { setTimeout(res, 500); });
+        await new Promise((res) => { setTimeout(res, 2500); });
         await new Workbench().executeCommand('Open Settings UI');
         await new Promise((res) => { setTimeout(res, 500); });
     });
