@@ -72,6 +72,7 @@ const editor = {
         constructor: By.className('editor-group-container'),
         parent: By.id('workbench.parts.editor'),
         settingsEditor: By.id('workbench.editor.settings2'),
+        webView: By.tagName('webview'),
         tab: By.className('tab'),
         closeTab: By.className('tab-close'),
         tabTitle: 'title',

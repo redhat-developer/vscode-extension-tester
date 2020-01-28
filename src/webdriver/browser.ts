@@ -57,11 +57,14 @@ export class VSBrowser {
             args.push(`--extensionDevelopmentPath=${process.cwd()}`);
         }
 
+        let options = new Options().setChromeBinaryPath(codePath).addArguments(...args) as any;
+        options['options_'].windowTypes = ['webview'];
+        options = options as Options;
+
         this._locators = new LocatorLoader(this.codeVersion).loadLocators();
         this._driver = await new Builder()
             .forBrowser('chrome')
-            .setChromeOptions(new Options().setChromeBinaryPath(codePath)
-            .addArguments(...args))
+            .setChromeOptions(options)
             .build();
         VSBrowser._instance = this;
         AbstractElement.loadLocators(this);
