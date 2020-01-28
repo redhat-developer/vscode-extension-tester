@@ -4,6 +4,10 @@ os:
  - linux
  - osx
 
+branches:
+  only:
+    - "master"
+
 language: node_js
 dist: bionic
 services:
