@@ -1,15 +1,19 @@
 import { expect } from 'chai';
-import { EditorView, Workbench } from 'vscode-extension-tester';
+import { EditorView, Workbench, TextEditor, SettingsEditor, WebView } from 'vscode-extension-tester';
 
 describe('EditorView', () => {
     let view: EditorView;
 
     before(async function() {
-        this.timeout(8000);
+        this.timeout(18000);
         view = new EditorView();
         await new Workbench().executeCommand('File: New File');
         await new Promise((res) => { setTimeout(res, 500); });
         await new Workbench().executeCommand('File: New File');
+        await new Promise((res) => { setTimeout(res, 500); });
+        await new Workbench().executeCommand('Webview Test');
+        await new Promise((res) => { setTimeout(res, 500); });
+        await new Workbench().executeCommand('Open Settings UI');
         await new Promise((res) => { setTimeout(res, 500); });
     });
 
@@ -17,9 +21,19 @@ describe('EditorView', () => {
         await view.closeAllEditors();
     });
 
-    it('openEditor works', async () => {
-        const editor = await view.openEditor('Untitled-1');
+    it('openEditor works with text editor', async () => {
+        const editor = await view.openEditor('Untitled-1') as TextEditor;
         expect(editor.getTitle()).equals('Untitled-1');
+    });
+
+    it('openEditor works with settings editor', async () => {
+        const editor = await view.openEditor('Settings') as SettingsEditor;
+        expect(editor.findSetting).not.undefined;
+    });
+
+    it('openEditor works with webview editor', async () => {
+        const editor = await view.openEditor('Test WebView') as WebView;
+        expect(editor.findWebElement).not.undefined;
     });
 
     it('getOpenEditorTitles works', async () => {

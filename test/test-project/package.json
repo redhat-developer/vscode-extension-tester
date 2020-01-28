@@ -18,7 +18,8 @@
 		"onCommand:extension.helloWorld",
 		"onCommand:extension.openFile",
 		"onCommand:extension.openFolder",
-		"onCommand:extension.closeFolder"
+		"onCommand:extension.closeFolder",
+		"onCommand:extension.webview"
 	],
 	"main": "./out/src/extension.js",
 	"contributes": {
@@ -42,6 +43,10 @@
 			{
 				"command": "extension.test",
 				"title": "Test Command"
+			},
+			{
+				"command": "extension.webview",
+				"title": "Webview Test"
 			}
 		],
 		"views": {
