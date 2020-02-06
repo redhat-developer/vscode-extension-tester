@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/redhat-developer/vscode-extension-tester.svg?branch=master)](https://travis-ci.org/redhat-developer/vscode-extension-tester)
+[![Build Status](https://travis-ci.com/redhat-developer/vscode-extension-tester.svg?branch=master)](https://travis-ci.org/redhat-developer/vscode-extension-tester)
 
 # vscode-extension-tester
 
