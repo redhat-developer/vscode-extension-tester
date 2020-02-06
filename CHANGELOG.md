@@ -1,5 +1,17 @@
 # Change Log
 
+## 2.4.0 (February 6)
+
+### New Features
+ - Webview support - added new page object `WebView` (a subtype of `Editor`)
+   - use the `switchToFrame` and `switchBack` methods to switch contexts between the web view container and the default window
+   - use the `findWebElement` and `findWebElements` once switched into the web view container
+
+### Fixes
+ - `Input`'s `clear` and `setText` methods should now properly work when the cursor is not at the end of the displayed text
+ - `EditorView`'s `openEditor` method now returns the correct subtype of `Editor` 
+ - The runner should no longer try to load a default Mocha configuration file if it doesn't exist
+
 ## 2.3.0 (January 22)
  - we are no longer using java to handle the native dialogs
    - recommend updating nodejs to at least version 11 when using this framework
