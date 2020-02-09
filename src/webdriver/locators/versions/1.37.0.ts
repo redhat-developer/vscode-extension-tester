@@ -73,6 +73,7 @@ const editor = {
         parent: By.id('workbench.parts.editor'),
         settingsEditor: By.id('workbench.editor.settings2'),
         webView: By.id('WebviewEditor'),
+        diffEditor: By.className('monaco-diff-editor'),
         tab: By.className('tab'),
         closeTab: By.className('tab-close'),
         tabTitle: 'title',
@@ -111,6 +112,10 @@ const editor = {
         checkboxSetting: By.className('setting-value-checkbox'),
         checkboxChecked: 'aria-checked',
         linkButton: By.className('edit-in-settings-button')
+    },
+    DiffEditor: {
+        originalEditor: By.className('original-in-monaco-diff-editor'),
+        modifiedEditor: By.className('modified-in-monaco-diff-editor')
     }
 }
 

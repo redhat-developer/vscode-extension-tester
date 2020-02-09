@@ -5,6 +5,7 @@ import * as path from 'path';
 import { Editor } from "./Editor";
 import { SettingsEditor } from "./SettingsEditor";
 import { WebView } from "./WebView";
+import { DiffEditor } from './DiffEditor';
 
 /**
  * View handling the open editors
@@ -31,7 +32,12 @@ export class EditorView extends AbstractElement {
                 await this.findElement(EditorView.locators.EditorView.webView);
                 return new WebView(this, title);
             } catch (err) {
-                return new TextEditor(this, title);
+                try {
+                    await this.findElement(EditorView.locators.EditorView.diffEditor);
+                    return new DiffEditor(this, title);
+                } catch (err) {
+                    return new TextEditor(this, title);
+                }
             }
         }
     }

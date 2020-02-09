@@ -1,5 +1,6 @@
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
 import { EditorView } from "../../../extester";
+import { WebElement, Locator } from 'selenium-webdriver';
 
 /**
  * Abstract representation of an editor tab
@@ -7,8 +8,8 @@ import { EditorView } from "../../../extester";
 export abstract class Editor extends ElementWithContexMenu {
     private title: string;
 
-    constructor(view: EditorView = new EditorView(), title: string) {
-        super(Editor.locators.Editor.constructor, view);
+    constructor(view: EditorView = new EditorView(), title: string, base: Locator | WebElement = Editor.locators.Editor.constructor) {
+        super(base, view);
         this.title = title;
     }
 
