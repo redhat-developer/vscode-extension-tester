@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { EditorView, Workbench, TextEditor, SettingsEditor, WebView } from 'vscode-extension-tester';
+import { EditorView, Workbench, TextEditor, SettingsEditor, WebView, QuickOpenBox, DiffEditor } from 'vscode-extension-tester';
 
 describe('EditorView', () => {
     let view: EditorView;
@@ -15,6 +15,22 @@ describe('EditorView', () => {
         await new Promise((res) => { setTimeout(res, 2500); });
         await new Workbench().executeCommand('Open Settings UI');
         await new Promise((res) => { setTimeout(res, 500); });
+
+        await new Workbench().executeCommand('File: New File');
+        await new Promise((res) => { setTimeout(res, 500); });
+        await new Workbench().executeCommand('File: New File');
+        await new Promise((res) => { setTimeout(res, 500); });
+        const editorA = await view.openEditor('Untitled-3') as TextEditor;
+        await editorA.setText('a');
+        const editorB = await view.openEditor('Untitled-4') as TextEditor;
+        await editorB.setText('b');
+
+        await new Workbench().executeCommand('File: Compare Active File With...');
+        const quickOpen = new QuickOpenBox();
+        await quickOpen.setText('Untitled-3');
+        await quickOpen.confirm();
+        await new Promise((res) => { setTimeout(res, 500); });
+
     });
 
     after(async () => {
@@ -34,6 +50,12 @@ describe('EditorView', () => {
     it('openEditor works with webview editor', async () => {
         const editor = await view.openEditor('Test WebView') as WebView;
         expect(editor.findWebElement).not.undefined;
+    });
+
+    it('openEditor works with diff editor', async () => {        
+        const diffEditor = await view.openEditor('b ↔ a') as DiffEditor;
+        await new Promise((res) => { setTimeout(res, 5000); });
+        expect(diffEditor.getTitle()).equals('b ↔ a');
     });
 
     it('getOpenEditorTitles works', async () => {

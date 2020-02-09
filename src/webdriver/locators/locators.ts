@@ -75,6 +75,7 @@ export interface Locators {
         parent: By
         settingsEditor: By
         webView: By
+        diffEditor: By
         tab: By
         closeTab: By
         tabTitle: string
@@ -113,6 +114,10 @@ export interface Locators {
         checkboxSetting: By
         checkboxChecked: string
         linkButton: By
+    }
+    DiffEditor: {
+        originalEditor: By
+        modifiedEditor: By
     }
 
     // Menus
