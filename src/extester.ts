@@ -63,8 +63,8 @@ export class ExTester {
     private code: CodeUtil;
     private chrome: DriverUtil;
 
-    constructor(storageFolder: string = 'test-resources') {
-        this.code = new CodeUtil(storageFolder);
+    constructor(storageFolder: string = 'test-resources', extensionsDir?: string) {
+        this.code = new CodeUtil(storageFolder, extensionsDir);
         this.chrome = new DriverUtil(storageFolder);
     }
 
