@@ -24,15 +24,18 @@ export class CodeUtil {
     private cliPath!: string;
     private cliEnv!: string;
     private availableVersions: { stable: string[], insider: string[] };
+    private extensionsFolder: string | undefined;
 
     /**
      * Create an instance of code handler 
      * @param folder Path to folder where all the artifacts will be stored.
+     * @param extensionsFolder Path to use as extensions directory by VSCode
      */
-    constructor(folder: string = 'test-resources') {
+    constructor(folder: string = 'test-resources', extensionsFolder?: string) {
         this.availableVersions = { stable: [], insider: [] };
         this.downloadPlatform = this.getPlatform();
         this.downloadFolder = path.resolve(folder);
+        this.extensionsFolder = extensionsFolder ? path.resolve(extensionsFolder) : undefined;
         this.codeFolder = path.join(this.downloadFolder, (process.platform === 'darwin')
             ? 'Visual Studio Code.app' : `VSCode-${this.downloadPlatform}`);
         this.findExecutables();
@@ -106,7 +109,10 @@ export class CodeUtil {
     installExtension(vsix?: string): void {
         const pjson = require(path.resolve('package.json'));
         const vsixPath = path.resolve(vsix ? vsix : `${pjson.name}-${pjson.version}.vsix`);
-        const command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --install-extension "${vsixPath}"`;
+        let command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --install-extension "${vsixPath}"`;
+        if (this.extensionsFolder) {
+            command += ` --extensions-dir=${this.extensionsFolder}`;
+        }
         child_process.execSync(command, { stdio: 'inherit' });
     }
 
@@ -133,11 +139,17 @@ export class CodeUtil {
         const pjson = require(path.resolve('package.json'));
         const extension = `${pjson.publisher}.${pjson.name}`;
         const helper = `vscode-extension-tester.api-handler`;
-        const command2 = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --uninstall-extension "${helper}"`;
+        let command2 = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --uninstall-extension "${helper}"`;
+        if (this.extensionsFolder) {
+            command2 += ` --extensions-dir=${this.extensionsFolder}`;
+        }
         child_process.execSync(command2, { stdio: 'inherit' });
 
         if (cleanup) {
-            const command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --uninstall-extension "${extension}"`;
+            let command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --uninstall-extension "${extension}"`;
+            if (this.extensionsFolder) {
+                command += ` --extensions-dir=${this.extensionsFolder}`;
+            }
             child_process.execSync(command, { stdio: 'inherit' });
         }
     }
@@ -161,6 +173,7 @@ export class CodeUtil {
 
         process.env = finalEnv;
         process.env.TEST_RESOURCES = this.downloadFolder;
+        process.env.EXTENSIONS_FOLDER = this.extensionsFolder;
         const runner = new VSRunner(this.executablePath, literalVersion, this.parseSettings(settings), cleanup, config);
         runner.runTests(testFilesPattern, this);
     }

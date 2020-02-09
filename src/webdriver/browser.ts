@@ -11,6 +11,7 @@ import compareVersions = require('compare-versions');
 
 export class VSBrowser {
     private storagePath: string;
+    private extensionsFolder: string | undefined;
     private customSettings: Object;
     private _driver!: WebDriver;
     private codeVersion: string;
@@ -19,6 +20,7 @@ export class VSBrowser {
 
     constructor(codeVersion: string, customSettings: Object = {}) {
         this.storagePath = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.resolve('test-resources');
+        this.extensionsFolder = process.env.EXTENSIONS_FOLDER ? process.env.EXTENSIONS_FOLDER : undefined;
         this.customSettings = customSettings;
         this.codeVersion = codeVersion;
         VSBrowser._instance = this;
@@ -50,6 +52,11 @@ export class VSBrowser {
         console.log(`Writing code settings to ${path.join(userSettings, 'settings.json')}`);
         
         const args = ['--no-sandbox', `--user-data-dir=${path.join(this.storagePath, 'settings')}`];
+
+        if (this.extensionsFolder) {
+            args.push(`--extensions-dir=${this.extensionsFolder}`);
+        }
+
         if (compareVersions(this.codeVersion, '1.39.0') < 0) {
             if (process.platform === 'win32') {
                 fs.copyFileSync(path.resolve(__dirname, '..', '..', 'resources', 'state.vscdb'), path.join(userSettings, 'globalStorage', 'state.vscdb'));
