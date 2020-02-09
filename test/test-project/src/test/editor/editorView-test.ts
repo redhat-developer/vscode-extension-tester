@@ -15,22 +15,6 @@ describe('EditorView', () => {
         await new Promise((res) => { setTimeout(res, 2500); });
         await new Workbench().executeCommand('Open Settings UI');
         await new Promise((res) => { setTimeout(res, 500); });
-
-        await new Workbench().executeCommand('File: New File');
-        await new Promise((res) => { setTimeout(res, 500); });
-        await new Workbench().executeCommand('File: New File');
-        await new Promise((res) => { setTimeout(res, 500); });
-        const editorA = await view.openEditor('Untitled-3') as TextEditor;
-        await editorA.setText('a');
-        const editorB = await view.openEditor('Untitled-4') as TextEditor;
-        await editorB.setText('b');
-
-        await new Workbench().executeCommand('File: Compare Active File With...');
-        const quickOpen = new QuickOpenBox();
-        await quickOpen.setText('Untitled-3');
-        await quickOpen.confirm();
-        await new Promise((res) => { setTimeout(res, 500); });
-
     });
 
     after(async () => {
@@ -52,10 +36,18 @@ describe('EditorView', () => {
         expect(editor.findWebElement).not.undefined;
     });
 
-    it('openEditor works with diff editor', async () => {        
-        const diffEditor = await view.openEditor('b ↔ a') as DiffEditor;
-        await new Promise((res) => { setTimeout(res, 5000); });
-        expect(diffEditor.getTitle()).equals('b ↔ a');
+    it('openEditor works with diff editor', async () => {
+        await view.openEditor('Untitled-2');
+
+        await new Workbench().executeCommand('File: Compare Active File With...');
+        const quickOpen = new QuickOpenBox();
+        await quickOpen.setText('Untitled-1');
+        await quickOpen.confirm();
+        await new Promise((res) => { setTimeout(res, 500); });
+        
+        const diffEditor = await view.openEditor('Untitled-2 ↔ Untitled-1') as DiffEditor;
+        await new Promise((res) => { setTimeout(res, 500); });
+        expect(diffEditor.getTitle()).equals('Untitled-2 ↔ Untitled-1');
     });
 
     it('getOpenEditorTitles works', async () => {
