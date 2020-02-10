@@ -94,7 +94,7 @@ describe('SideBarView', () => {
 
             it('getVisibleItems works', async () => {
                 const items = await section.getVisibleItems();
-                expect(items.length).equals(1);
+                expect(items).not.empty;
             });
 
             it('findItem works', async () => {
