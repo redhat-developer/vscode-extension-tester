@@ -47,7 +47,8 @@ describe('EditorView', () => {
         
         const diffEditor = await view.openEditor('Untitled-2 ↔ Untitled-1') as DiffEditor;
         await new Promise((res) => { setTimeout(res, 500); });
-        expect(diffEditor.getTitle()).equals('Untitled-2 ↔ Untitled-1');
+        expect(await diffEditor.getOriginalEditor()).not.undefined;
+        expect(await diffEditor.getModifiedEditor()).not.undefined;
     });
 
     it('getOpenEditorTitles works', async () => {

@@ -12,7 +12,6 @@ export class DiffEditor extends Editor {
      * (The left side of the diff editor)
      * @returns Promise resolving to TextEditor object
      */
-
     async getOriginalEditor(): Promise<TextEditor> {
         const element = await this.getEnclosingElement().findElement(DiffEditor.locators.DiffEditor.originalEditor);
         return new TextEditor(new EditorView(), this.getTitle(), element);
