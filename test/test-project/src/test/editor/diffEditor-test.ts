@@ -30,7 +30,7 @@ describe('DiffEditor', async () => {
     after(async () => {
         await new Workbench().executeCommand('View: Close Editor');
         await new Promise((res) => { setTimeout(res, 500); });
-        const editorView = await new EditorView();
+        const editorView = new EditorView();
         await editorView.closeEditor('test-file-b.txt');
         await editorView.closeEditor('test-file-a.txt');
     });
