@@ -69,8 +69,8 @@ const bottomBar = {
 
 const editor = {
     EditorView: {
-        constructor: By.className('editor-group-container'),
-        parent: By.id('workbench.parts.editor'),
+        constructor: By.id('workbench.parts.editor'),
+        editorGroup: By.className('editor-group-container'),
         settingsEditor: By.id('workbench.editor.settings2'),
         webView: By.id('WebviewEditor'),
         diffEditor: By.className('monaco-diff-editor'),

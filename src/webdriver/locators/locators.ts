@@ -72,7 +72,7 @@ export interface Locators {
     // Editors
     EditorView: {
         constructor: By
-        parent: By
+        editorGroup: By
         settingsEditor: By
         webView: By
         diffEditor: By

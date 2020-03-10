@@ -1,5 +1,5 @@
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
-import { EditorView } from "../../../extester";
+import { EditorView, EditorGroup } from "../../../extester";
 import { WebElement, Locator } from 'selenium-webdriver';
 
 /**
@@ -8,7 +8,7 @@ import { WebElement, Locator } from 'selenium-webdriver';
 export abstract class Editor extends ElementWithContexMenu {
     private title: string;
 
-    constructor(view: EditorView = new EditorView(), title: string, base: Locator | WebElement = Editor.locators.Editor.constructor) {
+    constructor(view: EditorView | EditorGroup = new EditorView(), title: string, base: Locator | WebElement = Editor.locators.Editor.constructor) {
         super(base, view);
         this.title = title;
     }
