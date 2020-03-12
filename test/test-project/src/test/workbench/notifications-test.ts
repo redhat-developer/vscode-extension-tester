@@ -31,9 +31,7 @@ describe('NotificationsCenter', () => {
 
         await center.clearAllNotifications();
         await center.getDriver().sleep(1000);
-        center = await new Workbench().openNotificationsCenter();
-        const cleared = await center.getNotifications(NotificationType.Any);
-        expect(cleared).empty;
+        expect(await center.isDisplayed()).is.false;
     });
 
     describe('Notification', () => {

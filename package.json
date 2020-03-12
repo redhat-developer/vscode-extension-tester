@@ -59,7 +59,7 @@
     "fs-extra": "^8.1.0",
     "glob": "^7.1.6",
     "js-yaml": "^3.13.1",
-    "merge-deep": "^3.0.2",
+    "merge-deep": "jrichter1/merge-deep#functions",
     "node-key-sender": "^1.0.11",
     "request": "^2.88.0",
     "selenium-webdriver": "^3.0.0",
