@@ -50,7 +50,6 @@ export class EditorView extends AbstractElement {
 
         while (groups.length > 0 && (await groups[0].getOpenEditorTitles()).length > 0) {
             await groups[0].closeAllEditors();
-            await new Promise((res) => { setTimeout(res, 500); });
             groups = await this.getEditorGroups();
         }        
     }
@@ -155,10 +154,9 @@ export class EditorGroup extends AbstractElement {
      * @returns Promise resolving once all tabs have had their close button pressed
      */
     async closeAllEditors(): Promise<void> {
-        const tabs = await this.findElements(EditorView.locators.EditorView.tab);
-        for (let i = 0; i < tabs.length; i++) {
-            await EditorView.driver.actions().mouseMove(tabs[i]).perform();
-            await (<WebElement>tabs.pop()).findElement(EditorView.locators.EditorView.closeTab).click();
+        const titles = await this.getOpenEditorTitles();
+        for (const title of titles) {
+            await this.closeEditor(title);
         }
     }
 
