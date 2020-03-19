@@ -144,9 +144,10 @@ export class EditorGroup extends AbstractElement {
      */
     async closeEditor(title: string): Promise<void> {
         const tab = await this.getTabByTitle(title);
-        const closeButton = await tab.findElement(EditorView.locators.EditorView.closeTab);
         await EditorView.driver.actions().mouseMove(tab).perform();
+        const closeButton = await tab.findElement(EditorView.locators.EditorView.closeTab);
         await closeButton.click();
+        await new Promise((res) => { setTimeout(res, 500); });
     }
 
     /**
@@ -158,6 +159,7 @@ export class EditorGroup extends AbstractElement {
         for (let i = 0; i < tabs.length; i++) {
             await EditorView.driver.actions().mouseMove(tabs[i]).perform();
             await (<WebElement>tabs.pop()).findElement(EditorView.locators.EditorView.closeTab).click();
+            await new Promise((res) => { setTimeout(res, 500); });
         }
     }
 
