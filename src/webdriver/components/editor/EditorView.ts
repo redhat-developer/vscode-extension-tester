@@ -44,7 +44,7 @@ export class EditorView extends AbstractElement {
      */
     async closeAllEditors(groupIndex?: number): Promise<void> {
         let groups = await this.getEditorGroups();
-        if (groupIndex) {
+        if (groupIndex !== undefined) {
             return groups[0].closeAllEditors();
         }
 
@@ -154,9 +154,16 @@ export class EditorGroup extends AbstractElement {
      * @returns Promise resolving once all tabs have had their close button pressed
      */
     async closeAllEditors(): Promise<void> {
-        const titles = await this.getOpenEditorTitles();
-        for (const title of titles) {
-            await this.closeEditor(title);
+        let titles = await this.getOpenEditorTitles();
+        while (titles.length > 0) {
+            await this.closeEditor(titles[0]);
+            try {
+                // check if the group still exists
+                await this.getTagName();
+            } catch (err) {
+                break;
+            }
+            titles = await this.getOpenEditorTitles();
         }
     }
 
