@@ -2,14 +2,14 @@ import { Editor } from "./Editor";
 import { ContextMenu } from "../menu/ContextMenu";
 import { WebElement, until, Key } from "selenium-webdriver";
 import { AbstractElement } from "../AbstractElement";
-import { EditorView } from "../../../extester";
+import { EditorView, EditorGroup } from "../../../extester";
 
 /**
  * Page object representing the internal VSCode settings editor
  */
 export class SettingsEditor extends Editor {
     
-    constructor(view: EditorView = new EditorView()) {
+    constructor(view: EditorView | EditorGroup = new EditorView()) {
         super(view, SettingsEditor.locators.SettingsEditor.title);
     }
 
