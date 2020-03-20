@@ -1,5 +1,13 @@
 # Change Log
 
+## 2.5.0 (March 20)
+
+### New Features
+ - new flag `-e` added to specify VSCode extension folder
+ - support for diff editor
+ - support for editor groups in EditorView
+ - VS Code 1.43.x support
+
 ## 2.4.0 (February 6)
 
 ### New Features
