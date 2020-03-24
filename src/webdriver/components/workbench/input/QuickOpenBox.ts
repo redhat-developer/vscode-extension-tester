@@ -30,7 +30,9 @@ export class QuickOpenBox extends Input {
         const elements = await tree.findElements(QuickOpenBox.locators.QuickOpenBox.row);
         for (const element of elements) {
             const index = +await element.getAttribute('aria-posinset');
-            picks.push(await new QuickPickItem(index, this).wait());
+            if (await element.isDisplayed()) {
+                picks.push(await new QuickPickItem(index, this).wait());
+            }
         }
         return picks;
     }

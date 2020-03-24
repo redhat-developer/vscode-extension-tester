@@ -38,7 +38,9 @@ export class InputBox extends Input {
             .findElements(InputBox.locators.InputBox.row);
         
         for (const element of elements) {
-            picks.push(await new QuickPickItem(+await element.getAttribute('data-index'), this).wait());
+            if (await element.isDisplayed()) {
+                picks.push(await new QuickPickItem(+await element.getAttribute('data-index'), this).wait());
+            }
         }
         return picks;
     }
