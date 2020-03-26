@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.5.1 (March 26)
+ - fixed Input#getQuickPicks getting stuck on items that are not visible
+ - install-vsix command now supports both local paths and remote URLs for .vsix files
+
 ## 2.5.0 (March 20)
 
 ### New Features
