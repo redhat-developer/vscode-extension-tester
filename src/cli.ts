@@ -33,11 +33,11 @@ program.command('install-vsix')
     .description('Install extension from vsix file into test instance of VSCode')
     .option('-s, --storage <storage>', 'Use this folder for all test resources')
     .option('-e, --extensions_dir <extensions_directory>', 'VSCode will use this directory for managing extensions')
-    .option('-f, --vsix_file <file>', 'vsix file containing the extension')
+    .option('-f, --vsix_file <file>', 'path/URL to vsix file containing the extension')
     .option('-y, --yarn', 'Use yarn to build the extension via vsce instead of npm', false)
-    .action((cmd) => {
+    .action(async (cmd) => {
         const extest = new ExTester(cmd.storage, cmd.extensions_dir);
-        extest.installVsix({vsixFile: cmd.vsix_file, useYarn: cmd.yarn});
+        await extest.installVsix({vsixFile: cmd.vsix_file, useYarn: cmd.yarn});
     });
 
 program.command('setup-tests')

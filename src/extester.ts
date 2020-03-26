@@ -4,6 +4,7 @@ import { CodeUtil, ReleaseQuality } from './util/codeUtil';
 import { DriverUtil } from './util/driverUtil';
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import { URL } from 'url';
 
 export { MochaOptions } from 'mocha';
 export * from 'selenium-webdriver';
@@ -85,13 +86,24 @@ export class ExTester {
      * @param vsixFile path to extension .vsix file. If not set, default vsce path will be used
      * @param useYarn when true run `vsce package` with the `--yarn` flag
      */
-    installVsix({vsixFile, useYarn}: {vsixFile?: string, useYarn?: boolean} = {}): void {
-        if (!vsixFile) {
+    async installVsix({vsixFile, useYarn}: {vsixFile?: string, useYarn?: boolean} = {}): Promise<void> {
+        let target = vsixFile;
+        if (vsixFile) {
+            try {
+                new URL(vsixFile);
+                target = path.basename(vsixFile);
+            } catch (err) {
+                if (!fs.existsSync(vsixFile)) {
+                    throw new Error(`File ${vsixFile} does not exist`);
+                }
+            }
+            if (target !== vsixFile) {
+                target = await this.code.downloadExtension(vsixFile);
+            }
+        } else {
             this.code.packageExtension(useYarn);
-        } else if (!fs.existsSync(vsixFile)) {
-            throw new Error(`File ${vsixFile} does not exist`);
         }
-        return this.code.installExtension(vsixFile);
+        return this.code.installExtension(target);
     }
 
     /**
@@ -117,7 +129,7 @@ export class ExTester {
         const quality = vscodeStream === 'insider' ? ReleaseQuality.Insider : ReleaseQuality.Stable;
         await this.downloadCode(vscodeVersion, quality);
         await this.downloadChromeDriver(vscodeVersion, vscodeStream);
-        this.installVsix({useYarn});
+        await this.installVsix({useYarn});
     }
 
     /**
@@ -144,7 +156,7 @@ export class ExTester {
      * @param cleanup true to uninstall the tested extension after the run, false otherwise
      */
     async runTests(testFilesPattern: string, vscodeVersion: string = 'latest', vscodeStream: string = 'stable', settings: string = '', cleanup?: boolean, config?: string): Promise<void> {
-        this.installVsix({ vsixFile: path.join(__dirname, '..', 'resources', 'api-handler.vsix')});
+        await this.installVsix({ vsixFile: path.join(__dirname, '..', 'resources', 'api-handler.vsix')});
         let stream = ReleaseQuality.Stable;
         if (vscodeStream === 'insider') {
             stream = ReleaseQuality.Insider;

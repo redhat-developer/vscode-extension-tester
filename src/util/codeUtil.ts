@@ -117,6 +117,28 @@ export class CodeUtil {
     }
 
     /**
+     * Download a vsix file
+     * @param vsixURL URL of the vsix file
+     */
+    async downloadExtension(vsixURL: string): Promise<string> {
+        fs.mkdirpSync(this.downloadFolder);
+        const fileName = path.basename(vsixURL);
+        const target = path.join(this.downloadFolder, fileName);
+        if (!fileName.endsWith('.vsix')) {
+            throw new Error('The URL does not point to a vsix file');
+        }
+
+        console.log(`Downloading ${fileName}`);
+        await new Promise<void>((resolve) => {
+            request.get(vsixURL)
+                .pipe(fs.createWriteStream(target))
+                .on('close', resolve);
+        });
+        console.log('Success!');
+        return target;
+    }
+
+    /**
      * Package extension into a vsix file
      * @param useYarn false to use npm as packaging system, true to use yarn instead
      */
