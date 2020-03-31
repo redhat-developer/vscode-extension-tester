@@ -90,8 +90,10 @@ export class ExTester {
         let target = vsixFile;
         if (vsixFile) {
             try {
-                new URL(vsixFile);
-                target = path.basename(vsixFile);
+                const uri = new URL(vsixFile);
+                if (!(process.platform === 'win32' && /^\w:/.test(uri.protocol))) {
+                    target = path.basename(vsixFile);
+                }
             } catch (err) {
                 if (!fs.existsSync(vsixFile)) {
                     throw new Error(`File ${vsixFile} does not exist`);
