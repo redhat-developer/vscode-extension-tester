@@ -169,14 +169,14 @@ export class TextEditor extends Editor {
         const lineGap = coordinates[0] - line;
         const lineKey = lineGap >= 0 ? Key.UP : Key.DOWN;
         for (let i = 0; i < Math.abs(lineGap); i++) {
-            inputarea.sendKeys(lineKey);
+            await inputarea.sendKeys(lineKey);
         }
 
         coordinates = await this.getCoordinates();
         const columnGap = coordinates[1] - column;
         const columnKey = columnGap >= 0 ? Key.LEFT : Key.RIGHT;
         for (let i = 0; i < Math.abs(columnGap); i++) {
-            inputarea.sendKeys(columnKey);
+            await inputarea.sendKeys(columnKey);
             if ((await this.getCoordinates())[0] != coordinates[0]) {
                 throw new Error(`Column number ${column} is not accessible on line ${line}`);
             }

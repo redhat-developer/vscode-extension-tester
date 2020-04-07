@@ -47,7 +47,7 @@ export class VSBrowser {
         }
 
         fs.mkdirpSync(path.join(userSettings, 'globalStorage'));
-        fs.remove(path.join(this.storagePath, 'screenshots'));
+        await fs.remove(path.join(this.storagePath, 'screenshots'));
         fs.writeJSONSync(path.join(userSettings, 'settings.json'), defaultSettings);
         console.log(`Writing code settings to ${path.join(userSettings, 'settings.json')}`);
         
