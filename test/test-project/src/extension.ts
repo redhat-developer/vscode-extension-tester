@@ -25,6 +25,9 @@ export function activate(context: vscode.ExtensionContext) {
 	let webViewCommand = vscode.commands.registerCommand('extension.webview', async() => {
 		TestView.createOrShow();
 	});
+	let notificationCommand = vscode.commands.registerCommand('extension.notification', () => {
+		vscode.window.showInformationMessage('This is a notification', 'Yes', 'No');
+	});
 
 	context.subscriptions.push(disposable);
 	context.subscriptions.push(openCommand);
@@ -32,6 +35,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(closeFolder);
 	context.subscriptions.push(testCommand);
 	context.subscriptions.push(webViewCommand);
+	context.subscriptions.push(notificationCommand);
 
 	new TreeView(context);
 }

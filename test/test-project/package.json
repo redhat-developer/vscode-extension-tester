@@ -47,6 +47,10 @@
 			{
 				"command": "extension.webview",
 				"title": "Webview Test"
+			},
+			{
+				"command": "extension.notification",
+				"title": "Test Notification"
 			}
 		],
 		"views": {
