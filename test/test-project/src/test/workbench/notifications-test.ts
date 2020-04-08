@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { NotificationsCenter, Workbench, NotificationType, Notification } from 'vscode-extension-tester';
+import { NotificationsCenter, Workbench, NotificationType, Notification, until } from 'vscode-extension-tester';
 
 describe('NotificationsCenter', () => {
     let center: NotificationsCenter;
@@ -38,19 +38,15 @@ describe('NotificationsCenter', () => {
         let notification: Notification;
 
         before(async () => {
-            await new Workbench().executeCommand('hello world');
+            await new Workbench().executeCommand('test notification');
             await center.getDriver().sleep(200);
             center = await new Workbench().openNotificationsCenter();
             notification = (await center.getNotifications(NotificationType.Any))[0];
         });
 
-        after(async () => {
-            await notification.dismiss();
-        });
-
         it('getMessage gets the text', async () => {
             const message = await notification.getMessage();
-            expect(message).has.string('Hello World');
+            expect(message).has.string('This is a notification');
         });
 
         it('getType returns notificationYype', async () => {
@@ -65,12 +61,18 @@ describe('NotificationsCenter', () => {
 
         it('getActions looks for action buttons', async () => {
             const actions = await notification.getActions();
-            expect(actions).empty;
+            expect(actions.map(item => item.getTitle())).deep.equals(['Yes', 'No']);
         });
 
         it('getSource returns title of origin', async () => {
             const source = await notification.getSource();
-            expect(source).empty;
+            expect(source).has.string('Test Project');
+        });
+
+        it('takeAction works', async () => {
+            const driver = notification.getDriver();
+            await notification.takeAction('Yes');
+            await driver.wait(until.stalenessOf(notification));
         });
     });
 });
