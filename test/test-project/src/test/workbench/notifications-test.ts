@@ -17,6 +17,7 @@ describe('NotificationsCenter', () => {
         await new Workbench().executeCommand('hello world');
         await center.getDriver().sleep(500);
         center = await new Workbench().openNotificationsCenter();
+        await center.getDriver().sleep(500);
         const notifications = await center.getNotifications(NotificationType.Any);
         expect(notifications).not.empty;
     });
@@ -26,6 +27,7 @@ describe('NotificationsCenter', () => {
         await new Workbench().executeCommand('hello world');
         await center.getDriver().sleep(500);
         center = await new Workbench().openNotificationsCenter();
+        await center.getDriver().sleep(500);
         const notifications = await center.getNotifications(NotificationType.Any);
         expect(notifications).not.empty;
 
@@ -69,7 +71,8 @@ describe('NotificationsCenter', () => {
             expect(source).has.string('Test Project');
         });
 
-        it('takeAction works', async () => {
+        it('takeAction works', async function() {
+            this.timeout(8000);
             const driver = notification.getDriver();
             await notification.takeAction('Yes');
             await driver.wait(until.stalenessOf(notification));

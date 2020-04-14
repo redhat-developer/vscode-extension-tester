@@ -21,7 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 	let testCommand = vscode.commands.registerCommand('extension.test', async () => {
 		vscode.window.showQuickPick([{ label: 'TestLabel', description: 'Test Description' }]);
-	})
+	});
 	let webViewCommand = vscode.commands.registerCommand('extension.webview', async() => {
 		TestView.createOrShow();
 	});
