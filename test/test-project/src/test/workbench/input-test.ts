@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { QuickOpenBox, Workbench, QuickPickItem, InputBox, StatusBar, EditorView } from "vscode-extension-tester";
+import { QuickOpenBox, Workbench, QuickPickItem, InputBox, StatusBar, EditorView, VSBrowser } from "vscode-extension-tester";
 
 describe('QuickOpenBox', () => {
     let input: QuickOpenBox;
@@ -32,7 +32,12 @@ describe('QuickOpenBox', () => {
         this.timeout(5000);
         await input.setText('');
         const holder = await input.getPlaceHolder();
-        expect(holder).has.string(`Type '?' to get help`);
+
+        let searchString = `Type '?' to get help`;
+        if (VSBrowser.instance.version >= '1.44.0') {
+            searchString = 'Search files by name';
+        }
+        expect(holder).has.string(searchString);
     });
 
     it('hasProgress checks for progress bar', async () => {
@@ -66,7 +71,11 @@ describe('QuickPickItem', () => {
 
     it('getIndex returns the index of the item', () => {
         const index = item.getIndex();
-        expect(index).equals(1);
+        let expected = 0;
+        if (VSBrowser.instance.version < '1.44.0') {
+            expected = 1;
+        }
+        expect(index).equals(expected);
     });
 
     it('select works', async () => {
@@ -76,7 +85,7 @@ describe('QuickPickItem', () => {
 
     it('getDescription works', async function() {
         this.timeout(8000);
-        await new Workbench().executeCommand('Test Command');
+        await new Workbench().executeCommand('Extension Test Command');
         const inputbox = await InputBox.create();
         const pick = (await inputbox.getQuickPicks())[0];
         const desc = await pick.getDescription();

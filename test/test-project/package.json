@@ -19,7 +19,9 @@
 		"onCommand:extension.openFile",
 		"onCommand:extension.openFolder",
 		"onCommand:extension.closeFolder",
-		"onCommand:extension.webview"
+		"onCommand:extension.webview",
+		"onCommand:extension.test",
+		"onCommand:extension.notification"
 	],
 	"main": "./out/src/extension.js",
 	"contributes": {
@@ -42,7 +44,7 @@
 			},
 			{
 				"command": "extension.test",
-				"title": "Test Command"
+				"title": "Extension Test Command"
 			},
 			{
 				"command": "extension.webview",
