@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { StatusBar, EditorView, InputBox, QuickOpenBox, Workbench } from 'vscode-extension-tester';
+import { StatusBar, EditorView, InputBox, QuickOpenBox, Workbench, VSBrowser } from 'vscode-extension-tester';
 
 describe('StatusBar', () => {
     let bar: StatusBar;
@@ -72,7 +72,12 @@ describe('StatusBar', () => {
 
     it('openLineSelection works', async () => {
         await bar.openLineSelection();
-        const input = await QuickOpenBox.create();
+        let input: QuickOpenBox | InputBox;
+        if (VSBrowser.instance.version >= '1.44.0') {
+            input = await InputBox.create(); 
+        } else {
+            input = await QuickOpenBox.create();
+        }
         expect(await input.isDisplayed()).is.true;
         await input.cancel();
     });

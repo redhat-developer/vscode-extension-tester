@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { EditorView, Workbench, TextEditor, SettingsEditor, WebView, QuickOpenBox, DiffEditor, Key } from 'vscode-extension-tester';
+import { EditorView, Workbench, TextEditor, SettingsEditor, WebView, QuickOpenBox, DiffEditor, Key, InputBox, VSBrowser } from 'vscode-extension-tester';
 
 describe('EditorView', () => {
     let view: EditorView;
@@ -40,7 +40,12 @@ describe('EditorView', () => {
         await view.openEditor('Untitled-2');
 
         await new Workbench().executeCommand('File: Compare Active File With...');
-        const quickOpen = new QuickOpenBox();
+        let quickOpen: QuickOpenBox | InputBox;
+        if (VSBrowser.instance.version >= '1.44.0') {
+            quickOpen = await InputBox.create(); 
+        } else {
+            quickOpen = await QuickOpenBox.create();
+        }
         await quickOpen.setText('Untitled-1');
         await quickOpen.confirm();
         await new Promise((res) => { setTimeout(res, 500); });
