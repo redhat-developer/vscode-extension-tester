@@ -1,5 +1,5 @@
 import { ContentAssist } from "../../../extester";
-import { Key } from "selenium-webdriver";
+import { Key, until } from "selenium-webdriver";
 import { fileURLToPath } from "url";
 import * as clipboard from 'clipboardy';
 import { StatusBar } from "../statusBar/StatusBar";
@@ -46,20 +46,27 @@ export class TextEditor extends Editor {
      * @returns Promise resolving to ContentAssist object when opening, void otherwise
      */
     async toggleContentAssist(open: boolean): Promise<ContentAssist | void> {
+        let isHidden = true;
+        try {
+            const assist = await this.findElement(TextEditor.locators.ContentAssist.constructor)
+            const klass = await assist.getAttribute('class');
+            const visibility = await assist.getCssValue('visibility');
+            isHidden = klass.indexOf('visible') < 0 || visibility === 'hidden';
+        } catch (err) {
+            isHidden = true;
+        }
         const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
-        const assist = await this.findElement(TextEditor.locators.ContentAssist.constructor)
-        const klass = await assist.getAttribute('class');
-        const visibility = await assist.getCssValue('visibility');
 
         if (open) {
-            if (klass.indexOf('visible') < 0 || visibility === 'hidden') {
+            if (isHidden) {
                 await inputarea.sendKeys(Key.chord(Key.CONTROL, Key.SPACE));
+                await this.getDriver().wait(until.elementLocated(TextEditor.locators.ContentAssist.constructor), 2000);
             }
             const assist = await new ContentAssist(this).wait();
             await this.getDriver().wait(() => { return assist.isLoaded(); }, 10000);
             return assist;
         } else {
-            if (klass.indexOf('visible') >= 0) {
+            if (!isHidden) {
                 const col = (await this.getCoordinates())[1];
                 await inputarea.sendKeys(Key.LEFT);
                 await inputarea.sendKeys(Key.RIGHT);
