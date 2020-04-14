@@ -10,6 +10,8 @@ import { Notification, StandaloneNotification } from "./Notification";
 import { NotificationsCenter } from "./NotificationsCenter";
 import { QuickOpenBox } from "./input/QuickOpenBox";
 import { SettingsEditor } from "../editor/SettingsEditor";
+import { InputBox } from "./input/InputBox";
+import { VSBrowser } from "../../browser";
 
 /**
  * Handler for general workbench related actions
@@ -103,12 +105,15 @@ export class Workbench extends AbstractElement {
 
     /**
      * Open the VS Code command line prompt
-     * @returns Promise resolving to QuickOpenBox object
+     * @returns Promise resolving to InputBox (vscode 1.44+) or QuickOpenBox (vscode up to 1.43) object
      */
-    async openCommandPrompt(): Promise<QuickOpenBox> {
+    async openCommandPrompt(): Promise<QuickOpenBox | InputBox> {
         await this.getDriver().actions().sendKeys(Key.F1).perform();
+        if (VSBrowser.instance.version >= '1.44.0') {
+            return InputBox.create();
+        }
         return QuickOpenBox.create();
-    }
+     }
 
     /**
      * Open the command prompt, type in a command and execute

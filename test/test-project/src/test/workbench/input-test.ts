@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { QuickOpenBox, Workbench, QuickPickItem, InputBox, StatusBar, TitleBar, EditorView } from "vscode-extension-tester";
+import { QuickOpenBox, Workbench, QuickPickItem, InputBox, StatusBar, EditorView } from "vscode-extension-tester";
 
 describe('QuickOpenBox', () => {
     let input: QuickOpenBox;

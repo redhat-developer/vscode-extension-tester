@@ -2,6 +2,7 @@ import { Input, QuickPickItem } from "../../../../extester";
 import { until } from "selenium-webdriver";
 
 /**
+ * @deprecated as of VS Code 1.44.0, quick open box has been replaced with input box
  * The quick open box variation of the input
  */
 export class QuickOpenBox extends Input {
