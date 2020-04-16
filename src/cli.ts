@@ -2,6 +2,7 @@
 
 import * as program from 'commander';
 import { ExTester } from './extester';
+import { ReleaseQuality } from './util/codeUtil';
 const pjson = require('../package.json');
 
 program.version(pjson.version)
@@ -13,18 +14,18 @@ program.command('get-vscode')
     .option('-c, --code_version <version>', 'Version of VSCode to download')
     .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
     .action(withErrors(async (cmd) => {
-        const extest = new ExTester(cmd.storage);
+        const extest = new ExTester(cmd.storage, codeStream(cmd.type));
         const version = loadCodeVersion(cmd.code_version);
-        await extest.downloadCode(version, cmd.type);
+        await extest.downloadCode(version);
     }));
 
 program.command('get-chromedriver')
     .description('Download ChromeDriver binary')
     .option('-s, --storage <storage>', 'Use this folder for all test resources')
     .option('-c, --code_version <version>', 'Version of VSCode you want to run with the CromeDriver')
-    // .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
+    .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
     .action(withErrors(async (cmd) => {
-        const extest = new ExTester(cmd.storage);
+        const extest = new ExTester(cmd.storage, codeStream(cmd.type));
         const version = loadCodeVersion(cmd.code_version);
         await extest.downloadChromeDriver(version);
     }));
@@ -35,8 +36,9 @@ program.command('install-vsix')
     .option('-e, --extensions_dir <extensions_directory>', 'VSCode will use this directory for managing extensions')
     .option('-f, --vsix_file <file>', 'path/URL to vsix file containing the extension')
     .option('-y, --yarn', 'Use yarn to build the extension via vsce instead of npm', false)
+    .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
     .action(withErrors(async (cmd) => {
-        const extest = new ExTester(cmd.storage, cmd.extensions_dir);
+        const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
         await extest.installVsix({vsixFile: cmd.vsix_file, useYarn: cmd.yarn});
     }));
 
@@ -48,9 +50,9 @@ program.command('setup-tests')
     .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
     .option('-y, --yarn', 'Use yarn to build the extension via vsce instead of npm', false)
     .action(withErrors(async (cmd) => {
-        const extest = new ExTester(cmd.storage, cmd.extensions_dir);
+        const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
         const version = loadCodeVersion(cmd.code_version);
-        await extest.setupRequirements(version, cmd.type, cmd.yarn);
+        await extest.setupRequirements(version, cmd.yarn);
     }));
 
 program.command('run-tests <testFiles>')
@@ -63,9 +65,9 @@ program.command('run-tests <testFiles>')
     .option('-u, --uninstall_extension', 'Uninstall the extension after the test run', false)
     .option('-m, --mocha_config', 'Path to Mocha configuration file')
     .action(withErrors(async (testFiles, cmd) => {
-        const extest = new ExTester(cmd.storage, cmd.extensions_dir);
+        const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
         const version = loadCodeVersion(cmd.code_version);
-        await extest.runTests(testFiles, version, cmd.type, cmd.code_settings, cmd.uninstall_extension, cmd.mocha_config);
+        await extest.runTests(testFiles, version, cmd.code_settings, cmd.uninstall_extension, cmd.mocha_config);
     }));
 
 program.command('setup-and-run <testFiles>')
@@ -79,9 +81,9 @@ program.command('setup-and-run <testFiles>')
     .option('-u, --uninstall_extension', 'Uninstall the extension after the test run', false)
     .option('-m, --mocha_config <mocharc.js>', 'Path to Mocha configuration file')
     .action(withErrors(async (testFiles, cmd) => {
-        const extest = new ExTester(cmd.storage, cmd.extensions_dir);
+        const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
         const version = loadCodeVersion(cmd.code_version);
-        await extest.setupAndRunTests(version, cmd.type, testFiles, cmd.code_settings, cmd.yarn, cmd.uninstall_extension, cmd.mocha_config);
+        await extest.setupAndRunTests(version, testFiles, cmd.code_settings, cmd.yarn, cmd.uninstall_extension, cmd.mocha_config);
     }));
 
 program.parse(process.argv);
@@ -103,4 +105,17 @@ function withErrors(command: (...args: any[]) => Promise<void>) {
             process.exitCode = 1;
         }
     }    
+}
+
+function codeStream(stream: string) {
+    const envType = process.env.CODE_TYPE;
+    let type = stream;
+
+    if (!type && envType) {
+        type = envType;
+    }
+    if (type && type.toLowerCase() === 'insider') {
+        return ReleaseQuality.Insider;
+    }
+    return ReleaseQuality.Stable;
 }
