@@ -65,20 +65,17 @@ export class ExTester {
     private code: CodeUtil;
     private chrome: DriverUtil;
 
-    constructor(storageFolder: string = 'test-resources', extensionsDir?: string) {
-        this.code = new CodeUtil(storageFolder, extensionsDir);
+    constructor(storageFolder: string = 'test-resources', releaseType: ReleaseQuality = ReleaseQuality.Stable, extensionsDir?: string) {
+        this.code = new CodeUtil(storageFolder, releaseType, extensionsDir);
         this.chrome = new DriverUtil(storageFolder);
     }
 
     /**
      * Download VSCode of given version and release quality stream
      * @param version version to download, default latest
-     * @param quality quality stream, only acceptable values are 'stable' and 'insider', default stable
      */
-    async downloadCode(version: string = 'latest', quality: string = 'stable'): Promise<void> {
-        const quality1 = quality === 'insider' ? ReleaseQuality.Insider : ReleaseQuality.Stable;
-
-        return this.code.downloadVSCode(version, quality1);
+    async downloadCode(version: string = 'latest'): Promise<void> {
+        return this.code.downloadVSCode(version);
     }
 
     /**
@@ -111,11 +108,9 @@ export class ExTester {
     /**
      * Download the matching chromedriver for a given VS Code version
      * @param vscodeVersion selected versio nof VSCode, default latest
-     * @param vscodeStream VSCode release stream, default stable
      */
-    async downloadChromeDriver(vscodeVersion: string = 'latest', vscodeStream: string = 'stable'): Promise<void> {
-        const quality = vscodeStream === 'insider' ? ReleaseQuality.Insider : ReleaseQuality.Stable;
-        const chromiumVersion = await this.code.getChromiumVersion(vscodeVersion, quality);
+    async downloadChromeDriver(vscodeVersion: string = 'latest'): Promise<void> {
+        const chromiumVersion = await this.code.getChromiumVersion(vscodeVersion);
         await this.chrome.downloadChromeDriverForChromiumVersion(chromiumVersion);
     }
 
@@ -124,13 +119,11 @@ export class ExTester {
      * and packaging/installing extension into the test instance
      * 
      * @param vscodeVersion version of VSCode to test against, default latest
-     * @param vscodeStream whether to use stable or insiders build, default stable
      * @param useYarn when true run `vsce package` with the `--yarn` flag
      */
-    async setupRequirements(vscodeVersion: string = 'latest', vscodeStream: string = 'stable', useYarn?: boolean): Promise<void> {
-        const quality = vscodeStream === 'insider' ? ReleaseQuality.Insider : ReleaseQuality.Stable;
-        await this.downloadCode(vscodeVersion, quality);
-        await this.downloadChromeDriver(vscodeVersion, vscodeStream);
+    async setupRequirements(vscodeVersion: string = 'latest', useYarn?: boolean): Promise<void> {
+        await this.downloadCode(vscodeVersion);
+        await this.downloadChromeDriver(vscodeVersion);
         await this.installVsix({useYarn});
     }
 
@@ -138,31 +131,25 @@ export class ExTester {
      * Performs requirements setup and runs extension tests
      * 
      * @param vscodeVersion version of VSCode to test against, default latest
-     * @param vscodeStream whether to use stable or insiders build, default stable
      * @param testFilesPattern glob pattern for test files to run
      * @param settings path to a custom vscode settings json file
      * @param useYarn when true run `vsce package` with the `--yarn` flag
      * @param cleanup true to uninstall the tested extension after the run, false otherwise
      */
-    async setupAndRunTests(vscodeVersion: string = 'latest', vscodeStream: string = 'stable', testFilesPattern: string, settings: string = '', useYarn?: boolean, cleanup?: boolean, config?: string): Promise<void> {
-        await this.setupRequirements(vscodeVersion, vscodeStream, useYarn);
-        await this.runTests(testFilesPattern, vscodeVersion, vscodeStream, settings, cleanup, config);
+    async setupAndRunTests(vscodeVersion: string = 'latest', testFilesPattern: string, settings: string = '', useYarn?: boolean, cleanup?: boolean, config?: string): Promise<void> {
+        await this.setupRequirements(vscodeVersion, useYarn);
+        await this.runTests(testFilesPattern, vscodeVersion, settings, cleanup, config);
     }
 
     /**
      * Runs the selected test files in VS Code using mocha and webdriver
      * @param testFilesPattern glob pattern for selected test files
-     * @param vscodeStream whether to use stable or insiders build, default stable
      * @param settings path to a custom vscode settings json file
      * @param vscodeVersion version of VSCode to test against, default latest
      * @param cleanup true to uninstall the tested extension after the run, false otherwise
      */
-    async runTests(testFilesPattern: string, vscodeVersion: string = 'latest', vscodeStream: string = 'stable', settings: string = '', cleanup?: boolean, config?: string): Promise<void> {
+    async runTests(testFilesPattern: string, vscodeVersion: string = 'latest', settings: string = '', cleanup?: boolean, config?: string): Promise<void> {
         await this.installVsix({ vsixFile: path.join(__dirname, '..', 'resources', 'api-handler.vsix')});
-        let stream = ReleaseQuality.Stable;
-        if (vscodeStream === 'insider') {
-            stream = ReleaseQuality.Insider;
-        }
-        await this.code.runTests(testFilesPattern, vscodeVersion, stream, settings, cleanup, config);
+        await this.code.runTests(testFilesPattern, vscodeVersion, settings, cleanup, config);
     }
 }

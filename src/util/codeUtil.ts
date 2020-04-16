@@ -20,10 +20,11 @@ export class CodeUtil {
     private codeFolder: string;
     private downloadPlatform: string;
     private downloadFolder: string;
+    private releaseType: ReleaseQuality;
     private executablePath!: string;
     private cliPath!: string;
     private cliEnv!: string;
-    private availableVersions: { stable: string[], insider: string[] };
+    private availableVersions: string[];
     private extensionsFolder: string | undefined;
 
     /**
@@ -31,11 +32,12 @@ export class CodeUtil {
      * @param folder Path to folder where all the artifacts will be stored.
      * @param extensionsFolder Path to use as extensions directory by VSCode
      */
-    constructor(folder: string = 'test-resources', extensionsFolder?: string) {
-        this.availableVersions = { stable: [], insider: [] };
+    constructor(folder: string = 'test-resources', type: ReleaseQuality = ReleaseQuality.Stable, extensionsFolder?: string) {
+        this.availableVersions = [];
         this.downloadPlatform = this.getPlatform();
         this.downloadFolder = path.resolve(folder);
         this.extensionsFolder = extensionsFolder ? path.resolve(extensionsFolder) : undefined;
+        this.releaseType = type;
         this.codeFolder = path.join(this.downloadFolder, (process.platform === 'darwin')
             ? 'Visual Studio Code.app' : `VSCode-${this.downloadPlatform}`);
         this.findExecutables();
@@ -43,11 +45,9 @@ export class CodeUtil {
 
     /**
      * Get all versions for the given release stream
-     * 
-     * @param quality denotes whether stable or insiders stream is selected
      */
-    async getVSCodeVersions(quality: ReleaseQuality): Promise<string[]> {
-        const apiUrl = `https://vscode-update.azurewebsites.net/api/releases/${quality}`;
+    async getVSCodeVersions(): Promise<string[]> {
+        const apiUrl = `https://vscode-update.azurewebsites.net/api/releases/${this.releaseType}`;
         const headers = {
             'user-agent': 'nodejs'
         };
@@ -69,16 +69,15 @@ export class CodeUtil {
      * Download and unpack VS Code for testing purposes
      * 
      * @param version VS Code version to get, default latest
-     * @param quality Chooses stable or insiders stream, default stable
      */
-    async downloadVSCode(version: string = 'latest', quality: ReleaseQuality = ReleaseQuality.Stable): Promise<void> {
-        await this.checkCodeVersion(version, quality);
+    async downloadVSCode(version: string = 'latest'): Promise<void> {
+        await this.checkCodeVersion(version);
 
-        const literalVersion = version === 'latest' ? this.availableVersions[quality][0] : version;
+        const literalVersion = version === 'latest' ? this.availableVersions[0] : version;
         if (!fs.existsSync(this.executablePath) || await this.getExistingCodeVersion() !== literalVersion) {
             fs.mkdirpSync(this.downloadFolder);
 
-            const url = ['https://vscode-update.azurewebsites.net', version, this.downloadPlatform, quality].join('/');
+            const url = ['https://vscode-update.azurewebsites.net', version, this.downloadPlatform, this.releaseType].join('/');
             const isTarGz = this.downloadPlatform.indexOf('linux') > -1;
             const fileName = `${path.basename(url)}.${isTarGz ? 'tar.gz' : 'zip'}`;
     
@@ -183,9 +182,9 @@ export class CodeUtil {
      * @param settings path to custom settings json file
      * @param vscodeVersion version of VSCode to test against, default latest
      */
-    async runTests(testFilesPattern: string, vscodeVersion: string = 'latest', quality: ReleaseQuality = ReleaseQuality.Stable, settings: string = '', cleanup?: boolean, config?: string): Promise<void> {
-        await this.checkCodeVersion(vscodeVersion, quality);
-        const literalVersion = vscodeVersion === 'latest' ? this.availableVersions[quality][0] : vscodeVersion;
+    async runTests(testFilesPattern: string, vscodeVersion: string = 'latest', settings: string = '', cleanup?: boolean, config?: string): Promise<void> {
+        await this.checkCodeVersion(vscodeVersion);
+        const literalVersion = vscodeVersion === 'latest' ? this.availableVersions[0] : vscodeVersion;
 
         // add chromedriver to process' path
         const finalEnv: NodeJS.ProcessEnv = {};
@@ -207,12 +206,20 @@ export class CodeUtil {
      * @param codeVersion version of VS Code, default latest
      * @param quality release stream, default stable
      */
-    async getChromiumVersion(codeVersion: string = 'latest', quality: ReleaseQuality = ReleaseQuality.Stable): Promise<string> {
-        await this.checkCodeVersion(codeVersion, quality);
-        const literalVersion = codeVersion === 'latest' ? this.availableVersions[quality][0] : codeVersion;
+    async getChromiumVersion(codeVersion: string = 'latest'): Promise<string> {
+        await this.checkCodeVersion(codeVersion);
+        const literalVersion = codeVersion === 'latest' ? this.availableVersions[0] : codeVersion;
+        let revision = literalVersion;
+        if (literalVersion.endsWith('-insider')) {
+            if (codeVersion === 'latest') {
+                revision = 'master';
+            } else {
+                revision = literalVersion.substring(0, literalVersion.indexOf('-insider'));
+            }
+        }
 
         const fileName = 'manifest.json';
-        const url = `https://raw.githubusercontent.com/Microsoft/vscode/${literalVersion}/cgmanifest.json`;
+        const url = `https://raw.githubusercontent.com/Microsoft/vscode/${revision}/cgmanifest.json`;
         await new Promise<void>((resolve) => {
             request.get(url)
                 .pipe(fs.createWriteStream(path.join(this.downloadFolder, fileName)))
@@ -225,12 +232,12 @@ export class CodeUtil {
     /**
      * Check if given version is available in the given stream
      */
-    private async checkCodeVersion(vscodeVersion: string, quality: ReleaseQuality): Promise<void> {
-        if (this.availableVersions[quality].length < 1) {
-            this.availableVersions[quality] = await this.getVSCodeVersions(quality);
+    private async checkCodeVersion(vscodeVersion: string): Promise<void> {
+        if (this.availableVersions.length < 1) {
+            this.availableVersions = await this.getVSCodeVersions();
         }
-        if (vscodeVersion !== 'latest' && this.availableVersions[quality].indexOf(vscodeVersion) < 0) {
-            throw new Error(`Version ${vscodeVersion} is not available in ${quality} stream`);
+        if (vscodeVersion !== 'latest' && this.availableVersions.indexOf(vscodeVersion) < 0) {
+            throw new Error(`Version ${vscodeVersion} is not available in ${this.releaseType} stream`);
         }
     }
 
@@ -278,9 +285,15 @@ export class CodeUtil {
                 break;
             case 'win32':
                 this.executablePath = path.join(this.codeFolder, 'Code.exe');
+                if (this.releaseType === ReleaseQuality.Insider) {
+                    this.executablePath = path.join(this.codeFolder, 'Code - Insiders.exe');
+                }
                 break;
             case 'linux':
                 this.executablePath = path.join(this.codeFolder, 'code');
+                if (this.releaseType === ReleaseQuality.Insider) {
+                    this.executablePath = path.join(this.codeFolder, 'code-insiders');
+                }
                 break;
         }
     }

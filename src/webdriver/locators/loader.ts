@@ -19,6 +19,9 @@ export class LocatorLoader {
      */
     constructor(version: string) {
         this.version = version;
+        if (version.endsWith('-insider')) {
+            this.version = version.substring(0, version.indexOf('-insider'));
+        }
         const temp = require(`./versions/${LocatorLoader.baseVersion}`);
         this.locators = temp.locators as Locators;
     }
