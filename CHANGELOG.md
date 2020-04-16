@@ -1,5 +1,19 @@
 # Change Log
 
+## 2.6.0 (April 16)
+
+### New Features
+ - VS Code 1.44.x support
+   - `QuickOpenBox` is no longer used beginning with this version, the class is still present for backwards compatibility
+   - vscode from now on indexes quick picks starting with 0 instead of 1
+ - Universal support for VS Code insider versions
+   - cli now properly supports the `-t` flag for all commands, use `-t insider` to use insiders build (note that insider builds use the `x.y.z-insider` versioning scheme when choosing a version to test)
+   - `Extester` API has been changed: instead of each method taking the release stream (stable/insider) as parameter, the constructor is now parametrized. This means you need a different instance for stable and insider builds when using the API
+
+### Fixes
+ - some 'floating' async operations are now properly awaited
+ - the cli commands now properly set a non-zero exit code when an error occurs
+
 ## 2.5.1 (March 26)
  - fixed Input#getQuickPicks getting stuck on items that are not visible
  - install-vsix command now supports both local paths and remote URLs for .vsix files
