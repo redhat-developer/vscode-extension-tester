@@ -39,6 +39,6 @@
 		"mocha": "^6.2.0",
 		"tslint": "^5.16.0",
 		"typescript": "^3.7.3",
-		"vscode-extension-tester": "^2.1.1"
+		"vscode-extension-tester": "^2.6.0"
 	}
 }
