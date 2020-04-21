@@ -6,6 +6,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import { URL } from 'url';
 
+export { ReleaseQuality }
 export { MochaOptions } from 'mocha';
 export * from 'selenium-webdriver';
 export * from './webdriver/browser';
