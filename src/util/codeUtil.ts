@@ -40,6 +40,9 @@ export class CodeUtil {
         this.releaseType = type;
         this.codeFolder = path.join(this.downloadFolder, (process.platform === 'darwin')
             ? 'Visual Studio Code.app' : `VSCode-${this.downloadPlatform}`);
+        if (process.platform === 'darwin' && type === ReleaseQuality.Insider) {
+            this.codeFolder = path.join(this.downloadFolder, 'Visual Studio Code - Insiders.app');
+        }
         this.findExecutables();
     }
 
