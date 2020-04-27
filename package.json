@@ -1,6 +1,6 @@
 {
   "name": "vscode-extension-tester",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "description": "Webdriver Testing for VSCode Extensions",
   "main": "out/extester.js",
   "types": "out/extester.d.ts",
