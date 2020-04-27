@@ -1,5 +1,14 @@
 # Change Log
 
+## 2.6.1 (April 27)
+
+### Fixes
+ - `vsce` no longer needs to be installed globally when running commands from vscode terminal
+ - path to insider build on mac has been fixed
+ - stable and insider builds of vscode can now be cached at the same time
+ - switching between stable and insider stream testing no longer requires users to manually delete the cache folder
+ - `ReleaseQuality` enum is now propely exported for usage within the API
+
 ## 2.6.0 (April 16)
 
 ### New Features
