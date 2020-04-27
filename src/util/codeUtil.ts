@@ -38,10 +38,13 @@ export class CodeUtil {
         this.downloadFolder = path.resolve(folder);
         this.extensionsFolder = extensionsFolder ? path.resolve(extensionsFolder) : undefined;
         this.releaseType = type;
-        this.codeFolder = path.join(this.downloadFolder, (process.platform === 'darwin')
-            ? 'Visual Studio Code.app' : `VSCode-${this.downloadPlatform}`);
-        if (process.platform === 'darwin' && type === ReleaseQuality.Insider) {
-            this.codeFolder = path.join(this.downloadFolder, 'Visual Studio Code - Insiders.app');
+
+        if (type === ReleaseQuality.Stable) {
+            this.codeFolder = path.join(this.downloadFolder, (process.platform === 'darwin')
+                ? 'Visual Studio Code.app' : `VSCode-${this.downloadPlatform}`);
+        } else {
+            this.codeFolder = path.join(this.downloadFolder, (process.platform === 'darwin')
+                ? 'Visual Studio Code - Insiders.app' : `VSCode-${this.downloadPlatform}-insider`);
         }
         this.findExecutables();
     }
