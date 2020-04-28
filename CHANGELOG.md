@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.6.2 (April 28)
+ - fix errors on launch due to botched 2.6.1 release
+
 ## 2.6.1 (April 27)
 
 ### Fixes
