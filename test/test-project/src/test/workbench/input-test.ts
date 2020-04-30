@@ -58,6 +58,7 @@ describe('QuickPickItem', () => {
 
     before(async function() {
         this.timeout(5000);
+        console.log(VSBrowser.instance.version)
         input = await new Workbench().openCommandPrompt();
         await input.setText('>hello world');
         const picks = await input.getQuickPicks();

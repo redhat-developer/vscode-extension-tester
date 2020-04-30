@@ -1,6 +1,6 @@
 'use strict';
 
-import { VSBrowser } from '../webdriver/browser';
+import { VSBrowser } from '../browser';
 import * as fs from 'fs-extra';
 import Mocha = require('mocha');
 import * as glob from 'glob';
