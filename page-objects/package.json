@@ -1,0 +1,49 @@
+{
+  "name": "monaco-page-objects",
+  "version": "3.0.0",
+  "description": "Page Objects for Monaco Editor",
+  "main": "out/index.js",
+  "types": "out/index.d.ts",
+  "files": [
+    "out/**/*.js",
+    "out/**/*.d.ts"
+  ],
+  "scripts": {
+    "prepack": "npm run build",
+    "build": "rimraf out/ && tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/redhat-developer/vscode-extension-tester.git"
+  },
+  "keywords": [
+    "webdriver",
+    "test",
+    "vscode",
+    "extension"
+  ],
+  "author": "Red Hat",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/redhat-developer/vscode-extension-tester/issues"
+  },
+  "homepage": "https://github.com/redhat-developer/vscode-extension-tester#readme",
+  "devDependencies": {
+    "@types/fs-extra": "^8.0.1",
+    "@types/node": "^11.15.3",
+    "@types/selenium-webdriver": "^3.0.15",
+    "rimraf": "^3.0.0",
+    "typedoc": "^0.15.4",
+    "typescript": "^3.7.3"
+  },
+  "dependencies": {
+    "clipboardy": "^2.0.0",
+    "compare-versions": "^3.5.1",
+    "fs-extra": "^8.1.0",
+    "merge-deep": "^3.0.2",
+    "ts-essentials": "^3.0.5"
+  },
+  "peerDependencies": {
+    "selenium-webdriver": "^3.0.0"
+  }
+}

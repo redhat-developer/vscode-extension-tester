@@ -8,56 +8,8 @@ import { URL } from 'url';
 
 export { ReleaseQuality }
 export { MochaOptions } from 'mocha';
-export * from 'selenium-webdriver';
-export * from './webdriver/browser';
-
-export * from './webdriver/components/menu/Menu';
-export * from './webdriver/components/menu/MenuItem';
-export * from './webdriver/components/menu/TitleBar';
-export * from './webdriver/components/menu/ContextMenu';
-export * from './webdriver/components/menu/WindowControls';
-
-export * from './webdriver/components/activityBar/ActivityBar';
-export * from './webdriver/components/activityBar/ViewControl';
-export * from './webdriver/components/activityBar/ActionsControl';
-
-export * from './webdriver/components/sidebar/SideBarView';
-export * from './webdriver/components/sidebar/ViewTitlePart';
-export * from './webdriver/components/sidebar/ViewContent';
-export * from './webdriver/components/sidebar/ViewSection';
-export * from './webdriver/components/sidebar/ViewItem';
-
-export * from './webdriver/components/sidebar/tree/default/DefaultTreeSection';
-export * from './webdriver/components/sidebar/tree/default/DefaultTreeItem';
-export * from './webdriver/components/sidebar/tree/custom/CustomTreeSection';
-export * from './webdriver/components/sidebar/tree/custom/CustomTreeItem';
-export * from './webdriver/components/sidebar/extensions/ExtensionsViewSection';
-export * from './webdriver/components/sidebar/extensions/ExtensionsViewItem';
-
-export * from './webdriver/components/bottomBar/BottomBarPanel';
-export * from './webdriver/components/bottomBar/ProblemsView';
-export * from './webdriver/components/bottomBar/Views';
-export * from './webdriver/components/statusBar/StatusBar';
-
-export * from './webdriver/components/editor/EditorView';
-export * from './webdriver/components/editor/TextEditor';
-export * from './webdriver/components/editor/SettingsEditor';
-export * from './webdriver/components/editor/DiffEditor';
-export * from './webdriver/components/editor/WebView';
-export * from './webdriver/components/editor/ContentAssist';
-
-export { Notification, NotificationType } from './webdriver/components/workbench/Notification';
-export * from './webdriver/components/workbench/NotificationsCenter';
-export * from './webdriver/components/workbench/input/Input';
-export * from './webdriver/components/workbench/input/InputBox';
-export * from './webdriver/components/workbench/input/QuickOpenBox';
-export * from './webdriver/components/workbench/Workbench';
-
-export * from './webdriver/native/dialogHandler';
-export * from './webdriver/native/nativeDialog';
-export { OpenDialog } from './webdriver/native/openDialog';
-
-export * from './webdriver/conditions/WaitForAttribute';
+export * from './browser';
+export * from 'monaco-page-objects';
 
 /**
  * VSCode Extension Tester
