@@ -7,13 +7,17 @@
   "files": [
     "out/**/*.js",
     "out/**/*.d.ts",
-    "resources/*"
+    "resources/*",
+    "page-objects/*"
   ],
   "bin": {
     "extest": "./out/cli.js"
   },
   "scripts": {
     "prepack": "npm run build",
+    "preinstall": "npm run build-native && npm run build-page-objects && npm link page-objects && npm link native",
+    "build-page-objects": "cd page-objects && npm i && npm run build",
+    "build-native": "cd native && npm i && npm run build",
     "prebuild": "cd api-handler && npm install",
     "build": "tsc && chmod a+x ./out/cli.js && cd api-handler && npm run build && cp *.vsix ../resources/api-handler.vsix",
     "doc": "typedoc --out docs ./src/",
@@ -38,6 +42,7 @@
   },
   "homepage": "https://github.com/redhat-developer/vscode-extension-tester#readme",
   "devDependencies": {
+    "@types/selenium-webdriver": "^3.0.15",
     "@types/fs-extra": "^8.0.1",
     "@types/glob": "^7.1.1",
     "@types/js-yaml": "^3.12.1",
@@ -47,24 +52,24 @@
     "mocha": "^6.2.2",
     "rimraf": "^3.0.0",
     "typedoc": "^0.15.4",
-    "typescript": "^3.7.3"
+    "typescript": "^3.7.3",
+    "vscode-extension-tester-native": "file:native"
   },
   "dependencies": {
-    "@types/selenium-webdriver": "^3.0.15",
     "commander": "^5.0.0",
     "compare-versions": "^3.6.0",
     "fs-extra": "^8.1.0",
     "glob": "^7.1.6",
     "js-yaml": "^3.13.1",
-    "monaco-page-objects": "file:page-objects",
+    "monaco-page-objects": "0.0.1",
     "request": "^2.88.0",
     "selenium-webdriver": "^3.0.0",
     "targz": "^1.0.1",
-    "ts-essentials": "^3.0.5",
     "unzip-stream": "^0.3.0",
     "vsce": "^1.71.0"
   },
   "peerDependencies": {
-    "mocha": ">=5.2.0"
+    "mocha": ">=5.2.0",
+    "vscode-extension-tester-native": "^2.6.0"
   }
 }
