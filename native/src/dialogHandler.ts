@@ -1,5 +1,7 @@
 import { OpenDialog, LinuxOpenDialog, WindowsOpenDialog, MacOpenDialog } from "./openDialog";
 
+export { OpenDialog } from './openDialog';
+
 /**
  * Handles native dialogs for different platforms
  */

@@ -1,6 +1,6 @@
 {
   "name": "vscode-extension-tester",
-  "version": "2.6.2",
+  "version": "3.0.0-0",
   "description": "Webdriver Testing for VSCode Extensions",
   "main": "out/extester.js",
   "types": "out/extester.d.ts",
@@ -61,7 +61,7 @@
     "fs-extra": "^8.1.0",
     "glob": "^7.1.6",
     "js-yaml": "^3.13.1",
-    "monaco-page-objects": "0.0.1",
+    "monaco-page-objects": "^1.0.0-0",
     "request": "^2.88.0",
     "selenium-webdriver": "^3.0.0",
     "targz": "^1.0.1",
@@ -70,6 +70,6 @@
   },
   "peerDependencies": {
     "mocha": ">=5.2.0",
-    "vscode-extension-tester-native": "^2.6.0"
+    "vscode-extension-tester-native": "^3.0.0-0"
   }
 }
