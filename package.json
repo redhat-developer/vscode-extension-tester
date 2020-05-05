@@ -1,6 +1,6 @@
 {
   "name": "vscode-extension-tester",
-  "version": "3.0.0-1",
+  "version": "3.0.0-2",
   "description": "Webdriver Testing for VSCode Extensions",
   "main": "out/extester.js",
   "types": "out/extester.d.ts",
@@ -14,10 +14,10 @@
   },
   "scripts": {
     "prepack": "npm run build",
-    "preinstall": "npm run build-native && npm run build-page-objects && npm link page-objects && npm link native",
+    "prepare-deps": "npm run build-native && npm run build-page-objects && npm link page-objects && npm link native",
     "build-page-objects": "cd page-objects && npm i && npm run build",
     "build-native": "cd native && npm i && npm run build",
-    "prebuild": "cd api-handler && npm install",
+    "prebuild": "npm run prepare-deps && cd api-handler && npm install",
     "build": "tsc && chmod a+x ./out/cli.js && cd api-handler && npm run build && cp *.vsix ../resources/api-handler.vsix",
     "doc": "typedoc --out docs ./src/",
     "prepare-test": "cd test/test-project && npm install && rimraf package-lock.json",
