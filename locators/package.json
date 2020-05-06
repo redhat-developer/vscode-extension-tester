@@ -1,6 +1,6 @@
 {
   "name": "vscode-extension-tester-locators",
-  "version": "1.44.0-0",
+  "version": "1.44.0",
   "description": "Pluggable object locators for vscode extension tester",
   "main": "out/index.js",
   "types": "out/index.d.ts",
@@ -37,6 +37,6 @@
   },
   "peerDependencies": {
     "selenium-webdriver": "^3.0.0",
-    "monaco-page-objects": "^1.0.0-0"
+    "monaco-page-objects": "^1.0.0"
   }
 }

@@ -1,5 +1,27 @@
 # Change Log
 
+## 3.0.0 (May 6)
+
+### Changes
+ - extension tester has been split into modules:
+   - main module `vscode-extension-tester`
+   - page objects `monaco-page-objects` 
+     - included as a dependency of the main module
+     - updates will be independent to the main module
+     - can now possibly be used in a different monaco based editor (like Theia)
+   - locators `vscode-extension-tester-locators`
+     - included as a dependency of the main module
+     - updates will be independent to the main module (new versions of vscode won't require upversions of the main module)
+   - native handler `vscode-extension-tester-native`
+     - native dialog handler is split from the main module and not included as a dependency
+     - if you use native dialogs, you need to install this package to your project 
+
+### TL;DR Migration
+  - upversion `vscode-extension-tester` to 3.0.0, make sure `package-lock.json` is generated properly
+  - if you are using native dialogs, also npm install `vscode-extension-tester-native`
+  - API is still the same
+  - minor/micro updates to dependent modules can now happen without updating the main module
+
 ## 2.6.2 (April 28)
  - fix errors on launch due to botched 2.6.1 release
 
