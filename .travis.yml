@@ -19,6 +19,7 @@ env:
   - CODE_VERSION=latest
 
 install:
+  - rm -f package-lock.json
   - npm run prepare-deps
   - npm install
   - npm run build
