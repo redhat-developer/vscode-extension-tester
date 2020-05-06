@@ -16,8 +16,5 @@
   },
   "include": [
     "src"
-  ],
-  "exclude": [
-    "src/locators/built"
   ]
 }

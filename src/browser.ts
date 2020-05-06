@@ -5,6 +5,7 @@ import * as fs from 'fs-extra';
 import compareVersions = require('compare-versions');
 import { WebDriver, Builder, until, By, initPageObjects } from 'monaco-page-objects';
 import { Options } from 'selenium-webdriver/chrome';
+import { getLocatorsPath } from 'vscode-extension-tester-locators';
 
 export class VSBrowser {
     static readonly baseVersion = '1.37.0';
@@ -72,7 +73,7 @@ export class VSBrowser {
             .build();
         VSBrowser._instance = this;
         
-        initPageObjects(this.codeVersion, VSBrowser.baseVersion, path.resolve(__dirname, 'locators'), this._driver, VSBrowser.browserName);
+        initPageObjects(this.codeVersion, VSBrowser.baseVersion, getLocatorsPath(), this._driver, VSBrowser.browserName);
         return this;
     }
 
