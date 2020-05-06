@@ -67,10 +67,10 @@
     "targz": "^1.0.1",
     "unzip-stream": "^0.3.0",
     "vsce": "^1.71.0",
-    "vscode-extension-tester-locators": "^1.44.0-0"
+    "vscode-extension-tester-locators": "^1.44.0"
   },
   "peerDependencies": {
     "mocha": ">=5.2.0",
-    "vscode-extension-tester-native": "^3.0.0-0"
+    "vscode-extension-tester-native": "^3.0.0"
   }
 }

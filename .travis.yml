@@ -19,6 +19,7 @@ env:
   - CODE_VERSION=latest
 
 install:
+  - npm run prepare-deps
   - npm install
   - npm run build
 
