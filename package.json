@@ -1,6 +1,6 @@
 {
   "name": "vscode-extension-tester",
-  "version": "3.0.0-2",
+  "version": "3.0.0-3",
   "description": "Webdriver Testing for VSCode Extensions",
   "main": "out/extester.js",
   "types": "out/extester.d.ts",
@@ -14,12 +14,12 @@
   },
   "scripts": {
     "prepack": "npm run build",
-    "prepare-deps": "npm run build-native && npm run build-page-objects && npm link page-objects && npm link native",
+    "prepare-deps": "npm run build-native && npm run build-page-objects && npm run build-locators && npm link page-objects && npm link native && npm link locators",
     "build-page-objects": "cd page-objects && npm i && npm run build",
     "build-native": "cd native && npm i && npm run build",
+    "build-locators": "cd locators && npm i && npm run build",
     "prebuild": "npm run prepare-deps && cd api-handler && npm install",
-    "postbuild": "rimraf src/locators/built/* && cp ./out/locators/*.js ./src/locators/built",
-    "build": "tsc && chmod a+x ./out/cli.js && cd api-handler && npm run build && cp *.vsix ../resources/api-handler.vsix",
+    "build": "rimraf out/ && tsc && chmod a+x ./out/cli.js && cd api-handler && npm run build && cp *.vsix ../resources/api-handler.vsix",
     "doc": "typedoc --out docs ./src/",
     "prepare-test": "cd test/test-project && npm install && rimraf package-lock.json",
     "test": "npm run build && cd test/test-project && npm run ui-test",
@@ -42,7 +42,6 @@
   },
   "homepage": "https://github.com/redhat-developer/vscode-extension-tester#readme",
   "devDependencies": {
-    "@types/selenium-webdriver": "^3.0.15",
     "@types/fs-extra": "^8.0.1",
     "@types/glob": "^7.1.1",
     "@types/js-yaml": "^3.12.1",
@@ -56,6 +55,7 @@
     "vscode-extension-tester-native": "file:native"
   },
   "dependencies": {
+    "@types/selenium-webdriver": "^3.0.15",
     "commander": "^5.0.0",
     "compare-versions": "^3.6.0",
     "fs-extra": "^8.1.0",
@@ -66,7 +66,8 @@
     "selenium-webdriver": "^3.0.0",
     "targz": "^1.0.1",
     "unzip-stream": "^0.3.0",
-    "vsce": "^1.71.0"
+    "vsce": "^1.71.0",
+    "vscode-extension-tester-locators": "^1.44.0-0"
   },
   "peerDependencies": {
     "mocha": ">=5.2.0",
