@@ -28,7 +28,11 @@ $ git remote add upstream https://github.com/redhat-developer/vscode-extension-t
 
 ### Build It
 
-Now that you have the code, you will need to build the project. First, install the dependencies.
+Now that you have the code, you will need to build the project. First, we need to get all the modules linked and built.
+```
+$ npm run prepare-deps
+```
+Second step is to install all main module dependencies.
 ```
 $ npm install
 ```
