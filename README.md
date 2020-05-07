@@ -32,6 +32,14 @@ npm run doc
 ```
 The results can then be found in the 'docs' directory.
 
+## Migrating to 3.x
+
+The `vscode-extension-tester` package still integrates the same way as in older versions, with one slight difference.
+
+If you wish to use the native dialog handlers, you will need to install an additional module `vscode-extension-tester-native`. The appropriate classes will then still be exported from the main module to keep code compatibility.
+
+One aim of 3.x is to provide a more convenient way of updating to new VS Code releases. The modular approach allows us to publish updates to packages like page objects or locators without updating the main module. If such an update occurs, you should get it on the next `npm install` in your project without making changes to your `package.json`. Unless your `package-lock.json` decides otherwise.
+
 ## Requirements
 
 Extension Tester runs with all its features on Linux and Windows OSes.
@@ -40,7 +48,7 @@ MacOS support is limited, due to the title bar and context menus being native on
 In order to run the tests successfully you will need the following:
  - Nodejs 11 or newer
 
-Building the project will also require a c/c++ compiler
+Building the native module also requires python and possibly a c/c++ compiler
  - GCC or similar for linux
  - MS Built Tools for windows
  - Xcode command line tools for macos
