@@ -79,6 +79,7 @@ export interface Locators {
         tab: By
         closeTab: By
         tabTitle: string
+        tabSeparator: string
         tabLabel: string
     }
     Editor: {
