@@ -186,7 +186,7 @@ export class EditorGroup extends AbstractElement {
         let tab!: WebElement;
         for (const element of tabs) {
             const label = await element.getAttribute(EditorView.locators.EditorView.tabLabel);
-            if (label.startsWith(`${title}, tab`)) {
+            if (label.startsWith(`${title}${EditorView.locators.EditorView.tabSeparator}`)) {
                 tab = element;
                 break;
             }

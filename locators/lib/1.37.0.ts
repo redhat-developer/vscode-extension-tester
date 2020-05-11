@@ -77,6 +77,7 @@ const editor = {
         tab: By.className('tab'),
         closeTab: By.className('tab-close'),
         tabTitle: 'title',
+        tabSeparator: ', tab',
         tabLabel: 'aria-label'
     },
     Editor: {
