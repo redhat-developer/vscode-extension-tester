@@ -9,6 +9,9 @@ export const diff: LocatorDiff = {
         NotificationsCenter: {
             clear: By.className('codicon-notifications-clear-all'),
             close: By.className('codicon-notifications-hide')
+        },
+        Notification: {
+            dismiss: By.className('codicon-notifications-clear')
         }
     }
 }
