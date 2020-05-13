@@ -77,5 +77,16 @@ describe('NotificationsCenter', () => {
             await notification.takeAction('Yes');
             await driver.wait(until.stalenessOf(notification));
         });
+
+        it('dismiss works', async () => {
+            await new Workbench().executeCommand('test notification');
+            await center.getDriver().sleep(200);
+            center = await new Workbench().openNotificationsCenter();
+            notification = (await center.getNotifications(NotificationType.Any))[0];
+
+            const driver = notification.getDriver();
+            await notification.dismiss();
+            await driver.wait(until.stalenessOf(notification));
+        });
     });
 });
