@@ -70,7 +70,6 @@
     "vscode-extension-tester-locators": "^1.44.0"
   },
   "peerDependencies": {
-    "mocha": ">=5.2.0",
-    "vscode-extension-tester-native": "^3.0.0"
+    "mocha": ">=5.2.0"
   }
 }

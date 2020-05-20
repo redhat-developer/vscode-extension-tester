@@ -10,7 +10,6 @@ export { ReleaseQuality }
 export { MochaOptions } from 'mocha';
 export * from './browser';
 export * from 'monaco-page-objects';
-export * from 'vscode-extension-tester-native';
 
 /**
  * VSCode Extension Tester
