@@ -1,5 +1,12 @@
 # Change Log
 
+## 3.0.1 (May 20)
+ - This was supposed to be part of 3.0.0, but I didn't notice the problem (sorry about that)
+ - **Breaking:**
+   - **Native module is no longer re-exported by the main module**
+   - **To use native handlers, import the corresponding types directly from vscode-extension-tester-native**
+   - **You now officially don't need the native module to compile**
+
 ## 3.0.0 (May 6)
 
 ### Changes
