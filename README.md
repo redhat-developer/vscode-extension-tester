@@ -1,5 +1,9 @@
 [![Build Status](https://travis-ci.com/redhat-developer/vscode-extension-tester.svg?branch=master)](https://travis-ci.com/redhat-developer/vscode-extension-tester)
 
+# Breaking news
+**3.0.0 contains an error that prevents it from being compiled without the native module. 3.0.1 fixes this, but native handlers are no longer part of the main API. You will need to import the native handling classes directly from vscode-extension-tester-native.**
+Sorry about that.
+
 # vscode-extension-tester
 
 VSCode Extension Tester is a package designed to help you run UI tests for your VS Code extensions using [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver). 
