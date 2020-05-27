@@ -69,7 +69,7 @@
 		"compile": "rimraf out && tsc -p ./",
 		"lint": "tslint -p ./",
 		"watch": "tsc -watch -p ./",
-		"ui-test": "npm run compile && extest setup-and-run './out/src/test/**/*test.js' -u",
+		"ui-test": "npm run compile && extest setup-and-run './out/src/test/**/*test.js'",
 		"ci-test": "npm run compile && extest setup-and-run './out/src/test/**/*test.js' -u -s ~/test"
 	},
 	"devDependencies": {

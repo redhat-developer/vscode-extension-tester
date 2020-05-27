@@ -1,5 +1,6 @@
-import { ActivityBar, SideBarView } from "../..";
+import { ActivityBar, SideBarView, ScmView } from "../..";
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
+import { By } from "selenium-webdriver";
 
 /**
  * Page object representing a view container item in the activity bar
@@ -22,7 +23,11 @@ export class ViewControl extends ElementWithContexMenu {
             await this.click();
             await ViewControl.driver.sleep(500);
         }
-        return new SideBarView().wait();
+        const view = await new SideBarView().wait();
+        if ((await view.findElements(By.id('workbench.view.scm'))).length > 0) {
+            return new ScmView().wait();
+        }
+        return view;
     }
 
     /**

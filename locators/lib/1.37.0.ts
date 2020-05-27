@@ -218,6 +218,24 @@ const sideBar = {
         description: By.className('description'),
         install: By.className('install'),
         manage: By.className('manage')
+    },
+    ScmView: {
+        providerHeader: By.css(`div[class*='panel-header scm-provider']`),
+        providerRelative: By.xpath(`./..`),
+        initButton: By.xpath(`.//a[text()='Initialize Repository']`),
+        providerTitle: By.className('title'),
+        providerType: By.className('type'),
+        action: By.className('action-label'),
+        inputField: By.tagName('textarea'),
+        changeItem: By.xpath(`.//div[@role='treeitem']`),
+        changeName: By.className('name'),
+        changeCount: By.className('monaco-count-badge'),
+        changeLabel: By.className('label-name'),
+        changeDesc: By.className('label-description'),
+        resource: By.className('resource'),
+        resourceGroup: (label: string) => By.xpath(`.//div[@role="treeitem" and .//div/text()="${label}"]`),
+        expand: By.className('monaco-tl-twistie'),
+        more: By.className('toolbar-toggle-more')
     }
 }
 
