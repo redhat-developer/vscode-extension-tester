@@ -12,6 +12,9 @@ export const diff: LocatorDiff = {
         },
         Notification: {
             dismiss: By.className('codicon-close')
+        },
+        ScmView: {
+            more: By.className('codicon-more')
         }
     }
 }

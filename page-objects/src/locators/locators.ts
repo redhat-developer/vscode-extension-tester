@@ -219,6 +219,24 @@ export interface Locators {
         install: By
         manage: By
     }
+    ScmView: {
+        providerHeader: By
+        providerRelative: By
+        initButton: By
+        providerTitle: By
+        providerType: By
+        action: By
+        inputField: By
+        changeItem: By
+        changeName: By
+        changeCount: By
+        changeLabel: By
+        changeDesc: By
+        resource: By
+        resourceGroup: (label: string) => By
+        expand: By
+        more: By
+    }
     
     // Status Bar
     StatusBar: {
