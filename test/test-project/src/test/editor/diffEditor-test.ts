@@ -29,7 +29,7 @@ describe('DiffEditor', async () => {
         await quickOpen.setText('test-file-a.txt');
         await quickOpen.confirm();
         
-        editor = new DiffEditor(new EditorView(), 'test-file-b.txt');
+        editor = new DiffEditor();
     });
 
     after(async () => {
