@@ -14,7 +14,7 @@ describe('ContentAssist', async () => {
         await input.confirm();
 
         await new Promise((res) => { setTimeout(res, 1000); });
-        editor = new TextEditor(new EditorView(), 'test-file.ts');
+        editor = new TextEditor();
         assist = await editor.toggleContentAssist(true) as ContentAssist;
     });
 
@@ -47,7 +47,7 @@ describe('TextEditor', () => {
         await new Workbench().executeCommand('File: New File');
         await new Promise((res) => { setTimeout(res, 1000); });
         view = new EditorView();
-        editor = new TextEditor(view, 'Untitled-1');
+        editor = new TextEditor(view);
 
         await new StatusBar().openLanguageSelection();
         const input = await InputBox.create();
@@ -91,5 +91,10 @@ describe('TextEditor', () => {
         expect(await assist.isDisplayed()).is.true;
 
         await editor.toggleContentAssist(false);
+    });
+
+    it('getTab works', async () => {
+        const tab = await editor.getTab();
+        expect(await tab.getTitle()).equals(await editor.getTitle());
     });
 });

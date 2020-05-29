@@ -14,7 +14,7 @@ export class DiffEditor extends Editor {
      */
     async getOriginalEditor(): Promise<TextEditor> {
         const element = await this.getEnclosingElement().findElement(DiffEditor.locators.DiffEditor.originalEditor);
-        return new TextEditor(new EditorView(), this.getTitle(), element);
+        return new TextEditor(new EditorView(), element);
     }
 
     /**
@@ -24,6 +24,6 @@ export class DiffEditor extends Editor {
      */
     async getModifiedEditor(): Promise<TextEditor> {
         const element = await this.getEnclosingElement().findElement(DiffEditor.locators.DiffEditor.modifiedEditor);
-        return new TextEditor(new EditorView(), this.getTitle(), element);
+        return new TextEditor(new EditorView(), element);
     }
 }

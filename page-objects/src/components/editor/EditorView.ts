@@ -6,6 +6,7 @@ import { Editor } from "./Editor";
 import { SettingsEditor } from "./SettingsEditor";
 import { WebView } from "./WebView";
 import { DiffEditor } from './DiffEditor';
+import { ElementWithContexMenu } from "../ElementWithContextMenu";
 
 /**
  * View handling the open editors
@@ -72,6 +73,48 @@ export class EditorView extends AbstractElement {
     }
 
     /**
+     * Retrieve an editor tab from a given group by title
+     * @param title title of the tab
+     * @param groupIndex zero based index of the editor group, default 0 (leftmost one)
+     * @returns promise resolving to EditorTab object
+     */
+    async getTabByTitle(title: string, groupIndex: number = 0): Promise<EditorTab> {
+        const group = await this.getEditorGroup(groupIndex);
+        return group.getTabByTitle(title);
+    }
+
+    /**
+     * Retrieve all open editor tabs
+     * @param groupIndex index of group to search for tabs, if left undefined, all groups are searched
+     * @returns promise resolving to EditorTab list
+     */
+    async getOpenTabs(groupIndex?: number): Promise<EditorTab[]> {
+        const groups = await this.getEditorGroups();
+        if (groupIndex !== undefined) {
+            return groups[groupIndex].getOpenTabs();
+        }
+        const tabs: EditorTab[] = [];
+        for (const group of groups) {
+            tabs.push(...(await group.getOpenTabs()));
+        }
+        return tabs;
+    }
+
+    /**
+     * Retrieve the active editor tab
+     * @returns promise resolving to EditorTab object, undefined if no tab is active
+     */
+    async getActiveTab(): Promise<EditorTab | void> {
+        const tabs = await this.getOpenTabs();
+        const klasses = await Promise.all(tabs.map(async tab => tab.getAttribute('class')));
+        const index = klasses.findIndex(klass => klass.indexOf('active') > -1);
+
+        if (index > -1) {
+            return tabs[index];
+        }
+    }
+
+    /**
      * Retrieve all editor groups in a list, sorted left to right
      * @returns promise resolving to an array of EditorGroup objects
      */
@@ -117,7 +160,7 @@ export class EditorGroup extends AbstractElement {
      */
     async openEditor(title: string): Promise<Editor> {
         const tab = await this.getTabByTitle(title);
-        await tab.click();
+        await tab.select();
 
         try {
             await this.findElement(EditorView.locators.EditorView.settingsEditor);
@@ -125,13 +168,13 @@ export class EditorGroup extends AbstractElement {
         } catch (err) {
             try {
                 await this.findElement(EditorView.locators.EditorView.webView);
-                return new WebView(this, title);
+                return new WebView(this);
             } catch (err) {
                 try {
                     await this.findElement(EditorView.locators.EditorView.diffEditor);
-                    return new DiffEditor(this, title);
+                    return new DiffEditor(this);
                 } catch (err) {
-                    return new TextEditor(this, title);
+                    return new TextEditor(this);
                 }
             }
         }
@@ -181,7 +224,12 @@ export class EditorGroup extends AbstractElement {
         return titles;
     }
 
-    private async getTabByTitle(title: string): Promise<WebElement> {
+    /**
+     * Retrieve an editor tab by title
+     * @param title title of the tab
+     * @returns promise resolving to EditorTab object
+     */
+    async getTabByTitle(title: string): Promise<EditorTab> {
         const tabs = await this.findElements(EditorView.locators.EditorView.tab);
         let tab!: WebElement;
         for (const element of tabs) {
@@ -194,6 +242,53 @@ export class EditorGroup extends AbstractElement {
         if (!tab) {
             throw new Error(`No editor with title '${title}' available`);
         }
-        return tab;
+        return new EditorTab(tab, this.enclosingItem as EditorView);
+    }
+
+    /**
+     * Retrieve all open editor tabs
+     * @returns promise resolving to EditorTab list
+     */
+    async getOpenTabs(): Promise<EditorTab[]> {
+        const tabs = await this.findElements(EditorView.locators.EditorView.tab);
+        return Promise.all(tabs.map(async tab => new EditorTab(tab, this.enclosingItem as EditorView).wait()));
+    }
+
+    /**
+     * Retrieve the active editor tab
+     * @returns promise resolving to EditorTab object, undefined if no tab is active
+     */
+    async getActiveTab(): Promise<EditorTab | void> {
+        const tabs = await this.getOpenTabs();
+        const klasses = await Promise.all(tabs.map(async tab => tab.getAttribute('class')));
+        const index = klasses.findIndex(klass => klass.indexOf('active') > -1);
+
+        if (index > -1) {
+            return tabs[index];
+        }
+    }
+}
+
+/**
+ * Page object for editor view tab
+ */
+export class EditorTab extends ElementWithContexMenu {
+    constructor(element: WebElement, view: EditorView) {
+        super(element, view);
+    }
+
+    /**
+     * Get the tab title as string
+     */
+    async getTitle(): Promise<string> {
+        const title = path.basename(await this.getAttribute(EditorView.locators.EditorView.tabTitle));
+        return title;
+    }
+
+    /**
+     * Select (click) the tab
+     */
+    async select(): Promise<void> {
+        await this.click();
     }
 }

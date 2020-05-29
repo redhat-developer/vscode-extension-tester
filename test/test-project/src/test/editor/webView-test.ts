@@ -9,7 +9,7 @@ describe('WebView', () => {
         this.timeout(8000);
         await new Workbench().executeCommand('Webview Test');
         await new Promise((res) => { setTimeout(res, 500); });
-        view = new WebView(undefined, 'Test WebView');
+        view = new WebView();
         await view.switchToFrame();
     });
 

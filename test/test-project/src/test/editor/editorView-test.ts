@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { EditorView, Workbench, TextEditor, SettingsEditor, WebView, QuickOpenBox, DiffEditor, Key, InputBox, VSBrowser } from 'vscode-extension-tester';
+import { EditorView, EditorTab, Workbench, TextEditor, SettingsEditor, WebView, QuickOpenBox, DiffEditor, Key, InputBox, VSBrowser } from 'vscode-extension-tester';
 
 describe('EditorView', () => {
     let view: EditorView;
@@ -23,7 +23,7 @@ describe('EditorView', () => {
 
     it('openEditor works with text editor', async () => {
         const editor = await view.openEditor('Untitled-1') as TextEditor;
-        expect(editor.getTitle()).equals('Untitled-1');
+        expect(await editor.getTitle()).equals('Untitled-1');
     });
 
     it('openEditor works with settings editor', async () => {
@@ -56,6 +56,11 @@ describe('EditorView', () => {
         expect(await diffEditor.getModifiedEditor()).not.undefined;
     });
 
+    it('getTabByTitle works', async () => {
+        const tab = await view.getTabByTitle('Untitled-1');
+        expect(tab).not.undefined;
+    });
+
     it('getOpenEditorTitles works', async () => {
         const tabs = await view.getOpenEditorTitles();
         expect(tabs).not.empty;
@@ -67,6 +72,18 @@ describe('EditorView', () => {
         await view.closeEditor('Untitled-1');
         const tabs = await view.getOpenEditorTitles();
         expect(tabs).not.contains('Untitled-1');
+    });
+
+    describe('Editor Tab', () => {
+        let tab: EditorTab;
+
+        before(async () => {
+            tab = await view.getTabByTitle('Untitled-2');
+        });
+
+        it('getTitle works', async () => {
+            expect(await tab.getTitle()).equals('Untitled-2');
+        });
     });
 
     describe('Editor Groups', () => {

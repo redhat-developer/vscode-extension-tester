@@ -60,7 +60,7 @@ describe('Workbench', () => {
     it('openSettings opens the settings editor', async function() {
         this.timeout(4000);
         const editor = await bench.openSettings();
-        expect(editor.getTitle()).equals('Settings');
+        expect(await editor.getTitle()).equals('Settings');
         await new EditorView().closeAllEditors();
     });
 });

@@ -10,7 +10,7 @@ import { EditorView, EditorGroup } from "../..";
 export class SettingsEditor extends Editor {
     
     constructor(view: EditorView | EditorGroup = new EditorView()) {
-        super(view, SettingsEditor.locators.SettingsEditor.title);
+        super(view);
     }
 
     /**
