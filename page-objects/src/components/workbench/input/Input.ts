@@ -70,7 +70,7 @@ export abstract class Input extends AbstractElement {
     }
 
     /**
-     * Select (click) a quick pick option.
+     * Select (click) a quick pick option. Will scroll through the quick picks to find the item.
      * Search for the item can be done by its text, or index in the quick pick menu.
      * Note that scrolling does not affect the item's index, but it will
      * replace some items in the DOM (thus they become unreachable)
@@ -79,15 +79,48 @@ export abstract class Input extends AbstractElement {
      * @returns Promise resolving when the given quick pick is selected
      */
     async selectQuickPick(indexOrText: string | number): Promise<void> {
-        const picks = await this.getQuickPicks();
-        for (const pick of picks) {
-            if (typeof indexOrText === 'string') {
-                const text = await pick.getLabel();
-                if (text.indexOf(indexOrText) > -1) {
-                    return pick.select();
+        const pick = await this.findQuickPick(indexOrText);
+        if (pick) {
+            await pick.select();
+        } else {
+            await this.resetPosition();
+        }
+    }
+
+    /**
+     * Scroll through the quick picks to find an item by the name or index
+     * @param indexOrText index (number) or text (string) of the item to search by
+     * @returns Promise resolvnig to QuickPickItem if found, to undefined otherwise
+     */
+    async findQuickPick(indexOrText: string | number): Promise<QuickPickItem | void> {
+        const input = await this.findElement(Input.locators.Input.inputBox)
+            .findElement(Input.locators.Input.input);
+        const first = await this.findElements(Input.locators.Input.quickPickPosition(1));
+        if (first.length < 1) {
+            await this.resetPosition();
+        }
+        let endReached = false;
+
+        while(!endReached) {
+            const picks = await this.getQuickPicks();
+            for (const pick of picks) {
+                const lastRow = await this.findElements(Input.locators.DefaultTreeSection.lastRow);
+                if (lastRow.length > 0) {
+                    endReached = true;
+                } else if (await pick.getAttribute('aria-posinset') === await pick.getAttribute('aria-setsize')) {
+                    endReached = true;
                 }
-            } else if (indexOrText === pick.getIndex()){
-                return pick.select();
+                if (typeof indexOrText === 'string') {
+                    const text = await pick.getLabel();
+                    if (text.indexOf(indexOrText) > -1) {
+                        return pick;
+                    }
+                } else if (indexOrText === pick.getIndex()){
+                    return pick;
+                }
+            }
+            if (!endReached) {
+                await input.sendKeys(Key.PAGE_DOWN);
             }
         }
     }
@@ -104,6 +137,12 @@ export abstract class Input extends AbstractElement {
      * @returns Promise resolving to array of QuickPickItem objects
      */
     abstract getQuickPicks(): Promise<QuickPickItem[]>
+
+    private async resetPosition(): Promise<void> {
+        const text = await this.getText();
+        await this.clear();
+        await this.setText(text);
+    }
 }
 
 /**

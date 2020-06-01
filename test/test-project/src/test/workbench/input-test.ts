@@ -50,6 +50,21 @@ describe('QuickOpenBox', () => {
         const picks = await input.getQuickPicks();
         expect(picks).not.empty;
     });
+
+    it('findQuickPick works when item exists', async function() {
+        this.timeout(100000);
+        await input.setText('>');
+        const pick = await input.findQuickPick('Workspaces: Open Workspace...');
+        expect(pick).not.undefined;
+    });
+
+
+    it('findQuickPick works when item does not exist', async function() {
+        this.timeout(100000);
+        await input.setText('>');
+        const pick = await input.findQuickPick('thisdoesnot exits definitely');
+        expect(pick).undefined;
+    })
 });
 
 describe('QuickPickItem', () => {
