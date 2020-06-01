@@ -104,7 +104,10 @@ export abstract class Input extends AbstractElement {
         while(!endReached) {
             const picks = await this.getQuickPicks();
             for (const pick of picks) {
-                if (await pick.getAttribute('aria-posinset') === await pick.getAttribute('aria-setsize')) {
+                const lastRow = await this.findElements(Input.locators.DefaultTreeSection.lastRow);
+                if (lastRow.length > 0) {
+                    endReached = true;
+                } else if (await pick.getAttribute('aria-posinset') === await pick.getAttribute('aria-setsize')) {
                     endReached = true;
                 }
                 if (typeof indexOrText === 'string') {
