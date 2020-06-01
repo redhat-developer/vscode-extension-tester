@@ -79,15 +79,44 @@ export abstract class Input extends AbstractElement {
      * @returns Promise resolving when the given quick pick is selected
      */
     async selectQuickPick(indexOrText: string | number): Promise<void> {
-        const picks = await this.getQuickPicks();
-        for (const pick of picks) {
-            if (typeof indexOrText === 'string') {
-                const text = await pick.getLabel();
-                if (text.indexOf(indexOrText) > -1) {
-                    return pick.select();
+        const pick = await this.findQuickPick(indexOrText);
+        if (pick) {
+            await pick.select();
+        } else {
+            const input = await this.findElement(Input.locators.Input.inputBox)
+                .findElement(Input.locators.Input.input);
+            await input.sendKeys(Key.chord(Input.ctlKey, Key.HOME));
+        }
+    }
+
+    /**
+     * 
+     * @param indexOrText 
+     */
+    async findQuickPick(indexOrText: string | number): Promise<QuickPickItem | void> {
+        const input = await this.findElement(Input.locators.Input.inputBox)
+            .findElement(Input.locators.Input.input);
+        await input.sendKeys(Key.chord(Input.ctlKey, Key.HOME));
+        let endReached = false;
+
+        while(!endReached) {
+            const lastElement = await this.findElements(Input.locators.DefaultTreeSection.lastRow);
+            if (lastElement.length > 0) {
+                endReached = true;
+            }
+            const picks = await this.getQuickPicks();
+            for (const pick of picks) {
+                if (typeof indexOrText === 'string') {
+                    const text = await pick.getLabel();
+                    if (text.indexOf(indexOrText) > -1) {
+                        return pick;
+                    }
+                } else if (indexOrText === pick.getIndex()){
+                    return pick;
                 }
-            } else if (indexOrText === pick.getIndex()){
-                return pick.select();
+            }
+            if (!endReached) {
+                await input.sendKeys(Key.PAGE_DOWN);
             }
         }
     }
