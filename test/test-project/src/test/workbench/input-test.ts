@@ -59,7 +59,7 @@ describe('QuickOpenBox', () => {
     });
 
 
-    it('findQuickPick works when item does not exists', async function() {
+    it('findQuickPick works when item does not exist', async function() {
         this.timeout(60000);
         await input.setText('>');
         const pick = await input.findQuickPick('thisdoesnot exits definitely');

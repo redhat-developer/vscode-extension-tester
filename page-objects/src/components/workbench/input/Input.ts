@@ -70,7 +70,7 @@ export abstract class Input extends AbstractElement {
     }
 
     /**
-     * Select (click) a quick pick option.
+     * Select (click) a quick pick option. Will scroll through the quick picks to find the item.
      * Search for the item can be done by its text, or index in the quick pick menu.
      * Note that scrolling does not affect the item's index, but it will
      * replace some items in the DOM (thus they become unreachable)
@@ -83,29 +83,30 @@ export abstract class Input extends AbstractElement {
         if (pick) {
             await pick.select();
         } else {
-            const input = await this.findElement(Input.locators.Input.inputBox)
-                .findElement(Input.locators.Input.input);
-            await input.sendKeys(Key.chord(Input.ctlKey, Key.HOME));
+            await this.resetPosition();
         }
     }
 
     /**
-     * 
-     * @param indexOrText 
+     * Scroll through the quick picks to find an item by the name or index
+     * @param indexOrText index (number) or text (string) of the item to search by
+     * @returns Promise resolvnig to QuickPickItem if found, to undefined otherwise
      */
     async findQuickPick(indexOrText: string | number): Promise<QuickPickItem | void> {
         const input = await this.findElement(Input.locators.Input.inputBox)
             .findElement(Input.locators.Input.input);
-        await input.sendKeys(Key.chord(Input.ctlKey, Key.HOME));
+        const first = await this.findElements(Input.locators.Input.quickPickPosition(1));
+        if (first.length < 1) {
+            await this.resetPosition();
+        }
         let endReached = false;
 
         while(!endReached) {
-            const lastElement = await this.findElements(Input.locators.DefaultTreeSection.lastRow);
-            if (lastElement.length > 0) {
-                endReached = true;
-            }
             const picks = await this.getQuickPicks();
             for (const pick of picks) {
+                if (await pick.getAttribute('aria-posinset') === await pick.getAttribute('aria-setsize')) {
+                    endReached = true;
+                }
                 if (typeof indexOrText === 'string') {
                     const text = await pick.getLabel();
                     if (text.indexOf(indexOrText) > -1) {
@@ -133,6 +134,12 @@ export abstract class Input extends AbstractElement {
      * @returns Promise resolving to array of QuickPickItem objects
      */
     abstract getQuickPicks(): Promise<QuickPickItem[]>
+
+    private async resetPosition(): Promise<void> {
+        const text = await this.getText();
+        await this.clear();
+        await this.setText(text);
+    }
 }
 
 /**
