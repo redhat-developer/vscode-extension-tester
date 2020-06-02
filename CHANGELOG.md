@@ -1,5 +1,17 @@
 # Change Log
 
+## Page Objects 1.1.0 (Jun 2)
+ - Added `EditorTab` object to handle open editor tabs (including opening context menus)
+ - **Removed title from Editor constructor**
+   - **Title retrieval now works properly when the title changes**
+   - **Editor#getTitle is now async, returns Promise<string>**
+ - Added `ScmView` object to handle the Source Control view
+ - Added `findQuickPick` method to `Input` objects
+   - use to scroll through a quick pick list to a given label/index
+   - returns `Promise<QuickPickItem>`
+ - `Input#selectQuickPick` now scrolls through the list if the given label/index item is not visible
+ - Check out the PageObjects wiki page for more info
+
 ## 3.0.1 (May 20)
  - This was supposed to be part of 3.0.0, but I didn't notice the problem (sorry about that)
  - **Breaking:**
