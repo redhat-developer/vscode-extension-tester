@@ -164,17 +164,17 @@ export class EditorGroup extends AbstractElement {
 
         try {
             await this.findElement(EditorView.locators.EditorView.settingsEditor);
-            return new SettingsEditor(this);
+            return new SettingsEditor(this).wait();
         } catch (err) {
             try {
                 await this.findElement(EditorView.locators.EditorView.webView);
-                return new WebView(this);
+                return new WebView(this).wait();
             } catch (err) {
                 try {
                     await this.findElement(EditorView.locators.EditorView.diffEditor);
-                    return new DiffEditor(this);
+                    return new DiffEditor(this).wait();
                 } catch (err) {
-                    return new TextEditor(this);
+                    return new TextEditor(this).wait();
                 }
             }
         }
