@@ -92,7 +92,7 @@ export abstract class Input extends AbstractElement {
      * @param indexOrText index (number) or text (string) of the item to search by
      * @returns Promise resolvnig to QuickPickItem if found, to undefined otherwise
      */
-    async findQuickPick(indexOrText: string | number): Promise<QuickPickItem | void> {
+    async findQuickPick(indexOrText: string | number): Promise<QuickPickItem | undefined> {
         const input = await this.findElement(Input.locators.Input.inputBox)
             .findElement(Input.locators.Input.input);
         const first = await this.findElements(Input.locators.Input.quickPickPosition(1));
@@ -123,6 +123,7 @@ export abstract class Input extends AbstractElement {
                 await input.sendKeys(Key.PAGE_DOWN);
             }
         }
+        return undefined;
     }
 
     /**
