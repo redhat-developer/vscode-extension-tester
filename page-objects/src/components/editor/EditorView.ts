@@ -104,7 +104,7 @@ export class EditorView extends AbstractElement {
      * Retrieve the active editor tab
      * @returns promise resolving to EditorTab object, undefined if no tab is active
      */
-    async getActiveTab(): Promise<EditorTab | void> {
+    async getActiveTab(): Promise<EditorTab | undefined> {
         const tabs = await this.getOpenTabs();
         const klasses = await Promise.all(tabs.map(async tab => tab.getAttribute('class')));
         const index = klasses.findIndex(klass => klass.indexOf('active') > -1);
@@ -112,6 +112,7 @@ export class EditorView extends AbstractElement {
         if (index > -1) {
             return tabs[index];
         }
+        return undefined;
     }
 
     /**
@@ -258,7 +259,7 @@ export class EditorGroup extends AbstractElement {
      * Retrieve the active editor tab
      * @returns promise resolving to EditorTab object, undefined if no tab is active
      */
-    async getActiveTab(): Promise<EditorTab | void> {
+    async getActiveTab(): Promise<EditorTab | undefined> {
         const tabs = await this.getOpenTabs();
         const klasses = await Promise.all(tabs.map(async tab => tab.getAttribute('class')));
         const index = klasses.findIndex(klass => klass.indexOf('active') > -1);
@@ -266,6 +267,7 @@ export class EditorGroup extends AbstractElement {
         if (index > -1) {
             return tabs[index];
         }
+        return undefined;
     }
 }
 
