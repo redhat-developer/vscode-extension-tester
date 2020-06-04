@@ -67,11 +67,12 @@ export class ContextMenuItem extends MenuItem {
         this.label = label;
     }
 
-    async select(): Promise<Menu | void> {
+    async select(): Promise<Menu | undefined> {
         await this.click();
         if (await this.isNesting()) {
             return await new ContextMenu(this).wait();
         }
+        return undefined;
     }
 
     private async isNesting(): Promise<boolean> {

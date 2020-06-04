@@ -42,7 +42,7 @@ export abstract class Menu extends AbstractElement {
      * @returns void if the last clicked item is a leaf, Menu item representing
      * its submenu otherwise
      */
-    async select(...path: string[]): Promise<Menu | void> {
+    async select(...path: string[]): Promise<Menu | undefined> {
         let parent: Menu = this;
         for (const label of path) {
             const item = await parent.getItem(label);

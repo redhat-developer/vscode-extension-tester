@@ -14,8 +14,9 @@ export abstract class MenuItem extends AbstractElement {
      * 
      * @returns Menu object representing the submenu if the item has children, void otherwise.
      */
-    async select(): Promise<Menu | void> {
+    async select(): Promise<Menu | undefined> {
         await this.click();
+        return undefined;
     }
 
     /**

@@ -14,7 +14,7 @@ export class ScmView extends SideBarView {
      * @param title name of the repository
      * @returns promise resolving to ScmProvider object
      */
-    async getProvider(title?: string): Promise<ScmProvider | void> {
+    async getProvider(title?: string): Promise<ScmProvider | undefined> {
         const providers = await this.getProviders();
         if (!title) {
             return providers[0];
