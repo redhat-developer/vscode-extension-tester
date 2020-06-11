@@ -1,11 +1,13 @@
 import { expect } from 'chai';
-import { BottomBarPanel, OutputView, TerminalView } from 'vscode-extension-tester';
+import { BottomBarPanel, OutputView, TerminalView, Workbench } from 'vscode-extension-tester';
 
 (process.platform === 'darwin' ? describe.skip : describe)('Output View/Text Views', () => {
     let panel: BottomBarPanel;
     let view: OutputView;
 
     before(async () => {
+        const center = await new Workbench().openNotificationsCenter();
+        await center.clearAllNotifications();
         panel = new BottomBarPanel();
         await panel.toggle(true);
         view = await panel.openOutputView();
