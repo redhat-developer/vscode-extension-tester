@@ -1,5 +1,12 @@
 # Change Log
 
+## 3.0.2 + Page Objects 1.1.1 (Jun 11)
+ - fix `SyntaxError: manifest.json` by switching to new vscode branch naming
+ - vscode 1.46.0 compatibility
+   - context menu opening updated to be more robust
+ - `EditorView#openEditor` loose promise now properly awaited
+ - methods returning `Promise<T | void>` now return `Promise<T | undefined>` for more convenience
+
 ## Page Objects 1.1.0 (Jun 2)
  - Added `EditorTab` object to handle open editor tabs (including opening context menus)
  - **Removed title from Editor constructor**
