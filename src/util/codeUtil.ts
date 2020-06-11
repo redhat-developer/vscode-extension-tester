@@ -219,7 +219,10 @@ export class CodeUtil {
                 revision = 'master';
             } else {
                 revision = literalVersion.substring(0, literalVersion.indexOf('-insider'));
+                revision = `release/${revision.substring(0, revision.lastIndexOf('.'))}`;
             }
+        } else {
+            revision = `release/${revision.substring(0, revision.lastIndexOf('.'))}`;
         }
 
         const fileName = 'manifest.json';

@@ -1,4 +1,4 @@
-import { until, Key, WebElement } from 'selenium-webdriver';
+import { Key, WebElement } from 'selenium-webdriver';
 import * as clipboard from 'clipboardy';
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
 
@@ -64,14 +64,20 @@ export abstract class ChannelView extends ElementWithContexMenu {
     private async getOptions(): Promise<WebElement[]> {
         const combo = await this.enclosingItem.findElement(ChannelView.locators.BottomBarViews.channelCombo);
         const workbench = await this.getDriver().findElement(ChannelView.locators.Workbench.constructor);
-        const menu = await workbench.findElement(ChannelView.locators.ContextMenu.contextView);
+        const menus = await workbench.findElements(ChannelView.locators.ContextMenu.contextView);
+        let menu!: WebElement;
 
-        if (await menu.isDisplayed()) {
+        if (menus.length < 1) {
             await combo.click();
-            await this.getDriver().wait(until.elementIsNotVisible(menu));
+            menu = await workbench.findElement(ChannelView.locators.ContextMenu.contextView);
+            return menu.findElements(ChannelView.locators.BottomBarViews.channelRow);
+        } else if (await menus[0].isDisplayed()) {
+            await combo.click();
+            await this.getDriver().sleep(200);
         }
         await combo.click();
-        return await menu.findElements(ChannelView.locators.BottomBarViews.channelRow);
+        menu = await workbench.findElement(ChannelView.locators.ContextMenu.contextView);
+        return menu.findElements(ChannelView.locators.BottomBarViews.channelRow);
     }
 }
 
