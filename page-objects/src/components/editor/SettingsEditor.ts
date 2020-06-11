@@ -1,6 +1,6 @@
 import { Editor } from "./Editor";
 import { ContextMenu } from "../menu/ContextMenu";
-import { WebElement, until, Key } from "selenium-webdriver";
+import { WebElement, Key } from "selenium-webdriver";
 import { AbstractElement } from "../AbstractElement";
 import { EditorView, EditorGroup } from "../..";
 
@@ -33,7 +33,7 @@ export class SettingsEditor extends Editor {
 
         for (const item of items) {
             try {
-                return await this.createSetting(item, title, category);
+                return (await this.createSetting(item, title, category)).wait();
             } catch (err) {
             }
         }
@@ -187,13 +187,19 @@ export class ComboSetting extends Setting {
     private async openCombo(): Promise<WebElement> {
         const combo = await this.enclosingItem.findElement(SettingsEditor.locators.SettingsEditor.comboSetting);
         const workbench = await this.getDriver().findElement(SettingsEditor.locators.Workbench.constructor);
-        const menu = await workbench.findElement(SettingsEditor.locators.ContextMenu.contextView);
+        const menus = await workbench.findElements(SettingsEditor.locators.ContextMenu.contextView);
+        let menu!: WebElement;
 
-        if (await menu.isDisplayed()) {
+        if (menus.length < 1) {
             await combo.click();
-            await this.getDriver().wait(until.elementIsNotVisible(menu));
+            menu = await workbench.findElement(SettingsEditor.locators.ContextMenu.contextView);
+            return menu;
+        } else if (await menus[0].isDisplayed()) {
+            await combo.click();
+            await this.getDriver().sleep(200);
         }
         await combo.click();
+        menu = await workbench.findElement(SettingsEditor.locators.ContextMenu.contextView);
         return menu;
     }
 }

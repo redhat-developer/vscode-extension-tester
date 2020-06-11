@@ -12,7 +12,7 @@ import { BottomBarPanel, OutputView, TerminalView } from 'vscode-extension-teste
     });
 
     after(async () => {
-        panel.toggle(false);
+        await panel.toggle(false);
     });
 
     it('getChannelNames returns list of channels', async () => {
