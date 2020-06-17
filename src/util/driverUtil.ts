@@ -61,7 +61,7 @@ export class DriverUtil {
         console.log(`Unpacking ChromeDriver ${version} into ${this.downloadFolder}`);
         await Unpack.unpack(fileName, this.downloadFolder);
         if (process.platform !== 'win32') {
-            fs.chmodSync(file, 755);
+            fs.chmodSync(file, 0o755);
         }
         console.log('Success!');
         return file;
