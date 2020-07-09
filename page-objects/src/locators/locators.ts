@@ -284,7 +284,10 @@ export interface Locators {
         quickPickIndex: (index: number) => By
         quickPickPosition: (index: number) => By
         quickPickLabel: By,
-        quickPickDescription: By
+        quickPickDescription: By,
+        titleBar: By,
+        title: By,
+        backButton: By
     }
     InputBox: {
         constructor: By
