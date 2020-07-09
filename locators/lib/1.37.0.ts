@@ -287,7 +287,10 @@ const input = {
         quickPickIndex: (index: number) => By.xpath(`.//div[@role='treeitem' and @data-index='${index}']`),
         quickPickPosition: (index: number) => By.xpath(`.//div[@role='treeitem' and @aria-posinset='${index}']`),
         quickPickLabel: By.className('label-name'),
-        quickPickDescription: By.className('label-description')
+        quickPickDescription: By.className('label-description'),
+        titleBar: By.className('quick-input-titlebar'),
+        title: By.className('quick-input-title'),
+        backButton: By.className('codicon-quick-input-back')
     },
     InputBox: {
         constructor: By.className('quick-input-widget'),

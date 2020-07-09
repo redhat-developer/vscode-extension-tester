@@ -127,6 +127,33 @@ export abstract class Input extends AbstractElement {
     }
 
     /**
+     * Retrieve the title of an input box if it has one
+     * @returns Promise resolving to title if it exists, to undefined otherwise
+     */
+    async getTitle(): Promise<string | undefined> {
+        const titleBar = await this.findElements(Input.locators.Input.titleBar);
+        if (titleBar.length > 0 && await titleBar[0].isDisplayed()) {
+            return (await titleBar[0].findElement(Input.locators.Input.title)).getText();
+        }
+    }
+
+    /**
+     * Click on the back button if it exists
+     * @returns Promise resolving to true if a button was clicked, to false otherwise
+     */
+    async back(): Promise<boolean> {
+        const titleBar = await this.findElements(Input.locators.Input.titleBar);
+        if (titleBar.length > 0 && await titleBar[0].isDisplayed()) {
+            const backBtn = await titleBar[0].findElements(Input.locators.Input.backButton);
+            if (backBtn.length > 0 && await backBtn[0].isEnabled()) {
+                await backBtn[0].click();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Find whether the input box has an active progress bar
      * @returns Promise resolving to true/false
      */
