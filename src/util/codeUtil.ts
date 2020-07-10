@@ -122,6 +122,26 @@ export class CodeUtil {
     }
 
     /**
+     * Install extension dependencies from marketplace
+     */
+    installDependencies() {
+        const pjson = require(path.resolve('package.json'));
+        const deps = pjson.extensionDependencies;
+
+        if (!deps) {
+            return;
+        }
+
+        for (const id of deps as string[]) {
+            let command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --install-extension "${id}"`;
+            if (this.extensionsFolder) {
+                command += ` --extensions-dir=${this.extensionsFolder}`;
+            }
+            child_process.execSync(command, { stdio: 'inherit' });
+        }
+    }
+
+    /**
      * Download a vsix file
      * @param vsixURL URL of the vsix file
      */

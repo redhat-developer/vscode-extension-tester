@@ -74,10 +74,13 @@ export class ExTester {
      * @param vscodeVersion version of VSCode to test against, default latest
      * @param useYarn when true run `vsce package` with the `--yarn` flag
      */
-    async setupRequirements(vscodeVersion: string = 'latest', useYarn?: boolean): Promise<void> {
+    async setupRequirements(vscodeVersion: string = 'latest', useYarn?: boolean, installDependencies = false): Promise<void> {
         await this.downloadCode(vscodeVersion);
         await this.downloadChromeDriver(vscodeVersion);
         await this.installVsix({useYarn});
+        if (installDependencies) {
+            this.code.installDependencies();
+        }
     }
 
     /**
@@ -89,8 +92,8 @@ export class ExTester {
      * @param useYarn when true run `vsce package` with the `--yarn` flag
      * @param cleanup true to uninstall the tested extension after the run, false otherwise
      */
-    async setupAndRunTests(vscodeVersion: string = 'latest', testFilesPattern: string, settings: string = '', useYarn?: boolean, cleanup?: boolean, config?: string): Promise<void> {
-        await this.setupRequirements(vscodeVersion, useYarn);
+    async setupAndRunTests(vscodeVersion: string = 'latest', testFilesPattern: string, settings: string = '', useYarn?: boolean, cleanup?: boolean, config?: string, installDependencies = false): Promise<void> {
+        await this.setupRequirements(vscodeVersion, useYarn, installDependencies);
         await this.runTests(testFilesPattern, vscodeVersion, settings, cleanup, config);
     }
 
