@@ -49,10 +49,11 @@ program.command('setup-tests')
     .option('-c, --code_version <version>', 'Version of VSCode to download')
     .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
     .option('-y, --yarn', 'Use yarn to build the extension via vsce instead of npm', false)
+    .option('-i, --install_dependencies', 'Automatically install extensions your extension depends on', false)
     .action(withErrors(async (cmd) => {
         const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
         const version = loadCodeVersion(cmd.code_version);
-        await extest.setupRequirements(version, cmd.yarn);
+        await extest.setupRequirements(version, cmd.yarn, cmd.install_dependencies);
     }));
 
 program.command('run-tests <testFiles>')
@@ -80,10 +81,11 @@ program.command('setup-and-run <testFiles>')
     .option('-y, --yarn', 'Use yarn to build the extension via vsce instead of npm', false)
     .option('-u, --uninstall_extension', 'Uninstall the extension after the test run', false)
     .option('-m, --mocha_config <mocharc.js>', 'Path to Mocha configuration file')
+    .option('-i, --install_dependencies', 'Automatically install extensions your extension depends on', false)
     .action(withErrors(async (testFiles, cmd) => {
         const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
         const version = loadCodeVersion(cmd.code_version);
-        await extest.setupAndRunTests(version, testFiles, cmd.code_settings, cmd.yarn, cmd.uninstall_extension, cmd.mocha_config);
+        await extest.setupAndRunTests(version, testFiles, cmd.code_settings, cmd.yarn, cmd.uninstall_extension, cmd.mocha_config, cmd.install_dependencies);
     }));
 
 program.parse(process.argv);
