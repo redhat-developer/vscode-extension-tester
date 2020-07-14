@@ -1,5 +1,23 @@
 # Change Log
 
+## 3.1.0 + Page Objects 1.2.0 (Jul 14)
+ - The backwards compatibility support is being changed:
+   - only the latest 5 minor versions of vscode are now being supported and tested
+   - older version will still most likely work, but no further effort will be invested into them
+
+### Changes
+ - vscode 1.47.x support
+   - a new implementation of SCM View is now available
+ - basic support for input boxes with title bars
+   - title lookup
+   - back button
+ - new flag `-i` or `--install-depenencies` is now available
+   - when used, extension tester will scan the extension dependencies and install them from marketplace
+
+### Fixes
+ - fixed weird chromedriver permissions for UNIX systems
+ - project can now be compiled using latest typescript version
+
 ## 3.0.2 + Page Objects 1.1.1 (Jun 11)
  - fix `SyntaxError: manifest.json` by switching to new vscode branch naming
  - vscode 1.46.0 compatibility
