@@ -16,7 +16,7 @@ export class ScmView extends SideBarView {
      */
     async getProvider(title?: string): Promise<ScmProvider | undefined> {
         const providers = await this.getProviders();
-        if (!title) {
+        if (!title || providers.length === 1) {
             return providers[0];
         }
         const names = await Promise.all(providers.map(async item => item.getTitle()));
@@ -157,8 +157,8 @@ export class ScmProvider extends AbstractElement {
      * @returns promise resolving to number of changes in the given subsection
      */
     async getChangeCount(staged: boolean = false): Promise<number> {
-        const label = staged ? 'STAGED CHANGES' : 'CHANGES';
-        const rows = await this.findElements(ScmProvider.locators.ScmView.resourceGroup(label));
+        const locator = staged ? ScmProvider.locators.ScmView.stagedChanges : ScmProvider.locators.ScmView.changes;
+        const rows = await this.findElements(locator);
 
         if (rows.length < 1) {
             return 0;
@@ -254,7 +254,7 @@ export class ScmChange extends ElementWithContexMenu {
     }
 }
 
-class MoreAction extends ElementWithContexMenu {
+export class MoreAction extends ElementWithContexMenu {
     constructor(scm: ScmProvider | ScmView) {
         super(MoreAction.locators.ScmView.more,scm);
     }

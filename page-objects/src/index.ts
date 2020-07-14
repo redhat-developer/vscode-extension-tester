@@ -27,7 +27,8 @@ export * from './components/sidebar/tree/custom/CustomTreeSection';
 export * from './components/sidebar/tree/custom/CustomTreeItem';
 export * from './components/sidebar/extensions/ExtensionsViewSection';
 export * from './components/sidebar/extensions/ExtensionsViewItem';
-export * from './components/sidebar/scm/ScmView'
+export { ScmView, ScmProvider, ScmChange } from './components/sidebar/scm/ScmView';
+export * from './components/sidebar/scm/NewScmView';
 
 export * from './components/bottomBar/BottomBarPanel';
 export * from './components/bottomBar/ProblemsView';

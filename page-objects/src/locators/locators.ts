@@ -233,9 +233,16 @@ export interface Locators {
         changeLabel: By
         changeDesc: By
         resource: By
-        resourceGroup: (label: string) => By
+        changes: By
+        stagedChanges: By
         expand: By
         more: By
+        multiMore: By
+        multiScmProvider: By
+        singleScmProvider: By
+        multiProviderItem: By
+        itemLevel: (level: number) => By
+        itemIndex: (index: number) => By
     }
     
     // Status Bar
