@@ -41,17 +41,25 @@ import * as fs from 'fs-extra';
 
         it('getTitle works', async () => {
             const title = await provider.getTitle();
-            expect(title).equals('vscode-extension-tester');
+            if (VSBrowser.instance.version >= '1.47.0') {
+                expect(title).equals('');
+            } else {
+                expect(title).equals('vscode-extension-tester');
+            }
         })
 
         it('getType works', async () => {
             const type = await provider.getType();
-            expect(type).equals('Git');
+            if (VSBrowser.instance.version >= '1.47.0') {
+                expect(type).equals('');
+            } else {
+                expect(type).equals('Git');
+            }
         });
 
         it('getChangeCount works', async () => {
             const unCount = await provider.getChangeCount(false);
-            expect(unCount).gte(0);
+            expect(unCount).gt(0);
             const stCount = await provider.getChangeCount(true);
             expect(stCount).gte(0);
         });

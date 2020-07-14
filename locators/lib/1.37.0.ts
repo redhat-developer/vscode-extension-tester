@@ -233,9 +233,16 @@ const sideBar = {
         changeLabel: By.className('label-name'),
         changeDesc: By.className('label-description'),
         resource: By.className('resource'),
-        resourceGroup: (label: string) => By.xpath(`.//div[@role="treeitem" and .//div/text()="${label}"]`),
+        changes: By.xpath(`.//div[@role="treeitem" and .//div/text()="CHANGES"]`),
+        stagedChanges: By.xpath(`.//div[@role="treeitem" and .//div/text()="STAGED CHANGES"]`),
         expand: By.className('monaco-tl-twistie'),
-        more: By.className('toolbar-toggle-more')
+        more: By.className('toolbar-toggle-more'),
+        multiMore: By.className('codicon-toolbar-more'),
+        multiScmProvider: By.className('scm-provider'),
+        singleScmProvider: By.className(`scm-view`),
+        multiProviderItem: By.xpath(`.//div[@role='treeitem' and @aria-level='1']`),
+        itemLevel: (level: number) => By.xpath(`.//div[@role='treeitem' and @aria-level='${level}']`),
+        itemIndex: (index: number) => By.xpath(`.//div[@role='treeitem' and @data-index='${index}']`)
     }
 }
 

@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { expect } from 'chai';
-import { SideBarView, ActivityBar, ViewTitlePart, Workbench, ViewItem, ViewContent, ViewSection, DefaultTreeSection, DefaultTreeItem, TextEditor, EditorView, InputBox } from "vscode-extension-tester";
+import { SideBarView, ActivityBar, ViewTitlePart, Workbench, ViewItem, ViewContent, ViewSection, DefaultTreeSection, DefaultTreeItem, TextEditor, EditorView, InputBox, VSBrowser } from "vscode-extension-tester";
 
 describe('SideBarView', () => {
     let view: SideBarView;
@@ -37,7 +37,11 @@ describe('SideBarView', () => {
 
         it('getActions works', async () => {
             const actions = await part.getActions();
-            expect(actions).empty;
+            if (VSBrowser.instance.version >= '1.47.0') {
+                expect(actions).not.empty;
+            } else {
+                expect(actions).empty;   
+            }
         });
     });
 
