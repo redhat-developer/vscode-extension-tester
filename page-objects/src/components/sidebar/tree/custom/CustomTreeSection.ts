@@ -12,8 +12,7 @@ export class CustomTreeSection extends TreeSection {
         const items: TreeItem[] = [];
         const elements = await this.findElements(CustomTreeSection.locators.CustomTreeSection.itemRow);
         for (const element of elements) {
-            const label = await element.findElement(CustomTreeSection.locators.CustomTreeSection.itemLabel).getText();
-            items.push(await new CustomTreeItem(label, this).wait());
+            items.push(await new CustomTreeItem(element, this).wait());
         }
         return items;
     }
@@ -26,14 +25,12 @@ export class CustomTreeSection extends TreeSection {
         
         const elements = await container.findElements(CustomTreeSection.locators.CustomTreeSection.itemRow);
         for (const element of elements) {
-            try {
-               const temp = await element.findElement(CustomTreeSection.locators.CustomTreeSection.rowWithLabel(label));
-               const level = +await temp.getAttribute(CustomTreeSection.locators.ViewSection.level);
-               if (maxLevel < 1 || level <= maxLevel) {
-                   item = new CustomTreeItem(label, this);
-               }
-            } catch(err) {
-                // ignore
+            const temp = await element.findElements(CustomTreeSection.locators.CustomTreeSection.rowWithLabel(label));
+            if (temp.length > 0) {
+                const level = +await temp[0].getAttribute(CustomTreeSection.locators.ViewSection.level);
+                if (maxLevel < 1 || level <= maxLevel) {
+                    item = await new CustomTreeItem(element, this).wait();
+                } 
             }
         }            
         return item;

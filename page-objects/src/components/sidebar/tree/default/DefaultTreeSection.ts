@@ -11,7 +11,7 @@ export class DefaultTreeSection extends TreeSection {
         const items: TreeItem[] = [];
         const elements = await this.findElements(DefaultTreeSection.locators.DefaultTreeSection.itemRow);
         for (const element of elements) {
-            items.push(await new DefaultTreeItem(await element.getAttribute(DefaultTreeSection.locators.DefaultTreeSection.itemLabel), this).wait());
+            items.push(await new DefaultTreeItem(element, this).wait());
         }
         return items;
     }
@@ -22,18 +22,16 @@ export class DefaultTreeSection extends TreeSection {
         await container.sendKeys(Key.HOME);
         let item: TreeItem | undefined = undefined;
         do {
-            try {
-                const temp = await container.findElement(DefaultTreeSection.locators.DefaultTreeItem.constructor(label));
-                const level = +await temp.getAttribute(DefaultTreeSection.locators.ViewSection.level);
+            const temp = await container.findElements(DefaultTreeSection.locators.DefaultTreeItem.constructor(label));
+            if (temp.length > 0) {
+                const level = +await temp[0].getAttribute(DefaultTreeSection.locators.ViewSection.level);
                 if (maxLevel < 1 || level <= maxLevel) {
-                    item = new DefaultTreeItem(label, this);
+                    item = await new DefaultTreeItem(temp[0], this).wait();
                 }
-            } catch (err) {
-                try {
-                    await container.findElement(DefaultTreeSection.locators.DefaultTreeSection.lastRow);
+            } else {
+                const lastrow = await container.findElements(DefaultTreeSection.locators.DefaultTreeSection.lastRow);
+                if (lastrow.length > 0) {
                     break;
-                } catch (err) {
-                    // last element not yet found, continue
                 }
                 await container.sendKeys(Key.PAGE_DOWN);
             }

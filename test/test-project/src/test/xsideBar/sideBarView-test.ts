@@ -140,8 +140,8 @@ describe('SideBarView', () => {
                     await new EditorView().closeAllEditors();
                 });
 
-                it('getLabel works', () => {
-                    const label = item.getLabel();
+                it('getLabel works', async () => {
+                    const label = await item.getLabel();
                     expect(label).equals('test-folder');
                 });
 

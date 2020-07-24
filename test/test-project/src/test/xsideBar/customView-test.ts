@@ -1,15 +1,15 @@
 import { expect } from 'chai';
-import { ViewSection, ActivityBar, ViewItem, CustomTreeItem } from 'vscode-extension-tester';
+import { ActivityBar, ViewItem, CustomTreeSection, CustomTreeItem } from 'vscode-extension-tester';
 
 describe('CustomTreeSection', () => {
-    let section: ViewSection;
+    let section: CustomTreeSection;
 
     before(async function() {
         this.timeout(5000);
         const view = await new ActivityBar().getViewControl('Explorer').openView();
         await new Promise((res) => { setTimeout(res, 1000); });
         const content = view.getContent();
-        section = await content.getSection('Test View');
+        section = await content.getSection('Test View') as CustomTreeSection;
     });
 
     after(async () => {
@@ -45,7 +45,7 @@ describe('CustomTreeSection', () => {
     });
 
     it('openItem returns subitems', async () => {
-        const items = await section.openItem('a') as ViewItem[];
+        const items = await section.openItem('a') as CustomTreeItem[];
         expect(items.length).equals(2);
     });
 
@@ -71,8 +71,8 @@ describe('CustomTreeSection', () => {
             item = await section.findItem('a') as CustomTreeItem;
         });
 
-        it('getLabel works', () => {
-            const label = item.getLabel();
+        it('getLabel works', async () => {
+            const label = await item.getLabel();
             expect(label).equals('a');
         });
 

@@ -176,6 +176,7 @@ export interface Locators {
         button: By
         buttonLabel: string
         level: string
+        index: string
     }
     TreeItem: {
         actions: By
