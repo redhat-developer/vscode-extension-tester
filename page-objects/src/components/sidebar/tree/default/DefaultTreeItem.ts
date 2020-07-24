@@ -1,14 +1,17 @@
 import { TreeItem } from "../../ViewItem";
-import { WebElement } from 'selenium-webdriver';
 import { TreeSection } from "../TreeSection";
+import { WebElement } from "selenium-webdriver";
 
 /**
  * Default tree item base on the items in explorer view
  */
 export class DefaultTreeItem extends TreeItem {
-    constructor(label: string, viewPart: TreeSection) {
-        super(DefaultTreeItem.locators.DefaultTreeItem.constructor(label), viewPart);
-        this.label = label;
+    constructor(element: WebElement, viewPart: TreeSection) {
+        super(element, viewPart);
+    }
+
+    async getLabel(): Promise<string> {
+        return this.getAttribute(DefaultTreeItem.locators.DefaultTreeSection.itemLabel);
     }
 
     async hasChildren(): Promise<boolean> {
@@ -21,38 +24,9 @@ export class DefaultTreeItem extends TreeItem {
         return twistieClass.indexOf('collapsed') < 0;
     }
 
-    async getChildren(): Promise<TreeItem[]>{
-        const items: TreeItem[] = [];
-        if (!await this.hasChildren()) {
-            return items;
-        }
-        if (!await this.isExpanded()) {
-            await this.click();
-        }
-        const rows = await this.enclosingItem.findElements(DefaultTreeItem.locators.DefaultTreeSection.itemRow);
-        const baseIndex = await this.findRowIndex(rows);
-        const baseLevel = +await rows[baseIndex].getAttribute(DefaultTreeItem.locators.ViewSection.level);
-
-        for (let i = baseIndex + 1; i < rows.length; i++) {
-            const level = +await rows[i].getAttribute(DefaultTreeItem.locators.ViewSection.level);
-
-            if (level > baseLevel + 1) { continue; }
-            if (level <= baseLevel) { break; }
-
-            const label = await rows[i].getAttribute(DefaultTreeItem.locators.DefaultTreeSection.itemLabel);
-            items.push(await new DefaultTreeItem(label, <TreeSection>this.enclosingItem).wait());
-        }
-
+    async getChildren(): Promise<TreeItem[]> {
+        const rows = await this.getChildItems(DefaultTreeItem.locators.DefaultTreeSection.itemRow);
+        const items = await Promise.all(rows.map(async row => new DefaultTreeItem(row, this.enclosingItem as TreeSection).wait()));
         return items;
-    }
-
-    private async findRowIndex(rows: WebElement[]): Promise<number> {
-        for (let i = 0; i < rows.length; i++) {
-            const label = await rows[i].getAttribute(DefaultTreeItem.locators.DefaultTreeSection.itemLabel);
-            if (label === this.label) {
-                return i;
-            }
-        }
-        throw new Error(`Failed to locate row ${this.getLabel()}`);
     }
 }

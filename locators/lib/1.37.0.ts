@@ -175,7 +175,8 @@ const sideBar = {
         actionConstructor: (label: string) => By.xpath(`.//a[contains(@class, 'action-label') and @role='button' and @title='${label}']`),
         button: By.xpath(`.//a[@role='button']`),
         buttonLabel: 'title',
-        level: 'aria-level'
+        level: 'aria-level',
+        index: 'data-index'
     },
     TreeItem: {
         actions: By.className('actions-container'),
@@ -186,7 +187,7 @@ const sideBar = {
         itemRow: By.className('monaco-list-row'),
         itemLabel: 'aria-label',
         rowContainer: By.className('monaco-list'),
-        rowWithLabel: (label: string) => By.xpath(`.//div[contains(@class, 'monaco-list-row') and @aria-label='${label}']`),
+        rowWithLabel: (label: string) => By.xpath(`.//div[@role='treeitem' and @aria-label='${label}']`),
         lastRow: By.xpath(`.//div[@data-last-element='true']`)
     },
     DefaultTreeItem: {
@@ -197,7 +198,7 @@ const sideBar = {
         itemRow: By.className('monaco-list-row'),
         itemLabel: By.className('monaco-highlighted-label'),
         rowContainer: By.className('monaco-list'),
-        rowWithLabel: (label: string) => By.xpath(`.//span[contains(text(), '${label}')]`)
+        rowWithLabel: (label: string) => By.xpath(`.//span[text()='${label}']`)
     },
     CustomTreeItem: {
         constructor: (label: string) => By.xpath(`.//div[@role='treeitem' and .//span[text()='${label}']]`),

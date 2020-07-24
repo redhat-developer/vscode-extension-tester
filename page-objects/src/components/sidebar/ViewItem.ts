@@ -1,6 +1,6 @@
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
 import { AbstractElement } from "../AbstractElement";
-import { WebElement } from "selenium-webdriver";
+import { WebElement, By } from "selenium-webdriver";
 
 /**
  * Arbitrary item in the side bar view
@@ -21,13 +21,11 @@ export abstract class ViewItem extends ElementWithContexMenu {
  * Abstract representation of a row in the tree inside a view content section
  */
 export abstract class TreeItem extends ViewItem {
-    protected label!: string;
-
     /**
      * Retrieves the label of this view item
      */
-    getLabel(): string {
-        return this.label;
+    async getLabel(): Promise<string> {
+        return '';
     }
 
     /**
@@ -54,10 +52,11 @@ export abstract class TreeItem extends ViewItem {
      */
     async findChildItem(name: string): Promise<TreeItem | undefined> {
         const children = await this.getChildren();
-        const result = children.find(item => {
-            return item.getLabel() === name;
-        });
-        return result;
+        for (const item of children) {
+            if (await item.getLabel() === name) {
+                return item;
+            }
+        }
     }
 
     /**
@@ -87,7 +86,7 @@ export abstract class TreeItem extends ViewItem {
         
         for (const item of items) {
             const label = await item.getAttribute(TreeItem.locators.TreeItem.actionTitle);
-            actions.push(await new ViewItemAction(label, this));
+            actions.push(new ViewItemAction(label, this));
         }
         return actions;
     }
@@ -105,6 +104,33 @@ export abstract class TreeItem extends ViewItem {
         } else {
             return undefined;
         }
+    }
+
+    /**
+     * Find all child elements of a tree item
+     * @param locator locator of a given type of tree item
+     */
+    protected async getChildItems(locator: By): Promise<WebElement[]> {
+        const items: WebElement[] = [];
+        if (!await this.isExpanded() && this.hasChildren()) {
+            await this.click();
+        }
+        const rows = await this.enclosingItem.findElements(locator);
+        const baseIndex = +await this.getAttribute(TreeItem.locators.ViewSection.index);
+        const baseLevel = +await this.getAttribute(TreeItem.locators.ViewSection.level);
+
+        for (const row of rows) {
+            const level = +await row.getAttribute(TreeItem.locators.ViewSection.level);
+            const index = +await row.getAttribute(TreeItem.locators.ViewSection.index);
+
+            if (index <= baseIndex) { continue; }
+            if (level > baseLevel + 1) { continue; }
+            if (level <= baseLevel) { break; }
+
+            items.push(row);
+        }
+
+        return items;
     }
 }
 

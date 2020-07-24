@@ -6,9 +6,16 @@ import { TreeItem } from "../ViewItem";
  */
 export abstract class TreeSection extends ViewSection {
     async openItem(...path: string[]): Promise<TreeItem[]> {
-        let currentItem = await this.findItem(path[0], 1);
         let items: TreeItem[] = [];
     
+        for (let i = 0; i < path.length; i++) {
+            const item = await this.findItem(path[i], i + 1);
+            if (await item?.hasChildren() && !await item?.isExpanded()) {
+                await item?.click();
+            }
+        }
+
+        let currentItem = await this.findItem(path[0], 1);
         for (let i = 0; i < path.length; i++) {
             if (!currentItem) {
                 throw new Error(`Item ${path[i]} not found`);
@@ -19,9 +26,13 @@ export abstract class TreeSection extends ViewSection {
                 return items;
             }
             if (i + 1 < path.length) {
-                currentItem = items.find((value) => {
-                    return value.getLabel() === path[i + 1];
-                });
+                currentItem = undefined;
+                for (const item of items) {
+                    if (await item.getLabel() === path[i + 1]) {
+                        currentItem = item;
+                        break;
+                    }
+                }
             }
         }
         return items;
