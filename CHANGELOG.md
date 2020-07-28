@@ -1,5 +1,12 @@
 # Change Log
 
+## Page Objects 1.2.1 (Jul 28)
+ - fixed a few issues related to tree items in the side bar view
+   - fixed `getChildItems` always searching for children of the first item with a given name, rather than the one it's been called from
+   - `getLabel` now properly return the actual label of the tree item and as such **is now async**
+   - TreeSection `openItem` should no longer fail when recursively expanding tree items
+   - tree items constructors now take a `WebElement` as their first argument, instead of a `string` (but noone calls those directly anyway)
+
 ## 3.1.0 + Page Objects 1.2.0 (Jul 14)
  - The backwards compatibility support is being changed:
    - only the latest 5 minor versions of vscode are now being supported and tested
