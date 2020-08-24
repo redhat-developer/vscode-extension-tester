@@ -111,34 +111,35 @@ export class CodeUtil {
     /**
      * Install your extension into the test instance of VS Code
      */
-    installExtension(vsix?: string): void {
+    installExtension(vsix?: string, id?: string): void {
         const pjson = require(path.resolve('package.json'));
-        const vsixPath = path.resolve(vsix ? vsix : `${pjson.name}-${pjson.version}.vsix`);
-        let command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --install-extension "${vsixPath}"`;
-        if (this.extensionsFolder) {
-            command += ` --extensions-dir=${this.extensionsFolder}`;
+        if (id) {
+            return this.installExt(id);
         }
-        child_process.execSync(command, { stdio: 'inherit' });
+        const vsixPath = path.resolve(vsix ? vsix : `${pjson.name}-${pjson.version}.vsix`);
+        this.installExt(vsixPath);
     }
 
     /**
      * Install extension dependencies from marketplace
      */
-    installDependencies() {
+    installDependencies(): void {
         const pjson = require(path.resolve('package.json'));
         const deps = pjson.extensionDependencies;
-
         if (!deps) {
             return;
         }
-
         for (const id of deps as string[]) {
-            let command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --install-extension "${id}"`;
-            if (this.extensionsFolder) {
-                command += ` --extensions-dir=${this.extensionsFolder}`;
-            }
-            child_process.execSync(command, { stdio: 'inherit' });
+            this.installExt(id);
         }
+    }
+
+    private installExt(pathOrID: string): void {
+        let command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --install-extension "${pathOrID}"`;
+        if (this.extensionsFolder) {
+            command += ` --extensions-dir=${this.extensionsFolder}`;
+        }
+        child_process.execSync(command, { stdio: 'inherit' });
     }
 
     /**
