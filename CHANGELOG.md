@@ -1,5 +1,12 @@
 # Change Log
 
+## 3.2.0 + Page Objects 1.2.2 (Aug 24)
+ - added a new CLI command and an API method to install extensions from marketplace by id
+   - `install-from-marketplace id1 id2 ...` from CLI
+   - `installFromMarketplace('id')` from `ExTester` API
+ - updated page objects to work with vscode 1.48.x (mainly SCM view)
+   - note that sections in Extensions view have changed their titles 
+
 ## Page Objects 1.2.1 (Jul 28)
  - fixed a few issues related to tree items in the side bar view
    - fixed `getChildItems` always searching for children of the first item with a given name, rather than the one it's been called from
