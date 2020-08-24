@@ -59,6 +59,14 @@ export class ExTester {
     }
 
     /**
+     * Install an extension from VS Code marketplace into the test instance
+     * @param id id of the extension to install
+     */
+    async installFromMarketplace(id: string): Promise<void> {
+        return this.code.installExtension(undefined, id);
+    }
+
+    /**
      * Download the matching chromedriver for a given VS Code version
      * @param vscodeVersion selected versio nof VSCode, default latest
      */

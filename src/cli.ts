@@ -42,6 +42,21 @@ program.command('install-vsix')
         await extest.installVsix({vsixFile: cmd.vsix_file, useYarn: cmd.yarn});
     }));
 
+program.command('install-from-marketplace <id> [ids...]')
+    .description('Install extension from marketplace with given <id> into test instance of VSCode')
+    .option('-s, --storage <storage>', 'Use this folder for all test resources')
+    .option('-e, --extensions_dir <extensions_directory>', 'VSCode will use this directory for managing extensions')
+    .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
+    .action(withErrors(async (id, ids, cmd) => {
+        const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
+        await extest.installFromMarketplace(id);
+        if (ids && ids.length > 0) {
+            for (const idx of ids) {
+                await extest.installFromMarketplace(idx);
+            }
+        }
+    }));
+
 program.command('setup-tests')
     .description('Set up all necessary requirements for tests to run')
     .option('-s, --storage <storage>', 'Use this folder for all test resources')
