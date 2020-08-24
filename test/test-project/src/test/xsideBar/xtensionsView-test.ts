@@ -1,4 +1,4 @@
-import { ActivityBar, ExtensionsViewSection, EditorView, ExtensionsViewItem } from "vscode-extension-tester";
+import { ActivityBar, ExtensionsViewSection, EditorView, ExtensionsViewItem, VSBrowser } from "vscode-extension-tester";
 import { expect } from 'chai';
 import pjson from '../../../package.json';
 
@@ -6,9 +6,14 @@ describe('ExtensionsView', () => {
     let section: ExtensionsViewSection;
     let item: ExtensionsViewItem;
 
+    let sectionTitle = 'Enabled';
+    if (VSBrowser.browserName === 'vscode' && VSBrowser.instance.version >= '1.48.0') {
+        sectionTitle = 'Installed'
+    }
+
     before(async () => {
         const view = await new ActivityBar().getViewControl('Extensions').openView();
-        section = await view.getContent().getSection('Enabled') as ExtensionsViewSection;
+        section = await view.getContent().getSection(sectionTitle) as ExtensionsViewSection;
     });
 
     after(async function()  {
@@ -18,7 +23,7 @@ describe('ExtensionsView', () => {
 
     it('getTitle works', async () => {
         const title = await section.getTitle();
-        expect(title).equals('Enabled');
+        expect(title).equals(sectionTitle);
     });
 
     it('getVisibleItems works', async () => {
