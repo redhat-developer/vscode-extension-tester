@@ -262,6 +262,7 @@ export class MoreAction extends ElementWithContexMenu {
     async openContextMenu(): Promise<ContextMenu> {
         await this.click();
         const shadowRootHost = await this.enclosingItem.findElements(By.className('shadow-root-host'));
+        await this.getDriver().actions().sendKeys(Key.ESCAPE).perform();
 
         if (shadowRootHost.length > 0) {
             if (await this.getAttribute('aria-expanded') !== 'true') {
