@@ -1,5 +1,5 @@
 import { SideBarView } from "../SideBarView";
-import { WebElement, Key } from "selenium-webdriver";
+import { WebElement, Key, By } from "selenium-webdriver";
 import { AbstractElement } from "../../AbstractElement";
 import { ContextMenu } from "../../..";
 import { ElementWithContexMenu } from "../../ElementWithContextMenu";
@@ -257,5 +257,19 @@ export class ScmChange extends ElementWithContexMenu {
 export class MoreAction extends ElementWithContexMenu {
     constructor(scm: ScmProvider | ScmView) {
         super(MoreAction.locators.ScmView.more,scm);
+    }
+
+    async openContextMenu(): Promise<ContextMenu> {
+        await this.click();
+        const shadowRootHost = await this.enclosingItem.findElements(By.className('shadow-root-host'));
+
+        if (shadowRootHost.length > 0) {
+            if (await this.getAttribute('aria-expanded') !== 'true') {
+                await this.click();
+            }
+            const shadowRoot = await this.getDriver().executeScript('return arguments[0].shadowRoot', shadowRootHost[0]) as WebElement;
+            return new ContextMenu(shadowRoot).wait();
+        }
+        return super.openContextMenu();
     }
 }
