@@ -62,6 +62,16 @@
 					"name": "Test View"
 				}
 			]
+		},
+		"configuration": {
+			"title": "Test Project",
+			"properties": {
+				"testProject.general.helloWorld": {
+					"type": "boolean",
+					"default": false,
+					"description": "Hello World!"
+				}
+			}
 		}
 	},
 	"scripts": {

@@ -19,6 +19,12 @@ describe('SettingsEditor', () => {
         expect(setting).not.undefined;
     });
 
+    it('findSetting works for nested configurations', async function() {
+        this.timeout(8000);
+        const setting = await editor.findSetting('Hello World', 'Test Project', 'General');
+        expect(setting).not.undefined;
+    });
+
     describe('combo setting', () => {
         let setting: ComboSetting;
 
