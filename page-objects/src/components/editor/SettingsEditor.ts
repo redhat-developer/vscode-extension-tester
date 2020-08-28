@@ -18,11 +18,15 @@ export class SettingsEditor extends Editor {
      * Returns an appropriate Setting object if the label is found,
      * undefined otherwise.
      *
+     * If your setting has nested categories (i.e `example.general.test`),
+     * pass in each category as a separate string.
+     *
      * @param title title of the setting
-     * @param category category of the setting
+     * @param categories category of the setting
      * @returns Promise resolving to a Setting object if found, undefined otherwise
      */
-    async findSetting(title: string, category: string): Promise<Setting> {
+    async findSetting(title: string, ...categories: string[]): Promise<Setting> {
+        const category = categories.join(' › ');
         const searchBox = await this.findElement(SettingsEditor.locators.Editor.inputArea);
         await searchBox.sendKeys(Key.chord(SettingsEditor.ctlKey, 'a'));
         await searchBox.sendKeys(`${category}: ${title}`);
