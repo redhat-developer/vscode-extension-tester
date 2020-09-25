@@ -30,13 +30,20 @@ export class TextEditor extends Editor {
     }
 
     /**
+     * Retrieve the Uri of the file opened in the active editor
+     * @returns Promise resolving to editor's underlying Uri
+     */
+    async getFileUri(): Promise<string> {
+        const ed = await this.findElement(TextEditor.locators.TextEditor.editorContainer);
+        return ed.getAttribute(TextEditor.locators.TextEditor.dataUri);
+    }
+
+    /**
      * Retrieve the path to the file opened in the active editor
      * @returns Promise resolving to editor's underlying file path
      */
     async getFilePath(): Promise<string> {
-        const ed = await this.findElement(TextEditor.locators.TextEditor.editorContainer);
-        const url = await ed.getAttribute(TextEditor.locators.TextEditor.dataUri);
-        return fileURLToPath(url);
+        return fileURLToPath(await this.getFileUri());
     }
 
     /**
