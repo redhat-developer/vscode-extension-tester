@@ -37,6 +37,7 @@ export * from './components/statusBar/StatusBar';
 
 export * from './components/editor/EditorView';
 export * from './components/editor/TextEditor';
+export * from './components/editor/Editor';
 export * from './components/editor/SettingsEditor';
 export * from './components/editor/DiffEditor';
 export * from './components/editor/WebView';
