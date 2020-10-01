@@ -28,6 +28,9 @@ export function activate(context: vscode.ExtensionContext) {
 	let notificationCommand = vscode.commands.registerCommand('extension.notification', () => {
 		vscode.window.showInformationMessage('This is a notification', 'Yes', 'No');
 	});
+	let quickPickCommand = vscode.commands.registerCommand('extension.quickpick', () => {
+		vscode.window.showQuickPick(['test1', 'test2', 'test3'], { canPickMany: true, ignoreFocusOut: true });
+	});
 
 	context.subscriptions.push(disposable);
 	context.subscriptions.push(openCommand);
@@ -36,6 +39,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(testCommand);
 	context.subscriptions.push(webViewCommand);
 	context.subscriptions.push(notificationCommand);
+	context.subscriptions.push(quickPickCommand);
 
 	new TreeView(context);
 }

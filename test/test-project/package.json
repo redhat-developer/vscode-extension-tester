@@ -21,7 +21,8 @@
 		"onCommand:extension.closeFolder",
 		"onCommand:extension.webview",
 		"onCommand:extension.test",
-		"onCommand:extension.notification"
+		"onCommand:extension.notification",
+		"onCommand:extension.quickpick"
 	],
 	"main": "./out/src/extension.js",
 	"contributes": {
@@ -53,6 +54,10 @@
 			{
 				"command": "extension.notification",
 				"title": "Test Notification"
+			},
+			{
+				"command": "extension.quickpick",
+				"title": "Test Quickpicks"
 			}
 		],
 		"views": {
