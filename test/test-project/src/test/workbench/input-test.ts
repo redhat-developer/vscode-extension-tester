@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { QuickOpenBox, Workbench, QuickPickItem, InputBox, StatusBar, EditorView, VSBrowser } from "vscode-extension-tester";
+import { QuickOpenBox, Workbench, QuickPickItem, InputBox, StatusBar, EditorView, VSBrowser, By } from "vscode-extension-tester";
 
 describe('QuickOpenBox', () => {
     let input: QuickOpenBox;
@@ -158,5 +158,31 @@ describe('InputBox', () => {
     it('isPassword works', async () => {
         const pass = await input.isPassword();
         expect(pass).is.false;
+    });
+});
+
+describe('Multiple selection input', () => {
+    let input: InputBox;
+
+    before(async () => {
+        await new Workbench().executeCommand('Test Quickpicks');
+        await new Promise(res => setTimeout(res, 500));
+        input = await InputBox.create();
+    });
+
+    after(async () => {
+        await input.confirm();
+    });
+
+    it('Select all works', async () => {
+        await input.toggleAllQuickPicks(true);
+        const checkbox = await input.findElement(By.css('input'));
+        expect(await checkbox.isSelected()).is.true;
+    });
+
+    it('Deselect all works', async () => {
+        await input.toggleAllQuickPicks(false);
+        const checkbox = await input.findElement(By.css('input'));
+        expect(await checkbox.isSelected()).is.false;
     });
 });

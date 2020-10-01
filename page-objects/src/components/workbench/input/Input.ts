@@ -88,6 +88,26 @@ export abstract class Input extends AbstractElement {
     }
 
     /**
+     * Select/Deselect all quick picks using the 'select all' checkbox
+     * If multiple selection is disabled on the input box, no action is performed
+     * 
+     * @param state true to select all, false to deselect all
+     * @returns Promise resolving when all quick picks have been toggled to desired state
+     */
+    async toggleAllQuickPicks(state: boolean): Promise<void> {
+        const checkboxes = await this.findElements(Input.locators.Input.quickPickSelectAll);
+        if (checkboxes.length < 0) {
+            return;
+        }
+        if (!await checkboxes[0].isSelected()) {
+            await checkboxes[0].click();
+        }
+        if (state === false) {
+            await checkboxes[0].click();
+        }
+    }
+
+    /**
      * Scroll through the quick picks to find an item by the name or index
      * @param indexOrText index (number) or text (string) of the item to search by
      * @returns Promise resolvnig to QuickPickItem if found, to undefined otherwise
