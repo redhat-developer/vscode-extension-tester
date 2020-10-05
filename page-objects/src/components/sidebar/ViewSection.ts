@@ -92,7 +92,7 @@ export abstract class ViewSection extends AbstractElement {
      * @returns Promise resolving to array of ViewItem objects representing the last item's children.
      * If the last item is a leaf, empty array is returned.
      */
-    abstract async openItem(...path: string[]): Promise<ViewItem[] | void>
+    abstract async openItem(...path: string[]): Promise<ViewItem[]>
 
     /**
      * Retrieve the action buttons on the section's header

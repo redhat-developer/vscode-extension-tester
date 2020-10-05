@@ -91,11 +91,12 @@ export class ExtensionsViewSection extends ViewSection {
      * @param title title of the extension
      * @returns Promise resolving when the item is clicked
      */
-    async openItem(title: string): Promise<void> {
+    async openItem(title: string): Promise<never[]> {
         const item = await this.findItem(title);
         if (item) {
             await item.click();
         }
+        return [];
     }
 
     private getSectionForCategory(title: string): string {
