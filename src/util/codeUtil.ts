@@ -173,7 +173,7 @@ export class CodeUtil {
         if (!fs.existsSync(binFolder)) {
             binFolder = path.join('node_modules', '.bin');
         }
-        const cliCall = `${path.join(binFolder, 'vsce')} package${useYarn ? ' --yarn' : ''}`;
+        const cliCall = `${path.join(binFolder, 'vsce')} package ${useYarn ? '--yarn' : '--no-yarn'}`;
 
         child_process.execSync(cliCall, { stdio: 'inherit' });
     }
