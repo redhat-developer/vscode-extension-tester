@@ -1,5 +1,15 @@
 # Change Log
 
+## 3.2.1 + Page Objects 1.2.3 (Oct 6)
+ - not using yarn flag `-y` for setup now automatically adds `--no-yarn` flag to `vsce package` step
+   - meaning even if vsce detects yarn on your system, use `-y` to use yarn, npm is used as default
+ - fixed terminal view locators for vscode 1.49
+ - the abstract `Editor` class is now also available in the API
+ - `getFileUri` method added to `TextEditor` in case you need a URI, not just a path
+ - `toggleAllQuickPicks` method added to `Input` boxes
+   - use to select/deselect all quick picks when multi-selection is enabled
+ - `ViewSection#openItem` now only returns `ViewItem[]`, `void` is no longer
+
 ## 3.2.0 + Page Objects 1.2.2 (Aug 24)
  - added a new CLI command and an API method to install extensions from marketplace by id
    - `install-from-marketplace id1 id2 ...` from CLI
