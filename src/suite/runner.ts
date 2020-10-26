@@ -31,9 +31,9 @@ export class VSRunner {
      * Set up mocha suite, add vscode instance handling, run tests
      * @param testFilesPattern glob pattern of test files to run
      */
-    runTests(testFilesPattern: string, code: CodeUtil): void {
+    runTests(testFilesPattern: string, code: CodeUtil, logLevel: string = 'info'): void {
         let self = this;
-        let browser: VSBrowser = new VSBrowser(this.codeVersion, this.customSettings);
+        let browser: VSBrowser = new VSBrowser(this.codeVersion, this.customSettings, logLevel);
         const universalPattern = testFilesPattern.replace(/'/g, '');
         const testFiles = glob.sync(universalPattern);
 

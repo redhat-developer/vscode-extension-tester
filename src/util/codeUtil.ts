@@ -207,7 +207,7 @@ export class CodeUtil {
      * @param settings path to custom settings json file
      * @param vscodeVersion version of VSCode to test against, default latest
      */
-    async runTests(testFilesPattern: string, vscodeVersion: string = 'latest', settings: string = '', cleanup?: boolean, config?: string): Promise<void> {
+    async runTests(testFilesPattern: string, vscodeVersion: string = 'latest', settings: string = '', cleanup?: boolean, config?: string, logLevel: string = 'info'): Promise<void> {
         await this.checkCodeVersion(vscodeVersion);
         const literalVersion = vscodeVersion === 'latest' ? this.availableVersions[0] : vscodeVersion;
 
@@ -221,7 +221,7 @@ export class CodeUtil {
         process.env.TEST_RESOURCES = this.downloadFolder;
         process.env.EXTENSIONS_FOLDER = this.extensionsFolder;
         const runner = new VSRunner(this.executablePath, literalVersion, this.parseSettings(settings), cleanup, config);
-        runner.runTests(testFilesPattern, this);
+        runner.runTests(testFilesPattern, this, logLevel);
     }
 
     /**

@@ -100,9 +100,9 @@ export class ExTester {
      * @param useYarn when true run `vsce package` with the `--yarn` flag
      * @param cleanup true to uninstall the tested extension after the run, false otherwise
      */
-    async setupAndRunTests(vscodeVersion: string = 'latest', testFilesPattern: string, settings: string = '', useYarn?: boolean, cleanup?: boolean, config?: string, installDependencies = false): Promise<void> {
+    async setupAndRunTests(vscodeVersion: string = 'latest', testFilesPattern: string, settings: string = '', useYarn?: boolean, cleanup?: boolean, config?: string, installDependencies = false, logLevel: string = 'info'): Promise<void> {
         await this.setupRequirements(vscodeVersion, useYarn, installDependencies);
-        await this.runTests(testFilesPattern, vscodeVersion, settings, cleanup, config);
+        await this.runTests(testFilesPattern, vscodeVersion, settings, cleanup, config, logLevel);
     }
 
     /**
@@ -112,8 +112,8 @@ export class ExTester {
      * @param vscodeVersion version of VSCode to test against, default latest
      * @param cleanup true to uninstall the tested extension after the run, false otherwise
      */
-    async runTests(testFilesPattern: string, vscodeVersion: string = 'latest', settings: string = '', cleanup?: boolean, config?: string): Promise<void> {
+    async runTests(testFilesPattern: string, vscodeVersion: string = 'latest', settings: string = '', cleanup?: boolean, config?: string, logLevel: string = 'info'): Promise<void> {
         await this.installVsix({ vsixFile: path.join(__dirname, '..', 'resources', 'api-handler.vsix')});
-        await this.code.runTests(testFilesPattern, vscodeVersion, settings, cleanup, config);
+        await this.code.runTests(testFilesPattern, vscodeVersion, settings, cleanup, config, logLevel);
     }
 }

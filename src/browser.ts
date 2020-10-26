@@ -3,25 +3,38 @@
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import compareVersions = require('compare-versions');
-import { WebDriver, Builder, until, By, initPageObjects } from 'monaco-page-objects';
+import { WebDriver, Builder, until, By, initPageObjects, logging } from 'monaco-page-objects';
 import { Options } from 'selenium-webdriver/chrome';
 import { getLocatorsPath } from 'vscode-extension-tester-locators';
 
 export class VSBrowser {
     static readonly baseVersion = '1.37.0';
     static readonly browserName = 'vscode';
+    static readonly logLevels: { [key: string]: logging.Level } = {
+        'all': logging.Level.ALL, 'finest': logging.Level.FINEST, 'finer': logging.Level.FINER,
+        'fine': logging.Level.FINE, 'debug': logging.Level.DEBUG, 'info': logging.Level.INFO,
+        'warning': logging.Level.WARNING, 'severe': logging.Level.SEVERE, 'off': logging.Level.OFF
+    };
     private storagePath: string;
     private extensionsFolder: string | undefined;
     private customSettings: Object;
     private _driver!: WebDriver;
     private codeVersion: string;
+    private logLevel: logging.Level;
     private static _instance: VSBrowser;
 
-    constructor(codeVersion: string, customSettings: Object = {}) {
+    constructor(codeVersion: string, customSettings: Object = {}, logLevel: string = 'info') {
         this.storagePath = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.resolve('test-resources');
         this.extensionsFolder = process.env.EXTENSIONS_FOLDER ? process.env.EXTENSIONS_FOLDER : undefined;
         this.customSettings = customSettings;
         this.codeVersion = codeVersion;
+
+        if (VSBrowser.logLevels[logLevel.toLowerCase()]) {
+            this.logLevel = VSBrowser.logLevels[logLevel.toLowerCase()];
+        } else {
+            this.logLevel = logging.Level.INFO;
+        }
+
         VSBrowser._instance = this;
     };
 
@@ -67,12 +80,16 @@ export class VSBrowser {
         options['options_'].windowTypes = ['webview'];
         options = options as Options;
 
+        const prefs = new logging.Preferences();
+        prefs.setLevel(logging.Type.DRIVER, this.logLevel);
+        options.setLoggingPrefs(prefs);
+
         this._driver = await new Builder()
             .forBrowser('chrome')
             .setChromeOptions(options)
             .build();
         VSBrowser._instance = this;
-        
+
         initPageObjects(this.codeVersion, VSBrowser.baseVersion, getLocatorsPath(), this._driver, VSBrowser.browserName);
         return this;
     }
@@ -109,6 +126,14 @@ export class VSBrowser {
      * Terminates the webdriver/browser
      */
     async quit(): Promise<void> {
+        const entries = await this._driver.manage().logs().get(logging.Type.DRIVER);
+        const logFile = path.join(this.storagePath, 'test.log');
+        const stream = fs.createWriteStream(logFile, { flags: 'w' });
+        entries.forEach(entry => {
+            stream.write(`[${new Date(entry.timestamp).toLocaleTimeString()}][${entry.level.name}] ${entry.message}`);
+        });
+        stream.end();
+
         console.log('Shutting down the browser');
         await this._driver.quit();
     }
