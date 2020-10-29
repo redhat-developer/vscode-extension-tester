@@ -1,5 +1,6 @@
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
 import { AbstractElement } from "../AbstractElement";
+import { WebElement } from "selenium-webdriver";
 
 /**
  * Available types of notifications
@@ -95,8 +96,8 @@ export abstract class Notification extends ElementWithContexMenu {
  * Notification displayed on its own in the notifications-toasts container
  */
 export class StandaloneNotification extends Notification {
-    constructor(id: string) {
-        super(StandaloneNotification.locators.Notification.standalone(id), StandaloneNotification.locators.Notification.standaloneContainer);
+    constructor(notification: WebElement) {
+        super(notification, StandaloneNotification.locators.Notification.standaloneContainer);
     }
 }
 
@@ -104,8 +105,8 @@ export class StandaloneNotification extends Notification {
  * Notification displayed within the notifications center
  */
 export class CenterNotification extends Notification {
-    constructor(index: number) {
-        super(CenterNotification.locators.Notification.center(index), CenterNotification.locators.NotificationsCenter.constructor);
+    constructor(notification: WebElement) {
+        super(notification, CenterNotification.locators.NotificationsCenter.constructor);
     }
 }
 
