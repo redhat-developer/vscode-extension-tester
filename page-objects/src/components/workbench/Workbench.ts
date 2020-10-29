@@ -77,7 +77,7 @@ export class Workbench extends AbstractElement {
         const elements = await container.findElements(Workbench.locators.Workbench.notificationItem);
         
         for (const element of elements) {
-            notifications.push(await new StandaloneNotification(await element.getAttribute('id')).wait());
+            notifications.push(await new StandaloneNotification(element).wait());
         }
         return notifications;
     }
