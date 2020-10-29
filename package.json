@@ -61,13 +61,13 @@
     "fs-extra": "^9.0.1",
     "glob": "^7.1.6",
     "js-yaml": "^3.13.1",
-    "monaco-page-objects": "^1.0.0-0",
+    "monaco-page-objects": "^1.2.5",
     "request": "^2.88.0",
     "selenium-webdriver": "^3.0.0",
     "targz": "^1.0.1",
     "unzip-stream": "^0.3.0",
     "vsce": "^1.81.0",
-    "vscode-extension-tester-locators": "^1.44.0"
+    "vscode-extension-tester-locators": "^1.50.0"
   },
   "peerDependencies": {
     "mocha": ">=5.2.0"
