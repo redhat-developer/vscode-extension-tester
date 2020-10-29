@@ -1,5 +1,13 @@
 # Change Log
 
+## 3.2.2 + Page Objects 1.2.5 (Oct 29)
+ - webdriver logs are now collected and saved by default to your test resource folder as `test.log`
+   - default log level is INFO
+   - use the `-l` or `--log_level <level>` option to change the logging level
+ - notifications are now constructed directly from a `WebElement` instance, so they are no longer bound by notification's index
+   - this changes the notifications' constructors, but hopefully nobody has been using those anyway
+ - increased the required versions for submodules to their latest, so it should enforce their update as well when updating the main module
+
 ## 3.2.1 + Page Objects 1.2.3 (Oct 6)
  - not using yarn flag `-y` for setup now automatically adds `--no-yarn` flag to `vsce package` step
    - meaning even if vsce detects yarn on your system, use `-y` to use yarn, npm is used as default
