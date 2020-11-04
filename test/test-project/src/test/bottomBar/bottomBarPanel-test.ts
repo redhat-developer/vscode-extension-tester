@@ -1,11 +1,12 @@
 import { expect } from 'chai';
-import { BottomBarPanel, WebElement } from 'vscode-extension-tester';
+import { BottomBarPanel, WebElement, Workbench } from 'vscode-extension-tester';
 
 describe('BottomBarPanel', () => {
     let panel: BottomBarPanel;
 
     before(async () => {
         panel = new BottomBarPanel();
+        await (await new Workbench().openNotificationsCenter()).clearAllNotifications();
     });
 
     after(async () => {
