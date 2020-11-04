@@ -50,7 +50,7 @@ import { BottomBarPanel, OutputView, TerminalView, Workbench } from 'vscode-exte
 
     describe('Terminal View', () => {
         let terminal: TerminalView;
-        const terminalName = process.platform === 'win32' ? 'powershell' : 'bash';
+        let terminalName = process.platform === 'win32' ? 'powershell' : 'bash';
 
         before(async () => {
             terminal = await panel.openTerminalView();
@@ -58,7 +58,12 @@ import { BottomBarPanel, OutputView, TerminalView, Workbench } from 'vscode-exte
 
         it('getText returns all current text', async function() {
             this.timeout(5000);
-            await terminal.selectChannel(`1: ${terminalName}`);
+            try {
+                await terminal.selectChannel(`1: ${terminalName}`);
+            } catch (err) {
+                terminalName = 'sh';
+                await terminal.selectChannel(`1: ${terminalName}`);
+            }
             const text = await terminal.getText();
             expect(text).not.empty;
         });

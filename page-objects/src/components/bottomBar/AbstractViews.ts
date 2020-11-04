@@ -69,6 +69,7 @@ export abstract class ChannelView extends ElementWithContexMenu {
 
         if (menus.length < 1) {
             await combo.click();
+            await this.getDriver().sleep(200);
             menu = await workbench.findElement(ChannelView.locators.ContextMenu.contextView);
             return menu.findElements(ChannelView.locators.BottomBarViews.channelRow);
         } else if (await menus[0].isDisplayed()) {
@@ -76,6 +77,7 @@ export abstract class ChannelView extends ElementWithContexMenu {
             await this.getDriver().sleep(200);
         }
         await combo.click();
+        await this.getDriver().sleep(200);
         menu = await workbench.findElement(ChannelView.locators.ContextMenu.contextView);
         return menu.findElements(ChannelView.locators.BottomBarViews.channelRow);
     }

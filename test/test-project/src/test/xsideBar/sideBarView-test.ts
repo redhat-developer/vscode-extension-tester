@@ -123,7 +123,7 @@ describe('SideBarView', () => {
             });
 
             it('getAction works', async () => {
-                const action = await section.getAction('Refresh Explorer');
+                const action = section.getAction('Refresh Explorer');
                 expect(action.getLabel()).equals('Refresh Explorer');
             });
 

@@ -1,5 +1,5 @@
 import { AbstractElement } from "../AbstractElement";
-import { Key, until } from "selenium-webdriver";
+import { Key, until, WebElement } from "selenium-webdriver";
 import { TitleBar } from "../menu/TitleBar";
 import { ProblemsView, OutputView, DebugConsoleView, TerminalView } from "../..";
 
@@ -93,12 +93,15 @@ export class BottomBarPanel extends AbstractElement {
 
     private async resize(label: string) {
         await this.toggle(true);
+        let action!: WebElement;
         try {
-            const action = await this.findElement(BottomBarPanel.locators.BottomBarPanel.actions)
+            action = await this.findElement(BottomBarPanel.locators.BottomBarPanel.actions)
                 .findElement(BottomBarPanel.locators.BottomBarPanel.action(label));
-            await action.click();
         } catch (err) {
             // the panel is already maximized
+        }
+        if (action) {
+            await action.click();
         }
     }
 }
