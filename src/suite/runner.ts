@@ -31,44 +31,47 @@ export class VSRunner {
      * Set up mocha suite, add vscode instance handling, run tests
      * @param testFilesPattern glob pattern of test files to run
      */
-    runTests(testFilesPattern: string, code: CodeUtil, logLevel: string = 'info'): void {
-        let self = this;
-        let browser: VSBrowser = new VSBrowser(this.codeVersion, this.customSettings, logLevel);
-        const universalPattern = testFilesPattern.replace(/'/g, '');
-        const testFiles = glob.sync(universalPattern);
-
-        testFiles.forEach((file) => {
-            if (fs.existsSync(file) && file.substr(-3) === '.js') {
-                this.mocha.addFile(file);
-            }
-        });
-
-        this.mocha.suite.afterEach(async function () {
-            if (this.currentTest && this.currentTest.state !== 'passed') {
-                try {
-                    await browser.takeScreenshot(this.currentTest.fullTitle());
-                } catch (err) {
-                    console.log('Screenshot capture failed');
+    runTests(testFilesPattern: string, code: CodeUtil, logLevel: string = 'info'): Promise<void> {
+        return new Promise(resolve => {
+            let self = this;
+            let browser: VSBrowser = new VSBrowser(this.codeVersion, this.customSettings, logLevel);
+            const universalPattern = testFilesPattern.replace(/'/g, '');
+            const testFiles = glob.sync(universalPattern);
+    
+            testFiles.forEach((file) => {
+                if (fs.existsSync(file) && file.substr(-3) === '.js') {
+                    this.mocha.addFile(file);
                 }
-            }
-        });
-
-        this.mocha.suite.beforeAll(async function () {
-            this.timeout(15000);
-            await browser.start(self.chromeBin);
-            await browser.waitForWorkbench();
-            await new Promise((res) => { setTimeout(res, 2000); });
-        });
-
-        this.mocha.suite.afterAll(async function() {
-            this.timeout(15000);
-            await browser.quit();
-
-            code.uninstallExtension(self.cleanup);
-        });
-
-        this.mocha.run((failures) => {
-            process.exitCode = failures ? 1 : 0;
+            });
+    
+            this.mocha.suite.afterEach(async function () {
+                if (this.currentTest && this.currentTest.state !== 'passed') {
+                    try {
+                        await browser.takeScreenshot(this.currentTest.fullTitle());
+                    } catch (err) {
+                        console.log('Screenshot capture failed');
+                    }
+                }
+            });
+    
+            this.mocha.suite.beforeAll(async function () {
+                this.timeout(15000);
+                await browser.start(self.chromeBin);
+                await browser.waitForWorkbench();
+                await new Promise((res) => { setTimeout(res, 2000); });
+            });
+    
+            this.mocha.suite.afterAll(async function() {
+                this.timeout(15000);
+                await browser.quit();
+    
+                code.uninstallExtension(self.cleanup);
+            });
+    
+            this.mocha.run((failures) => {
+                process.exitCode = failures ? 1 : 0;
+                resolve();
+            });
         });
     }
 

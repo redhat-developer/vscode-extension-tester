@@ -221,7 +221,7 @@ export class CodeUtil {
         process.env.TEST_RESOURCES = this.downloadFolder;
         process.env.EXTENSIONS_FOLDER = this.extensionsFolder;
         const runner = new VSRunner(this.executablePath, literalVersion, this.parseSettings(settings), cleanup, config);
-        runner.runTests(testFilesPattern, this, logLevel);
+        return runner.runTests(testFilesPattern, this, logLevel);
     }
 
     /**
