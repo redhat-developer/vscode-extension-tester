@@ -99,10 +99,12 @@ export class ExTester {
      * @param settings path to a custom vscode settings json file
      * @param useYarn when true run `vsce package` with the `--yarn` flag
      * @param cleanup true to uninstall the tested extension after the run, false otherwise
+     * 
+     * @returns Promise resolving to the mocha process exit code - 0 for no failures, 1 otherwise
      */
-    async setupAndRunTests(vscodeVersion: string = 'latest', testFilesPattern: string, settings: string = '', useYarn?: boolean, cleanup?: boolean, config?: string, installDependencies = false, logLevel: string = 'info'): Promise<void> {
+    async setupAndRunTests(vscodeVersion: string = 'latest', testFilesPattern: string, settings: string = '', useYarn?: boolean, cleanup?: boolean, config?: string, installDependencies = false, logLevel: string = 'info'): Promise<number> {
         await this.setupRequirements(vscodeVersion, useYarn, installDependencies);
-        await this.runTests(testFilesPattern, vscodeVersion, settings, cleanup, config, logLevel);
+        return this.runTests(testFilesPattern, vscodeVersion, settings, cleanup, config, logLevel);
     }
 
     /**
@@ -111,9 +113,11 @@ export class ExTester {
      * @param settings path to a custom vscode settings json file
      * @param vscodeVersion version of VSCode to test against, default latest
      * @param cleanup true to uninstall the tested extension after the run, false otherwise
+     * 
+     * @returns Promise resolving to the mocha process exit code - 0 for no failures, 1 otherwise
      */
-    async runTests(testFilesPattern: string, vscodeVersion: string = 'latest', settings: string = '', cleanup?: boolean, config?: string, logLevel: string = 'info'): Promise<void> {
+    async runTests(testFilesPattern: string, vscodeVersion: string = 'latest', settings: string = '', cleanup?: boolean, config?: string, logLevel: string = 'info'): Promise<number> {
         await this.installVsix({ vsixFile: path.join(__dirname, '..', 'resources', 'api-handler.vsix')});
-        await this.code.runTests(testFilesPattern, vscodeVersion, settings, cleanup, config, logLevel);
+        return this.code.runTests(testFilesPattern, vscodeVersion, settings, cleanup, config, logLevel);
     }
 }
