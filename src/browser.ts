@@ -95,7 +95,7 @@ export class VSBrowser {
     }
 
     /**
-     * Returns a refenrece to the underlying instance of Webdriver
+     * Returns a reference to the underlying instance of Webdriver
      */
     get driver(): WebDriver {
         return this._driver;
