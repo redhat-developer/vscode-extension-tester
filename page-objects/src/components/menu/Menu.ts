@@ -45,8 +45,11 @@ export abstract class Menu extends AbstractElement {
     async select(...path: string[]): Promise<Menu | undefined> {
         let parent: Menu = this;
         for (const label of path) {
-            const item = await parent.getItem(label);
+			const item = await parent.getItem(label);
             if (!item) return parent;
+            await Menu.driver.wait(async function () {
+                return await item.isDisplayed() && await item.isEnabled();
+            });
             const submenu = await item.select();
             if (submenu) {
                 parent = submenu;
