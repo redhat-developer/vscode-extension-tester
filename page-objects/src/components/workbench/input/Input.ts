@@ -67,6 +67,9 @@ export abstract class Input extends AbstractElement {
             .findElement(Input.locators.Input.input);
         // VS Code 1.40 breaks the default clear method, use select all + back space instead
         await input.sendKeys(Key.END, Key.chord(Key.SHIFT, Key.HOME), Key.BACK_SPACE);
+        if ((await input.getAttribute('value')).length > 0) {
+            await input.sendKeys(Key.END, Key.chord(Key.SHIFT, Key.HOME), Key.BACK_SPACE);
+        }
     }
 
     /**
