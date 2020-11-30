@@ -1,5 +1,18 @@
 # Change Log
 
+## 3.2.3 + Page Objects 1.3.0 (Nov 30)
+ - `runTests` and `setupAndRun` methods from `ExTester` API now properly wait for mocha to finish running before resolving
+ - `runTests` and `setupAndRun` now return mocha's exit code instead of void
+ - `ExtensionViewItem#install` now by default waits for the installation to finish before resolving
+   - timeout can be passed as argument
+   - passing in a zero timeout will skip the wait
+ - `Menu#select` will now wait for the appropriate menu item to be enabled before clicking it
+   - this should fix some menus getting stuck after an item is clicked, with no effect
+ - `InputBox` should now properly type in paths into Simple file dialog on unix systems
+   - if confirming the dialog doesn't in fact confirm it, make sure to use paths that end with a trailing path separator
+ - `DialogHandler#getOpenDialog` now has a variable delay to wait before trying to get the native dialog
+   - note this is still a hard wait, this change is meant to give some people the ability to use longer waits on slower machines 
+
 ## 3.2.2 + Page Objects 1.2.5 (Oct 29)
  - webdriver logs are now collected and saved by default to your test resource folder as `test.log`
    - default log level is INFO

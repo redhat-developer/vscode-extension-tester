@@ -1,6 +1,6 @@
 {
   "name": "vscode-extension-tester-native",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Native dialog support for vscode extension tester",
   "main": "out/dialogHandler.js",
   "types": "out/dialogHandler.d.ts",
