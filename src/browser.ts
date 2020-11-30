@@ -7,6 +7,19 @@ import { WebDriver, Builder, until, By, initPageObjects, logging } from 'monaco-
 import { Options } from 'selenium-webdriver/chrome';
 import { getLocatorsPath } from 'vscode-extension-tester-locators';
 
+/** Logging levels supported by the WebDriver */
+export const enum VSBrowserLogLevel {
+  All,
+  Finest,
+  Finer,
+  Fine,
+  Debug,
+  Info,
+  Warning,
+  Severe,
+  Off,
+}
+
 export class VSBrowser {
     static readonly baseVersion = '1.37.0';
     static readonly browserName = 'vscode';
@@ -23,17 +36,18 @@ export class VSBrowser {
     private logLevel: logging.Level;
     private static _instance: VSBrowser;
 
-    constructor(codeVersion: string, customSettings: Object = {}, logLevel: string = 'info') {
+    private static logLevelToLoggingLevel(logLevel: VSBrowserLogLevel): logging.Level {
+        const level = VSBrowser.logLevels[logLevel.toString()];
+        return level ?? logging.Level.INFO;
+    }
+
+    constructor(codeVersion: string, customSettings: Object = {}, logLevel: VSBrowserLogLevel = VSBrowserLogLevel.Info) {
         this.storagePath = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.resolve('test-resources');
         this.extensionsFolder = process.env.EXTENSIONS_FOLDER ? process.env.EXTENSIONS_FOLDER : undefined;
         this.customSettings = customSettings;
         this.codeVersion = codeVersion;
 
-        if (VSBrowser.logLevels[logLevel.toLowerCase()]) {
-            this.logLevel = VSBrowser.logLevels[logLevel.toLowerCase()];
-        } else {
-            this.logLevel = logging.Level.INFO;
-        }
+        this.logLevel = VSBrowser.logLevelToLoggingLevel(logLevel);
 
         VSBrowser._instance = this;
     };
