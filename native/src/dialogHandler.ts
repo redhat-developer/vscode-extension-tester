@@ -10,9 +10,11 @@ export class DialogHandler {
     /**
      * Get the appropriate native dialog for opening folders.
      * Returns platform specific dialog object.
+     * 
+     * @param delay time to wait for the dialog to open in milliseconds
      */
-    static async getOpenDialog(): Promise<OpenDialog> {
-        await new Promise((res) => { setTimeout(res, 4000); });
+    static async getOpenDialog(delay: number = 4000): Promise<OpenDialog> {
+        await new Promise((res) => { setTimeout(res, delay); });
         switch (process.platform) {
             case 'win32': {
                 return new WindowsOpenDialog();
