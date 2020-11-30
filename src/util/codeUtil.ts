@@ -53,7 +53,7 @@ export class CodeUtil {
      * Get all versions for the given release stream
      */
     async getVSCodeVersions(): Promise<string[]> {
-        const apiUrl = `https://vscode-update.azurewebsites.net/api/releases/${this.releaseType}`;
+        const apiUrl = `https://update.code.visualstudio.com/api/releases/${this.releaseType}`;
         const headers = {
             'user-agent': 'nodejs'
         };
