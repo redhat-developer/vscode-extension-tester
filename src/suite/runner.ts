@@ -49,7 +49,7 @@ export class VSRunner {
                     try {
                         await browser.takeScreenshot(this.currentTest.fullTitle());
                     } catch (err) {
-                        console.log('Screenshot capture failed');
+                        console.log('Screenshot capture failed.', err);
                     }
                 }
             });
@@ -58,7 +58,7 @@ export class VSRunner {
                 this.timeout(15000);
                 await browser.start(self.chromeBin);
                 await browser.waitForWorkbench();
-                await new Promise((res) => { setTimeout(res, 2000); });
+				await new Promise((res) => { setTimeout(res, 2000); });
             });
     
             this.mocha.suite.afterAll(async function() {
