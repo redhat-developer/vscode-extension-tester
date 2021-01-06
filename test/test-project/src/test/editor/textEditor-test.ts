@@ -86,7 +86,6 @@ describe('TextEditor', () => {
 
     it('toggleContentAssist works', async function() {
         this.timeout(15000);
-        await editor.moveCursor(2, 6);
         const assist = await editor.toggleContentAssist(true) as ContentAssist;
         expect(await assist.isDisplayed()).is.true;
 

@@ -34,7 +34,7 @@
     "@types/selenium-webdriver": "^3.0.15",
     "rimraf": "^3.0.0",
     "typedoc": "^0.19.2",
-    "typescript": "^4.0.3"
+    "typescript": "4.0.3"
   },
   "dependencies": {
     "clipboardy": "^2.0.0",

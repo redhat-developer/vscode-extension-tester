@@ -49,7 +49,7 @@ describe('SideBarView', () => {
         let content: ViewContent;
 
         before(async function() {
-            this.timeout(6000);
+            this.timeout(15000);
             await new Workbench().executeCommand('extest open folder');
             const input = await InputBox.create();
             await input.setText(path.resolve(__dirname, '..', '..', '..', '..', 'resources', 'test-folder'));
