@@ -4,6 +4,7 @@ import { BottomBarPanel, OutputView, TerminalView, Workbench } from 'vscode-exte
 (process.platform === 'darwin' ? describe.skip : describe)('Output View/Text Views', () => {
     let panel: BottomBarPanel;
     let view: OutputView;
+    const channelName = 'Git';
 
     before(async () => {
         const center = await new Workbench().openNotificationsCenter();
@@ -28,20 +29,19 @@ import { BottomBarPanel, OutputView, TerminalView, Workbench } from 'vscode-exte
     });
 
     it('selectChannel works', async () => {
-        const desired = 'Git';
-        await view.selectChannel(desired);
+        await view.selectChannel('Tasks');
         const final = await view.getCurrentChannel();
-        expect(desired).equals(final);
+        expect('Tasks').equals(final);
     });
 
     it('getText returns all current text', async () => {
-        await view.selectChannel('Git');
+        await view.selectChannel(channelName);
         const text = await view.getText();
         expect(text).not.empty;
     });
 
     it('clearText clears the text view', async () => {
-        await view.selectChannel('Git');
+        await view.selectChannel(channelName);
         const text = await view.getText();
         await view.clearText();
         const cleared = await view.getText();
@@ -56,8 +56,7 @@ import { BottomBarPanel, OutputView, TerminalView, Workbench } from 'vscode-exte
             terminal = await panel.openTerminalView();
         });
 
-        it('getText returns all current text', async function() {
-            this.timeout(5000);
+        it('getText returns all current text', async () => {
             try {
                 await terminal.selectChannel(`1: ${terminalName}`);
             } catch (err) {

@@ -52,9 +52,11 @@ export abstract class ChannelView extends ElementWithContexMenu {
         const rows = await this.getOptions();
         for (let i = 0; i < rows.length; i++) {
             if ((await rows[i].getAttribute('class')).indexOf('disabled') < 0) {
-                const text = await rows[i].findElement(ChannelView.locators.BottomBarViews.channelText).getText();
+                const text = await (await rows[i].findElement(ChannelView.locators.BottomBarViews.channelText)).getText();
                 if (name === text) {
-                    return await rows[i].click();
+                    await rows[i].click();
+                    await new Promise(res => setTimeout(res, 500));
+                    return;
                 }
             }
         }
@@ -69,15 +71,15 @@ export abstract class ChannelView extends ElementWithContexMenu {
 
         if (menus.length < 1) {
             await combo.click();
-            await this.getDriver().sleep(200);
+            await this.getDriver().sleep(500);
             menu = await workbench.findElement(ChannelView.locators.ContextMenu.contextView);
             return menu.findElements(ChannelView.locators.BottomBarViews.channelRow);
         } else if (await menus[0].isDisplayed()) {
             await combo.click();
-            await this.getDriver().sleep(200);
+            await this.getDriver().sleep(500);
         }
         await combo.click();
-        await this.getDriver().sleep(200);
+        await this.getDriver().sleep(500);
         menu = await workbench.findElement(ChannelView.locators.ContextMenu.contextView);
         return menu.findElements(ChannelView.locators.BottomBarViews.channelRow);
     }
