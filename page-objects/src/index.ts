@@ -50,6 +50,8 @@ export * from './components/workbench/input/InputBox';
 export * from './components/workbench/input/QuickOpenBox';
 export * from './components/workbench/Workbench';
 
+export * from './components/dialog/ModalDialog';
+
 export * from './conditions/WaitForAttribute';
 
 /**

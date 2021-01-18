@@ -84,8 +84,8 @@
 		"compile": "rimraf out && tsc -p ./",
 		"lint": "tslint -p ./",
 		"watch": "tsc -watch -p ./",
-		"ui-test": "npm run compile && extest setup-and-run './out/src/test/**/*test.js' -i",
-		"ci-test": "npm run compile && extest setup-and-run './out/src/test/**/*test.js' -u -s ~/test"
+		"ui-test": "npm run compile && extest setup-and-run './out/src/test/**/*test.js' -i -o settings.json",
+		"ci-test": "npm run compile && extest setup-and-run './out/src/test/**/*test.js' -u -s ~/test -o settings.json"
 	},
 	"devDependencies": {
 		"@types/chai": "^4.2.6",
