@@ -317,6 +317,16 @@ const input = {
     }
 }
 
+const dialog = {
+    Dialog: {
+        constructor: By.className('monaco-dialog-box'),
+        message: By.className('dialog-message-text'),
+        details: By.className('dialog-message-detail'),
+        buttonContainer: By.className('dialog-buttons-row'),
+        button: By.className('monaco-text-button')
+    }
+}
+
 /**
  * All available locators for vscode version 1.37.0
  */
@@ -328,5 +338,6 @@ export const locators: Locators = {
     ...sideBar,
     ...statusBar,
     ...workbench,
-    ...input
+    ...input,
+    ...dialog
 }

@@ -312,6 +312,15 @@ export interface Locators {
         quickList: By
         row: By
     }
+
+    // Dialogs
+    Dialog: {
+        constructor: By
+        message: By
+        details: By
+        buttonContainer: By
+        button: By
+    }
 }
 
 /**
