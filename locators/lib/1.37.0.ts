@@ -323,7 +323,8 @@ const dialog = {
         message: By.className('dialog-message-text'),
         details: By.className('dialog-message-detail'),
         buttonContainer: By.className('dialog-buttons-row'),
-        button: By.className('monaco-text-button')
+        button: By.className('monaco-text-button'),
+        closeButton: By.className('codicon-dialog-close')
     }
 }
 

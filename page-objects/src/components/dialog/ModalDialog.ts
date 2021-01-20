@@ -1,4 +1,4 @@
-import { By, WebElement } from "selenium-webdriver";
+import { WebElement } from "selenium-webdriver";
 import { AbstractElement } from "../AbstractElement";
 
 /**
@@ -6,14 +6,14 @@ import { AbstractElement } from "../AbstractElement";
  */
 export class ModalDialog extends AbstractElement {
     constructor() {
-        super(By.className('monaco-dialog-box'));
+        super(ModalDialog.locators.Dialog.constructor);
     }
 
     /**
      * Get the dialog's message in a Promise
      */
     async getMessage(): Promise<string> {
-        const message = await this.findElement(By.className('dialog-message-text'));
+        const message = await this.findElement(ModalDialog.locators.Dialog.message);
         return message.getText();
     }
 
@@ -21,7 +21,7 @@ export class ModalDialog extends AbstractElement {
      * Get the details message in a Promise
      */
     async getDetails(): Promise<string> {
-        const details = await this.findElement(By.className('dialog-message-detail'));
+        const details = await this.findElement(ModalDialog.locators.Dialog.details);
         return details.getText();
     }
 
@@ -31,7 +31,7 @@ export class ModalDialog extends AbstractElement {
      * @returns Promise resolving to Array of WebElement items representing the buttons
      */
     async getButtons(): Promise<WebElement[]> {
-        return this.findElement(By.className('dialog-buttons-row')).findElements(By.className('monaco-text-button'));
+        return this.findElement(ModalDialog.locators.Dialog.buttonContainer).findElements(ModalDialog.locators.Dialog.button);
     }
 
     /**
@@ -46,5 +46,13 @@ export class ModalDialog extends AbstractElement {
         if (index > -1) {
             await buttons[index].click();
         }
+    }
+
+    /**
+     * Close the dialog using the 'cross' button
+     */
+    async close(): Promise<void> {
+        const btn = await this.findElement(ModalDialog.locators.Dialog.closeButton);
+        return btn.click();
     }
 }

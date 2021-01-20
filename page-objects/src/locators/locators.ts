@@ -320,6 +320,7 @@ export interface Locators {
         details: By
         buttonContainer: By
         button: By
+        closeButton: By
     }
 }
 
