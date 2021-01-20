@@ -1,5 +1,13 @@
 # Change Log
 
+## 3.2.5 (Jan 20)
+ - error message is now included in the log when screenshot capture fails
+ - tentative fix for `unknown error: DevToolsActivePort file doesn't exist` on launch
+ - new page object `ModalDialog`, handles custom style modal dialogs (accessible from vscode 1.50.0 onward via a setting)
+
+## 3.2.4
+ - fix URL for vscode version check
+
 ## 3.2.3 + Page Objects 1.3.0 (Nov 30)
  - `runTests` and `setupAndRun` methods from `ExTester` API now properly wait for mocha to finish running before resolving
  - `runTests` and `setupAndRun` now return mocha's exit code instead of void
