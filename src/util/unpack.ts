@@ -1,6 +1,5 @@
 import * as fs from 'fs-extra';
 import { exec } from 'child_process';
-import * as path from 'path';
 const targz = require('targz');
 const unzip = require('unzip-stream');
 
@@ -18,7 +17,7 @@ export class Unpack {
             else if (input.toString().endsWith('.zip')) {
                 if (process.platform === 'darwin') {
                     fs.mkdirpSync(target.toString());
-                    exec(`cd ${target} && unzip -qo ${path.basename(input.toString())}`, (err) => {
+                    exec(`cd ${target} && unzip -qo ${input.toString()}`, (err) => {
                         if (err) {
                             reject(err);
                         } else {
