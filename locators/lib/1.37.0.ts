@@ -177,7 +177,8 @@ const sideBar = {
         button: By.xpath(`.//a[@role='button']`),
         buttonLabel: 'title',
         level: 'aria-level',
-        index: 'data-index'
+        index: 'data-index',
+        welcomeContent: By.xpath('.//div[@class="pane-body welcome"]')
     },
     TreeItem: {
         actions: By.className('actions-container'),
@@ -329,6 +330,17 @@ const dialog = {
     }
 }
 
+const welcomeContentButtonSelector = ".//a[@class='monaco-button monaco-text-button']"
+const welcomeContentTextSelector = ".//p"
+
+const welcome = {
+    WelcomeContent: {
+        button: By.xpath(welcomeContentButtonSelector),
+        buttonOrText: By.xpath(`${welcomeContentButtonSelector} | ${welcomeContentTextSelector}`),
+        text: By.xpath(welcomeContentTextSelector)
+    }
+}
+
 /**
  * All available locators for vscode version 1.37.0
  */
@@ -341,5 +353,6 @@ export const locators: Locators = {
     ...statusBar,
     ...workbench,
     ...input,
-    ...dialog
+    ...dialog,
+    ...welcome
 }
