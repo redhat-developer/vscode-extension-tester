@@ -6,10 +6,31 @@ import * as path from 'path';
 import * as child_process from 'child_process';
 import { VSRunner } from "../suite/runner";
 import { Unpack } from "./unpack";
+import { VSBrowserLogLevel } from "../browser";
 
 export enum ReleaseQuality {
     Stable = 'stable',
     Insider = 'insider'
+}
+
+export interface RunOptions {
+    /** version of VSCode to test against, defaults to latest */
+    vscodeVersion?: string;
+    /** path to custom settings json file */
+    settings?: string;
+    /** remove the extension's directory as well (if present) */
+    cleanup?: boolean;
+    /** path to a custom mocha configuration file */
+    config?: string;
+    /** logging level of the webdriver */
+    logLevel?: VSBrowserLogLevel;
+}
+
+/** defaults for the [[RunOptions]] */
+export const DEFAULT_RUN_OPTIONS = {
+    vscodeVersion: 'latest',
+    settings: '',
+    logLevel: VSBrowserLogLevel.Info
 }
 
 /**
@@ -185,6 +206,8 @@ export class CodeUtil {
 
     /**
      * Uninstall the tested extension from the test instance of VS Code
+     *
+     * @param cleanup remove the extension's directory as well.
      */
     uninstallExtension(cleanup?: boolean): void {
         const pjson = require(path.resolve('package.json'));
@@ -207,14 +230,15 @@ export class CodeUtil {
 
     /**
      * Run tests in your test environment using mocha
-     * 
+     *
      * @param testFilesPattern glob pattern of test files to run
-     * @param settings path to custom settings json file
-     * @param vscodeVersion version of VSCode to test against, default latest
+     * @param runOptions additional options for customizing the test run
+     *
+     * @return The exit code of the mocha process
      */
-    async runTests(testFilesPattern: string, vscodeVersion: string = 'latest', settings: string = '', cleanup?: boolean, config?: string, logLevel: string = 'info'): Promise<number> {
-        await this.checkCodeVersion(vscodeVersion);
-        const literalVersion = vscodeVersion === 'latest' ? this.availableVersions[0] : vscodeVersion;
+    async runTests(testFilesPattern: string, runOptions: RunOptions = DEFAULT_RUN_OPTIONS): Promise<number> {
+        await this.checkCodeVersion(runOptions.vscodeVersion ?? DEFAULT_RUN_OPTIONS.vscodeVersion);
+        const literalVersion = runOptions.vscodeVersion === undefined || runOptions.vscodeVersion === 'latest' ? this.availableVersions[0] : runOptions.vscodeVersion;
 
         // add chromedriver to process' path
         const finalEnv: NodeJS.ProcessEnv = {};
@@ -225,8 +249,8 @@ export class CodeUtil {
         process.env = finalEnv;
         process.env.TEST_RESOURCES = this.downloadFolder;
         process.env.EXTENSIONS_FOLDER = this.extensionsFolder;
-        const runner = new VSRunner(this.executablePath, literalVersion, this.parseSettings(settings), cleanup, config);
-        return runner.runTests(testFilesPattern, this, logLevel);
+        const runner = new VSRunner(this.executablePath, literalVersion, this.parseSettings(runOptions.settings ?? DEFAULT_RUN_OPTIONS.settings), runOptions.cleanup, runOptions.config);
+        return runner.runTests(testFilesPattern, this, runOptions.logLevel);
     }
 
     /**
