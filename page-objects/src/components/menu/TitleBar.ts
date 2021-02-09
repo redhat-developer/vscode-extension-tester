@@ -1,3 +1,4 @@
+import { Key } from "selenium-webdriver";
 import { WindowControls, ContextMenu } from "../..";
 import { Menu } from "./Menu";
 import { MenuItem } from "./MenuItem";
@@ -67,13 +68,26 @@ export class TitleBarItem extends MenuItem {
     }
 
     async select(): Promise<ContextMenu> {
-        // because we are not moving the mouse, we might need 2 clicks when another item is open
-        for (let index = 0; index < 2; index++) {
-            const klass = await this.getAttribute('class');
-            if (klass.indexOf('open') < 0) {
-                await this.click();
-            }
+        const openMenus = await this.getDriver().findElements(TitleBar.locators.ContextMenu.constructor);
+        if (openMenus.length > 0 && openMenus[0].isDisplayed()) {
+            await this.getDriver().actions().sendKeys(Key.ESCAPE).perform();
         }
-        return await new ContextMenu(this).wait();
+        await this.click();
+        const menu = await new ContextMenu(this).wait();
+        let items = (await menu.getItems()).length;
+        try {
+            await this.getDriver().wait(async () => {
+                const temp = (await menu.getItems()).length;
+                if (temp === items) {
+                    return true;
+                } else {
+                    items = temp;
+                    return false;
+                }
+            }, 2000);
+        } catch (err) {
+            console.log(err);
+        }
+        return menu;
     }
 }

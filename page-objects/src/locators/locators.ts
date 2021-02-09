@@ -115,6 +115,7 @@ export interface Locators {
         checkboxSetting: By
         checkboxChecked: string
         linkButton: By
+        itemCount: By
     }
     DiffEditor: {
         originalEditor: By
