@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { BottomBarPanel, OutputView, TerminalView, Workbench } from 'vscode-extension-tester';
+import { BottomBarPanel, OutputView, TerminalView, VSBrowser, Workbench } from 'vscode-extension-tester';
 
 (process.platform === 'darwin' ? describe.skip : describe)('Output View/Text Views', () => {
     let panel: BottomBarPanel;
@@ -50,7 +50,7 @@ import { BottomBarPanel, OutputView, TerminalView, Workbench } from 'vscode-exte
 
     describe('Terminal View', () => {
         let terminal: TerminalView;
-        let terminalName = process.platform === 'win32' ? 'powershell' : 'bash';
+        let terminalName = process.platform === 'win32' ? (VSBrowser.instance.version >= '1.53.0' ? 'pwsh' : 'powershell') : 'bash';
 
         before(async () => {
             terminal = await panel.openTerminalView();
