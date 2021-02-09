@@ -69,6 +69,7 @@ export class ContextMenuItem extends MenuItem {
 
     async select(): Promise<Menu | undefined> {
         await this.click();
+        await new Promise(res => setTimeout(res, 500));
         if (await this.isNesting()) {
             return await new ContextMenu(this).wait();
         }

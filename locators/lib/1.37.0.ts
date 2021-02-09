@@ -112,7 +112,8 @@ const editor = {
         textSetting: By.tagName('input'),
         checkboxSetting: By.className('setting-value-checkbox'),
         checkboxChecked: 'aria-checked',
-        linkButton: By.className('edit-in-settings-button')
+        linkButton: By.className('edit-in-settings-button'),
+        itemCount: By.className('settings-count-widget')
     },
     DiffEditor: {
         originalEditor: By.className('original-in-monaco-diff-editor'),

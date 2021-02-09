@@ -14,13 +14,13 @@ describe('SettingsEditor', () => {
     });
 
     it('findSetting works', async function() {
-        this.timeout(8000);
+        this.timeout(15000);
         const setting = await editor.findSetting('Title Bar Style', 'Window');
         expect(setting).not.undefined;
     });
 
     it('findSetting works for nested configurations', async function() {
-        this.timeout(8000);
+        this.timeout(15000);
         const setting = await editor.findSetting('Hello World', 'Test Project', 'General');
         expect(setting).not.undefined;
     });
@@ -29,7 +29,7 @@ describe('SettingsEditor', () => {
         let setting: ComboSetting;
 
         before(async function() {
-            this.timeout(8000);
+            this.timeout(15000);
             setting = await editor.findSetting('Title Bar Style', 'Window') as ComboSetting;
         });
 
@@ -63,7 +63,7 @@ describe('SettingsEditor', () => {
         let setting: TextSetting;
 
         before(async function() {
-            this.timeout(8000);
+            this.timeout(15000);
             setting = await editor.findSetting('Auto Save Delay', 'Files') as TextSetting;
         });
 
@@ -83,7 +83,7 @@ describe('SettingsEditor', () => {
         let setting: CheckboxSetting;
 
         before(async function() {
-            this.timeout(8000);
+            this.timeout(15000);
             setting = await editor.findSetting('Code Lens', 'Editor') as CheckboxSetting;
         });
 

@@ -30,7 +30,19 @@ export class SettingsEditor extends Editor {
         const searchBox = await this.findElement(SettingsEditor.locators.Editor.inputArea);
         await searchBox.sendKeys(Key.chord(SettingsEditor.ctlKey, 'a'));
         await searchBox.sendKeys(`${category}: ${title}`);
-        await SettingsEditor.driver.sleep(2000);
+
+        const count = await this.findElement(SettingsEditor.locators.SettingsEditor.itemCount);
+        let textCount = await count.getText();
+
+        await this.getDriver().wait(async() => {
+            await new Promise(res => setTimeout(res, 1500));
+            const text = await count.getText();
+            if (text !== textCount) {
+                textCount = text;
+                return false;
+            }
+            return true;
+        });
 
         let setting!: Setting;
         const items = await this.findElements(SettingsEditor.locators.SettingsEditor.itemRow);
@@ -114,14 +126,14 @@ export abstract class Setting extends AbstractElement {
      * 
      * @returns promise that resolves to the current value of the setting
      */
-    abstract async getValue(): Promise<string | boolean>
+    abstract getValue(): Promise<string | boolean>
     
     /**
      * Set the value of the setting based on its input type
      *
      * @param value boolean for checkboxes, string otherwise
      */
-    abstract async setValue(value: string | boolean): Promise<void>
+    abstract setValue(value: string | boolean): Promise<void>
 
     /**
      * Get the category of the setting
@@ -189,7 +201,7 @@ export class ComboSetting extends Setting {
     }
 
     private async openCombo(): Promise<WebElement> {
-        const combo = await this.enclosingItem.findElement(SettingsEditor.locators.SettingsEditor.comboSetting);
+        const combo = await this.findElement(SettingsEditor.locators.SettingsEditor.comboSetting);
         const workbench = await this.getDriver().findElement(SettingsEditor.locators.Workbench.constructor);
         const menus = await workbench.findElements(SettingsEditor.locators.ContextMenu.contextView);
         let menu!: WebElement;
