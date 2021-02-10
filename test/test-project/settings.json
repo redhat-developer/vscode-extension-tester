@@ -1,3 +1,4 @@
 {
-    "window.dialogStyle": "custom"
+    "window.dialogStyle": "custom",
+    "files.simpleDialog.enable": true
 }

@@ -45,6 +45,7 @@ export abstract class Input extends AbstractElement {
     async confirm(): Promise<void> {
         const input = await this.findElement(Input.locators.Input.inputBox)
             .findElement(Input.locators.Input.input);
+        await input.click();
         await input.sendKeys(Key.ENTER);
     }
 
