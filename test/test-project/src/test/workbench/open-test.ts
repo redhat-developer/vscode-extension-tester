@@ -5,9 +5,10 @@ describe('Simple open file dialog', () => {
     const filePath = path.resolve('.', 'package.json');
 
     it('Opens a file', async () => {
-        await new Workbench().executeCommand('file: open file');
-        const input = await InputBox.create();
-        console.log(filePath.slice(1, filePath.length))
+        const input = await new Workbench().openCommandPrompt();
+        await input.setText('>File: Open File...')
+        await input.selectQuickPick('File: Open File...');
+        await new Promise(res => setTimeout(res, 1000));
         await input.setText(filePath);
         await input.confirm();
         await new Promise(res => setTimeout(res, 1000));
