@@ -1,5 +1,13 @@
 # Change Log
 
+## 3.2.6 (Feb 10)
+ - now compatible with vscode 1.53
+ - navigating through the top menu now waits for the whole context menu to load before clicking, slower but more robust
+ - searching for a setting in the settings editor now also waits for the page to finish loading
+ - simple file dialog should now be less likely to randomly 'correct' the file path on confirm
+ - fixed wrong file name with the vscode-insiders archive
+ - screenshot capture file names have been sanitized, should no longer error when your test cases contain certain characters
+
 ## 3.2.5 (Jan 20)
  - error message is now included in the log when screenshot capture fails
  - tentative fix for `unknown error: DevToolsActivePort file doesn't exist` on launch
