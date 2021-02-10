@@ -7,6 +7,7 @@ import * as glob from 'glob';
 import { CodeUtil } from '../util/codeUtil';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
+import sanitize = require('sanitize-filename');
 
 /**
  * Mocha runner wrapper
@@ -47,7 +48,8 @@ export class VSRunner {
             this.mocha.suite.afterEach(async function () {
                 if (this.currentTest && this.currentTest.state !== 'passed') {
                     try {
-                        await browser.takeScreenshot(this.currentTest.fullTitle());
+                        const filename = sanitize(this.currentTest.fullTitle());
+                        await browser.takeScreenshot(filename);
                     } catch (err) {
                         console.log('Screenshot capture failed.', err);
                     }
