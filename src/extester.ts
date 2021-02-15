@@ -1,6 +1,6 @@
 'use strict';
 
-import { CodeUtil, ReleaseQuality } from './util/codeUtil';
+import { CodeUtil, DEFAULT_RUN_OPTIONS, ReleaseQuality, RunOptions } from './util/codeUtil';
 import { DriverUtil } from './util/driverUtil';
 import * as fs from 'fs-extra';
 import * as path from 'path';
@@ -10,6 +10,20 @@ export { ReleaseQuality }
 export { MochaOptions } from 'mocha';
 export * from './browser';
 export * from 'monaco-page-objects';
+
+export interface SetupOptions {
+    /** version of VSCode to test against, defaults to latest */
+    vscodeVersion?: string;
+    /** when true run `vsce package` with the `--yarn` flag */
+    useYarn?: boolean;
+    /** install the extension's dependencies from the marketplace. Defaults to `false`. */
+    installDependencies?: boolean;
+}
+
+export const DEFAULT_SETUP_OPTIONS = {
+    vscodeVersion: 'latest',
+    installDependencies: false
+}
 
 /**
  * VSCode Extension Tester
@@ -76,13 +90,13 @@ export class ExTester {
     }
 
     /**
-     * Performs all necessary setup: getting VSCode + ChromeDriver 
+     * Performs all necessary setup: getting VSCode + ChromeDriver
      * and packaging/installing extension into the test instance
-     * 
-     * @param vscodeVersion version of VSCode to test against, default latest
-     * @param useYarn when true run `vsce package` with the `--yarn` flag
+     *
+     * @param options Additional options for setting up the tests
      */
-    async setupRequirements(vscodeVersion: string = 'latest', useYarn?: boolean, installDependencies = false): Promise<void> {
+    async setupRequirements(options: SetupOptions = DEFAULT_SETUP_OPTIONS): Promise<void> {
+        const { useYarn, vscodeVersion, installDependencies } = options;
         await this.downloadCode(vscodeVersion);
         await this.downloadChromeDriver(vscodeVersion);
         await this.installVsix({useYarn});
@@ -94,30 +108,27 @@ export class ExTester {
     /**
      * Performs requirements setup and runs extension tests
      * 
-     * @param vscodeVersion version of VSCode to test against, default latest
      * @param testFilesPattern glob pattern for test files to run
-     * @param settings path to a custom vscode settings json file
-     * @param useYarn when true run `vsce package` with the `--yarn` flag
-     * @param cleanup true to uninstall the tested extension after the run, false otherwise
+     * @param vscodeVersion version of VSCode to test against, defaults to latest
+     * @param setupOptions Additional options for setting up the tests
+     * @param runOptions Additional options for running the tests
      * 
      * @returns Promise resolving to the mocha process exit code - 0 for no failures, 1 otherwise
      */
-    async setupAndRunTests(vscodeVersion: string = 'latest', testFilesPattern: string, settings: string = '', useYarn?: boolean, cleanup?: boolean, config?: string, installDependencies = false, logLevel: string = 'info'): Promise<number> {
-        await this.setupRequirements(vscodeVersion, useYarn, installDependencies);
-        return this.runTests(testFilesPattern, vscodeVersion, settings, cleanup, config, logLevel);
+    async setupAndRunTests(testFilesPattern: string, vscodeVersion: string = 'latest', setupOptions: Omit<SetupOptions, "vscodeVersion"> = DEFAULT_SETUP_OPTIONS, runOptions: Omit<RunOptions, "vscodeVersion"> = DEFAULT_RUN_OPTIONS): Promise<number> {
+        await this.setupRequirements({...setupOptions, vscodeVersion});
+        return this.runTests(testFilesPattern, {...runOptions, vscodeVersion});
     }
 
     /**
      * Runs the selected test files in VS Code using mocha and webdriver
      * @param testFilesPattern glob pattern for selected test files
-     * @param settings path to a custom vscode settings json file
-     * @param vscodeVersion version of VSCode to test against, default latest
-     * @param cleanup true to uninstall the tested extension after the run, false otherwise
+     * @param runOptions Additional options for running the tests
      * 
      * @returns Promise resolving to the mocha process exit code - 0 for no failures, 1 otherwise
      */
-    async runTests(testFilesPattern: string, vscodeVersion: string = 'latest', settings: string = '', cleanup?: boolean, config?: string, logLevel: string = 'info'): Promise<number> {
+    async runTests(testFilesPattern: string, runOptions: RunOptions = DEFAULT_RUN_OPTIONS): Promise<number> {
         await this.installVsix({ vsixFile: path.join(__dirname, '..', 'resources', 'api-handler.vsix')});
-        return this.code.runTests(testFilesPattern, vscodeVersion, settings, cleanup, config, logLevel);
+        return this.code.runTests(testFilesPattern, runOptions);
     }
 }

@@ -1,6 +1,6 @@
 'use strict';
 
-import { VSBrowser } from '../browser';
+import { VSBrowser, VSBrowserLogLevel } from '../browser';
 import * as fs from 'fs-extra';
 import Mocha = require('mocha');
 import * as glob from 'glob';
@@ -31,8 +31,9 @@ export class VSRunner {
     /**
      * Set up mocha suite, add vscode instance handling, run tests
      * @param testFilesPattern glob pattern of test files to run
+     * @return The exit code of the mocha process
      */
-    runTests(testFilesPattern: string, code: CodeUtil, logLevel: string = 'info'): Promise<number> {
+    runTests(testFilesPattern: string, code: CodeUtil, logLevel: VSBrowserLogLevel = VSBrowserLogLevel.Info): Promise<number> {
         return new Promise(resolve => {
             let self = this;
             let browser: VSBrowser = new VSBrowser(this.codeVersion, this.customSettings, logLevel);

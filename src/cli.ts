@@ -67,8 +67,8 @@ program.command('setup-tests')
     .option('-i, --install_dependencies', 'Automatically install extensions your extension depends on', false)
     .action(withErrors(async (cmd) => {
         const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
-        const version = loadCodeVersion(cmd.code_version);
-        await extest.setupRequirements(version, cmd.yarn, cmd.install_dependencies);
+        const vscodeVersion = loadCodeVersion(cmd.code_version);
+        await extest.setupRequirements({vscodeVersion, useYarn: cmd.yarn, installDependencies: cmd.install_dependencies});
     }));
 
 program.command('run-tests <testFiles>')
@@ -80,11 +80,11 @@ program.command('run-tests <testFiles>')
     .option('-o, --code_settings <settings.json>', 'Path to custom settings for VS Code json file')
     .option('-u, --uninstall_extension', 'Uninstall the extension after the test run', false)
     .option('-m, --mocha_config', 'Path to Mocha configuration file')
-    .option('-l, --log_level <level>', 'Log messages from webdriver with a given level', 'info')
+    .option('-l, --log_level <level>', 'Log messages from webdriver with a given level', 'Info')
     .action(withErrors(async (testFiles, cmd) => {
         const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
-        const version = loadCodeVersion(cmd.code_version);
-        await extest.runTests(testFiles, version, cmd.code_settings, cmd.uninstall_extension, cmd.mocha_config, cmd.log_level);
+        const vscodeVersion = loadCodeVersion(cmd.code_version);
+        await extest.runTests(testFiles, {vscodeVersion, settings: cmd.code_settings, cleanup: cmd.uninstall_extension, config: cmd.mocha_config, logLevel: cmd.log_level});
     }));
 
 program.command('setup-and-run <testFiles>')
@@ -98,11 +98,11 @@ program.command('setup-and-run <testFiles>')
     .option('-u, --uninstall_extension', 'Uninstall the extension after the test run', false)
     .option('-m, --mocha_config <mocharc.js>', 'Path to Mocha configuration file')
     .option('-i, --install_dependencies', 'Automatically install extensions your extension depends on', false)
-    .option('-l, --log_level <level>', 'Log messages from webdriver with a given level', 'info')
+    .option('-l, --log_level <level>', 'Log messages from webdriver with a given level', 'Info')
     .action(withErrors(async (testFiles, cmd) => {
         const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
-        const version = loadCodeVersion(cmd.code_version);
-        await extest.setupAndRunTests(version, testFiles, cmd.code_settings, cmd.yarn, cmd.uninstall_extension, cmd.mocha_config, cmd.install_dependencies, cmd.log_level);
+        const vscodeVersion = loadCodeVersion(cmd.code_version);
+        await extest.setupAndRunTests(testFiles, vscodeVersion, {useYarn: cmd.yarn, installDependencies: cmd.install_dependencies}, {settings: cmd.code_settings, cleanup: cmd.uninstall_extension, config: cmd.mocha_config, logLevel: cmd.log_level});
     }));
 
 program.parse(process.argv);
