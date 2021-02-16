@@ -88,5 +88,29 @@ describe('NotificationsCenter', () => {
             await notification.dismiss();
             await driver.wait(until.stalenessOf(notification));
         });
+
+        it('get warning notification works', async () => {
+            await new Workbench().executeCommand('Warning Message');
+            await center.getDriver().sleep(200);
+            center = await new Workbench().openNotificationsCenter();
+            notification = (await center.getNotifications(NotificationType.Warning))[0];
+
+            expect(await notification.getMessage()).to.equal("This is a warning!");
+            expect(await notification.getType()).to.equal(NotificationType.Warning);
+            await notification.dismiss();
+            await center.getDriver().wait(until.stalenessOf(notification));
+        })
+
+        it('get error notification works', async () => {
+            await new Workbench().executeCommand('Error Message');
+            await center.getDriver().sleep(200);
+            center = await new Workbench().openNotificationsCenter();
+            notification = (await center.getNotifications(NotificationType.Error))[0];
+
+            expect(await notification.getMessage()).to.equal("This is an error!");
+            expect(await notification.getType()).to.equal(NotificationType.Error);
+            await notification.dismiss();
+            await center.getDriver().wait(until.stalenessOf(notification));
+        })
     });
 });

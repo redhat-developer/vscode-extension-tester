@@ -32,6 +32,14 @@
 				"title": "Hello World"
 			},
 			{
+				"command": "extension.warningMsg",
+				"title": "Warning Message"
+                        },
+                        {
+				"command": "extension.errorMsg",
+				"title": "Error Message"
+			},
+			{
 				"command": "extension.openFile",
 				"title": "Open Test File"
 			},
