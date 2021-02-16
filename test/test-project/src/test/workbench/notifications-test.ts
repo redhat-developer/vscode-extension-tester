@@ -51,7 +51,7 @@ describe('NotificationsCenter', () => {
             expect(message).has.string('This is a notification');
         });
 
-        it('getType returns notificationYype', async () => {
+        it('getType returns notificationType', async () => {
             const type = await notification.getType();
             expect(type).equals(NotificationType.Info);
         });
