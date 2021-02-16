@@ -33,7 +33,7 @@ export abstract class Notification extends ElementWithContexMenu {
         const iconType = await this.findElement(Notification.locators.Notification.icon).getAttribute('class');
         if (iconType.indexOf('icon-info') > -1) {
             return NotificationType.Info;
-        } else if (iconType.indexOf('icon-warning')) {
+        } else if (iconType.indexOf('icon-warning') > -1) {
             return NotificationType.Warning;
         } else {
             return NotificationType.Error;
