@@ -7,6 +7,7 @@ import * as vscode from 'vscode';
 export class TreeView {
     constructor(context: vscode.ExtensionContext) {
         const view = vscode.window.createTreeView('testView', { treeDataProvider: dataProvider(), showCollapseAll: true });
+        context.subscriptions.push(view);
     }
 }
 

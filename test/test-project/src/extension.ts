@@ -40,6 +40,8 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(webViewCommand);
 	context.subscriptions.push(notificationCommand);
 	context.subscriptions.push(quickPickCommand);
+	context.subscriptions.push(vscode.commands.registerCommand('extension.warningMsg', () => vscode.window.showWarningMessage("This is a warning!")));
+	context.subscriptions.push(vscode.commands.registerCommand('extension.errorMsg', () => vscode.window.showErrorMessage("This is an error!")));
 
 	new TreeView(context);
 }
