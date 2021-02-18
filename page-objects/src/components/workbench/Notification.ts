@@ -1,6 +1,6 @@
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
 import { AbstractElement } from "../AbstractElement";
-import { WebElement } from "selenium-webdriver";
+import { until, WebElement } from "selenium-webdriver";
 
 /**
  * Available types of notifications
@@ -63,7 +63,9 @@ export abstract class Notification extends ElementWithContexMenu {
      */
     async dismiss(): Promise<void> {
         await this.getDriver().actions().mouseMove(this).perform();
-        await this.findElement(Notification.locators.Notification.dismiss).click();
+        const btn = await this.findElement(Notification.locators.Notification.dismiss);
+        await this.getDriver().wait(until.elementIsVisible(btn), 2000);
+        await btn.click();
     }
 
     /**
