@@ -178,6 +178,7 @@ export interface Locators {
         buttonLabel: string
         level: string
         index: string
+        welcomeContent: By
     }
     TreeItem: {
         actions: By
@@ -322,6 +323,12 @@ export interface Locators {
         buttonContainer: By
         button: By
         closeButton: By
+    }
+
+    WelcomeContent: {
+        button: By,
+        text: By,
+        buttonOrText: By
     }
 }
 

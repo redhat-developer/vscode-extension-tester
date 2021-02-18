@@ -66,6 +66,10 @@
 			{
 				"command": "extension.quickpick",
 				"title": "Test Quickpicks"
+			},
+			{
+				"command": "extension.populateTestView",
+				"title": "Populate Test View"
 			}
 		],
 		"views": {
@@ -73,9 +77,19 @@
 				{
 					"id": "testView",
 					"name": "Test View"
+				},
+				{
+					"id": "emptyView",
+					"name": "Empty View"
 				}
 			]
 		},
+	        "viewsWelcome": [
+			{
+				"view": "emptyView",
+				"contents": "This is the first line\n[Add stuff into this View](command:extension.populateTestView)\nThis is the second line\nAnd yet another line."
+				}
+		],
 		"configuration": {
 			"title": "Test Project",
 			"properties": {

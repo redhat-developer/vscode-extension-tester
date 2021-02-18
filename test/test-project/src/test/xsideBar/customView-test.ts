@@ -1,15 +1,19 @@
 import { expect } from 'chai';
-import { ActivityBar, ViewItem, CustomTreeSection, CustomTreeItem } from 'vscode-extension-tester';
+import { ActivityBar, ViewItem, CustomTreeSection, CustomTreeItem, ViewContent, WelcomeContentButton } from 'vscode-extension-tester';
 
 describe('CustomTreeSection', () => {
     let section: CustomTreeSection;
+    let emptyViewSection: CustomTreeSection;
+    let content: ViewContent;
 
     before(async function() {
         this.timeout(5000);
         const view = await new ActivityBar().getViewControl('Explorer').openView();
         await new Promise((res) => { setTimeout(res, 1000); });
-        const content = view.getContent();
+        content = view.getContent();
         section = await content.getSection('Test View') as CustomTreeSection;
+        emptyViewSection = await content.getSection('Empty View') as CustomTreeSection;
+        await emptyViewSection.expand();
     });
 
     after(async () => {
@@ -59,9 +63,50 @@ describe('CustomTreeSection', () => {
         expect(actions).not.empty;
     });
 
-    it('getAction works', async () => {
-        const action = await section.getAction('Collapse All');
+    it('getAction works', () => {
+        const action = section.getAction('Collapse All');
         expect(action.getLabel()).equals('Collapse All');
+    });
+
+    it('findWelcomeContent returns undefined if no WelcomeContent is present', async () => {
+        expect(await section.findWelcomeContent()).to.equal(undefined);
+        expect(await emptyViewSection.findWelcomeContent()).to.not.equal(undefined)
+    });
+
+    it('findWelcomeContent returns the section', async () => {
+        const welcomeContent = await emptyViewSection.findWelcomeContent();
+        const buttons = await welcomeContent.getButtons();
+        const textSections = await welcomeContent.getTextSections();
+
+        expect(buttons).to.be.an("array").and.have.length(1);
+        expect(textSections).to.be.an("array").and.have.length(3);
+
+        expect(textSections[0]).to.deep.equal("This is the first line");
+        expect(textSections[1]).to.deep.equal("This is the second line");
+        expect(textSections[2]).to.deep.equal("And yet another line.");
+
+        expect(await buttons[0].getTitle()).to.deep.equal("Add stuff into this View");
+    });
+
+    it('getContent returns the buttons and strings in an ordered array', async () => {
+        const welcomeContentEntries = await (await emptyViewSection.findWelcomeContent()).getContents();
+
+        expect(welcomeContentEntries).to.be.an("array").and.have.length(4);
+
+        expect(welcomeContentEntries[0]).to.deep.equal("This is the first line");
+        expect(welcomeContentEntries[1]).to.not.be.a("string");
+        expect(await (welcomeContentEntries[1] as WelcomeContentButton).getText()).to.deep.equal("Add stuff into this View");
+        expect(welcomeContentEntries[2]).to.deep.equal("This is the second line");
+        expect(welcomeContentEntries[3]).to.deep.equal("And yet another line.");
+    })
+
+    describe('WelcomeContentButton', () => {
+        it('takeAction executes the command', async () => {
+            const buttons = await (await emptyViewSection.findWelcomeContent()).getButtons();
+            await buttons[0].click();
+
+            expect(await emptyViewSection.findWelcomeContent()).to.equal(undefined);
+        });
     });
 
     describe('CustomViewItem', () => {

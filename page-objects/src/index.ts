@@ -20,6 +20,7 @@ export * from './components/sidebar/ViewTitlePart';
 export * from './components/sidebar/ViewContent';
 export * from './components/sidebar/ViewSection';
 export * from './components/sidebar/ViewItem';
+export * from './components/sidebar/WelcomeContent';
 
 export * from './components/sidebar/tree/default/DefaultTreeSection';
 export * from './components/sidebar/tree/default/DefaultTreeItem';

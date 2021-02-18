@@ -42,6 +42,7 @@
   },
   "homepage": "https://github.com/redhat-developer/vscode-extension-tester#readme",
   "devDependencies": {
+    "@types/sanitize-filename": "^1.6.3",
     "@types/fs-extra": "^9.0.1",
     "@types/glob": "^7.1.1",
     "@types/js-yaml": "^3.12.1",

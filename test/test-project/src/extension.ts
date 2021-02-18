@@ -44,9 +44,23 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('extension.errorMsg', () => vscode.window.showErrorMessage("This is an error!")));
 
 	new TreeView(context);
+
+	context.subscriptions.push(vscode.window.createTreeView("emptyView", { treeDataProvider: {
+		getChildren: () => emptyViewNoContent ? undefined : [{key: "There is content!"}],
+		getTreeItem: (e) => new vscode.TreeItem(e.key),
+		onDidChangeTreeData: emitter.event,
+	}}))
+
+	context.subscriptions.push(vscode.commands.registerCommand(
+		"extension.populateTestView",
+		() => { emptyViewNoContent = false; emitter.fire(undefined); }
+	));
 }
 
 export function deactivate() {}
+
+let emptyViewNoContent: boolean = true;
+const emitter = new vscode.EventEmitter<{key: string}>();
 
 class TestView {
 	private static instance: TestView | undefined;

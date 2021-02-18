@@ -1,6 +1,7 @@
-import { AbstractElement } from "../AbstractElement";
-import { ViewContent, ViewItem, waitForAttributeValue } from "../..";
 import { until, WebElement } from "selenium-webdriver";
+import { ViewContent, ViewItem, waitForAttributeValue } from "../..";
+import { AbstractElement } from "../AbstractElement";
+import { WelcomeContentSection } from "./WelcomeContent";
 
 /**
  * Page object representing a collapsible content section of the side bar view
@@ -58,6 +59,20 @@ export abstract class ViewSection extends AbstractElement {
         const header = await this.findElement(ViewSection.locators.ViewSection.header);
         const expanded = await header.getAttribute(ViewSection.locators.ViewSection.headerExpanded);
         return expanded === 'true';
+    }
+
+    /**
+     * Finds [Welcome Content](https://code.visualstudio.com/api/extension-guides/tree-view#welcome-content)
+     * present in this ViewSection and returns it. If none is found, then `undefined` is returned
+     *
+     */
+    public async findWelcomeContent(): Promise<WelcomeContentSection | undefined> {
+        try {
+            const res = await this.findElement(ViewSection.locators.ViewSection.welcomeContent);
+            return new WelcomeContentSection(res, this);
+        } catch (_err) {
+            return undefined;
+        }
     }
 
     /**
