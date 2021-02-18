@@ -79,7 +79,7 @@ program.command('run-tests <testFiles>')
     .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
     .option('-o, --code_settings <settings.json>', 'Path to custom settings for VS Code json file')
     .option('-u, --uninstall_extension', 'Uninstall the extension after the test run', false)
-    .option('-m, --mocha_config', 'Path to Mocha configuration file')
+    .option('-m, --mocha_config <mocharc.js>', 'Path to Mocha configuration file')
     .option('-l, --log_level <level>', 'Log messages from webdriver with a given level', 'Info')
     .action(withErrors(async (testFiles, cmd) => {
         const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
