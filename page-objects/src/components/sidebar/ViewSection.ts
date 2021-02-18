@@ -1,7 +1,6 @@
 import { until, WebElement } from "selenium-webdriver";
-import { ViewContent, ViewItem, waitForAttributeValue } from "../..";
+import { ViewContent, ViewItem, waitForAttributeValue, WelcomeContentSection } from "../..";
 import { AbstractElement } from "../AbstractElement";
-import { WelcomeContentSection } from "./WelcomeContent";
 
 /**
  * Page object representing a collapsible content section of the side bar view
@@ -80,7 +79,7 @@ export abstract class ViewSection extends AbstractElement {
      * Note that any item currently beyond the visible list, i.e. not scrolled to, will not be retrieved.
      * @returns Promise resolving to array of ViewItem objects
      */
-    abstract async getVisibleItems(): Promise<ViewItem[]>
+    abstract getVisibleItems(): Promise<ViewItem[]>
 
     /**
      * Find an item in this view section by label. Does not perform recursive search through the whole tree.
@@ -89,7 +88,7 @@ export abstract class ViewSection extends AbstractElement {
      * @param maxLevel Limit how deep the algorithm should look into any expanded items, default unlimited (0)
      * @returns Promise resolving to ViewItem object is such item exists, undefined otherwise
      */
-    abstract async findItem(label: string, maxLevel?: number): Promise<ViewItem | undefined>
+    abstract findItem(label: string, maxLevel?: number): Promise<ViewItem | undefined>
 
     /**
      * Open an item with a given path represented by a sequence of labels
@@ -107,7 +106,7 @@ export abstract class ViewSection extends AbstractElement {
      * @returns Promise resolving to array of ViewItem objects representing the last item's children.
      * If the last item is a leaf, empty array is returned.
      */
-    abstract async openItem(...path: string[]): Promise<ViewItem[]>
+    abstract openItem(...path: string[]): Promise<ViewItem[]>
 
     /**
      * Retrieve the action buttons on the section's header
