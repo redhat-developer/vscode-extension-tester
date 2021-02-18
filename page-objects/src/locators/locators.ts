@@ -199,6 +199,7 @@ export interface Locators {
     CustomTreeSection: {
         itemRow: By
         itemLabel: By
+        tooltipAttribute: string
         rowContainer: By
         rowWithLabel: (label: string) => By
     }

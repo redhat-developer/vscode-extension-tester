@@ -29,6 +29,14 @@ export abstract class TreeItem extends ViewItem {
     }
 
     /**
+     * Retrieves the tooltip of this TreeItem.
+     * @returns A promise resolving to the tooltip or undefined if the TreeItem has no tooltip.
+     */
+    async getTooltip(): Promise<string|undefined> {
+        return undefined;
+    }
+
+    /**
      * Finds whether the item has children (whether it is collapsible)
      * @returns Promise resolving to true/false
      */

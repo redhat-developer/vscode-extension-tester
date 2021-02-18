@@ -14,6 +14,10 @@ export class CustomTreeItem extends TreeItem {
         return this.findElement(CustomTreeItem.locators.CustomTreeSection.itemLabel).getText();
     }
 
+    async getTooltip(): Promise<string> {
+        return this.getAttribute(CustomTreeItem.locators.CustomTreeSection.tooltipAttribute);
+    }
+
     async hasChildren(): Promise<boolean> {
         const attr = await this.getAttribute(CustomTreeItem.locators.CustomTreeItem.expandedAttr);
         return attr !== null;

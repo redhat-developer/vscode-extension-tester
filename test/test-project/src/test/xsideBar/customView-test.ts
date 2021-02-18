@@ -121,6 +121,11 @@ describe('CustomTreeSection', () => {
             expect(label).equals('a');
         });
 
+        it('getTooltip works', async () => {
+            const tooltip = await item.getTooltip();
+            expect(tooltip).equals('Tooltip for a');
+        })
+
         it('collapse works', async () => {
             await item.collapse();
             expect(await item.isExpanded()).is.false;

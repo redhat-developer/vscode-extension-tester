@@ -199,6 +199,7 @@ const sideBar = {
     CustomTreeSection: {
         itemRow: By.className('monaco-list-row'),
         itemLabel: By.className('monaco-highlighted-label'),
+        tooltipAttribute: 'aria-label',
         rowContainer: By.className('monaco-list'),
         rowWithLabel: (label: string) => By.xpath(`.//span[text()='${label}']`)
     },
