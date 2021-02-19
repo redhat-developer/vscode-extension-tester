@@ -14,6 +14,11 @@ export class DefaultTreeItem extends TreeItem {
         return this.getAttribute(DefaultTreeItem.locators.DefaultTreeSection.itemLabel);
     }
 
+    async getTooltip(): Promise<string> {
+        const tooltip = await this.findElement(DefaultTreeItem.locators.DefaultTreeItem.tooltip);
+        return tooltip.getAttribute('title');
+    }
+
     async hasChildren(): Promise<boolean> {
         const twistieClass = await this.findElement(DefaultTreeItem.locators.DefaultTreeItem.twistie).getAttribute('class');
         return twistieClass.indexOf('collapsible') > -1;

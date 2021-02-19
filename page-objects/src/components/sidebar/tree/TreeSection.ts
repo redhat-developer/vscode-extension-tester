@@ -38,6 +38,6 @@ export abstract class TreeSection extends ViewSection {
         return items;
     }
 
-    abstract async findItem(label: string, maxLevel?: number): Promise<TreeItem | undefined>
-    abstract async getVisibleItems(): Promise<TreeItem[]>
+    abstract findItem(label: string, maxLevel?: number): Promise<TreeItem | undefined>
+    abstract getVisibleItems(): Promise<TreeItem[]>
 }

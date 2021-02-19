@@ -195,11 +195,11 @@ export interface Locators {
     DefaultTreeItem: {
         constructor: (label: string) => By
         twistie: By
+        tooltip: By
     }
     CustomTreeSection: {
         itemRow: By
         itemLabel: By
-        tooltipAttribute: string
         rowContainer: By
         rowWithLabel: (label: string) => By
     }
@@ -207,6 +207,7 @@ export interface Locators {
         constructor: (label: string) => By
         expandedAttr: string
         expandedValue: string
+        tooltipAttribute: string
     }
     ExtensionsViewSection: {
         items: By
