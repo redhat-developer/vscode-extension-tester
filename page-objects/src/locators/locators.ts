@@ -193,7 +193,7 @@ export interface Locators {
         lastRow: By
     }
     DefaultTreeItem: {
-        constructor: (label: string) => By
+        ctor: (label: string) => By
         twistie: By
         tooltip: By
     }

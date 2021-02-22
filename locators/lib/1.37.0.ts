@@ -193,9 +193,9 @@ const sideBar = {
         lastRow: By.xpath(`.//div[@data-last-element='true']`)
     },
     DefaultTreeItem: {
-        constructor: (label: string) => By.xpath(`.//div[@role='treeitem' and @aria-label='${label}']`),
+        ctor: (label: string) => By.xpath(`.//div[@role='treeitem' and @aria-label='${label}']`),
         twistie: By.className('monaco-tl-twistie'),
-        tooltip: By.className('monaco-icon-label-container')
+        tooltip: By.className('explorer-item')
     },
     CustomTreeSection: {
         itemRow: By.className('monaco-list-row'),
