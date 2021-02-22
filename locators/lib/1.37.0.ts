@@ -193,18 +193,19 @@ const sideBar = {
         lastRow: By.xpath(`.//div[@data-last-element='true']`)
     },
     DefaultTreeItem: {
-        constructor: (label: string) => By.xpath(`.//div[@role='treeitem' and @aria-label='${label}']`),
-        twistie: By.className('monaco-tl-twistie')
+        ctor: (label: string) => By.xpath(`.//div[@role='treeitem' and @aria-label='${label}']`),
+        twistie: By.className('monaco-tl-twistie'),
+        tooltip: By.className('explorer-item')
     },
     CustomTreeSection: {
         itemRow: By.className('monaco-list-row'),
         itemLabel: By.className('monaco-highlighted-label'),
-        tooltipAttribute: 'aria-label',
         rowContainer: By.className('monaco-list'),
         rowWithLabel: (label: string) => By.xpath(`.//span[text()='${label}']`)
     },
     CustomTreeItem: {
         constructor: (label: string) => By.xpath(`.//div[@role='treeitem' and .//span[text()='${label}']]`),
+        tooltipAttribute: 'aria-label',
         expandedAttr: 'aria-expanded',
         expandedValue: 'true'
     },

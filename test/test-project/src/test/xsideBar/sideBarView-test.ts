@@ -145,6 +145,11 @@ describe('SideBarView', () => {
                     expect(label).equals('test-folder');
                 });
 
+                it('getTooltip works', async () => {
+                    const tooltip = await item.getTooltip();
+                    expect(tooltip).has.string('test-folder');
+                });
+
                 it('selecting folders toggles expand state', async () => {
                     expect(await item.isExpanded()).is.false;
                     await item.select();

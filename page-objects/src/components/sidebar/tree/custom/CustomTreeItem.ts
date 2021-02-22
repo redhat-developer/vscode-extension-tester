@@ -15,7 +15,7 @@ export class CustomTreeItem extends TreeItem {
     }
 
     async getTooltip(): Promise<string> {
-        return this.getAttribute(CustomTreeItem.locators.CustomTreeSection.tooltipAttribute);
+        return this.getAttribute(CustomTreeItem.locators.CustomTreeItem.tooltipAttribute);
     }
 
     async hasChildren(): Promise<boolean> {
