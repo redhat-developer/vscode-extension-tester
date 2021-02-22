@@ -3,7 +3,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import compareVersions = require('compare-versions');
 import { Merge, DeepPartial, DeepRequired } from 'ts-essentials';
-const merge = require('merge-deep');
+import clone = require('clone-deep');
 
 /**
  * Utility for loading locators for a given vscode version
@@ -57,9 +57,35 @@ export class LocatorLoader {
         for (let i = 0; i < versions.length; i++) {
             const diff = require(path.join(this.baseFolder, versions[i])).diff as LocatorDiff;
 
-            const newLocators: Merge<Locators, DeepPartial<Locators>> = merge(this.locators, diff.locators);
+            const newLocators: Merge<Locators, DeepPartial<Locators>> = mergeLocators(this.locators, diff);
             this.locators = newLocators as DeepRequired<Merge<Locators, DeepPartial<Locators>>>;
         }
         return this.locators;
     }
+}
+
+function mergeLocators(original: Locators, diff: LocatorDiff): Locators {
+    const target = clone(original);
+    const targetDiff = diff.locators;
+
+    merge(target, targetDiff) as Locators;
+    return target;
+}
+
+function merge(target: any, obj: any) {
+    for (const key in obj) {
+        if (key === '__proto__' || !Object.prototype.hasOwnProperty.call(obj, key)) {
+            continue;
+        }
+
+        let oldVal = obj[key];
+        let newVal = target[key];
+
+        if (typeof(newVal) === 'object' && typeof(oldVal) === 'object') {
+            target[key] = merge(newVal, oldVal);
+        } else {
+            target[key] = clone(oldVal);
+        }
+    }
+    return target;
 }
