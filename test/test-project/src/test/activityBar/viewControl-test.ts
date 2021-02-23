@@ -30,7 +30,7 @@ describe('ViewControl', () => {
     });
 
     it('getTitle returns container label', async () => {
-        const title = await control.getTitle();
+        const title = control.getTitle();
         expect(title).equals('Explorer');
     });
 
