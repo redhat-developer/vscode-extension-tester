@@ -96,4 +96,8 @@ describe('TextEditor', () => {
         const tab = await editor.getTab();
         expect(await tab.getTitle()).equals(await editor.getTitle());
     });
+
+    (process.platform === 'darwin' ? it.skip : it)('formatDocument works', async () => {
+        expect(await editor.formatDocument()).not.to.throw;
+    });
 });

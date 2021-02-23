@@ -1,5 +1,5 @@
-import { ContentAssist } from "../..";
-import { Key, until } from "selenium-webdriver";
+import { ContentAssist, ContextMenu } from "../..";
+import { Button, By, Key, until, WebElement } from "selenium-webdriver";
 import { fileURLToPath } from "url";
 import * as clipboard from 'clipboardy';
 import { StatusBar } from "../statusBar/StatusBar";
@@ -216,7 +216,21 @@ export class TextEditor extends Editor {
             await menu.select('Format Document');
         } catch (err) {
             console.log('Warn: Format Document not available for selected language');
+            if (await menu.isDisplayed()) {
+                await menu.close();
+            }
         }
+    }
+
+    async openContextMenu(): Promise<ContextMenu> {
+        await this.getDriver().actions().click(this, Button.RIGHT).perform();
+        const shadowRootHost = await this.enclosingItem.findElements(By.className('shadow-root-host'));
+        
+        if (shadowRootHost.length > 0) {
+            const shadowRoot = await this.getDriver().executeScript('return arguments[0].shadowRoot', shadowRootHost[0]) as WebElement;
+            return new ContextMenu(shadowRoot).wait();
+        }
+        return super.openContextMenu();
     }
 
     /**
