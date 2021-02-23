@@ -195,11 +195,11 @@ export class CodeUtil {
      * @param useYarn false to use npm as packaging system, true to use yarn instead
      */
     packageExtension(useYarn?: boolean): void {
-        let binFolder = path.join(__dirname, '..', '..', 'node_modules', '.bin');
-        if (!fs.existsSync(binFolder)) {
-            binFolder = path.join('node_modules', '.bin');
+        let vscePath = path.join(__dirname, '..', '..', 'node_modules', '.bin', 'vsce');
+        if (!fs.existsSync(vscePath)) {
+            vscePath = path.join('node_modules', '.bin', 'vsce');
         }
-        const cliCall = `${path.join(binFolder, 'vsce')} package ${useYarn ? '--yarn' : '--no-yarn'}`;
+        const cliCall = `${vscePath} package ${useYarn ? '--yarn' : '--no-yarn'}`;
 
         child_process.execSync(cliCall, { stdio: 'inherit' });
     }
