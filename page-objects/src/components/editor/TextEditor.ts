@@ -234,15 +234,17 @@ export class TextEditor extends Editor {
     }
 
     /**
-     * Get coordinates as number array [line, column]
+     * Get the cursor's coordinates as an array of two numbers: `[line, column]`
+     *
+     * **Caution** line & column coordinates do not start at `0` but at `1`!
      */
-    private async getCoordinates(): Promise<number[]> {
+    public async getCoordinates(): Promise<[number, number]> {
         const coords: number[] = [];
         const statusBar = new StatusBar();
         const coordinates = <RegExpMatchArray>(await statusBar.getCurrentPosition()).match(/\d+/g);
         for(const c of coordinates) {
             coords.push(+c);
         }
-        return coords;
+        return [coords[0], coords[1]];
     }
 }

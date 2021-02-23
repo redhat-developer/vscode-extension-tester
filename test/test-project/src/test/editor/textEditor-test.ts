@@ -79,6 +79,18 @@ describe('TextEditor', () => {
         expect(line).has.string('line11');
     });
 
+    it('getCoordinates works', async () => {
+        await editor.moveCursor(1, 1);
+        expect(await editor.getCoordinates()).to.deep.equal([1, 1]);
+
+        const lineCount = await editor.getNumberOfLines();
+        const lastLine = await editor.getTextAtLine(lineCount);
+
+        await editor.moveCursor(lineCount, lastLine.length);
+
+        expect(await editor.getCoordinates()).to.deep.equal([lineCount, lastLine.length]);
+    })
+
     it('getNumberOfLines works', async () => {
         const lines = await editor.getNumberOfLines();
         expect(lines).equals(3);
