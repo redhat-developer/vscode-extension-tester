@@ -11,32 +11,35 @@ export class TreeView {
     }
 }
 
-const tree = {
+type Tree = { [key: string]: Tree | undefined | null };
+
+// structure of the test tree:
+// leafs are keys that are undefined or null. If it is undefined, then its collapsibleState is None, if it null, then it is Collapsed
+const tree: Tree = {
 	'a': {
 		'aa': {
 			'aaa': {
 				'aaaa': {
 					'aaaaa': {
-						'aaaaaa': {
-
-						}
+						'aaaaaa': undefined,
 					}
 				}
 			}
 		},
-		'ab': {}
+		'ab': undefined,
 	},
 	'b': {
-		'ba': {},
-		'bb': {}
-	}
+		'ba': undefined,
+		'bb': undefined
+	},
+	'c': null
 };
 let nodes = {};
 
 function dataProvider(): vscode.TreeDataProvider<{ key: string }> {
     return {
-		getChildren: (element: { key: string }): { key: string }[] => {
-			return getChildren(element ? element.key : undefined).map((key: string) => getNode(key));
+		getChildren: (element?: { key: string }): { key: string }[] => {
+			return getChildren(element?.key).map((key: string) => getNode(key));
 		},
 		getTreeItem: (element: { key: string }): vscode.TreeItem => {
 			const treeItem = getTreeItem(element.key);
@@ -63,19 +66,25 @@ function getChildren(key: string | undefined): string[] {
 
 function getTreeItem(key: string): vscode.TreeItem {
 	const treeElement = getTreeElement(key);
+	let collapsibleState: vscode.TreeItemCollapsibleState;
+	  if (treeElement === undefined) {
+        collapsibleState = vscode.TreeItemCollapsibleState.None;
+    } else {
+        collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
+    }
 	return {
 		label: key,
 		tooltip: `Tooltip for ${key}`,
-		collapsibleState: treeElement && Object.keys(treeElement).length ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None
+		collapsibleState
 	};
 }
 
-function getTreeElement(element): any {
+function getTreeElement(element: string): null | undefined | Tree {
 	let parent = tree;
 	for (let i = 0; i < element.length; i++) {
 		parent = parent[element.substring(0, i + 1)];
-		if (!parent) {
-			return null;
+		if (parent === null || parent === undefined) {
+			return parent;
 		}
 	}
 	return parent;
