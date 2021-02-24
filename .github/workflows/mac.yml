@@ -1,4 +1,4 @@
-name: MaxOS CI
+name: MacOS CI
 
 on:
   push:
