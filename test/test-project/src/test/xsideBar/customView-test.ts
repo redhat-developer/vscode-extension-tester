@@ -36,7 +36,7 @@ describe('CustomTreeSection', () => {
 
     it('getVisibleItems works', async () => {
         const items = await section.getVisibleItems();
-        expect(items.length).equals(2);
+        expect(items.length).equals(3);
     });
 
     it('findItem works', async () => {
@@ -44,7 +44,7 @@ describe('CustomTreeSection', () => {
         expect(item).not.undefined;
 
 
-        const item1 = await section.findItem('c');
+        const item1 = await section.findItem('d');
         expect(item1).undefined;
     });
 
@@ -141,6 +141,11 @@ describe('CustomTreeSection', () => {
         it('hasChildren works', async () => {
             const children = await item.hasChildren();
             expect(children).is.true;
+        });
+
+        it('hasChildren works for expandable elements without children', async () => {
+            const cItem = await section.findItem('c');
+            expect(await cItem.hasChildren()).is.false;
         });
 
         it('getChildren works', async () => {
