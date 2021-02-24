@@ -18,11 +18,6 @@ export class CustomTreeItem extends TreeItem {
         return this.getAttribute(CustomTreeItem.locators.CustomTreeItem.tooltipAttribute);
     }
 
-    async hasChildren(): Promise<boolean> {
-        const attr = await this.getAttribute(CustomTreeItem.locators.CustomTreeItem.expandedAttr);
-        return attr !== null;
-    }
-
     async isExpanded(): Promise<boolean> {
         const attr = await this.getAttribute(CustomTreeItem.locators.CustomTreeItem.expandedAttr);
         return attr === CustomTreeItem.locators.CustomTreeItem.expandedValue;
@@ -32,5 +27,10 @@ export class CustomTreeItem extends TreeItem {
         const rows = await this.getChildItems(CustomTreeItem.locators.DefaultTreeSection.itemRow);
         const items = await Promise.all(rows.map(async row => new CustomTreeItem(row, this.enclosingItem as TreeSection).wait()));
         return items;
+    }
+
+    async isExpandable(): Promise<boolean> {
+        const attr = await this.getAttribute(CustomTreeItem.locators.CustomTreeItem.expandedAttr);
+        return attr !== null;
     }
 }

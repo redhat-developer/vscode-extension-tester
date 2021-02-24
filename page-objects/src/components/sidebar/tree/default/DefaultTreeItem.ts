@@ -19,11 +19,6 @@ export class DefaultTreeItem extends TreeItem {
         return tooltip.getAttribute('title');
     }
 
-    async hasChildren(): Promise<boolean> {
-        const twistieClass = await this.findElement(DefaultTreeItem.locators.DefaultTreeItem.twistie).getAttribute('class');
-        return twistieClass.indexOf('collapsible') > -1;
-    }
-
     async isExpanded(): Promise<boolean> {
         const twistieClass = await this.findElement(DefaultTreeItem.locators.DefaultTreeItem.twistie).getAttribute('class');
         return twistieClass.indexOf('collapsed') < 0;
@@ -33,5 +28,10 @@ export class DefaultTreeItem extends TreeItem {
         const rows = await this.getChildItems(DefaultTreeItem.locators.DefaultTreeSection.itemRow);
         const items = await Promise.all(rows.map(async row => new DefaultTreeItem(row, this.enclosingItem as TreeSection).wait()));
         return items;
+    }
+
+    async isExpandable(): Promise<boolean> {
+        const twistieClass = await this.findElement(DefaultTreeItem.locators.DefaultTreeItem.twistie).getAttribute('class');
+        return twistieClass.indexOf('collapsible') > -1;
     }
 }
