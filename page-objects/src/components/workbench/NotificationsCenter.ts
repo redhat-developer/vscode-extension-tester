@@ -25,7 +25,7 @@ export class NotificationsCenter extends AbstractElement {
      * @returns Promise resolving when the clear all button is pressed
      */
     async clearAllNotifications(): Promise<void> {
-        await this.findElement(NotificationsCenter.locators.NotificationsCenter.clear).click();
+        await (await this.findElement(NotificationsCenter.locators.NotificationsCenter.clear)).click();
     }
 
     /**
