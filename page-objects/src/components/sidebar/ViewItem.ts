@@ -37,22 +37,32 @@ export abstract class TreeItem extends ViewItem {
     }
 
     /**
-     * Finds whether the item has children (whether it is collapsible)
+     * Finds if the item has children by actually counting the child items
+     * Note that this will expand the item if it was collapsed
      * @returns Promise resolving to true/false
      */
-    abstract async hasChildren(): Promise<boolean>
+    async hasChildren(): Promise<boolean> {
+        const children = await this.getChildren();
+        return children && children.length > 0;
+    }
 
     /**
      * Finds whether the item is expanded. Always returns false if item has no children.
      * @returns Promise resolving to true/false
      */
-    abstract async isExpanded(): Promise<boolean>
+    abstract isExpanded(): Promise<boolean>
 
     /**
      * Find children of an item, will try to expand the item in the process
      * @returns Promise resolving to array of TreeItem objects, empty array if item has no children
      */
-    abstract async getChildren(): Promise<TreeItem[]>
+    abstract getChildren(): Promise<TreeItem[]>
+
+    /**
+     * Finds if the item is expandable/collapsible 
+     * @returns Promise resolving to true/false
+     */
+    abstract isExpandable(): Promise<boolean>;
 
     /**
      * Find a child item with the given name
@@ -71,7 +81,7 @@ export abstract class TreeItem extends ViewItem {
      * Collapse the item if expanded
      */
     async collapse(): Promise<void> {
-        if (await this.hasChildren() && await this.isExpanded()) {
+        if (await this.isExpandable() && await this.isExpanded()) {
             await this.click();
         }
     }
@@ -120,7 +130,7 @@ export abstract class TreeItem extends ViewItem {
      */
     protected async getChildItems(locator: By): Promise<WebElement[]> {
         const items: WebElement[] = [];
-        if (!await this.isExpanded() && this.hasChildren()) {
+        if (!await this.isExpanded() && this.isExpandable()) {
             await this.click();
         }
         const rows = await this.enclosingItem.findElements(locator);

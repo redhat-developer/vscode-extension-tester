@@ -113,6 +113,7 @@ describe('CustomTreeSection', () => {
         let item: CustomTreeItem;
 
         before(async () => {
+            await emptyViewSection.collapse();
             item = await section.findItem('a') as CustomTreeItem;
         });
 
