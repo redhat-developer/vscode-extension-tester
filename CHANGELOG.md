@@ -1,5 +1,31 @@
 # Change Log
 
+## 4.0.0 (Feb 25)
+
+### Breaking changes
+ - `ExTester` API has been revamped:
+   - the 'telescope' argument pattern has been replaced with interfaces using optional parameters
+   - methods with lots of arguments `(arg1, arg2, arg3...)` replaced with `({argX: value,...})` so you don't need to type out every argument in the correct order
+   - check out the readme and the wiki for more info on migrating to 4.x
+
+### Fixes and improvements
+ - notifications with types other than `info` should now be correctly recognized
+ - dissmiss notification will now wait for the button to appear before trying to click it
+ - `--mocha_config` CLI flag now correctly displays it wants a value
+ - removed dependency on a github repo, should help with running behind a proxy
+ - context menu for `TextEditor` now works with latest versions of vscode
+ - `vsce` binary is now found on the correct path when the project supplies its own `.bin` folder
+
+### New Features
+ - view sections now support `welcome content` (the content that shows when the section is empty)
+   - `findWelcomeContent` method added to `ViewSection` that returns a `WelcomeContentSection` object (if it exists)
+ - tree items now have a `getTooltip` method, returns the contents of the tooltip that appears on hover
+ - `TextEditor` now has `getCoordinates` method (technically it is now made public), returns coordinates as `[x, y]` number array
+ - `TreeItem#hasChildren` now actually checks if the item has children (not just if it is expandable, because there are expandable items without children)
+ - `TreeItem` now has `isExpandable` method, that just checks if the item can be expanded (basically what `hasChildren` used to do)
+   
+
+
 ## 3.2.6 (Feb 10)
  - now compatible with vscode 1.53
  - navigating through the top menu now waits for the whole context menu to load before clicking, slower but more robust
