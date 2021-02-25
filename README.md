@@ -1,9 +1,5 @@
 [![Build Status](https://travis-ci.org/redhat-developer/vscode-extension-tester.svg?branch=master)](https://travis-ci.org/redhat-developer/vscode-extension-tester)
 
-# Breaking news
-**3.0.0 contains an error that prevents it from being compiled without the native module. 3.0.1 fixes this, but native handlers are no longer part of the main API. You will need to import the native handling classes directly from vscode-extension-tester-native.**
-Sorry about that.
-
 # vscode-extension-tester
 
 VSCode Extension Tester is a package designed to help you run UI tests for your VS Code extensions using [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver). 
@@ -36,13 +32,19 @@ npm run doc
 ```
 The results can then be found in the 'docs' directory.
 
-## Migrating to 3.x
+## Migrating to 4.0
 
-The `vscode-extension-tester` package still integrates the same way as in older versions, with one slight difference.
+In the 4.0 update, the `ExTester` API was revamped. If you are not using the API to launch your tests, no action is needed.
 
-If you wish to use the native dialog handlers, you will need to install an additional module `vscode-extension-tester-native`. The appropriate classes will then still be exported from the main module to keep code compatibility.
+The methods `setupRequirements`, `runTests` and `setupAndRunTests` have had their arguments changed from the long telescope list to structured objects.
 
-One aim of 3.x is to provide a more convenient way of updating to new VS Code releases. The modular approach allows us to publish updates to packages like page objects or locators without updating the main module. If such an update occurs, you should get it on the next `npm install` in your project without making changes to your `package.json`. Unless your `package-lock.json` decides otherwise.
+The new signatures now involve `SetupOptions` and `RunOptions` objects respectively:
+ - `setupRequirements(options: SetupOptions)`
+ - `runTests(options: RunOptions)`
+ - `setupAndRunTests(testFilesPattern: string, vscodeVersion: string = 'latest', setupOptions: SetupOptions, runOptions: RunOptions)` (though here the options don't include vscode version)
+
+Both interfaces are exported and contain the list of options you would use as arguments in their respective methods. Any argument that used to have a default value is marked as optional in the interfaces. 
+
 
 ## Requirements
 
