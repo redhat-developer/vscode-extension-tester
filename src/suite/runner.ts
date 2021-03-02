@@ -60,10 +60,13 @@ export class VSRunner {
             });
     
             this.mocha.suite.beforeAll(async function () {
-                this.timeout(15000);
+                this.timeout(45000);
+                const start = Date.now();
                 await browser.start(self.chromeBin);
                 await browser.waitForWorkbench();
-				await new Promise((res) => { setTimeout(res, 2000); });
+                await new Promise((res) => { setTimeout(res, 2000); });
+                console.log(`Browser ready in ${Date.now() - start} ms`);
+                console.log('Launching tests...');
             });
     
             this.mocha.suite.afterAll(async function() {

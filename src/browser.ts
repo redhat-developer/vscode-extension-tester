@@ -75,6 +75,7 @@ export class VSBrowser {
         prefs.setLevel(logging.Type.DRIVER, this.logLevel);
         options.setLoggingPrefs(prefs);
 
+        console.log('Launching browser...')
         this._driver = await new Builder()
             .forBrowser('chrome')
             .setChromeOptions(options)
