@@ -1,6 +1,6 @@
 'use strict';
 
-import { VSBrowser, VSBrowserLogLevel } from '../browser';
+import { VSBrowser } from '../browser';
 import * as fs from 'fs-extra';
 import Mocha = require('mocha');
 import * as glob from 'glob';
@@ -8,6 +8,7 @@ import { CodeUtil } from '../util/codeUtil';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
 import sanitize = require('sanitize-filename');
+import { logging } from 'selenium-webdriver';
 
 /**
  * Mocha runner wrapper
@@ -31,9 +32,10 @@ export class VSRunner {
     /**
      * Set up mocha suite, add vscode instance handling, run tests
      * @param testFilesPattern glob pattern of test files to run
+     * @param logLevel The logging level for the Webdriver
      * @return The exit code of the mocha process
      */
-    runTests(testFilesPattern: string, code: CodeUtil, logLevel: VSBrowserLogLevel = VSBrowserLogLevel.Info): Promise<number> {
+    runTests(testFilesPattern: string, code: CodeUtil, logLevel: logging.Level = logging.Level.INFO): Promise<number> {
         return new Promise(resolve => {
             let self = this;
             let browser: VSBrowser = new VSBrowser(this.codeVersion, this.customSettings, logLevel);
