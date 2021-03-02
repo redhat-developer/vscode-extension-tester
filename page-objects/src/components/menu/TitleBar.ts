@@ -73,21 +73,6 @@ export class TitleBarItem extends MenuItem {
             await this.getDriver().actions().sendKeys(Key.ESCAPE).perform();
         }
         await this.click();
-        const menu = await new ContextMenu(this).wait();
-        let items = (await menu.getItems()).length;
-        try {
-            await this.getDriver().wait(async () => {
-                const temp = (await menu.getItems()).length;
-                if (temp === items) {
-                    return true;
-                } else {
-                    items = temp;
-                    return false;
-                }
-            }, 2000);
-        } catch (err) {
-            console.log(err);
-        }
-        return menu;
+        return new ContextMenu(this).wait();
     }
 }

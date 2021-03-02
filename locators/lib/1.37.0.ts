@@ -125,7 +125,7 @@ const menu = {
     ContextMenu: {
         contextView: By.className('context-view'),
         constructor: By.className('monaco-menu-container'),
-        itemConstructor: (label: string) => By.xpath(`.//li[a/span/@aria-label='${label}']`),
+        itemConstructor: (label: string) => By.xpath(`.//li[a/span/@aria-label="${label}"]`),
         itemElement: By.className('action-item'),
         itemLabel: By.className('action-label'),
         itemText: 'aria-label',
@@ -133,7 +133,7 @@ const menu = {
     },
     TitleBar: {
         constructor: By.id('workbench.parts.titlebar'),
-        itemConstructor: (label: string) => By.xpath(`.//div[@aria-label='${label}']`),
+        itemConstructor: (label: string) => By.xpath(`.//div[@aria-label="${label}"]`),
         itemElement: By.className('menubar-menu-button'),
         itemLabel: 'aria-label',
         title: By.className('window-title')
