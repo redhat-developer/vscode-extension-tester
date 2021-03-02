@@ -8,7 +8,7 @@ describe('CustomTreeSection', () => {
 
     before(async function() {
         this.timeout(5000);
-        const view = await new ActivityBar().getViewControl('Explorer').openView();
+        const view = await (await new ActivityBar().getViewControl('Explorer')).openView();
         await new Promise((res) => { setTimeout(res, 1000); });
         content = view.getContent();
         section = await content.getSection('Test View') as CustomTreeSection;
@@ -17,7 +17,7 @@ describe('CustomTreeSection', () => {
     });
 
     after(async () => {
-        await new ActivityBar().getViewControl('Explorer').closeView();
+        await (await new ActivityBar().getViewControl('Explorer')).closeView();
         await new Promise((res) => { setTimeout(res, 1000); });
     });
 

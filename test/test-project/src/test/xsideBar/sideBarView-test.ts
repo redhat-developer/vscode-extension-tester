@@ -6,11 +6,11 @@ describe('SideBarView', () => {
     let view: SideBarView;
 
     before(async () => {
-        view = await new ActivityBar().getViewControl('Explorer').openView();
+        view = await (await new ActivityBar().getViewControl('Explorer')).openView();
     });
 
     after(async () => {
-        await new ActivityBar().getViewControl('Explorer').closeView();
+        await (await new ActivityBar().getViewControl('Explorer')).closeView();
     });
 
     it('getTitlePart works', async () => {
@@ -55,7 +55,7 @@ describe('SideBarView', () => {
             await input.setText(path.resolve(__dirname, '..', '..', '..', '..', 'resources', 'test-folder'));
             await input.confirm();
 
-            view = await new ActivityBar().getViewControl('Explorer').openView();
+            view = await (await new ActivityBar().getViewControl('Explorer')).openView();
             await new Promise((res) => { setTimeout(res, 1000); });
             content = view.getContent();
         });

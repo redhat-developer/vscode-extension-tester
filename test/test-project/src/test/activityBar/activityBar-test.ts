@@ -14,8 +14,13 @@ describe('ActivityBar', () => {
     });
 
     it('getViewControl works with the correct label', async () => {
-        const explorer = await bar.getViewControl('Explorer').wait();
+        const explorer = await bar.getViewControl('Explorer');
         expect(explorer).not.undefined;
+    });
+
+    it('getViewControl returns undefined with an invalid label', async () => {
+        const item = await bar.getViewControl('whatever');
+        expect(item).undefined;
     });
 
     it('getGlobalActions finds global action containers', async () => {
@@ -24,8 +29,13 @@ describe('ActivityBar', () => {
     });
 
     it('getGlobalAction finds action container with the given label', async () => {
-        const action = await bar.getGlobalAction('Manage').wait();
+        const action = await bar.getGlobalAction('Manage');
         expect(action).not.undefined;
+    });
+
+    it('getGlobalAction returns undefined with nonexistent label', async () => {
+        const action = await bar.getGlobalAction('whatever');
+        expect(action).undefined;
     });
 
     (process.platform === 'darwin' ? it.skip : it)('openContextMenu shows context menu', async () => {

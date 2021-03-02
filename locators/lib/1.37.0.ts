@@ -2,18 +2,14 @@ import { By } from "selenium-webdriver";
 import { Locators } from "monaco-page-objects";
 
 const activityBar = {
-    ActionsControl: {
-        constructor: (title: string) => By.xpath(`.//li[@aria-label='${title}']`)
-    },
     ActivityBar: {
         constructor: By.id('workbench.parts.activitybar'),
         viewContainer: By.xpath(`.//ul[@aria-label='Active View Switcher']`),
         label: 'aria-label',
-        actionsContainer: By.className('actions-container'),
+        actionsContainer: By.xpath(`.//ul[@aria-label='Manage']`),
         actionItem: By.className('action-item')
     },
     ViewControl: {
-        constructor: (title: string) => By.xpath(`.//li[contains(@aria-label, '${title}')]`),
         attribute: 'class',
         klass: 'checked'
     }

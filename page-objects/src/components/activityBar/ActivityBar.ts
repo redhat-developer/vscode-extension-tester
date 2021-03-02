@@ -17,7 +17,7 @@ export class ActivityBar extends ElementWithContexMenu {
         const views: ViewControl[] = [];
         const viewContainer = await this.findElement(ActivityBar.locators.ActivityBar.viewContainer);
         for(const element of await viewContainer.findElements(ActivityBar.locators.ActivityBar.actionItem)) {
-            views.push(await new ViewControl(await element.getAttribute(ActivityBar.locators.ActivityBar.label), this).wait());
+            views.push(await new ViewControl(element, this).wait());
         }
         return views;
     }
@@ -25,10 +25,18 @@ export class ActivityBar extends ElementWithContexMenu {
     /**
      * Find a view container with a given title
      * @param name title of the view
-     * @returns ViewControl object representing the view selector
+     * @returns Promise resolving to ViewControl object representing the view selector, undefined if not found
      */
-    getViewControl(name: string): ViewControl {
-        return new ViewControl(name, this);
+    async getViewControl(name: string): Promise<ViewControl | undefined> {
+        const controls = await this.getViewControls();
+        const names = await Promise.all(controls.map(async (item) => {
+            return item.getTitle();
+        }));
+        const index = names.findIndex((value) => value.indexOf(name) > -1);
+        if (index > -1) {
+            return controls[index];
+        }
+        return undefined;
     }
 
     /**
@@ -39,7 +47,7 @@ export class ActivityBar extends ElementWithContexMenu {
         const actions: ActionsControl[] = [];
         const actionContainer = await this.findElement(ActivityBar.locators.ActivityBar.actionsContainer);
         for(const element of await actionContainer.findElements(ActivityBar.locators.ActivityBar.actionItem)) {
-            actions.push(await new ActionsControl(await element.getAttribute(ActivityBar.locators.ActivityBar.label), this).wait());
+            actions.push(await new ActionsControl(element, this).wait());
         }
         return actions;
     }
@@ -47,9 +55,17 @@ export class ActivityBar extends ElementWithContexMenu {
     /**
      * Find an action control with a given title
      * @param name title of the global action
-     * @returns ActionsControl object representing the action selector
+     * @returns Promise resolving to ActionsControl object representing the action selector, undefined if not found
      */
-    getGlobalAction(name: string): ActionsControl {
-        return new ActionsControl(name, this);
+    async getGlobalAction(name: string): Promise<ActionsControl | undefined> {
+        const actions = await this.getGlobalActions();
+        const names = await Promise.all(actions.map(async (item) => {
+            return item.getTitle();
+        }));
+        const index = names.findIndex((value) => value.indexOf(name) > -1);
+        if (index > -1) {
+            return actions[index];
+        }
+        return undefined;
     }
 }

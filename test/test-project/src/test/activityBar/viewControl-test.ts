@@ -7,7 +7,7 @@ describe('ViewControl', () => {
 
     before(async () => {
         bar = new ActivityBar();
-        control = bar.getViewControl('Explorer');
+        control = await bar.getViewControl('Explorer');
     });
 
     it('openView opens the underlying view', async () => {
@@ -30,8 +30,8 @@ describe('ViewControl', () => {
     });
 
     it('getTitle returns container label', async () => {
-        const title = control.getTitle();
-        expect(title).equals('Explorer');
+        const title = await control.getTitle();
+        expect(title).has.string('Explorer');
     });
 
     (process.platform === 'darwin' ? it.skip : it)('openContextMenu shows context menu', async () => {

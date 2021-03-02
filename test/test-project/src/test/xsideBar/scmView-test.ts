@@ -14,7 +14,7 @@ import * as fs from 'fs-extra';
         await input.setText(path.resolve('..', '..'));
         await input.confirm();
 
-        view = await new ActivityBar().getViewControl('Source Control').openView() as ScmView;
+        view = await (await new ActivityBar().getViewControl('Source Control')).openView() as ScmView;
         await new Promise((res) => { setTimeout(res, 2000); });
     });
 

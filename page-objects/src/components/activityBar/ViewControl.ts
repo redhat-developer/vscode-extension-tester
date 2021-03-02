@@ -1,17 +1,14 @@
 import { ActivityBar, SideBarView, ScmView } from "../..";
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
-import { By } from "selenium-webdriver";
+import { By, WebElement } from "selenium-webdriver";
 import { NewScmView } from "../sidebar/scm/NewScmView";
 
 /**
  * Page object representing a view container item in the activity bar
  */
 export class ViewControl extends ElementWithContexMenu {
-    private title: string;
-
-    constructor(title: string, bar: ActivityBar) {
-        super(ViewControl.locators.ViewControl.constructor(title), bar);
-        this.title = title;
+    constructor(element: WebElement, bar: ActivityBar) {
+        super(element, bar);
     }
 
     /**
@@ -48,7 +45,7 @@ export class ViewControl extends ElementWithContexMenu {
     /**
      * Returns the title of the associated view
      */
-    getTitle(): string {
-        return this.title;
+    async getTitle(): Promise<string> {
+        return this.getAttribute('aria-label');
     }
 }

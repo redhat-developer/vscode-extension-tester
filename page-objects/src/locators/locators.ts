@@ -6,9 +6,6 @@ import { DeepPartial } from 'ts-essentials';
  */
 export interface Locators {
     // Activity Bar
-    ActionsControl: {
-        constructor: (title: string) => By
-    }
     ActivityBar: {
         constructor: By
         viewContainer: By
@@ -17,7 +14,6 @@ export interface Locators {
         actionItem: By
     }
     ViewControl: {
-        constructor: (title: string) => By
         attribute: string
         klass: string
     }
