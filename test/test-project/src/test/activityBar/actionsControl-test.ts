@@ -7,7 +7,7 @@ import { ActivityBar, ActionsControl } from 'vscode-extension-tester';
 
     before(async function() {
         bar = new ActivityBar();
-        control = bar.getGlobalAction('Manage');
+        control = await bar.getGlobalAction('Manage');
     });
 
     it('openActionsMenu displays context menu', async () => {
@@ -17,7 +17,7 @@ import { ActivityBar, ActionsControl } from 'vscode-extension-tester';
     });
 
     it('getTitle returns the action container label', async () => {
-        const title = control.getTitle();
+        const title = await control.getTitle();
         expect(title).equals('Manage');
     });
 });

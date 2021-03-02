@@ -12,12 +12,12 @@ describe('ExtensionsView', () => {
     }
 
     before(async () => {
-        const view = await new ActivityBar().getViewControl('Extensions').openView();
+        const view = await (await new ActivityBar().getViewControl('Extensions')).openView();
         section = await view.getContent().getSection(sectionTitle) as ExtensionsViewSection;
     });
 
     after(async function()  {
-        await new ActivityBar().getViewControl('Extensions').closeView();
+        await (await new ActivityBar().getViewControl('Extensions')).closeView();
         await new EditorView().closeAllEditors();
     });
 
