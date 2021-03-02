@@ -1,5 +1,5 @@
 import { Menu, MenuItem } from "../..";
-import { WebElement, Key, until } from "selenium-webdriver";
+import { WebElement, Key, until, error } from "selenium-webdriver";
 
 /**
  * Object representing a context menu
@@ -54,6 +54,32 @@ export class ContextMenu extends Menu {
                 throw err;
             }
         }
+    }
+
+    /**
+     * Wait for the menu to appear and load all its items
+     */
+    async wait(timeout: number = 5000): Promise<this> {
+        await this.getDriver().wait(until.elementIsVisible(this), timeout);
+        let items = (await this.getItems()).length;
+        try {
+            await this.getDriver().wait(async () => {
+                const temp = (await this.getItems()).length;
+                if (temp === items) {
+                    return true;
+                } else {
+                    items = temp;
+                    return false;
+                }
+            }, 1000);
+        } catch (err) {
+            if (err instanceof error.TimeoutError) {
+                // ignore timeout
+            } else {
+                throw err;
+            }
+        }
+        return this;
     }
 }
 
