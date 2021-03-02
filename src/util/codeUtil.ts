@@ -6,7 +6,7 @@ import * as path from 'path';
 import * as child_process from 'child_process';
 import { VSRunner } from "../suite/runner";
 import { Unpack } from "./unpack";
-import { VSBrowserLogLevel } from "../browser";
+import { logging } from "selenium-webdriver";
 
 export enum ReleaseQuality {
     Stable = 'stable',
@@ -22,15 +22,15 @@ export interface RunOptions {
     cleanup?: boolean;
     /** path to a custom mocha configuration file */
     config?: string;
-    /** logging level of the webdriver */
-    logLevel?: VSBrowserLogLevel;
+    /** logging level of the Webdriver */
+    logLevel?: logging.Level;
 }
 
 /** defaults for the [[RunOptions]] */
 export const DEFAULT_RUN_OPTIONS = {
     vscodeVersion: 'latest',
     settings: '',
-    logLevel: VSBrowserLogLevel.Info
+    logLevel: logging.Level.INFO
 }
 
 /**

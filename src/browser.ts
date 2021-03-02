@@ -7,27 +7,9 @@ import { WebDriver, Builder, until, By, initPageObjects, logging } from 'monaco-
 import { Options } from 'selenium-webdriver/chrome';
 import { getLocatorsPath } from 'vscode-extension-tester-locators';
 
-/** Logging levels supported by the WebDriver */
-export const enum VSBrowserLogLevel {
-  All,
-  Finest,
-  Finer,
-  Fine,
-  Debug,
-  Info,
-  Warning,
-  Severe,
-  Off,
-}
-
 export class VSBrowser {
     static readonly baseVersion = '1.37.0';
     static readonly browserName = 'vscode';
-    static readonly logLevels: { [key: string]: logging.Level } = {
-        'all': logging.Level.ALL, 'finest': logging.Level.FINEST, 'finer': logging.Level.FINER,
-        'fine': logging.Level.FINE, 'debug': logging.Level.DEBUG, 'info': logging.Level.INFO,
-        'warning': logging.Level.WARNING, 'severe': logging.Level.SEVERE, 'off': logging.Level.OFF
-    };
     private storagePath: string;
     private extensionsFolder: string | undefined;
     private customSettings: Object;
@@ -36,18 +18,13 @@ export class VSBrowser {
     private logLevel: logging.Level;
     private static _instance: VSBrowser;
 
-    private static logLevelToLoggingLevel(logLevel: VSBrowserLogLevel): logging.Level {
-        const level = VSBrowser.logLevels[logLevel.toString()];
-        return level ?? logging.Level.INFO;
-    }
-
-    constructor(codeVersion: string, customSettings: Object = {}, logLevel: VSBrowserLogLevel = VSBrowserLogLevel.Info) {
+    constructor(codeVersion: string, customSettings: Object = {}, logLevel: logging.Level = logging.Level.INFO) {
         this.storagePath = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.resolve('test-resources');
         this.extensionsFolder = process.env.EXTENSIONS_FOLDER ? process.env.EXTENSIONS_FOLDER : undefined;
         this.customSettings = customSettings;
         this.codeVersion = codeVersion;
 
-        this.logLevel = VSBrowser.logLevelToLoggingLevel(logLevel);
+        this.logLevel = logLevel;
 
         VSBrowser._instance = this;
     };
