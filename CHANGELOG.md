@@ -1,5 +1,16 @@
 # Change Log
 
+## 4.0.1 (Mar 3)
+ - fix `logLevel` always defaulting to `info` when running tests from the API
+ - increased the timeout for the browser to start
+ - the `stdout` log now prints messages when the browser is starting and how long it took to start
+ - all context menus now should wait for their items to load before returning control
+ - items in the `ActivityBar` needed a fixup and some APIs had to be broken:
+   - `string` based contructors are gone for `ActionsControl` and `ViewControl`
+   - `ActivityBar` methods `getViewControl` and `getGlobalAction` are now async so error handling works properly on them
+   - `ActionsControl` and `ViewControl` method `getTitle` is now async and reflects the dynamic changes to the title
+   - fixed `ActivityBar` searching for `ActionsControl` items in the `ViewControl` container
+
 ## 4.0.0 (Feb 25)
 
 ### Breaking changes
