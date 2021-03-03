@@ -34,7 +34,9 @@ The results can then be found in the 'docs' directory.
 
 ## Migrating to 4.0
 
-In the 4.0 update, the `ExTester` API was revamped. If you are not using the API to launch your tests, no action is needed.
+### ExTester API
+
+In the 4.0 update, the `ExTester` API was revamped. If you are not using the API to launch your tests, no action is needed here.
 
 The methods `setupRequirements`, `runTests` and `setupAndRunTests` have had their arguments changed from the long telescope list to structured objects.
 
@@ -44,6 +46,20 @@ The new signatures now involve `SetupOptions` and `RunOptions` objects respectiv
  - `setupAndRunTests(testFilesPattern: string, vscodeVersion: string = 'latest', setupOptions: SetupOptions, runOptions: RunOptions)` (though here the options don't include vscode version)
 
 Both interfaces are exported and contain the list of options you would use as arguments in their respective methods. Any argument that used to have a default value is marked as optional in the interfaces. 
+
+### Changing Page Objects
+
+A few page objects have had slight changes to their API. Others have had their inner workings changed that may influence tests with tight timeouts.
+
+ - Context Menus now wait for all their items to load before you can manipulate them
+   - this will not affect any APIs, but will slow down tests, so be careful if your test timeouts are tight
+ - Settings Editor waits for the whole page to finish loading when searching for a setting
+   - once again, test time is going to increase, care about timeouts
+ - Action Bar & its items methods are now all asynchronous
+   - `ActionBar` methods `getViewControl` and `getGlobalAction` are now async, make sure to await them
+   - `ViewControl` and `ActionsItem` method `getTitle` is now async, make sure to await 
+   - `ViewControl` and `ActionsItem` contructors were changed to take a `WebElement` directly, instead of a title
+     - hopefully, noone was using these directly, but if you do, use `ActionBar#getViewControl` or `getGlobalAction` instead to get the proper object
 
 
 ## Requirements
