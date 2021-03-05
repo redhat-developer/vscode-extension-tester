@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { ActivityBar, ViewItem, CustomTreeSection, CustomTreeItem, ViewContent, WelcomeContentButton } from 'vscode-extension-tester';
+import { ActivityBar, CustomTreeItem, CustomTreeSection, NotificationType, TreeItem, ViewContent, ViewItem, WelcomeContentButton, Workbench } from 'vscode-extension-tester';
 
 describe('CustomTreeSection', () => {
     let section: CustomTreeSection;
@@ -36,7 +36,7 @@ describe('CustomTreeSection', () => {
 
     it('getVisibleItems works', async () => {
         const items = await section.getVisibleItems();
-        expect(items.length).equals(3);
+        expect(items.length).equals(4);
     });
 
     it('findItem works', async () => {
@@ -44,7 +44,7 @@ describe('CustomTreeSection', () => {
         expect(item).not.undefined;
 
 
-        const item1 = await section.findItem('d');
+        const item1 = await section.findItem('e');
         expect(item1).undefined;
     });
 
@@ -172,6 +172,47 @@ describe('CustomTreeSection', () => {
                 await item.expand();
                 expect(await item.isExpanded()).to.equal(true);
             }
+        });
+
+        describe('tree item with a command', () => {
+            let dItem: TreeItem;
+            let bench: Workbench;
+
+            before(async () => {
+                dItem = await section.findItem('d');
+                bench = new Workbench();
+            });
+
+            beforeEach(async () => {
+                await (await bench.openNotificationsCenter()).clearAllNotifications();
+            });
+
+            afterEach(async () => {
+                const notifications = await (await bench.openNotificationsCenter()).getNotifications(NotificationType.Error);
+                expect(notifications).to.have.length(0);
+            });
+
+            it('getChildren does not click on the tree item', async () => {
+                expect(await (dItem as CustomTreeItem).getChildren()).to.have.length(2);
+                await dItem.collapse();
+            });
+
+            it('findChildItem does not click on the tree item', async () => {
+                expect(await (dItem as CustomTreeItem).findChildItem("da")).to.not.equal(undefined);
+                await dItem.collapse();
+            });
+
+            it('findItem does not click on the tree item', async () => {
+                expect(await section.openItem('d', 'da')).to.not.equal(undefined);
+            });
+
+            it('clicking on the tree item with a command assigned, triggers the command', async () => {
+                await dItem.click();
+                const errorNotification = await (await bench.openNotificationsCenter()).getNotifications(NotificationType.Error);
+                expect(errorNotification).to.have.length(1);
+                expect(await errorNotification[0].getMessage()).to.equal("This is an error!")
+                await errorNotification[0].dismiss();
+            })
         });
     });
 });

@@ -91,7 +91,7 @@ export abstract class TreeItem extends ViewItem {
      */
     async collapse(): Promise<void> {
         if (await this.isExpandable() && await this.isExpanded()) {
-            await this.click();
+            await (await this.findTwistie()).click();
         }
     }
 
@@ -139,9 +139,8 @@ export abstract class TreeItem extends ViewItem {
      */
     protected async getChildItems(locator: By): Promise<WebElement[]> {
         const items: WebElement[] = [];
-        if (!await this.isExpanded() && this.isExpandable()) {
-            await this.click();
-        }
+        await this.expand();
+
         const rows = await this.enclosingItem.findElements(locator);
         const baseIndex = +await this.getAttribute(TreeItem.locators.ViewSection.index);
         const baseLevel = +await this.getAttribute(TreeItem.locators.ViewSection.level);

@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { ERROR_MESSAGE_COMMAND } from './extension';
 
 /**
  * Test tree view as shown in treeview sample extension available at
@@ -15,6 +16,7 @@ type Tree = { [key: string]: Tree | undefined | null };
 
 // structure of the test tree:
 // leafs are keys that are undefined or null. If it is undefined, then its collapsibleState is None, if it null, then it is Collapsed
+// The tree element with the key 'd' is special: it has a command attached to it. It thus cannot be expanded by simply clicking on it, as that just triggers the command.
 const tree: Tree = {
 	'a': {
 		'aa': {
@@ -32,7 +34,11 @@ const tree: Tree = {
 		'ba': undefined,
 		'bb': undefined
 	},
-	'c': null
+	'c': null,
+	'd': {
+		'da': undefined,
+		'db': undefined
+	}
 };
 let nodes = {};
 
@@ -44,6 +50,9 @@ function dataProvider(): vscode.TreeDataProvider<{ key: string }> {
 		getTreeItem: (element: { key: string }): vscode.TreeItem => {
 			const treeItem = getTreeItem(element.key);
 			treeItem.id = element.key;
+			if (element.key === "d") {
+				treeItem.command = { title: "show an error", command: ERROR_MESSAGE_COMMAND };
+			}
 			return treeItem;
 		},
 		getParent: ({ key }: { key: string }): { key: string } => {
