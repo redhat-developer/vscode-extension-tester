@@ -65,6 +65,15 @@ export abstract class TreeItem extends ViewItem {
     abstract isExpandable(): Promise<boolean>;
 
     /**
+     * Expands the current item, if it can be expanded and is collapsed.
+     */
+    async expand(): Promise<void> {
+        if (await this.isExpandable() && !await this.isExpanded()) {
+            await (await this.findTwistie()).click();
+        }
+    }
+
+    /**
      * Find a child item with the given name
      * @returns Promise resolving to TreeItem object if the child item exists, undefined otherwise
      */
@@ -149,6 +158,10 @@ export abstract class TreeItem extends ViewItem {
         }
 
         return items;
+    }
+
+    protected async findTwistie(): Promise<WebElement> {
+        return await this.findElement(TreeItem.locators.TreeItem.twistie);
     }
 }
 

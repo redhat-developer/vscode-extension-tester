@@ -179,7 +179,8 @@ const sideBar = {
     TreeItem: {
         actions: By.className('actions-container'),
         actionLabel: By.className('action-label'),
-        actionTitle: 'title'
+        actionTitle: 'title',
+        twistie: By.className('monaco-tl-twistie')
     },
     DefaultTreeSection: {
         itemRow: By.className('monaco-list-row'),

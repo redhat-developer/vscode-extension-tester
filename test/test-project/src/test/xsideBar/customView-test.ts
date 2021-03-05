@@ -158,5 +158,20 @@ describe('CustomTreeSection', () => {
             const child = await item.findChildItem('ab');
             expect(child).not.undefined;
         });
+
+        it('expand works', async () => {
+            item = await section.findItem('a');
+            await item.collapse();
+            expect(await item.isExpanded()).to.equal(false);
+            await item.expand();
+            expect(await item.isExpanded()).to.equal(true);
+        });
+
+        it('expand is idempotent', async () => {
+            for (const _i of [1, 2]) {
+                await item.expand();
+                expect(await item.isExpanded()).to.equal(true);
+            }
+        });
     });
 });

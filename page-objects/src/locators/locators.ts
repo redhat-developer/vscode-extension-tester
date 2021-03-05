@@ -179,7 +179,8 @@ export interface Locators {
     TreeItem: {
         actions: By
         actionLabel: By
-        actionTitle: string
+        actionTitle: string,
+        twistie: By
     }
     DefaultTreeSection: {
         itemRow: By
