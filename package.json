@@ -1,6 +1,6 @@
 {
   "name": "vscode-extension-tester",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Webdriver Testing for VSCode Extensions",
   "main": "out/extester.js",
   "types": "out/extester.d.ts",
@@ -10,7 +10,7 @@
     "resources/*"
   ],
   "bin": {
-    "extest": "./out/cli.js"
+    "extest": "out/cli.js"
   },
   "scripts": {
     "prepack": "npm run build",
