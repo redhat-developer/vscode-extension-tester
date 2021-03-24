@@ -104,7 +104,7 @@ export class CodeUtil {
         if (!fs.existsSync(this.executablePath) || await this.getExistingCodeVersion() !== literalVersion) {
             fs.mkdirpSync(this.downloadFolder);
 
-            const url = ['https://vscode-update.azurewebsites.net', version, this.downloadPlatform, this.releaseType].join('/');
+            const url = ['https://update.code.visualstudio.com', version, this.downloadPlatform, this.releaseType].join('/');
             const isTarGz = this.downloadPlatform.indexOf('linux') > -1;
             const fileName = `${path.basename(url)}.${isTarGz ? 'tar.gz' : 'zip'}`;
     

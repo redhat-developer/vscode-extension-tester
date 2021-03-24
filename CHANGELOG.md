@@ -1,5 +1,8 @@
 # Change Log
 
+## 4.0.2 (Mar 24)
+ - move to a new download URL for VS Code, old one got shut down
+
 ## 4.0.1 (Mar 3)
  - fix `logLevel` always defaulting to `info` when running tests from the API
  - increased the timeout for the browser to start
