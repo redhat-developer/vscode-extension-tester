@@ -10,7 +10,7 @@ export abstract class ViewItem extends ElementWithContexMenu {
      * Select the item in the view.
      * Note that selecting the item will toggle its expand state when applicable.
      * @returns Promise resolving when the item has been clicked
-     */    
+     */
     async select(): Promise<void> {
         await this.click();
     }
@@ -59,10 +59,19 @@ export abstract class TreeItem extends ViewItem {
     abstract getChildren(): Promise<TreeItem[]>
 
     /**
-     * Finds if the item is expandable/collapsible 
+     * Finds if the item is expandable/collapsible
      * @returns Promise resolving to true/false
      */
     abstract isExpandable(): Promise<boolean>;
+
+    /**
+     * Expands the current item, if it can be expanded and is collapsed.
+     */
+    async expand(): Promise<void> {
+        if (await this.isExpandable() && !await this.isExpanded()) {
+            await (await this.findTwistie()).click();
+        }
+    }
 
     /**
      * Find a child item with the given name
@@ -82,13 +91,13 @@ export abstract class TreeItem extends ViewItem {
      */
     async collapse(): Promise<void> {
         if (await this.isExpandable() && await this.isExpanded()) {
-            await this.click();
+            await (await this.findTwistie()).click();
         }
     }
 
     /**
      * Find all action buttons bound to the view item
-     * 
+     *
      * @returns array of ViewItemAction objects, empty array if item has no
      * actions associated
      */
@@ -101,7 +110,7 @@ export abstract class TreeItem extends ViewItem {
         }
         const actions: ViewItemAction[] = [];
         const items = await container.findElements(TreeItem.locators.TreeItem.actionLabel);
-        
+
         for (const item of items) {
             const label = await item.getAttribute(TreeItem.locators.TreeItem.actionTitle);
             actions.push(new ViewItemAction(label, this));
@@ -112,7 +121,7 @@ export abstract class TreeItem extends ViewItem {
     /**
      * Find action button for view item by label
      * @param label label of the button to search by
-     * 
+     *
      * @returns ViewItemAction object if such button exists, undefined otherwise
      */
     async getActionButton(label: string): Promise<ViewItemAction | undefined> {
@@ -130,9 +139,8 @@ export abstract class TreeItem extends ViewItem {
      */
     protected async getChildItems(locator: By): Promise<WebElement[]> {
         const items: WebElement[] = [];
-        if (!await this.isExpanded() && this.isExpandable()) {
-            await this.click();
-        }
+        await this.expand();
+
         const rows = await this.enclosingItem.findElements(locator);
         const baseIndex = +await this.getAttribute(TreeItem.locators.ViewSection.index);
         const baseLevel = +await this.getAttribute(TreeItem.locators.ViewSection.level);
@@ -149,6 +157,10 @@ export abstract class TreeItem extends ViewItem {
         }
 
         return items;
+    }
+
+    protected async findTwistie(): Promise<WebElement> {
+        return await this.findElement(TreeItem.locators.TreeItem.twistie);
     }
 }
 

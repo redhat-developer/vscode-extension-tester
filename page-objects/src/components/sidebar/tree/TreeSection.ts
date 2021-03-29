@@ -7,7 +7,7 @@ import { TreeItem } from "../ViewItem";
 export abstract class TreeSection extends ViewSection {
     async openItem(...path: string[]): Promise<TreeItem[]> {
         let items: TreeItem[] = [];
-    
+
         for (let i = 0; i < path.length; i++) {
             const item = await this.findItem(path[i], i + 1);
             if (await item?.hasChildren() && !await item?.isExpanded()) {
