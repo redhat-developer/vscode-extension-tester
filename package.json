@@ -14,7 +14,7 @@
   },
   "scripts": {
     "prepack": "npm run build",
-    "prepare-deps": "npm run build-native && npm run build-page-objects && npm run build-locators && npm link page-objects && npm link native && npm link locators",
+    "prepare-deps": "npm run build-page-objects && npm run build-locators && npm link page-objects && npm link locators",
     "build-page-objects": "cd page-objects && npm i && npm run build",
     "build-native": "cd native && npm i && npm run build",
     "build-locators": "cd locators && npm i && npm run build",
@@ -52,8 +52,7 @@
     "mocha": "^8.1.3",
     "rimraf": "^3.0.0",
     "typedoc": "^0.19.2",
-    "typescript": "^4.0.3",
-    "vscode-extension-tester-native": "file:native"
+    "typescript": "^4.0.3"
   },
   "dependencies": {
     "@types/selenium-webdriver": "^3.0.15",
@@ -62,7 +61,7 @@
     "fs-extra": "^9.0.1",
     "glob": "^7.1.6",
     "js-yaml": "^3.13.1",
-    "monaco-page-objects": "^1.5.1",
+    "monaco-page-objects": "^1.5.2",
     "request": "^2.88.0",
     "sanitize-filename": "^1.6.3",
     "selenium-webdriver": "^3.0.0",

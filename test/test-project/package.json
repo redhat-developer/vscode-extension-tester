@@ -34,8 +34,8 @@
 			{
 				"command": "extension.warningMsg",
 				"title": "Warning Message"
-                        },
-                        {
+			},
+			{
 				"command": "extension.errorMsg",
 				"title": "Error Message"
 			},
@@ -84,11 +84,11 @@
 				}
 			]
 		},
-	        "viewsWelcome": [
+		"viewsWelcome": [
 			{
 				"view": "emptyView",
 				"contents": "This is the first line\n[Add stuff into this View](command:extension.populateTestView)\nThis is the second line\nAnd yet another line."
-				}
+			}
 		],
 		"configuration": {
 			"title": "Test Project",

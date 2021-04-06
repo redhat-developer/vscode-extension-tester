@@ -33,7 +33,7 @@ export async function openFile() {
     await window.showTextDocument(document);
 }
 
-function waitForUpdate(dir: string) {
+function waitForUpdate(dir: string): Promise<void> {
     return new Promise((res, rej) => {
         const timeout = setTimeout(rej, 5000, new Error('Workspace failed to update'));
         const listener = (e: WorkspaceFoldersChangeEvent) => {
