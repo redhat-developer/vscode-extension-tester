@@ -1,0 +1,32 @@
+name: Nightly Insiders
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Setup Dependencies
+        run: |
+          rm -f package-lock.json
+          npm run prepare-deps
+          npm install
+          npm run build
+          npm run prepare-test
+      - name: Run Tests
+        env: 
+          CODE_TYPE: insider
+        run: |
+          sudo apt-get install xvfb
+          export DISPLAY=:99.0
+          Xvfb -ac :99 -screen 0 1920x1080x16 & 
+          npm run ci-test
