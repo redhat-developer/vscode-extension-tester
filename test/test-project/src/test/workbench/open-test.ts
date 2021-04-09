@@ -1,4 +1,4 @@
-import { EditorView, InputBox, Workbench } from 'monaco-page-objects';
+import { EditorView, Workbench } from 'monaco-page-objects';
 import * as path from 'path';
 
 describe('Simple open file dialog', () => {
@@ -13,6 +13,7 @@ describe('Simple open file dialog', () => {
         await input.confirm();
         await new Promise(res => setTimeout(res, 1000));
 
+        console.log(await new EditorView().getOpenEditorTitles());
         await new EditorView().openEditor('package.json')
     });
 });
