@@ -10,8 +10,9 @@ describe('Simple open file dialog', () => {
         await input.selectQuickPick('File: Open File...');
         await new Promise(res => setTimeout(res, 1000));
         await input.setText(filePath);
+        await new Promise(res => setTimeout(res, 1000));
         await input.confirm();
-        await new Promise(res => setTimeout(res, 2000));
+        await new Promise(res => setTimeout(res, 1000));
 
         console.log(await new EditorView().getOpenEditorTitles());
         await new EditorView().openEditor('package.json')
