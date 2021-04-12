@@ -1,18 +1,18 @@
-import { EditorView, InputBox, TitleBar } from 'monaco-page-objects';
+import { EditorView, Workbench } from 'monaco-page-objects';
 import * as path from 'path';
 
 describe('Simple open file dialog', () => {
     const filePath = path.resolve('.', 'package.json');
 
     it('Opens a file', async () => {
-        await new TitleBar().select('File', 'Open File...');
-
-        const input = await InputBox.create();
+        const input = await new Workbench().openCommandPrompt();
+        await input.setText('>File: Open File...')
+        await input.selectQuickPick('File: Open File...');
+        await new Promise(res => setTimeout(res, 1000));
         await input.setText(filePath);
         await input.confirm();
         await new Promise(res => setTimeout(res, 1000));
 
-        console.log(await new EditorView().getOpenEditorTitles());
         await new EditorView().openEditor('package.json')
     });
 });
