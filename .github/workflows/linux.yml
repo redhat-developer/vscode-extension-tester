@@ -37,3 +37,9 @@ jobs:
           export DISPLAY=:99.0
           Xvfb -ac :99 -screen 0 1920x1080x16 & 
           npm run ci-test
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v2
+        with: 
+          name: screenshots
+          path: test/test-project/test-resources/screenshots/*.png
+          if-no-files-found: ignore
