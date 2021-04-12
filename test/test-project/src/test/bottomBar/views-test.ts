@@ -54,6 +54,7 @@ import { BottomBarPanel, OutputView, TerminalView, VSBrowser, Workbench } from '
 
         before(async () => {
             terminal = await panel.openTerminalView();
+            await new Promise(res => setTimeout(res, 2000));
         });
 
         it('getText returns all current text', async () => {

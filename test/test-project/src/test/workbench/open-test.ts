@@ -1,4 +1,4 @@
-import { EditorView, InputBox, Workbench } from 'monaco-page-objects';
+import { EditorView, Workbench } from 'monaco-page-objects';
 import * as path from 'path';
 
 describe('Simple open file dialog', () => {

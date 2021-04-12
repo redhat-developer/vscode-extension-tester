@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         node: [12]
-        version: [1.50.0, 1.51.0, 1.52.0, 1.53.0, latest]
+        version: [1.51.0, 1.52.0, 1.53.0, 1.54.0, latest]
       fail-fast: false
     
     steps:
@@ -37,3 +37,9 @@ jobs:
           export DISPLAY=:99.0
           Xvfb -ac :99 -screen 0 1920x1080x16 & 
           npm run ci-test
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with: 
+          name: screenshots
+          path: ~/test/**/screenshots/*.png

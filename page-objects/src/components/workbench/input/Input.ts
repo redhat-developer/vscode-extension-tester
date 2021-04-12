@@ -26,6 +26,10 @@ export abstract class Input extends AbstractElement {
         const input = await this.findElement(Input.locators.Input.inputBox)
             .findElement(Input.locators.Input.input);
         await this.clear();
+        await new Promise(res => setTimeout(res, 200));
+        if ((await this.getText()).length > 0) {
+            await input.sendKeys(Key.END, Key.chord(Key.SHIFT, Key.HOME));
+        }
         await input.sendKeys(text);
     }
 
