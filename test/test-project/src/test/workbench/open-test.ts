@@ -10,7 +10,7 @@ describe('Simple open file dialog', () => {
         const input = await InputBox.create();
         await input.setText(filePath);
         await input.confirm();
-        await new Promise(res => setTimeout(res, 1000));
+        await new Promise(res => setTimeout(res, 2000));
 
         console.log(await new EditorView().getOpenEditorTitles());
         await new EditorView().openEditor('package.json')
