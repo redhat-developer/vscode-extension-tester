@@ -39,7 +39,7 @@ jobs:
           npm run ci-test
       - name: Upload screenshots
         uses: actions/upload-artifact@v2
+        if: failure()
         with: 
           name: screenshots
-          path: test/test-project/test-resources/screenshots/*.png
-          if-no-files-found: ignore
+          path: test/test-project/test-resources/screenshots/*
