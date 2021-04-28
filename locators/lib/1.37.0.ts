@@ -114,6 +114,10 @@ const editor = {
     DiffEditor: {
         originalEditor: By.className('original-in-monaco-diff-editor'),
         modifiedEditor: By.className('modified-in-monaco-diff-editor')
+    },
+    WebView: {
+        iframe: By.css(`iframe[class='webview ready']`),
+        activeFrame: By.id('active-frame')
     }
 }
 
@@ -257,7 +261,8 @@ const statusBar = {
         indent: By.id('status.editor.indentation'),
         selection: By.id('status.editor.selection'),
         notifications: By.className('notifications-center'),
-        bell: By.id('status.notifications')
+        bell: By.id('status.notifications'),
+        item: By.className('statusbar-item')
     }
 }
 
