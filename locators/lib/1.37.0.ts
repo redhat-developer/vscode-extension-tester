@@ -74,7 +74,9 @@ const editor = {
         closeTab: By.className('tab-close'),
         tabTitle: 'title',
         tabSeparator: ', tab',
-        tabLabel: 'aria-label'
+        tabLabel: 'aria-label',
+        actionContainer: By.className('editor-actions'),
+        actionItem: By.className('action-label')
     },
     Editor: {
         constructor: By.className('editor-instance'),

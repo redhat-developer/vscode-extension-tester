@@ -1,6 +1,6 @@
 import { AbstractElement } from "../AbstractElement";
 import { TextEditor } from "../..";
-import { By, WebElement } from "selenium-webdriver";
+import { WebElement } from "selenium-webdriver";
 import * as path from 'path';
 import { Editor } from "./Editor";
 import { SettingsEditor } from "./SettingsEditor";
@@ -295,7 +295,7 @@ export class EditorGroup extends AbstractElement {
      * @returns promise resolving to list of WebElement objects
      */
     async getActions(): Promise<WebElement[]> {
-        return this.findElement(By.className('editor-actions')).findElements(By.className('action-label'));
+        return this.findElement(EditorGroup.locators.EditorView.actionContainer).findElements(EditorGroup.locators.EditorView.actionItem);
     }
 
     /**
