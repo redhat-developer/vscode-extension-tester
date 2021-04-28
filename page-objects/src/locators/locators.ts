@@ -117,6 +117,10 @@ export interface Locators {
         originalEditor: By
         modifiedEditor: By
     }
+    WebView: {
+        iframe: By
+        activeFrame: By
+    }
 
     // Menus
     ContextMenu: {
@@ -257,6 +261,7 @@ export interface Locators {
         selection: By
         notifications: By
         bell: By
+        item: By
     }
 
     // Workbench

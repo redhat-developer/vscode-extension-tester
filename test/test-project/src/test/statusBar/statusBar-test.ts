@@ -86,4 +86,14 @@ describe('StatusBar', () => {
         const encoding = await bar.getCurrentPosition();
         expect(encoding).has.string('Ln 1, Col 1');
     });
+
+    it('getItems works', async () => {
+        const items = await bar.getItems();
+        expect(items).not.empty;
+    });
+
+    it('getItem works', async () => {
+        const item = await bar.getItem('Select Encoding');
+        expect(item).not.undefined;
+    });
 });

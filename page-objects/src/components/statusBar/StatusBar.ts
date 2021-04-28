@@ -1,4 +1,4 @@
-import { By, Locator } from "selenium-webdriver";
+import { By, Locator, WebElement } from "selenium-webdriver";
 import { AbstractElement } from "../AbstractElement";
 import { NotificationsCenter } from "../workbench/NotificationsCenter";
 
@@ -8,6 +8,29 @@ import { NotificationsCenter } from "../workbench/NotificationsCenter";
 export class StatusBar extends AbstractElement {
     constructor() {
         super(StatusBar.locators.StatusBar.constructor, StatusBar.locators.Workbench.constructor);
+    }
+
+    /**
+     * Retrieve all status bar items currently displayed
+     * @returns Promise resolving to an array of WebElement
+     */
+    async getItems(): Promise<WebElement[]> {
+        return this.findElements(StatusBar.locators.StatusBar.item);
+    }
+
+    /**
+     * Find status bar item by title (the one that pops up when you hover the item)
+     * @param title title of the item
+     * @returns Promise resolving to a WebElement if item is found, to undefined otherwise
+     */
+    async getItem(title: string): Promise<WebElement | undefined> {
+        const items = await this.getItems();
+        for (const item of items) {
+            if (await item.getAttribute('title') === title) {
+                return item;
+            }
+        }
+        return undefined;
     }
 
     /**
