@@ -77,6 +77,8 @@ export interface Locators {
         tabTitle: string
         tabSeparator: string
         tabLabel: string
+        actionContainer: By
+        actionItem: By
     }
     Editor: {
         constructor: By

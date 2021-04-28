@@ -74,6 +74,16 @@ describe('EditorView', () => {
         expect(tabs).not.contains('Untitled-1');
     });
 
+    it('getActions works', async () => {
+        const actions = await view.getActions();
+        expect(actions).not.empty;
+    });
+
+    it('getAction works', async () => {
+        const action = await view.getAction('More Actions...');
+        expect(action).not.undefined;
+    });
+
     describe('Editor Tab', () => {
         let tab: EditorTab;
 

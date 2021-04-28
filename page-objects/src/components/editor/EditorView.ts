@@ -144,6 +144,26 @@ export class EditorView extends AbstractElement {
     async getEditorGroup(index: number): Promise<EditorGroup> {
         return (await this.getEditorGroups())[index];
     }
+
+    /**
+     * Get editor actions of a select editor group
+     * @param groupIndex zero based index of the editor group (leftmost group has index 0), default 0
+     * @returns promise resolving to list of WebElement objects
+     */
+    async getActions(groupIndex = 0): Promise<WebElement[]> {
+        const group = await this.getEditorGroup(groupIndex);
+        return group.getActions();
+    }
+
+    /**
+     * Get editor action of a select editor group, search by title
+     * @param groupIndex zero based index of the editor group (leftmost group has index 0), default 0
+     * @returns promise resolving to WebElement object if found, undefined otherwise
+     */
+    async getAction(title: string, groupIndex = 0): Promise<WebElement | undefined> {
+        const group = await this.getEditorGroup(groupIndex);
+        return group.getAction(title);
+    }
 }
 
 /**
@@ -266,6 +286,29 @@ export class EditorGroup extends AbstractElement {
 
         if (index > -1) {
             return tabs[index];
+        }
+        return undefined;
+    }
+
+    /**
+     * Retrieve the editor action buttons as WebElements
+     * @returns promise resolving to list of WebElement objects
+     */
+    async getActions(): Promise<WebElement[]> {
+        return this.findElement(EditorGroup.locators.EditorView.actionContainer).findElements(EditorGroup.locators.EditorView.actionItem);
+    }
+
+    /**
+     * Find an editor action button by title
+     * @param title title of the button
+     * @returns promise resolving to WebElement representing the button if found, undefined otherwise
+     */
+    async getAction(title: string): Promise<WebElement | undefined> {
+        const actions = await this.getActions();
+        for (const item of actions) {
+            if (await item.getAttribute('title') === title) {
+                return item;
+            }
         }
         return undefined;
     }
