@@ -1,9 +1,9 @@
 import { Key } from "selenium-webdriver";
 import { BottomBarPanel } from "../..";
 import { TextView, ChannelView } from "./AbstractViews";
-import { AbstractElement } from "../AbstractElement";
 import * as clipboard from 'clipboardy';
 import { Workbench } from "../..";
+import { ElementWithContexMenu } from "../ElementWithContextMenu";
 
 /**
  * Output view of the bottom panel
@@ -19,9 +19,20 @@ export class OutputView extends TextView {
  * Debug Console view on the bottom panel
  * Functionality TBD on request
  */
-export class DebugConsoleView extends AbstractElement {
+export class DebugConsoleView extends ElementWithContexMenu {
     constructor(panel: BottomBarPanel = new BottomBarPanel()) {
         super(DebugConsoleView.locators.DebugConsoleView.constructor, panel);
+    }
+
+    /**
+     * Get all text from the debug console
+     */
+    async getText(): Promise<string> {
+        const menu = await this.openContextMenu();
+        await menu.select('Copy All');
+        const text = await clipboard.read();
+        await clipboard.write('');
+        return text;
     }
 }
 
