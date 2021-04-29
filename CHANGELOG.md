@@ -1,5 +1,17 @@
 # Change Log
 
+## 4.0.3 (Apr 29)
+ - tree items now have an `expand` method
+ - simple file dialog should now be less likely to mess up the absolute path input
+ - `StatusBar` now has methods to find generic status items
+   - `getItems` to find all status items
+   - `getItem(title)` to find an item by title (the title that pops up when you hover over the item)
+ - analogically, `EditorView` and `EditorGroup` now have methods to find their respective action buttons on the tab row
+   - `getActions` to find all action buttons
+   - `getAction(title)` to find a button by title
+ - `DebugConsoleView` now supports `getText` to return all its current text
+ - `WebView` now supports the new `iframe` based implementation for future vscode releases
+
 ## 4.0.2 (Mar 24)
  - move to a new download URL for VS Code, old one got shut down
 
