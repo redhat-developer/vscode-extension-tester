@@ -75,6 +75,9 @@ import { BottomBarPanel, OutputView, TerminalView, VSBrowser, Workbench } from '
         });
 
         it('killTerminal destroys the current term channel', async () => {
+            await panel.toggle(false);
+            await panel.toggle(true);
+            terminal = await panel.openTerminalView();
             await terminal.killTerminal();
             const channels = await terminal.getChannelNames();
             expect(channels).not.contains(`2: ${terminalName}`);
