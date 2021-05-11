@@ -17,6 +17,8 @@ import { expect } from "chai";
 
         const explorer = await (await new ActivityBar().getViewControl('Explorer')).openView();
         const tree = (await explorer.getContent().getSections())[0] as DefaultTreeSection;
+        
+        await new Promise(res => setTimeout(res, 1000));
         await (await tree.findItem('test.js')).select();
 
         view = (await (await new ActivityBar().getViewControl('Run')).openView()) as DebugView;
