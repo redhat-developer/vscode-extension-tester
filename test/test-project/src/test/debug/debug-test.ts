@@ -1,4 +1,4 @@
-import { ActivityBar, DebugConsoleView, DebugToolbar, DebugView, DefaultTreeSection, EditorView, InputBox, TextEditor, TitleBar, until, Workbench } from "vscode-extension-tester";
+import { ActivityBar, DebugConsoleView, DebugToolbar, DebugView, DefaultTreeSection, EditorView, InputBox, TextEditor, TitleBar, until, VSBrowser, Workbench } from "vscode-extension-tester";
 import * as path from 'path';
 import { expect } from "chai";
 
@@ -16,7 +16,7 @@ import { expect } from "chai";
         await new Promise(res => setTimeout(res, 5000));
 
         const explorer = await (await new ActivityBar().getViewControl('Explorer')).openView();
-        const tree = (await explorer.getContent().getSections())[0] as DefaultTreeSection;
+        const tree = (await explorer.getContent().getSection('debug-project')) as DefaultTreeSection;
         
         await new Promise(res => setTimeout(res, 1000));
         await (await tree.findItem('test.js')).select();
