@@ -26,8 +26,15 @@ export class DebugToolbar extends AbstractElement {
      * Wait for the execution to pause at the next breakpoint
      */
     async waitForBreakPoint(): Promise<void> {
-        const btn = await this.getDriver().wait(until.elementLocated(By.className('codicon-debug-continue')));
-        await this.getDriver().wait(until.elementIsEnabled(btn));
+        let btn = await this.getDriver().wait(until.elementLocated(By.className('codicon-debug-continue')));
+        await this.getDriver().wait(async () => {
+            try {
+                const enabled = await btn.isEnabled();
+                return enabled;
+            } catch(err) {
+                btn = await this.findElement(By.className('codicon-debug-continue'));
+            }
+        });
     }
 
     /**
