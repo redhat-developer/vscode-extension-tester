@@ -30,6 +30,7 @@ export * from './components/sidebar/extensions/ExtensionsViewSection';
 export * from './components/sidebar/extensions/ExtensionsViewItem';
 export { ScmView, ScmProvider, ScmChange } from './components/sidebar/scm/ScmView';
 export * from './components/sidebar/scm/NewScmView';
+export * from './components/sidebar/debug/DebugView';
 
 export * from './components/bottomBar/BottomBarPanel';
 export * from './components/bottomBar/ProblemsView';
@@ -50,6 +51,7 @@ export * from './components/workbench/input/Input';
 export * from './components/workbench/input/InputBox';
 export * from './components/workbench/input/QuickOpenBox';
 export * from './components/workbench/Workbench';
+export * from './components/workbench/DebugToolbar';
 
 export * from './components/dialog/ModalDialog';
 

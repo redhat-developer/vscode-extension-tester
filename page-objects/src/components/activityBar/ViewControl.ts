@@ -1,4 +1,4 @@
-import { ActivityBar, SideBarView, ScmView } from "../..";
+import { ActivityBar, DebugView, SideBarView, ScmView } from "../..";
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
 import { By, WebElement } from "selenium-webdriver";
 import { NewScmView } from "../sidebar/scm/NewScmView";
@@ -27,6 +27,9 @@ export class ViewControl extends ElementWithContexMenu {
                 return new NewScmView().wait();
             }
             return new ScmView().wait();
+        }
+        if ((await view.findElements(By.id('workbench.view.debug'))).length > 0) {
+            return new DebugView().wait();
         }
         return view;
     }

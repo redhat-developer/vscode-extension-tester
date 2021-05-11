@@ -1,12 +1,12 @@
-import { TextEditor, Menu, MenuItem } from "../..";
+import { TextEditor, Menu, MenuItem, DebugConsoleView } from "../..";
 import { WebElement } from 'selenium-webdriver';
 
 /**
  * Page object representing the content assistant
  */
 export class ContentAssist extends Menu {
-    constructor(editor: TextEditor) {
-        super(ContentAssist.locators.ContentAssist.constructor, editor);
+    constructor(parent: TextEditor | DebugConsoleView) {
+        super(ContentAssist.locators.ContentAssist.constructor, parent);
     }
 
     /**
@@ -67,7 +67,6 @@ export class ContentAssistItem extends MenuItem {
 
     async getLabel(): Promise<string> {
         const labelDiv = await this.findElement(ContentAssist.locators.ContentAssist.itemLabel);
-        const label = await labelDiv.findElement(ContentAssist.locators.ContentAssist.itemText);
-        return label.getText();
+        return labelDiv.getText();
     }
 }
