@@ -1,8 +1,7 @@
-import { By, Key } from "selenium-webdriver";
-import { BottomBarPanel, ContentAssist } from "../..";
+import { Key } from "selenium-webdriver";
+import { BottomBarPanel, ContentAssist, Workbench } from "../..";
 import { TextView, ChannelView } from "./AbstractViews";
 import * as clipboard from 'clipboardy';
-import { Workbench } from "../..";
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
 
 /**
@@ -48,7 +47,7 @@ export class DebugConsoleView extends ElementWithContexMenu {
      * @param expression expression in form of a string
      */
     async setExpression(expression: string): Promise<void> {
-        const textarea = await this.findElement(By.css('textarea'));
+        const textarea = await this.findElement(DebugConsoleView.locators.BottomBarViews.textArea);
         await textarea.clear();
         await textarea.sendKeys(expression);
     } 
@@ -61,7 +60,7 @@ export class DebugConsoleView extends ElementWithContexMenu {
      * @param expression expression to evaluate. To use existing contents of the debug console text area instead, don't define this argument
      */
     async evaluateExpression(expression?: string): Promise<void> {
-        const textarea = await this.findElement(By.css('textarea'));
+        const textarea = await this.findElement(DebugConsoleView.locators.BottomBarViews.textArea);
         if (expression) {
             await this.setExpression(expression);
         }

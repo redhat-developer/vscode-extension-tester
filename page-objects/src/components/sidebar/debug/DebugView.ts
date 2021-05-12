@@ -1,4 +1,3 @@
-import { By } from "selenium-webdriver";
 import { SideBarView } from "../SideBarView";
 
 /**
@@ -11,8 +10,8 @@ export class DebugView extends SideBarView {
      * @returns Promise resolving to the title
      */
     async getLaunchConfiguration(): Promise<string> {
-        const action = await this.getTitlePart().findElement(By.className('start-debug-action-item'));
-        const combo = await action.findElement(By.css('select'));
+        const action = await this.getTitlePart().findElement(DebugView.locators.DebugView.launchCombo);
+        const combo = await action.findElement(DebugView.locators.DebugView.launchSelect);
         return combo.getAttribute('title');
     }
 
@@ -21,10 +20,10 @@ export class DebugView extends SideBarView {
      * @returns Promise resolving to list of titles
      */
     async getLaunchConfigurations(): Promise<string[]> {
-        const action = await this.getTitlePart().findElement(By.className('start-debug-action-item'));
-        const combo = await action.findElement(By.css('select'));
+        const action = await this.getTitlePart().findElement(DebugView.locators.DebugView.launchCombo);
+        const combo = await action.findElement(DebugView.locators.DebugView.launchSelect);
         const configs: string[] = [];
-        const options = await combo.findElements(By.css('option'));
+        const options = await combo.findElements(DebugView.locators.DebugView.launchOption);
 
         for (const option of options) {
             if (await option.isEnabled()) {
@@ -40,9 +39,9 @@ export class DebugView extends SideBarView {
      * @param title title of the configuration to select
      */
     async selectLaunchConfiguration(title: string): Promise<void> {
-        const action = await this.getTitlePart().findElement(By.className('start-debug-action-item'));
-        const combo = await action.findElement(By.css('select'));
-        const option = await combo.findElement(By.xpath(`.//option[@value='${title}']`));
+        const action = await this.getTitlePart().findElement(DebugView.locators.DebugView.launchCombo);
+        const combo = await action.findElement(DebugView.locators.DebugView.launchSelect);
+        const option = await combo.findElement(DebugView.locators.DebugView.optionByName(title));
         await option.click();
     }
 
@@ -50,7 +49,7 @@ export class DebugView extends SideBarView {
      * Start Debugging using the current launch configuration
      */
     async start(): Promise<void> {
-        const action = await this.getTitlePart().findElement(By.className('start-debug-action-item'));
-        await action.findElement(By.className('codicon-debug-start')).click();
+        const action = await this.getTitlePart().findElement(DebugView.locators.DebugView.launchCombo);
+        await action.findElement(DebugView.locators.DebugView.startButton).click();
     }
 }

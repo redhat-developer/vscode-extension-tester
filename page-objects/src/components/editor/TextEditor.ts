@@ -255,20 +255,19 @@ export class TextEditor extends Editor {
      * @returns promise resolving to true when a breakpoint was added, false when removed or
      */
     async toggleBreakpoint(line: number): Promise<boolean> {
-        const margin = await this.findElement(By.className('margin-view-overlays'));
-        const xpath = `.//div[contains(@class, 'line-numbers') and text() = '${line}']`;
-        const lineNum = await margin.findElement(By.xpath(xpath));
+        const margin = await this.findElement(TextEditor.locators.TextEditor.marginArea);
+        const lineNum = await margin.findElement(TextEditor.locators.TextEditor.lineNumber(line));
         await this.getDriver().actions().mouseMove(lineNum).perform();
 
-        const lineOverlay = await margin.findElement(By.xpath(`${xpath}/..`));
-        const breakPoint = await lineOverlay.findElements(By.className('codicon-debug-breakpoint'));
+        const lineOverlay = await margin.findElement(TextEditor.locators.TextEditor.lineOverlay(line));
+        const breakPoint = await lineOverlay.findElements(TextEditor.locators.TextEditor.breakPoint);
         if (breakPoint.length > 0) {
             await breakPoint[0].click();
             await new Promise(res => setTimeout(res, 200));
             return false;
         }
 
-        const noBreak = await lineOverlay.findElements(By.className('codicon-debug-hint'));
+        const noBreak = await lineOverlay.findElements(TextEditor.locators.TextEditor.debugHint);
         if (noBreak.length > 0) {
             await noBreak[0].click();
             await new Promise(res => setTimeout(res, 200));

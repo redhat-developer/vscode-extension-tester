@@ -11,7 +11,9 @@ const activityBar = {
     },
     ViewControl: {
         attribute: 'class',
-        klass: 'checked'
+        klass: 'checked',
+        scmId: By.id('workbench.view.scm'),
+        debugId: By.id('workbench.view.debug')
     }
 }
 
@@ -31,17 +33,17 @@ const bottomBar = {
     },
     BottomBarViews: {
         actionsContainer: (label: string) => By.xpath(`.//ul[@aria-label='${label}']`),
-        channelOption: By.tagName('option'),
-        channelCombo: By.tagName('select'),
+        channelOption: By.css('option'),
+        channelCombo: By.css('select'),
         channelText: By.className('option-text'),
         channelRow: By.className('monaco-list-row'),
-        textArea: By.tagName('textarea'),
+        textArea: By.css('textarea'),
         clearText: By.className('clear-output')
     },
     ProblemsView: {
         constructor: By.id('workbench.panel.markers'),
         markersFilter: By.className('markers-panel-action-filter'),
-        input: By.tagName('input'),
+        input: By.css('input'),
         collapseAll: By.className('collapse-all'),
         markerRow: By.className('monaco-list-row'),
         rowLabel: 'aria-label',
@@ -86,7 +88,12 @@ const editor = {
         activeTab: By.css('div.tab.active'),
         editorContainer: By.className('monaco-editor'),
         dataUri: 'data-uri',
-        formatDoc: 'Format Document'
+        formatDoc: 'Format Document',
+        marginArea: By.className('margin-view-overlays'),
+        lineNumber: (line: number) => By.xpath(`.//div[contains(@class, 'line-numbers') and text() = '${line}']`),
+        lineOverlay: (line: number) => By.xpath(`.//div[contains(@class, 'line-numbers') and text() = '${line}']/..`),
+        breakPoint: By.className('codicon-debug-breakpoint'),
+        debugHint: By.className('codicon-debug-hint')
     },
     ContentAssist: {
         constructor: By.className('suggest-widget'),
@@ -105,9 +112,9 @@ const editor = {
         action: (label: string) => By.xpath(`.//a[@title='${label}']`),
         settingConstructor: (title: string, category: string) => By.xpath(`.//div[@class='monaco-tl-row' and .//span/text()='${title}' and .//span/text()='${category}: ']`),
         settingDesctiption: By.className('setting-item-description'),
-        comboSetting: By.tagName('select'),
+        comboSetting: By.css('select'),
         comboOption: By.className('option-text'),
-        textSetting: By.tagName('input'),
+        textSetting: By.css('input'),
         checkboxSetting: By.className('setting-value-checkbox'),
         checkboxChecked: 'aria-checked',
         linkButton: By.className('edit-in-settings-button'),
@@ -155,7 +162,7 @@ const sideBar = {
     },
     ViewTitlePart: {
         constructor: By.className('composite title'),
-        title: By.tagName('h2'),
+        title: By.css('h2'),
         action: By.className(`action-label`),
         actionLabel: 'title',
         actionContstructor: (title: string) => By.xpath(`.//a[@title='${title}']`)
@@ -234,7 +241,7 @@ const sideBar = {
         providerTitle: By.className('title'),
         providerType: By.className('type'),
         action: By.className('action-label'),
-        inputField: By.tagName('textarea'),
+        inputField: By.css('textarea'),
         changeItem: By.xpath(`.//div[@role='treeitem']`),
         changeName: By.className('name'),
         changeCount: By.className('monaco-count-badge'),
@@ -251,6 +258,13 @@ const sideBar = {
         multiProviderItem: By.xpath(`.//div[@role='treeitem' and @aria-level='1']`),
         itemLevel: (level: number) => By.xpath(`.//div[@role='treeitem' and @aria-level='${level}']`),
         itemIndex: (index: number) => By.xpath(`.//div[@role='treeitem' and @data-index='${index}']`)
+    },
+    DebugView: {
+        launchCombo: By.className('start-debug-action-item'),
+        launchSelect: By.css('select'),
+        launchOption: By.css('option'),
+        optionByName: (name: string) => By.xpath(`.//option[@value='${name}']`),
+        startButton: By.className('codicon-debug-start')
     }
 }
 
