@@ -19,12 +19,12 @@ describe('WebView', () => {
     });
 
     it('findWebElement works', async () => {
-        const element = await view.findWebElement(By.tagName('h1'));
+        const element = await view.findWebElement(By.css('h1'));
         expect(await element.getText()).has.string('This is a web view');
     });
 
     it('findWebElements works', async () => {
-        const elements = await view.findWebElements(By.tagName('h1'));
+        const elements = await view.findWebElements(By.css('h1'));
         expect(elements.length).equals(1);
     });
 });

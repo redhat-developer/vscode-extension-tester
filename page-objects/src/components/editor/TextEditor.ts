@@ -238,7 +238,7 @@ export class TextEditor extends Editor {
      *
      * **Caution** line & column coordinates do not start at `0` but at `1`!
      */
-    public async getCoordinates(): Promise<[number, number]> {
+    async getCoordinates(): Promise<[number, number]> {
         const coords: number[] = [];
         const statusBar = new StatusBar();
         const coordinates = <RegExpMatchArray>(await statusBar.getCurrentPosition()).match(/\d+/g);
@@ -246,5 +246,33 @@ export class TextEditor extends Editor {
             coords.push(+c);
         }
         return [coords[0], coords[1]];
+    }
+
+    /**
+     * Toggle breakpoint on a given line
+     * 
+     * @param line target line number
+     * @returns promise resolving to true when a breakpoint was added, false when removed or
+     */
+    async toggleBreakpoint(line: number): Promise<boolean> {
+        const margin = await this.findElement(TextEditor.locators.TextEditor.marginArea);
+        const lineNum = await margin.findElement(TextEditor.locators.TextEditor.lineNumber(line));
+        await this.getDriver().actions().mouseMove(lineNum).perform();
+
+        const lineOverlay = await margin.findElement(TextEditor.locators.TextEditor.lineOverlay(line));
+        const breakPoint = await lineOverlay.findElements(TextEditor.locators.TextEditor.breakPoint);
+        if (breakPoint.length > 0) {
+            await breakPoint[0].click();
+            await new Promise(res => setTimeout(res, 200));
+            return false;
+        }
+
+        const noBreak = await lineOverlay.findElements(TextEditor.locators.TextEditor.debugHint);
+        if (noBreak.length > 0) {
+            await noBreak[0].click();
+            await new Promise(res => setTimeout(res, 200));
+            return true;
+        } 
+        return false;
     }
 }

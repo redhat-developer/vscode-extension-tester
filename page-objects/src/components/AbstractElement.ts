@@ -19,7 +19,7 @@ export abstract class AbstractElement extends WebElement {
      * this will be used to narrow down the search for the underlying DOM element
      */
     constructor(base: Locator | WebElement, enclosingItem?: WebElement | Locator) {
-        let item: WebElement = AbstractElement.driver.findElement(By.tagName('html'));
+        let item: WebElement = AbstractElement.driver.findElement(By.css('html'));
         if (!enclosingItem) {
             enclosingItem = item;
         }

@@ -1,6 +1,6 @@
-import { ActivityBar, SideBarView, ScmView } from "../..";
+import { ActivityBar, DebugView, SideBarView, ScmView } from "../..";
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
-import { By, WebElement } from "selenium-webdriver";
+import { WebElement } from "selenium-webdriver";
 import { NewScmView } from "../sidebar/scm/NewScmView";
 
 /**
@@ -22,11 +22,14 @@ export class ViewControl extends ElementWithContexMenu {
             await ViewControl.driver.sleep(500);
         }
         const view = await new SideBarView().wait();
-        if ((await view.findElements(By.id('workbench.view.scm'))).length > 0) {
+        if ((await view.findElements(ViewControl.locators.ViewControl.scmId)).length > 0) {
             if (ViewControl.versionInfo.browser === 'vscode' && ViewControl.versionInfo.version >= '1.47.0') {
                 return new NewScmView().wait();
             }
             return new ScmView().wait();
+        }
+        if ((await view.findElements(ViewControl.locators.ViewControl.debugId)).length > 0) {
+            return new DebugView().wait();
         }
         return view;
     }

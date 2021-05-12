@@ -16,6 +16,8 @@ export interface Locators {
     ViewControl: {
         attribute: string
         klass: string
+        scmId: By
+        debugId: By
     }
 
     // Bottom Bar
@@ -89,6 +91,11 @@ export interface Locators {
         editorContainer: By
         dataUri: string
         formatDoc: string
+        marginArea: By
+        lineNumber: (line: number) => By
+        lineOverlay: (line: number) => By
+        breakPoint: By
+        debugHint: By
     }
     ContentAssist: {
         constructor: By
@@ -251,6 +258,13 @@ export interface Locators {
         multiProviderItem: By
         itemLevel: (level: number) => By
         itemIndex: (index: number) => By
+    }
+    DebugView: {
+        launchCombo: By
+        launchSelect: By
+        launchOption: By
+        optionByName: (name: string) => By
+        startButton: By
     }
     
     // Status Bar

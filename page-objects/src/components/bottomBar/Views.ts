@@ -1,8 +1,7 @@
 import { Key } from "selenium-webdriver";
-import { BottomBarPanel } from "../..";
+import { BottomBarPanel, ContentAssist, Workbench } from "../..";
 import { TextView, ChannelView } from "./AbstractViews";
 import * as clipboard from 'clipboardy';
-import { Workbench } from "../..";
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
 
 /**
@@ -17,7 +16,7 @@ export class OutputView extends TextView {
 
 /**
  * Debug Console view on the bottom panel
- * Functionality TBD on request
+ * Most functionality will only be available when a debug session is running
  */
 export class DebugConsoleView extends ElementWithContexMenu {
     constructor(panel: BottomBarPanel = new BottomBarPanel()) {
@@ -33,6 +32,47 @@ export class DebugConsoleView extends ElementWithContexMenu {
         const text = await clipboard.read();
         await clipboard.write('');
         return text;
+    }
+
+    /**
+     * Clear the console of all text
+     */
+    async clearText(): Promise<void> {
+        const menu = await this.openContextMenu();
+        await menu.select('Clear Console');
+    }
+
+    /**
+     * Type an expression into the debug console text area
+     * @param expression expression in form of a string
+     */
+    async setExpression(expression: string): Promise<void> {
+        const textarea = await this.findElement(DebugConsoleView.locators.BottomBarViews.textArea);
+        await textarea.clear();
+        await textarea.sendKeys(expression);
+    } 
+
+    /**
+     * Evaluate an expression:
+     *  - if no argument is supplied, evaluate the current expression present in debug console text area
+     *  - if a string argument is supplied, replace the current expression with the `expression` argument and evaluate
+     * 
+     * @param expression expression to evaluate. To use existing contents of the debug console text area instead, don't define this argument
+     */
+    async evaluateExpression(expression?: string): Promise<void> {
+        const textarea = await this.findElement(DebugConsoleView.locators.BottomBarViews.textArea);
+        if (expression) {
+            await this.setExpression(expression);
+        }
+        await textarea.sendKeys(Key.ENTER);
+    }
+    
+    /**
+     * Create a content assist page object
+     * @returns promise resolving to ContentAssist object
+     */
+    async getContentAssist(): Promise<ContentAssist> {
+        return new ContentAssist(this).wait();
     }
 }
 
