@@ -67,6 +67,15 @@ export class DriverUtil {
         return file;
     }
 
+    async checkDriverVersionOffline(): Promise<string> {
+        try {
+            return await this.getLocalDriverVersion();
+        } catch (err) {
+            console.log('ERROR: Cannot find a copy of ChromeDriver in local cache in offline mode, exiting.')
+            throw err;
+        }
+    }
+
     /**
      * Check local chrome driver version
      */
