@@ -24,13 +24,16 @@ export interface RunOptions {
     config?: string;
     /** logging level of the Webdriver */
     logLevel?: logging.Level;
+    /** try to perform all setup without internet connection, needs all requirements pre-downloaded manually */
+    offline?: boolean;
 }
 
 /** defaults for the [[RunOptions]] */
 export const DEFAULT_RUN_OPTIONS = {
     vscodeVersion: 'latest',
     settings: '',
-    logLevel: logging.Level.INFO
+    logLevel: logging.Level.INFO,
+    offline: false
 }
 
 /**
@@ -237,7 +240,11 @@ export class CodeUtil {
      * @return The exit code of the mocha process
      */
     async runTests(testFilesPattern: string, runOptions: RunOptions = DEFAULT_RUN_OPTIONS): Promise<number> {
-        await this.checkCodeVersion(runOptions.vscodeVersion ?? DEFAULT_RUN_OPTIONS.vscodeVersion);
+        if (!runOptions.offline) {
+            await this.checkCodeVersion(runOptions.vscodeVersion ?? DEFAULT_RUN_OPTIONS.vscodeVersion);
+        } else {
+            this.availableVersions = [await this.getExistingCodeVersion()];
+        }
         const literalVersion = runOptions.vscodeVersion === undefined || runOptions.vscodeVersion === 'latest' ? this.availableVersions[0] : runOptions.vscodeVersion;
 
         // add chromedriver to process' path
@@ -296,6 +303,33 @@ export class CodeUtil {
             }
             return version;
         }
+    }
+
+    /**
+     * Check if VS Code exists in local cache along with an appropriate version of chromedriver
+     * without internet connection
+     */
+    async checkOfflineRequirements(): Promise<string> {
+        try {
+            await this.getExistingCodeVersion();
+        } catch (err) {
+            console.log('ERROR: Cannot find a local copy of VS Code in offline mode, exiting.');
+            throw(err);
+        }
+        return this.getChromiumVersionOffline();
+    }
+
+    /**
+     * Attempt to get chromium version from a downloaded copy of vs code
+     */
+    async getChromiumVersionOffline(): Promise<string> {
+        const manifestPath = path.join(this.codeFolder, 'resources', 'app', 'ThirdPartyNotices.txt');
+        const text = (await fs.readFile(manifestPath)).toString();
+        const matches = text.match(/chromium\sversion\s(.*)\s\(/);
+        if (matches && matches[1]) {
+            return matches[1];
+        }
+        return '';
     }
 
     /**
@@ -386,18 +420,5 @@ export class CodeUtil {
         } catch (err) {
             throw new Error(`Error parsing the settings file from ${path}:\n ${err}`);
         }
-    }
-
-    /**
-     * Attempt to get chromium version from a downloaded copy of vs code
-     */
-    private async getChromiumVersionOffline(): Promise<string> {
-        const manifestPath = path.join(this.codeFolder, 'resources', 'app', 'ThirdPartyNotices.txt');
-        const text = (await fs.readFile(manifestPath)).toString();
-        const matches = text.match(/chromium\sversion\s(.*)\s\(/);
-        if (matches && matches[1]) {
-            return matches[1];
-        }
-        return '';
     }
 }

@@ -95,12 +95,22 @@ export class ExTester {
      *
      * @param options Additional options for setting up the tests
      */
-    async setupRequirements(options: SetupOptions = DEFAULT_SETUP_OPTIONS): Promise<void> {
+    async setupRequirements(options: SetupOptions = DEFAULT_SETUP_OPTIONS, offline = false): Promise<void> {
         const { useYarn, vscodeVersion, installDependencies } = options;
-        await this.downloadCode(vscodeVersion);
-        await this.downloadChromeDriver(vscodeVersion);
+        if (!offline) {
+            await this.downloadCode(vscodeVersion);
+            await this.downloadChromeDriver(vscodeVersion);
+        } else {
+            console.log('Attempting Setup in offline mode');
+            const expectedChromeVersion = (await this.code.checkOfflineRequirements()).split('.')[0];
+            const actualChromeVersion = (await this.chrome.checkDriverVersionOffline()).split('.')[0];
+            if (expectedChromeVersion !== actualChromeVersion) {
+                console.log(`WARNING: Local copy of VS Code runs Chromium version ${expectedChromeVersion}, the installed ChromeDriver is version ${actualChromeVersion}.`)
+                console.log(`Attempting with ChromeDriver ${actualChromeVersion} anyway. Tests may experience issues due to version mismatch.`);
+            }
+        }
         await this.installVsix({useYarn});
-        if (installDependencies) {
+        if (installDependencies && !offline) {
             this.code.installDependencies();
         }
     }
@@ -116,7 +126,7 @@ export class ExTester {
      * @returns Promise resolving to the mocha process exit code - 0 for no failures, 1 otherwise
      */
     async setupAndRunTests(testFilesPattern: string, vscodeVersion: string = 'latest', setupOptions: Omit<SetupOptions, "vscodeVersion"> = DEFAULT_SETUP_OPTIONS, runOptions: Omit<RunOptions, "vscodeVersion"> = DEFAULT_RUN_OPTIONS): Promise<number> {
-        await this.setupRequirements({...setupOptions, vscodeVersion});
+        await this.setupRequirements({...setupOptions, vscodeVersion}, runOptions.offline);
         return this.runTests(testFilesPattern, {...runOptions, vscodeVersion});
     }
 
