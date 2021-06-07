@@ -12,8 +12,8 @@ jobs:
 
     strategy:
       matrix:
-        node: [12]
-        version: [latest]
+        node: [14]
+        version: [1.56.0]
       fail-fast: false
     
     steps:
