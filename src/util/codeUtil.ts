@@ -282,6 +282,9 @@ export class CodeUtil {
                 .pipe(fs.createWriteStream(path.join(this.downloadFolder, fileName)))
                 .on('close', resolve);
         });
+        console.log(url)
+        console.log((await fs.readFile(path.join(this.downloadFolder, fileName))).toString());
+
         const manifest = require(path.join(this.downloadFolder, fileName));
         return manifest.registrations[0].version;
     }
