@@ -1,5 +1,5 @@
 import { Editor } from "./Editor";
-import { Locator, WebElement } from "selenium-webdriver";
+import { Locator, until, WebElement } from "selenium-webdriver";
 
 /**
  * Page object representing an open editor containing a web view
@@ -44,10 +44,12 @@ export class WebView extends Editor {
         }
 
         if (WebView.versionInfo.browser === 'vscode' && WebView.versionInfo.version >= '1.56.0') {
+            await this.getDriver().wait(until.elementLocated(WebView.locators.WebView.iframe), 5000);
             const view = await this.getDriver().findElement(WebView.locators.WebView.iframe)
             await this.getDriver().switchTo().frame(view);
 
             const frame = await this.getDriver().findElement(WebView.locators.WebView.activeFrame);
+            await this.getDriver().wait(until.elementLocated(WebView.locators.WebView.activeFrame), 5000);
             await this.getDriver().switchTo().frame(frame);
         } else {
             const handles = await this.getDriver().getAllWindowHandles();
