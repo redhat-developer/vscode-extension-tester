@@ -17,7 +17,8 @@ export class BottomBarPanel extends AbstractElement {
      * @returns Promise resolving when the view visibility is toggled
      */
     async toggle(open: boolean): Promise<void> {
-        if ((open && !await this.isOpen()) || (!open && await this.isOpen())) {
+        const height = (await this.getSize()).height;
+        if ((open && height === 0) || !open && height > 0) {
             await this.getDriver().actions().sendKeys(Key.chord(BottomBarPanel.ctlKey, 'j')).perform();
             if (open) {
                 await this.wait();
@@ -102,10 +103,5 @@ export class BottomBarPanel extends AbstractElement {
         if (action) {
             await action.click();
         }
-    }
-
-    private async isOpen() {
-        const panel = await this.findElements(BottomBarPanel.locators.BottomBarPanel.panel);
-        return panel.length > 0;
     }
 }

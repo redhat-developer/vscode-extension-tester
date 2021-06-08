@@ -29,8 +29,7 @@ const bottomBar = {
         tabContainer: By.className('panel-switcher-container'),
         tab: (title: string) => By.xpath(`.//li[starts-with(@title, '${title}')]`),
         actions: By.className('title-actions'),
-        action: (label: string) => By.xpath(`.//a[starts-with(@title, '${label}')]`),
-        panel: By.css(`div[class='composite panel']`)
+        action: (label: string) => By.xpath(`.//a[starts-with(@title, '${label}')]`)
     },
     BottomBarViews: {
         actionsContainer: (label: string) => By.xpath(`.//ul[@aria-label='${label}']`),
