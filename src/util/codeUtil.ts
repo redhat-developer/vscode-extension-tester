@@ -266,7 +266,7 @@ export class CodeUtil {
         let revision = literalVersion;
         if (literalVersion.endsWith('-insider')) {
             if (codeVersion === 'latest') {
-                revision = 'master';
+                revision = 'main';
             } else {
                 revision = literalVersion.substring(0, literalVersion.indexOf('-insider'));
                 revision = `release/${revision.substring(0, revision.lastIndexOf('.'))}`;
