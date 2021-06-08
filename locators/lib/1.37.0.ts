@@ -29,7 +29,8 @@ const bottomBar = {
         tabContainer: By.className('panel-switcher-container'),
         tab: (title: string) => By.xpath(`.//li[starts-with(@title, '${title}')]`),
         actions: By.className('title-actions'),
-        action: (label: string) => By.xpath(`.//a[starts-with(@title, '${label}')]`)
+        action: (label: string) => By.xpath(`.//a[starts-with(@title, '${label}')]`),
+        panel: By.css(`div[class='composite panel']`)
     },
     BottomBarViews: {
         actionsContainer: (label: string) => By.xpath(`.//ul[@aria-label='${label}']`),
@@ -138,7 +139,8 @@ const menu = {
         itemElement: By.className('action-item'),
         itemLabel: By.className('action-label'),
         itemText: 'aria-label',
-        itemNesting: By.className('submenu-indicator')
+        itemNesting: By.className('submenu-indicator'),
+        viewBlock: By.className('context-view-block')
     },
     TitleBar: {
         constructor: By.id('workbench.parts.titlebar'),

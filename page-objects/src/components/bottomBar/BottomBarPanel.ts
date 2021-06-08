@@ -1,5 +1,5 @@
 import { AbstractElement } from "../AbstractElement";
-import { By, Key, until, WebElement } from "selenium-webdriver";
+import { Key, until, WebElement } from "selenium-webdriver";
 import { TitleBar } from "../menu/TitleBar";
 import { ProblemsView, OutputView, DebugConsoleView, TerminalView } from "../..";
 
@@ -105,7 +105,7 @@ export class BottomBarPanel extends AbstractElement {
     }
 
     private async isOpen() {
-        const panel = await this.findElements(By.css(`div[class='composite panel']`));
+        const panel = await this.findElements(BottomBarPanel.locators.BottomBarPanel.panel);
         return panel.length > 0;
     }
 }
