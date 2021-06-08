@@ -138,7 +138,8 @@ const menu = {
         itemElement: By.className('action-item'),
         itemLabel: By.className('action-label'),
         itemText: 'aria-label',
-        itemNesting: By.className('submenu-indicator')
+        itemNesting: By.className('submenu-indicator'),
+        viewBlock: By.className('context-view-block')
     },
     TitleBar: {
         constructor: By.id('workbench.parts.titlebar'),

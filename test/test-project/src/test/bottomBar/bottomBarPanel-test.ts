@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { BottomBarPanel, WebElement, Workbench } from 'vscode-extension-tester';
 
-describe('BottomBarPanel', () => {
+(process.platform === 'darwin' ? describe.skip : describe)('BottomBarPanel', () => {
     let panel: BottomBarPanel;
 
     before(async () => {

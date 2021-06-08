@@ -266,7 +266,7 @@ export class CodeUtil {
         let revision = literalVersion;
         if (literalVersion.endsWith('-insider')) {
             if (codeVersion === 'latest') {
-                revision = 'master';
+                revision = 'main';
             } else {
                 revision = literalVersion.substring(0, literalVersion.indexOf('-insider'));
                 revision = `release/${revision.substring(0, revision.lastIndexOf('.'))}`;
@@ -282,8 +282,20 @@ export class CodeUtil {
                 .pipe(fs.createWriteStream(path.join(this.downloadFolder, fileName)))
                 .on('close', resolve);
         });
-        const manifest = require(path.join(this.downloadFolder, fileName));
-        return manifest.registrations[0].version;
+
+        try {
+            const manifest = require(path.join(this.downloadFolder, fileName));
+            return manifest.registrations[0].version;
+        } catch (err) {
+            let version = '';
+            if (await fs.pathExists(this.codeFolder)) {
+                version = await this.getChromiumVersionOffline();
+            }
+            if (version === '') {
+                throw new Error('Unable to determine required ChromeDriver version');
+            }
+            return version;
+        }
     }
 
     /**
@@ -374,5 +386,18 @@ export class CodeUtil {
         } catch (err) {
             throw new Error(`Error parsing the settings file from ${path}:\n ${err}`);
         }
+    }
+
+    /**
+     * Attempt to get chromium version from a downloaded copy of vs code
+     */
+    private async getChromiumVersionOffline(): Promise<string> {
+        const manifestPath = path.join(this.codeFolder, 'resources', 'app', 'ThirdPartyNotices.txt');
+        const text = (await fs.readFile(manifestPath)).toString();
+        const matches = text.match(/chromium\sversion\s(.*)\s\(/);
+        if (matches && matches[1]) {
+            return matches[1];
+        }
+        return '';
     }
 }

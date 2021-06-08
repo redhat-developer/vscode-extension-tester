@@ -1,6 +1,7 @@
 import { AbstractElement } from "../../AbstractElement";
 import { Key } from "selenium-webdriver";
 import { QuickOpenBox } from "../../..";
+import * as clipboard from 'clipboardy';
 
 /**
  * Abstract page object for input fields
@@ -31,6 +32,14 @@ export abstract class Input extends AbstractElement {
             await input.sendKeys(Key.END, Key.chord(Key.SHIFT, Key.HOME));
         }
         await input.sendKeys(text);
+
+        // fallback to clipboard if the text gets malformed
+        if ((await this.getText()) !== text) {
+            await clipboard.write(text);
+            await input.sendKeys(Key.END, Key.chord(Key.SHIFT, Key.HOME));
+            await input.sendKeys(Key.chord(Input.ctlKey, 'v'));
+            await clipboard.write('');
+        }
     }
 
     /**

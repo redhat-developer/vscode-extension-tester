@@ -18,7 +18,7 @@ export abstract class ElementWithContexMenu extends AbstractElement {
             await this.getDriver().actions().click(this, Button.RIGHT).perform();
             await this.getDriver().wait(until.elementLocated(ElementWithContexMenu.locators.ContextMenu.contextView), 2000);
             return new ContextMenu(workbench).wait();
-        } else if (await menus[0].isDisplayed()) {
+        } else if ((await workbench.findElements(ElementWithContexMenu.locators.ContextMenu.viewBlock)).length > 0) {
             await this.getDriver().actions().click(this, Button.RIGHT).perform();
             try {
                 await this.getDriver().wait(until.elementIsNotVisible(this), 1000);

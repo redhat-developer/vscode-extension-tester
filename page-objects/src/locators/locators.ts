@@ -140,6 +140,7 @@ export interface Locators {
         itemLabel: By
         itemText: string
         itemNesting: By
+        viewBlock: By
     }
     TitleBar: {
         constructor: By

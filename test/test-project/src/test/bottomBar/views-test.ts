@@ -73,20 +73,5 @@ import { BottomBarPanel, OutputView, TerminalView, VSBrowser, Workbench } from '
             const channel = await terminal.getCurrentChannel();
             expect(channel).equals(`2: ${terminalName}`);
         });
-
-        it('killTerminal destroys the current term channel', async () => {
-            await refresh();
-            await terminal.killTerminal();
-            await refresh();
-            const channels = await terminal.getChannelNames();
-            expect(channels).not.contains(`2: ${terminalName}`);
-            expect(await terminal.getCurrentChannel()).equals(`1: ${terminalName}`);
-        });
-
-        async function refresh() {
-            await panel.toggle(false);
-            await panel.toggle(true);
-            terminal = await panel.openTerminalView();
-        }
     });
 });
