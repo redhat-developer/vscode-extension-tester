@@ -24,20 +24,6 @@ describe('BottomBarPanel', () => {
         expect(await panel.isDisplayed()).is.false;
     });
 
-    it('can be maximized and restored', async () => {
-        await panel.toggle(true);
-        const initHeight = await getHeight(panel);
-
-        await panel.maximize();
-        const maxHeight = await getHeight(panel);
-        expect(maxHeight).greaterThan(initHeight);
-        await new Promise(res => setTimeout(res, 1000))
-
-        await panel.restore();
-        const restoredHeight = await getHeight(panel);
-        expect(initHeight).equals(restoredHeight);
-    });
-
     it('can open problems view', async () => {
         const view = await panel.openProblemsView();
         expect(await view.isDisplayed()).is.true;
@@ -56,6 +42,20 @@ describe('BottomBarPanel', () => {
     it('can open terminal view', async () => {
         const view = await panel.openTerminalView();
         expect(await view.isDisplayed()).is.true;
+    });
+
+    it('can be maximized and restored', async () => {
+        await panel.toggle(true);
+        const initHeight = await getHeight(panel);
+
+        await panel.maximize();
+        const maxHeight = await getHeight(panel);
+        expect(maxHeight).greaterThan(initHeight);
+        await new Promise(res => setTimeout(res, 1000))
+
+        await panel.restore();
+        const restoredHeight = await getHeight(panel);
+        expect(initHeight).equals(restoredHeight);
     });
 });
 

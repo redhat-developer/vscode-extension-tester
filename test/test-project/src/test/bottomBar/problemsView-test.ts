@@ -2,7 +2,7 @@ import * as path from 'path';
 import { Workbench, TextEditor, EditorView, ProblemsView, BottomBarPanel, MarkerType, InputBox } from "vscode-extension-tester";
 import { expect } from 'chai';
 
-(process.platform === 'darwin' ? describe.skip : describe)('ProblemsView', () => {
+describe('ProblemsView', () => {
     let editor: TextEditor;
     let view: ProblemsView;
     let bar: BottomBarPanel;

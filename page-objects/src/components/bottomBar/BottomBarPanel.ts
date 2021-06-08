@@ -1,5 +1,5 @@
 import { AbstractElement } from "../AbstractElement";
-import { Key, until, WebElement } from "selenium-webdriver";
+import { By, Key, until, WebElement } from "selenium-webdriver";
 import { TitleBar } from "../menu/TitleBar";
 import { ProblemsView, OutputView, DebugConsoleView, TerminalView } from "../..";
 
@@ -17,8 +17,7 @@ export class BottomBarPanel extends AbstractElement {
      * @returns Promise resolving when the view visibility is toggled
      */
     async toggle(open: boolean): Promise<void> {
-        const height = (await this.getSize()).height;
-        if ((open && height === 0) || !open && height > 0) {
+        if ((open && !await this.isOpen()) || (!open && await this.isOpen())) {
             await this.getDriver().actions().sendKeys(Key.chord(BottomBarPanel.ctlKey, 'j')).perform();
             if (open) {
                 await this.wait();
@@ -103,5 +102,10 @@ export class BottomBarPanel extends AbstractElement {
         if (action) {
             await action.click();
         }
+    }
+
+    private async isOpen() {
+        const panel = await this.findElements(By.css(`div[class='composite panel']`));
+        return panel.length > 0;
     }
 }
