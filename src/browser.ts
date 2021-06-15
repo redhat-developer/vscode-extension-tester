@@ -42,7 +42,8 @@ export class VSBrowser {
             "window.titleBarStyle": "custom",
             "workbench.editor.enablePreview": false,
             "window.restoreFullscreen": true,
-            "window.newWindowDimensions": "maximized"
+            "window.newWindowDimensions": "maximized",
+            "security.workspace.trust.enabled": false
         };
         if (Object.keys(this.customSettings).length > 0) {
             console.log('Detected user defined code settings');
