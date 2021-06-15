@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { expect } from 'chai';
-import { TextEditor, EditorView, StatusBar, InputBox, ContentAssist, Workbench } from "vscode-extension-tester";
+import { TextEditor, EditorView, StatusBar, InputBox, ContentAssist, Workbench, FindWidget } from "vscode-extension-tester";
 
 describe('ContentAssist', async () => {
     let assist: ContentAssist;
@@ -111,5 +111,129 @@ describe('TextEditor', () => {
 
     (process.platform === 'darwin' ? it.skip : it)('formatDocument works', async () => {
         expect(await editor.formatDocument()).not.to.throw;
+    });
+
+    describe('searching', () => {
+        before(async () => {
+            await editor.setText('aline\nbline\ncline\ndline\nnope\neline');
+        })
+
+        it('getLineOfText works', async () => {
+            const line = await editor.getLineOfText('line');
+            expect(line).equals(1);
+        });
+
+        it('getLineOfText finds multiple occurrences', async () => {
+            const line = await editor.getLineOfText('line', 5);
+            expect(line).equals(6);
+        });
+
+        it('getLineOfText returns -1 on no line found', async () => {
+            const line = await editor.getLineOfText('wat');
+            expect(line).equals(-1);
+        });
+
+        it('getLineOfText returns last known occurrence if there are fewer than specified', async () => {
+            const line = await editor.getLineOfText('line', 15);
+            expect(line).equals(6);
+        });
+
+        it('text can be selected', async () => {
+            const text = 'bline';
+            await editor.selectText(text)
+            expect(await editor.getSelectedText()).equals(text);
+        });
+
+        it('selectText errors if given text doesnt exist', async () => {
+            const text = 'wat'
+            try {
+                await editor.selectText(text);
+            } catch (err) {
+                expect(err.message).has.string(`Text '${text}' not found`);
+            }             
+        });
+
+        it('getSelection works', async () => {
+            await editor.selectText('cline');
+            const selection = await editor.getSelection();
+
+            expect(selection).not.undefined;
+
+            const menu = await selection.openContextMenu();
+            await menu.close();
+        });
+    });
+
+    describe('find widget', () => {
+        let widget: FindWidget;
+
+        before(async () => {
+            widget = await editor.openFindWidget();
+        });
+
+        after(async () => {
+            await widget.close();
+        });
+
+        it('toggleReplace works', async () => {
+            const height = (await widget.getSize()).height;
+            await widget.toggleReplace(true);
+            expect((await widget.getSize()).height).to.be.gt(height);
+        });
+
+        it('setSearchText works', async () => {
+            await widget.setSearchText('line');
+            expect(await widget.getSearchText()).equals('line');
+        });
+
+        it('setReplaceText works', async () => {
+            await widget.setReplaceText('line1');
+            expect(await widget.getReplaceText()).equals('line1');
+        });
+
+        it('getResultCount works', async () => {
+            const count = await widget.getResultCount();
+            expect(count[0]).gte(1);
+            expect(count[1]).gt(1);
+        });
+
+        it('nextMatch works', async () => {
+            const count = (await widget.getResultCount())[0];
+            await widget.nextMatch();
+            expect((await widget.getResultCount())[0]).equals(count + 1);
+        });
+
+        it('previousMatch works', async () => {
+            const count = (await widget.getResultCount())[0];
+            await widget.previousMatch();
+            expect((await widget.getResultCount())[0]).equals(count - 1);
+        });
+
+        it('replace works', async () => {
+            await widget.replace();
+            expect(await editor.getLineOfText('line1')).gt(0);
+        });
+
+        it('replace all works', async () => {
+            const original = await editor.getText();
+            await widget.replaceAll();
+            expect(await editor.getText()).not.equals(original);
+        });
+
+        it('toggleMatchCase works', async () => {
+            await widget.toggleMatchCase(true);
+        });
+
+        it('toggleMatchWholeWord works', async () => {
+            await widget.toggleMatchWholeWord(true);
+        });
+
+        it('toggleUseRegularExpression works', async () => {
+            await widget.toggleUseRegularExpression(true);
+        });
+
+        it('togglePreserveCase works', async () => {
+            await widget.togglePreserveCase(true);
+        });
     });
 });

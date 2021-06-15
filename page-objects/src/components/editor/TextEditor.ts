@@ -1,9 +1,11 @@
-import { ContentAssist, ContextMenu } from "../..";
+import { ContentAssist, ContextMenu, Workbench } from "../..";
 import { Button, By, Key, until, WebElement } from "selenium-webdriver";
 import { fileURLToPath } from "url";
 import * as clipboard from 'clipboardy';
 import { StatusBar } from "../statusBar/StatusBar";
 import { Editor } from "./Editor";
+import { ElementWithContexMenu } from "../ElementWithContextMenu";
+import { AbstractElement } from "../AbstractElement";
 
 /**
  * Page object representing the active text editor
@@ -153,6 +155,91 @@ export class TextEditor extends Editor {
     }
 
     /**
+     * Get line number that contains the given text. Not suitable for multi line inputs.
+     * 
+     * @param text text to search for
+     * @param occurrence select which occurrence of the search text to look for in case there are multiple in the document, defaults to 1 (the first instance)
+     * 
+     * @returns Number of the line that contains the start of the given text. -1 if no such text is found.
+     * If occurrence number is specified, searches until it finds as many instances of the given text.
+     * Returns the line number that holds the last occurrence found this way.
+     */
+    async getLineOfText(text: string, occurrence = 1): Promise<number> {
+        let lineNum = -1;
+        let found = 0;
+        const lines = (await this.getText()).split('\n');
+
+        for (let i = 0; i < lines.length; i++) {
+            if (lines[i].includes(text)) {
+                found++;
+                lineNum = i + 1;
+                if (found >= occurrence) {
+                    break; 
+                }
+            }
+        }
+        return lineNum;
+    }
+
+    /**
+     * Find and select a given text. Not usable for multi line selection.
+     * 
+     * @param text text to select
+     * @param occurrence specify which onccurrence of text to select if multiple are present in the document
+     */
+    async selectText(text: string, occurrence = 1): Promise<void> {
+        const lineNum = await this.getLineOfText(text, occurrence);
+        if (lineNum < 1) {
+            throw new Error(`Text '${text}' not found`);
+        }
+    
+        const line = await this.getTextAtLine(lineNum);
+        const column = line.indexOf(text) + 1;
+
+        await this.moveCursor(lineNum, column);
+        
+        let action = this.getDriver().actions().keyDown(Key.SHIFT);
+        for (let i = 0; i < text.length; i++) {
+            action = action.sendKeys(Key.RIGHT);
+        }
+        action = action.keyUp(Key.SHIFT);
+        await action.perform();
+        await new Promise(res => setTimeout(res, 500));
+    }
+
+    /**
+     * Get the text that is currently selected as string
+     */
+    async getSelectedText(): Promise<string> {
+        const selection = await this.findElements(By.className('cslr selected-text top-left-radius bottom-left-radius top-right-radius bottom-right-radius'));
+        if (selection.length < 1) {
+            return '';
+        }
+        await new Workbench().executeCommand('Copy');
+        return clipboard.read();
+    }
+
+    /**
+     * Get the selection block as a page object
+     * @returns Selection page object
+     */
+    async getSelection(): Promise<Selection|undefined> {
+        const selection = await this.findElements(By.className('cslr selected-text top-left-radius bottom-left-radius top-right-radius bottom-right-radius'));
+        if (selection.length < 1) {
+            return undefined;
+        }
+        return new Selection(selection[0], this);
+    }
+
+    async openFindWidget(): Promise<FindWidget> {
+        await this.getDriver().actions().sendKeys(Key.chord(TextEditor.ctlKey, 'f')).perform();
+        const widget = await this.getDriver().wait(until.elementLocated(By.className('find-widget')), 2000);
+        await this.getDriver().wait(until.elementIsVisible(widget), 2000);
+
+        return new FindWidget(widget, this);
+    }
+
+    /**
      * Add the given text to the given coordinates
      * @param line number of the line to type into
      * @param column number of the column to start typing at
@@ -274,5 +361,219 @@ export class TextEditor extends Editor {
             return true;
         } 
         return false;
+    }
+}
+
+/**
+ * Text selection block
+ */
+class Selection extends ElementWithContexMenu {
+    constructor(el: WebElement, editor: TextEditor) {
+        super(el, editor);
+    }
+
+    async openContextMenu(): Promise<ContextMenu> {
+        const ed = this.getEnclosingElement() as TextEditor;
+        await this.getDriver().actions().click(this, Button.RIGHT).perform();
+        const shadowRootHost = await ed.getEnclosingElement().findElements(By.className('shadow-root-host'));
+        
+        if (shadowRootHost.length > 0) {
+            const shadowRoot = await this.getDriver().executeScript('return arguments[0].shadowRoot', shadowRootHost[0]) as WebElement;
+            return new ContextMenu(shadowRoot).wait();
+        }
+        return super.openContextMenu();
+    }
+}
+
+/**
+ * Text Editor's Find Widget
+ */
+export class FindWidget extends AbstractElement {
+
+    constructor(element: WebElement, editor: TextEditor) {
+        super(element, editor);
+    }
+
+    /**
+     * Toggle between find and replace mode
+     * @param replace true for replace, false for find
+     */
+    async toggleReplace(replace: boolean): Promise<void> {
+        const btn = await this.findElement(By.xpath(`.//div[@title="Toggle Replace mode"]`));
+        const klass = await btn.getAttribute('class');
+        
+        if (replace && klass.includes('collapsed') || !replace && !klass.includes('collapsed')) {
+            await btn.sendKeys(Key.SPACE);
+            const repl = await this.getDriver().wait(until.elementLocated(By.className('replace-part')), 2000);
+            if (replace) {
+                await this.getDriver().wait(until.elementIsVisible(repl), 2000);
+            } else {
+                await this.getDriver().wait(until.elementIsNotVisible(repl), 2000);
+            }
+        }
+    }
+
+    /**
+     * Set text in the search box
+     * @param text text to fill in
+     */
+    async setSearchText(text: string): Promise<void> {
+        const findPart = await this.findElement(By.className('find-part'));
+        await this.setText(text, findPart);
+    }
+
+    /**
+     * Get text from Find input box
+     * @returns value of find input as string
+     */
+    async getSearchText(): Promise<string> {
+        const findPart = await this.findElement(By.className('find-part'));
+        return this.getInputText(findPart);
+    }
+
+    /**
+     * Set text in the replace box. Will toggle replace mode on if called in find mode.
+     * @param text text to fill in
+     */
+    async setReplaceText(text: string): Promise<void> {
+        await this.toggleReplace(true);
+        const replacePart = await this.findElement(By.className('replace-part'));
+        await this.setText(text, replacePart);
+    }
+
+
+    /**
+     * Get text from Replace input box
+     * @returns value of replace input as string
+     */
+     async getReplaceText(): Promise<string> {
+        const replacePart = await this.findElement(By.className('replace-part'));
+        return this.getInputText(replacePart);
+    }
+
+    /**
+     * Click 'Next match'
+     */
+    async nextMatch(): Promise<void> {
+        await this.clickButton('Next match', 'find');
+    }
+
+    /**
+     * Click 'Previous match'
+     */
+    async previousMatch(): Promise<void> {
+        await this.clickButton('Previous match', 'find');
+    }
+
+    /**
+     * Click 'Replace'. Only works in replace mode.
+     */
+    async replace(): Promise<void> {
+        await this.clickButton('Replace', 'replace');
+    }
+
+
+    /**
+     * Click 'Replace All'. Only works in replace mode.
+     */
+    async replaceAll(): Promise<void> {
+        await this.clickButton('Replace All', 'replace');
+    }
+
+    /**
+     * Close the widget.
+     */
+    async close(): Promise<void> {
+        await this.clickButton('Close', 'find');
+    }
+
+    /**
+     * Get the number of results as an ordered pair of numbers
+     * @returns pair in form of [current result index, total number of results]
+     */
+    async getResultCount(): Promise<[number, number]> {
+        const count = await this.findElement(By.className('matchesCount'));
+        const text = await count.getText();
+
+        if (text.includes('No results')) {
+            return [0,0];
+        }
+        const numbers = text.split(' of ');
+        return [+numbers[0], +numbers[1]];
+    }
+
+    /**
+     * Toggle the search to match case
+     * @param toggle true to turn on, false to turn off
+     */
+    async toggleMatchCase(toggle: boolean) {
+        await this.toggleControl('Match Case', 'find', toggle);
+    }
+
+    /**
+     * Toggle the search to match whole words
+     * @param toggle true to turn on, false to turn off
+     */
+    async toggleMatchWholeWord(toggle: boolean) {
+        await this.toggleControl('Match Whole Word', 'find', toggle);
+    }
+
+    /**
+     * Toggle the search to use regular expressions
+     * @param toggle true to turn on, false to turn off
+     */
+    async toggleUseRegularExpression(toggle: boolean) {
+        await this.toggleControl('Use Regular Expression', 'find', toggle);
+    }
+
+    /**
+     * Toggle the replace to preserve case
+     * @param toggle true to turn on, false to turn off
+     */
+    async togglePreserveCase(toggle: boolean) {
+        await this.toggleControl('Preserve Case', 'replace', toggle);
+    }
+
+    private async toggleControl(title: string, part: 'find'|'replace', toggle: boolean) {
+        let element!: WebElement;
+        if (part === 'find') {
+            element = await this.findElement(By.className('find-part'));
+        }
+        if (part === 'replace') {
+            element = await this.findElement(By.className('replace-part'));
+            await this.toggleReplace(true);
+        }
+
+        const control = await element.findElement(By.xpath(`.//div[@role='checkbox' and starts-with(@title, "${title}")]`));
+        const checked = await control.getAttribute('aria-checked');
+        if ((toggle && checked !== 'true') || (!toggle && checked === 'true')) {
+            await control.click();
+        }
+    }
+
+    private async clickButton(title: string, part: 'find'|'replace') {
+        let element!: WebElement;
+        if (part === 'find') {
+            element = await this.findElement(By.className('find-part'));
+        }
+        if (part === 'replace') {
+            element = await this.findElement(By.className('replace-part'));
+            await this.toggleReplace(true);
+        }
+
+        const btn = await element.findElement(By.xpath(`.//div[@role='button' and starts-with(@title, "${title}")]`));
+        await btn.click();
+        await this.getDriver().sleep(100);
+    }
+
+    private async setText(text: string, composite: WebElement) {
+        const input = await composite.findElement(By.css('textarea'));
+        await input.clear();
+        await input.sendKeys(text);
+    }
+
+    private async getInputText(composite: WebElement) {
+        const input = await composite.findElement(By.className('mirror'));
+        return input.getAttribute('innerHTML');
     }
 }
