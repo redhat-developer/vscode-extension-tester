@@ -138,9 +138,9 @@ describe('TextEditor', () => {
             expect(line).equals(6);
         });
 
-        it('text can be selected', async () => {
+        (process.platform === 'darwin' ? it.skip : it)('text can be selected', async () => {
             const text = 'bline';
-            await editor.selectText(text)
+            await editor.selectText(text);
             expect(await editor.getSelectedText()).equals(text);
         });
 
