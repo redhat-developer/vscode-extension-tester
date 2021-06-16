@@ -13,7 +13,8 @@ const activityBar = {
         attribute: 'class',
         klass: 'checked',
         scmId: By.id('workbench.view.scm'),
-        debugId: By.id('workbench.view.debug')
+        debugId: By.id('workbench.view.debug'),
+        badge: By.className('badge')
     }
 }
 
@@ -54,7 +55,11 @@ const bottomBar = {
         actionsLabel: 'Terminal actions',
         textArea: By.className('xterm-helper-textarea'),
         killTerminal: By.xpath(`.//a[@title='Kill Terminal']`),
-        newTerminal: By.xpath(`.//a[starts-with(@title,'New Terminal')]`)
+        newTerminal: By.xpath(`.//a[starts-with(@title,'New Terminal')]`),
+        tabList: By.className('tabs-list'),
+        singleTab: By.className('single-terminal-tab'),
+        selectedRow: By.className('monaco-list-row selected'),
+        row: By.className('monaco-list-row')
     },
     DebugConsoleView: {
         constructor: By.id('workbench.panel.repl')
@@ -93,7 +98,19 @@ const editor = {
         lineNumber: (line: number) => By.xpath(`.//div[contains(@class, 'line-numbers') and text() = '${line}']`),
         lineOverlay: (line: number) => By.xpath(`.//div[contains(@class, 'line-numbers') and text() = '${line}']/..`),
         breakPoint: By.className('codicon-debug-breakpoint'),
-        debugHint: By.className('codicon-debug-hint')
+        debugHint: By.className('codicon-debug-hint'),
+        selection: By.className('cslr selected-text top-left-radius bottom-left-radius top-right-radius bottom-right-radius'),
+        findWidget: By.className('find-widget')
+    },
+    FindWidget: {
+        toggleReplace: By.xpath(`.//div[@title="Toggle Replace mode"]`),
+        replacePart: By.className('replace-part'),
+        findPart: By.className('find-part'),
+        matchCount: By.className('matchesCount'),
+        input: By.css('textarea'),
+        content: By.className('mirror'),
+        button: (title: string) => By.xpath(`.//div[@role='button' and starts-with(@title, "${title}")]`),
+        checkbox: (title: string) => By.xpath(`.//div[@role='checkbox' and starts-with(@title, "${title}")]`)
     },
     ContentAssist: {
         constructor: By.className('suggest-widget'),
@@ -308,6 +325,10 @@ const workbench = {
         close: By.className('hide-all-notifications-action'),
         clear: By.className('clear-all-notifications-action'),
         row: By.className('monaco-list-row')
+    },
+    DebugToolbar: {
+        ctor: By.className('debug-toolbar'),
+        button: (title: string) => By.className(`codicon-debug-${title}`)
     }
 }
 

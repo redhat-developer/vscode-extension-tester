@@ -211,14 +211,6 @@ export class TextEditor extends Editor {
      * Get the text that is currently selected as string
      */
     async getSelectedText(): Promise<string> {
-        // const selection = await this.findElements(By.className('cslr selected-text top-left-radius bottom-left-radius top-right-radius bottom-right-radius'));
-        // if (selection.length < 1) {
-        //     return '';
-        // }
-        // await new Workbench().executeCommand('Copy');
-        // await new Promise(res => setTimeout(res, 500));
-        // console.log(await clipboard.read());
-        // return clipboard.read();
         const selection = await this.getSelection();
         if (!selection) {
             return '';
@@ -234,7 +226,7 @@ export class TextEditor extends Editor {
      * @returns Selection page object
      */
     async getSelection(): Promise<Selection|undefined> {
-        const selection = await this.findElements(By.className('cslr selected-text top-left-radius bottom-left-radius top-right-radius bottom-right-radius'));
+        const selection = await this.findElements(TextEditor.locators.TextEditor.selection);
         if (selection.length < 1) {
             return undefined;
         }
@@ -243,7 +235,7 @@ export class TextEditor extends Editor {
 
     async openFindWidget(): Promise<FindWidget> {
         await this.getDriver().actions().sendKeys(Key.chord(TextEditor.ctlKey, 'f')).perform();
-        const widget = await this.getDriver().wait(until.elementLocated(By.className('find-widget')), 2000);
+        const widget = await this.getDriver().wait(until.elementLocated(TextEditor.locators.TextEditor.findWidget), 2000);
         await this.getDriver().wait(until.elementIsVisible(widget), 2000);
 
         return new FindWidget(widget, this);
@@ -409,12 +401,12 @@ export class FindWidget extends AbstractElement {
      * @param replace true for replace, false for find
      */
     async toggleReplace(replace: boolean): Promise<void> {
-        const btn = await this.findElement(By.xpath(`.//div[@title="Toggle Replace mode"]`));
+        const btn = await this.findElement(FindWidget.locators.FindWidget.toggleReplace);
         const klass = await btn.getAttribute('class');
         
         if (replace && klass.includes('collapsed') || !replace && !klass.includes('collapsed')) {
             await btn.sendKeys(Key.SPACE);
-            const repl = await this.getDriver().wait(until.elementLocated(By.className('replace-part')), 2000);
+            const repl = await this.getDriver().wait(until.elementLocated(FindWidget.locators.FindWidget.replacePart), 2000);
             if (replace) {
                 await this.getDriver().wait(until.elementIsVisible(repl), 2000);
             } else {
@@ -428,7 +420,7 @@ export class FindWidget extends AbstractElement {
      * @param text text to fill in
      */
     async setSearchText(text: string): Promise<void> {
-        const findPart = await this.findElement(By.className('find-part'));
+        const findPart = await this.findElement(FindWidget.locators.FindWidget.findPart);
         await this.setText(text, findPart);
     }
 
@@ -437,7 +429,7 @@ export class FindWidget extends AbstractElement {
      * @returns value of find input as string
      */
     async getSearchText(): Promise<string> {
-        const findPart = await this.findElement(By.className('find-part'));
+        const findPart = await this.findElement(FindWidget.locators.FindWidget.findPart);
         return this.getInputText(findPart);
     }
 
@@ -447,7 +439,7 @@ export class FindWidget extends AbstractElement {
      */
     async setReplaceText(text: string): Promise<void> {
         await this.toggleReplace(true);
-        const replacePart = await this.findElement(By.className('replace-part'));
+        const replacePart = await this.findElement(FindWidget.locators.FindWidget.replacePart);
         await this.setText(text, replacePart);
     }
 
@@ -457,7 +449,7 @@ export class FindWidget extends AbstractElement {
      * @returns value of replace input as string
      */
      async getReplaceText(): Promise<string> {
-        const replacePart = await this.findElement(By.className('replace-part'));
+        const replacePart = await this.findElement(FindWidget.locators.FindWidget.replacePart);
         return this.getInputText(replacePart);
     }
 
@@ -502,7 +494,7 @@ export class FindWidget extends AbstractElement {
      * @returns pair in form of [current result index, total number of results]
      */
     async getResultCount(): Promise<[number, number]> {
-        const count = await this.findElement(By.className('matchesCount'));
+        const count = await this.findElement(FindWidget.locators.FindWidget.matchCount);
         const text = await count.getText();
 
         if (text.includes('No results')) {
@@ -547,14 +539,14 @@ export class FindWidget extends AbstractElement {
     private async toggleControl(title: string, part: 'find'|'replace', toggle: boolean) {
         let element!: WebElement;
         if (part === 'find') {
-            element = await this.findElement(By.className('find-part'));
+            element = await this.findElement(FindWidget.locators.FindWidget.findPart);
         }
         if (part === 'replace') {
-            element = await this.findElement(By.className('replace-part'));
+            element = await this.findElement(FindWidget.locators.FindWidget.replacePart);
             await this.toggleReplace(true);
         }
 
-        const control = await element.findElement(By.xpath(`.//div[@role='checkbox' and starts-with(@title, "${title}")]`));
+        const control = await element.findElement(FindWidget.locators.FindWidget.checkbox(title));
         const checked = await control.getAttribute('aria-checked');
         if ((toggle && checked !== 'true') || (!toggle && checked === 'true')) {
             await control.click();
@@ -564,26 +556,26 @@ export class FindWidget extends AbstractElement {
     private async clickButton(title: string, part: 'find'|'replace') {
         let element!: WebElement;
         if (part === 'find') {
-            element = await this.findElement(By.className('find-part'));
+            element = await this.findElement(FindWidget.locators.FindWidget.findPart);
         }
         if (part === 'replace') {
-            element = await this.findElement(By.className('replace-part'));
+            element = await this.findElement(FindWidget.locators.FindWidget.replacePart);
             await this.toggleReplace(true);
         }
 
-        const btn = await element.findElement(By.xpath(`.//div[@role='button' and starts-with(@title, "${title}")]`));
+        const btn = await element.findElement(FindWidget.locators.FindWidget.button(title));
         await btn.click();
         await this.getDriver().sleep(100);
     }
 
     private async setText(text: string, composite: WebElement) {
-        const input = await composite.findElement(By.css('textarea'));
+        const input = await composite.findElement(FindWidget.locators.FindWidget.input);
         await input.clear();
         await input.sendKeys(text);
     }
 
     private async getInputText(composite: WebElement) {
-        const input = await composite.findElement(By.className('mirror'));
+        const input = await composite.findElement(FindWidget.locators.FindWidget.content);
         return input.getAttribute('innerHTML');
     }
 }
