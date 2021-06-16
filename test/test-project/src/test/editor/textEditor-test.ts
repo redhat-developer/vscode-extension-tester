@@ -153,7 +153,7 @@ describe('TextEditor', () => {
             }             
         });
 
-        it('getSelection works', async () => {
+        (process.platform === 'darwin' ? it.skip : it)('getSelection works', async () => {
             await editor.selectText('cline');
             const selection = await editor.getSelection();
 
