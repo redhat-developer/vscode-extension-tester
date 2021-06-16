@@ -1,5 +1,26 @@
 # Change Log
 
+## 4.1.0 (Jun 16)
+ - we are now compatible with vscode 1.56 and 1.57
+   - workspace security is disabled by default to keep backwards compatibility, you can enable it with a custom setting if you desire
+ - new flag `-f` or `--offline` has been added for folks who need to run tests on a disconnected machine:
+   - will not attempt to download anything, or access anything on the internet when running
+   - needs all the requirements neatly prepared beforehand
+ - when checking vscode manifest, master branch was replaced with main
+   - also if the connection fails, tries to check manifest from an existing vscode
+ - Debugging support:
+   - added new page objects `DebugView` for the sidebar view `Run/Debug` and `DebugToolbar` for the floating debug controls
+   - added functionality to toggle breakpoints in text editor
+   - `DebugConsoleView` can now evaluate expressions and use `ContentAssist`
+ - Text Editor additions:
+   - methods to find & select text
+   - get text selection as a page object (i.e. to open context menu on)
+   - get selected text as string
+   - get the line number of a given text
+   - open the Find Widget
+     - new page object `FindWidget`
+     - lets you search and replace to your heart's content
+
 ## 4.0.3 (Apr 29)
  - tree items now have an `expand` method
  - simple file dialog should now be less likely to mess up the absolute path input
