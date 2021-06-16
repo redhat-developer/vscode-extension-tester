@@ -1,4 +1,4 @@
-import { By, Key } from "selenium-webdriver";
+import { Key } from "selenium-webdriver";
 import { BottomBarPanel, ContentAssist, Workbench } from "../..";
 import { TextView, ChannelView } from "./AbstractViews";
 import * as clipboard from 'clipboardy';
@@ -128,7 +128,7 @@ export class TerminalView extends ChannelView {
         const combo = await this.enclosingItem.findElements(ChannelView.locators.BottomBarViews.channelCombo);
         if (combo.length < 1) {
             await this.getDriver().wait(async () => {
-                const list = await this.findElements(By.className('tabs-list'));
+                const list = await this.findElements(TerminalView.locators.TerminalView.tabList);
                 return list.length > 0;
             }, 5000);
         }
@@ -139,12 +139,12 @@ export class TerminalView extends ChannelView {
         if (combo.length > 0) {
             return super.getCurrentChannel();
         }
-        const singleTerm = await this.enclosingItem.findElements(By.className('single-terminal-tab'));
+        const singleTerm = await this.enclosingItem.findElements(TerminalView.locators.TerminalView.singleTab);
         if (singleTerm.length > 0) {
             return singleTerm[0].getText();
         }
-        const list = await this.findElement(By.className('tabs-list'));
-        const row = await list.findElement(By.className('monaco-list-row selected'));
+        const list = await this.findElement(TerminalView.locators.TerminalView.tabList);
+        const row = await list.findElement(TerminalView.locators.TerminalView.selectedRow);
         const label = (await row.getAttribute('aria-label')).split(' ');
 
         return `${label[1]}: ${label[2]}`
@@ -155,7 +155,7 @@ export class TerminalView extends ChannelView {
         if (combo.length > 0) {
             return super.selectChannel(name);
         }
-        const singleTerm = await this.enclosingItem.findElements(By.className('single-terminal-tab'));
+        const singleTerm = await this.enclosingItem.findElements(TerminalView.locators.TerminalView.singleTab);
         if (singleTerm.length > 0) {
             return;
         }
@@ -166,8 +166,8 @@ export class TerminalView extends ChannelView {
         }
         const channelNumber = matches[1];        
 
-        const list = await this.findElement(By.className('tabs-list'));
-        const rows = await list.findElements(By.className('monaco-list-row'));
+        const list = await this.findElement(TerminalView.locators.TerminalView.tabList);
+        const rows = await list.findElements(TerminalView.locators.TerminalView.row);
 
         for (const row of rows) {
             const label = await row.getAttribute('aria-label');

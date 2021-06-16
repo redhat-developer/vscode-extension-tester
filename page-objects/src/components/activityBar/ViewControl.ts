@@ -1,6 +1,6 @@
 import { ActivityBar, DebugView, SideBarView, ScmView } from "../..";
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
-import { By, WebElement } from "selenium-webdriver";
+import { WebElement } from "selenium-webdriver";
 import { NewScmView } from "../sidebar/scm/NewScmView";
 
 /**
@@ -49,7 +49,7 @@ export class ViewControl extends ElementWithContexMenu {
      * Returns the title of the associated view
      */
     async getTitle(): Promise<string> {
-        const badge = await this.findElement(By.className('badge'));
+        const badge = await this.findElement(ViewControl.locators.ViewControl.badge);
         return badge.getAttribute('aria-label');
     }
 }

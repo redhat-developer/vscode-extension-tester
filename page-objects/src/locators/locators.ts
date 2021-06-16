@@ -18,6 +18,7 @@ export interface Locators {
         klass: string
         scmId: By
         debugId: By
+        badge: By
     }
 
     // Bottom Bar
@@ -58,6 +59,10 @@ export interface Locators {
         textArea: By
         killTerminal: By
         newTerminal: By
+        tabList: By
+        singleTab: By
+        selectedRow: By
+        row: By
     }
     DebugConsoleView: {
         constructor: By
@@ -96,6 +101,18 @@ export interface Locators {
         lineOverlay: (line: number) => By
         breakPoint: By
         debugHint: By
+        selection: By
+        findWidget: By
+    }
+    FindWidget: {
+        toggleReplace: By
+        replacePart: By
+        findPart: By
+        matchCount: By
+        input: By
+        content: By
+        button: (title: string) => By
+        checkbox: (title: string) => By
     }
     ContentAssist: {
         constructor: By
@@ -266,6 +283,10 @@ export interface Locators {
         launchOption: By
         optionByName: (name: string) => By
         startButton: By
+    }
+    DebugToolbar: {
+        ctor: By
+        button: (title: string) => By
     }
     
     // Status Bar

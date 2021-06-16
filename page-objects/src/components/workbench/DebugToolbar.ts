@@ -1,4 +1,4 @@
-import { By, until, WebElement } from "selenium-webdriver";
+import { until, WebElement } from "selenium-webdriver";
 import { AbstractElement } from "../AbstractElement";
 import { Workbench } from "./Workbench";
 
@@ -7,7 +7,7 @@ import { Workbench } from "./Workbench";
  */
 export class DebugToolbar extends AbstractElement {
     constructor() {
-        super(By.className('debug-toolbar'), new Workbench());
+        super(DebugToolbar.locators.DebugToolbar.ctor, new Workbench());
     }
 
     /**
@@ -18,7 +18,7 @@ export class DebugToolbar extends AbstractElement {
      * @param timeout max time to wait in milliseconds, default 5000
      */
     static async create(timeout = 5000): Promise<DebugToolbar> {
-        await DebugToolbar.driver.wait(until.elementLocated(By.className('debug-toolbar')), timeout);
+        await DebugToolbar.driver.wait(until.elementLocated(DebugToolbar.locators.DebugToolbar.ctor), timeout);
         return new DebugToolbar().wait(timeout);
     }
 
@@ -26,13 +26,13 @@ export class DebugToolbar extends AbstractElement {
      * Wait for the execution to pause at the next breakpoint
      */
     async waitForBreakPoint(): Promise<void> {
-        let btn = await this.getDriver().wait(until.elementLocated(By.className('codicon-debug-continue')));
+        let btn = await this.getDriver().wait(until.elementLocated(DebugToolbar.locators.DebugToolbar.button('continue')));
         await this.getDriver().wait(async () => {
             try {
                 const enabled = await btn.isEnabled();
                 return enabled;
             } catch(err) {
-                btn = await this.findElement(By.className('codicon-debug-continue'));
+                btn = await this.findElement(DebugToolbar.locators.DebugToolbar.button('continue'));
             }
         });
     }
@@ -87,6 +87,6 @@ export class DebugToolbar extends AbstractElement {
     }
 
     private async getButton(name: string): Promise<WebElement> {
-        return this.findElement(By.className(`codicon-debug-${name}`));
+        return this.findElement(DebugToolbar.locators.DebugToolbar.button(name));
     }
 }
