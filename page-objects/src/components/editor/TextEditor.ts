@@ -1,4 +1,4 @@
-import { ContentAssist, ContextMenu, Workbench } from "../..";
+import { ContentAssist, ContextMenu } from "../..";
 import { Button, By, Key, until, WebElement } from "selenium-webdriver";
 import { fileURLToPath } from "url";
 import * as clipboard from 'clipboardy';
@@ -211,11 +211,21 @@ export class TextEditor extends Editor {
      * Get the text that is currently selected as string
      */
     async getSelectedText(): Promise<string> {
-        const selection = await this.findElements(By.className('cslr selected-text top-left-radius bottom-left-radius top-right-radius bottom-right-radius'));
-        if (selection.length < 1) {
+        // const selection = await this.findElements(By.className('cslr selected-text top-left-radius bottom-left-radius top-right-radius bottom-right-radius'));
+        // if (selection.length < 1) {
+        //     return '';
+        // }
+        // await new Workbench().executeCommand('Copy');
+        // await new Promise(res => setTimeout(res, 500));
+        // console.log(await clipboard.read());
+        // return clipboard.read();
+        const selection = await this.getSelection();
+        if (!selection) {
             return '';
         }
-        await new Workbench().executeCommand('Copy');
+        const menu = await selection.openContextMenu();
+        await menu.select('Copy');
+        await new Promise(res => setTimeout(res, 500));
         return clipboard.read();
     }
 
