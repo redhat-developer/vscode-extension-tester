@@ -6,6 +6,9 @@ export const diff: LocatorDiff = {
         EditorView: {
             settingsEditor: By.className('settings-editor'),
             webView: By.xpath(`.//div[starts-with(@id, 'webview-editor')]`)
+        },
+        TerminalView: {
+            constructor: By.className('integrated-terminal')
         }
     }
 }
