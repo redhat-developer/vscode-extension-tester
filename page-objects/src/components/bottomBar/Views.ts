@@ -1,4 +1,4 @@
-import { Key } from "selenium-webdriver";
+import { By, Key } from "selenium-webdriver";
 import { BottomBarPanel, ContentAssist, Workbench } from "../..";
 import { TextView, ChannelView } from "./AbstractViews";
 import * as clipboard from 'clipboardy';
@@ -116,8 +116,7 @@ export class TerminalView extends ChannelView {
      * @returns Promise resolving when Kill Terminal button is pressed
      */
     async killTerminal(): Promise<void> {
-        await this.enclosingItem.findElement(TerminalView.locators.BottomBarViews.actionsContainer(this.actionsLabel))
-            .findElement(TerminalView.locators.TerminalView.killTerminal).click();
+        await new Workbench().executeCommand('terminal: kill the active terminal instance');
     }
 
     /**
@@ -125,7 +124,58 @@ export class TerminalView extends ChannelView {
      * @returns Promise resolving when New Terminal button is pressed
      */
     async newTerminal(): Promise<void> {
-        await this.enclosingItem.findElement(TerminalView.locators.BottomBarViews.actionsContainer(this.actionsLabel))
-            .findElement(TerminalView.locators.TerminalView.newTerminal).click();
+        await new Workbench().executeCommand('terminal: create new integrated terminal');
+        const combo = await this.enclosingItem.findElements(ChannelView.locators.BottomBarViews.channelCombo);
+        if (combo.length < 1) {
+            await this.getDriver().wait(async () => {
+                const list = await this.findElements(By.className('tabs-list'));
+                return list.length > 0;
+            }, 5000);
+        }
+    }
+
+    async getCurrentChannel(): Promise<string> {
+        const combo = await this.enclosingItem.findElements(ChannelView.locators.BottomBarViews.channelCombo);
+        if (combo.length > 0) {
+            return super.getCurrentChannel();
+        }
+        const singleTerm = await this.enclosingItem.findElements(By.className('single-terminal-tab'));
+        if (singleTerm.length > 0) {
+            return singleTerm[0].getText();
+        }
+        const list = await this.findElement(By.className('tabs-list'));
+        const row = await list.findElement(By.className('monaco-list-row selected'));
+        const label = (await row.getAttribute('aria-label')).split(' ');
+
+        return `${label[1]}: ${label[2]}`
+    }
+
+    async selectChannel(name: string): Promise<void> {
+        const combo = await this.enclosingItem.findElements(ChannelView.locators.BottomBarViews.channelCombo);
+        if (combo.length > 0) {
+            return super.selectChannel(name);
+        }
+        const singleTerm = await this.enclosingItem.findElements(By.className('single-terminal-tab'));
+        if (singleTerm.length > 0) {
+            return;
+        }
+
+        const matches = name.match(/.*(\d+).?\s.*/);
+        if (matches === null || !matches[1]) {
+            throw new Error(`Channel ${name} not found`);
+        }
+        const channelNumber = matches[1];        
+
+        const list = await this.findElement(By.className('tabs-list'));
+        const rows = await list.findElements(By.className('monaco-list-row'));
+
+        for (const row of rows) {
+            const label = await row.getAttribute('aria-label');
+            if (label.includes(channelNumber)) {
+                await row.click();
+                return;
+            }
+        }
+        throw new Error(`Channel ${name} not found`);
     }
 }
