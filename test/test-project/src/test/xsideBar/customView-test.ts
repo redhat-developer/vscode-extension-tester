@@ -63,9 +63,9 @@ describe('CustomTreeSection', () => {
         expect(actions).not.empty;
     });
 
-    it('getAction works', () => {
-        const action = section.getAction('Collapse All');
-        expect(action.getLabel()).equals('Collapse All');
+    it('getAction works', async () => {
+        const action = await section.getAction('Collapse All');
+        expect(await action.getLabel()).equals('Collapse All');
     });
 
     it('findWelcomeContent returns undefined if no WelcomeContent is present', async () => {
