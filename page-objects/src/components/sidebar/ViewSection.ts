@@ -1,6 +1,7 @@
-import { until, WebElement } from "selenium-webdriver";
-import { ViewContent, ViewItem, waitForAttributeValue, WelcomeContentSection } from "../..";
+import { By, until, WebElement } from "selenium-webdriver";
+import { ContextMenu, ViewContent, ViewItem, waitForAttributeValue, WelcomeContentSection } from "../..";
 import { AbstractElement } from "../AbstractElement";
+import { ElementWithContexMenu } from "../ElementWithContextMenu";
 
 /**
  * Page object representing a collapsible content section of the side bar view
@@ -121,7 +122,7 @@ export abstract class ViewSection extends AbstractElement {
             const elements = await act.findElements(ViewSection.locators.ViewSection.button);
     
             for (const element of elements) {
-                actions.push(await new ViewPanelAction(await element.getAttribute(ViewSection.locators.ViewSection.buttonLabel), this).wait());
+                actions.push(await new ViewPanelAction(element, this).wait());
             }
         }
         return actions;
@@ -130,10 +131,40 @@ export abstract class ViewSection extends AbstractElement {
     /**
      * Retrieve an action button on the sections's header by its label
      * @param label label/title of the button
-     * @returns ViewPanelAction object
+     * @returns ViewPanelAction object if found, undefined otherwise
      */
-    getAction(label: string): ViewPanelAction {
-        return new ViewPanelAction(label, this);
+    async getAction(label: string): Promise<ViewPanelAction|undefined> {
+        const actions = await this.getActions();
+        for (const action of actions) {
+            if (await action.getLabel() === label) {
+                return action;
+            }
+        }
+    }
+
+    /**
+     * Click on the More Actions... item if it exists
+     * 
+     * @returns ContextMenu page object if the action succeeds, undefined otherwise
+     */
+    async moreActions(): Promise<ContextMenu|undefined> {
+        let more = await this.getAction('More Actions...');
+        if (!more) {
+            return undefined;
+        }
+        const section = this;
+        const btn = new class extends ElementWithContexMenu {
+            async openContextMenu() {
+                await this.click();
+                const shadowRootHost = await section.findElements(By.className('shadow-root-host'));
+                if (shadowRootHost.length > 0) {
+                    const shadowRoot = await this.getDriver().executeScript('return arguments[0].shadowRoot', shadowRootHost[0]) as WebElement;
+                    return new ContextMenu(shadowRoot).wait();
+                }
+                return super.openContextMenu();
+            }
+        }(more, this);
+        return btn.openContextMenu();
     }
 
     private async isHeaderHidden(): Promise<boolean> {
@@ -146,18 +177,15 @@ export abstract class ViewSection extends AbstractElement {
  * Action button on the header of a view section
  */
 export class ViewPanelAction extends AbstractElement {
-    private label: string;
-
-    constructor(label: string, viewPart: ViewSection) {
-        super(ViewPanelAction.locators.ViewSection.actionConstructor(label), viewPart);
-        this.label = label;
+    constructor(element: WebElement, viewPart: ViewSection) {
+        super(element, viewPart);
     }
 
     /**
      * Get label of the action button
      */
-    getLabel(): string {
-        return this.label;
+    async getLabel(): Promise<string> {
+        return this.getAttribute(ViewSection.locators.ViewSection.buttonLabel);
     }
 
     async wait(timeout: number = 1000): Promise<this> {

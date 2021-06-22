@@ -123,8 +123,22 @@ describe('SideBarView', () => {
             });
 
             it('getAction works', async () => {
-                const action = section.getAction('Refresh Explorer');
-                expect(action.getLabel()).equals('Refresh Explorer');
+                const action = await section.getAction('Refresh Explorer');
+                expect(await action.getLabel()).equals('Refresh Explorer');
+            });
+
+            (process.platform === 'darwin' ? it.skip : it)('moreActions works', async () => {
+                const outline = await content.getSection('Outline');
+                await outline.expand();
+                await outline.getDriver().actions().mouseMove(outline).perform();
+
+                const menu = await outline.moreActions();
+                expect(menu).not.undefined;
+
+                if (menu) {
+                    await menu.close();
+                }
+                await outline.collapse();
             });
 
             describe('DefaultTreeItem', async () => {
