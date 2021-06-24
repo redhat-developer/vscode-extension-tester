@@ -48,8 +48,8 @@ export class WebView extends Editor {
             const view = await this.getDriver().findElement(WebView.locators.WebView.iframe)
             await this.getDriver().switchTo().frame(view);
 
-            const frame = await this.getDriver().findElement(WebView.locators.WebView.activeFrame);
             await this.getDriver().wait(until.elementLocated(WebView.locators.WebView.activeFrame), 5000);
+            const frame = await this.getDriver().findElement(WebView.locators.WebView.activeFrame);
             await this.getDriver().switchTo().frame(frame);
         } else {
             const handles = await this.getDriver().getAllWindowHandles();
