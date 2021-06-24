@@ -1,7 +1,7 @@
 import { TreeSection } from "../TreeSection";
 import { TreeItem } from "../../ViewItem";
 import { CustomTreeItem } from "./CustomTreeItem";
-import { Key } from "selenium-webdriver";
+import { Key, until } from "selenium-webdriver";
 
 /**
  * Custom tree view, e.g. contributed by an extension
@@ -19,6 +19,7 @@ export class CustomTreeSection extends TreeSection {
 
     async findItem(label: string, maxLevel: number = 0): Promise<TreeItem | undefined> {
         await this.expand();
+        await this.getDriver().wait(until.elementLocated(CustomTreeSection.locators.CustomTreeSection.rowContainer), 5000);
         const container = await this.findElement(CustomTreeSection.locators.CustomTreeSection.rowContainer);
         await container.sendKeys(Key.HOME);
         let item: TreeItem | undefined = undefined;
