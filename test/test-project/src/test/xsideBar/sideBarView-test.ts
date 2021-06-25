@@ -106,6 +106,15 @@ describe('SideBarView', () => {
                 expect(item).not.undefined;
             });
 
+            it('openItem lists available items when part of the path does not exist', async () => {
+                const items = ['foolder', 'foo'];
+                try {
+                    await section.openItem('test-folder', 'x', 'y');
+                } catch (err) {
+                    expect(err.message).to.have.string(`Available items in current directory: [${items.toString()}]`);
+                }
+            });
+
             it('openItem returns folders subitems', async () => {
                 const items = await section.openItem('test-folder', 'foolder') as ViewItem[];
                 expect(items.length).equals(1);

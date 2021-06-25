@@ -11,14 +11,20 @@ export abstract class TreeSection extends ViewSection {
         for (let i = 0; i < path.length; i++) {
             const item = await this.findItem(path[i], i + 1);
             if (await item?.hasChildren() && !await item?.isExpanded()) {
-                await item?.click();
+                await item?.expand();
             }
         }
 
         let currentItem = await this.findItem(path[0], 1);
         for (let i = 0; i < path.length; i++) {
             if (!currentItem) {
-                throw new Error(`Item ${path[i]} not found`);
+                if (i === 0) {
+                    items = await this.getVisibleItems();
+                }
+                const names = await Promise.all(items.map(item => item.getLabel()));
+                const message = names.length < 1 ? `Current directory is empty.` : `Available items in current directory: [${names.toString()}]`;
+
+                throw new Error(`Item '${path[i]}' not found. ${message}`);
             }
             items = await currentItem.getChildren();
             if (items.length < 1) {
