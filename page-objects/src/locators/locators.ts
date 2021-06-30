@@ -236,6 +236,7 @@ export interface Locators {
         expandedAttr: string
         expandedValue: string
         tooltipAttribute: string
+        description: By
     }
     ExtensionsViewSection: {
         items: By
