@@ -84,6 +84,7 @@ function getTreeItem(key: string): vscode.TreeItem {
 	return {
 		label: key,
 		tooltip: `Tooltip for ${key}`,
+		description: `Description for ${key}`,
 		collapsibleState
 	};
 }

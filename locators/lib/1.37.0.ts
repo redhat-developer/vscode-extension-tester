@@ -235,7 +235,8 @@ const sideBar = {
         constructor: (label: string) => By.xpath(`.//div[@role='treeitem' and .//span[text()='${label}']]`),
         tooltipAttribute: 'aria-label',
         expandedAttr: 'aria-expanded',
-        expandedValue: 'true'
+        expandedValue: 'true',
+        description: By.className('label-description'),
     },
     ExtensionsViewSection: {
         items: By.className('monaco-list-rows'),

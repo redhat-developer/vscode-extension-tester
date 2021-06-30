@@ -37,6 +37,14 @@ export abstract class TreeItem extends ViewItem {
     }
 
     /**
+     * Retrieves the description of this TreeItem.
+     * @returns A promise resolving to the tooltip or undefined if the TreeItem has no description.
+     */
+    async getDescription(): Promise<string | undefined> {
+        return undefined;
+    }
+
+    /**
      * Finds if the item has children by actually counting the child items
      * Note that this will expand the item if it was collapsed
      * @returns Promise resolving to true/false

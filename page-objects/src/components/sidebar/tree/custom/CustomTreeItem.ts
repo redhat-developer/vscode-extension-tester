@@ -18,6 +18,10 @@ export class CustomTreeItem extends TreeItem {
         return this.getAttribute(CustomTreeItem.locators.CustomTreeItem.tooltipAttribute);
     }
 
+    async getDescription(): Promise<string> {
+        return this.findElement(CustomTreeItem.locators.CustomTreeItem.description).getText();
+    }
+
     async isExpanded(): Promise<boolean> {
         const attr = await this.getAttribute(CustomTreeItem.locators.CustomTreeItem.expandedAttr);
         return attr === CustomTreeItem.locators.CustomTreeItem.expandedValue;
