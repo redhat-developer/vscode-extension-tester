@@ -43,26 +43,32 @@ export class WebView extends Editor {
             WebView.handle = await this.getDriver().getWindowHandle();
         }
 
-        if (WebView.versionInfo.browser === 'vscode' && WebView.versionInfo.version >= '1.56.0') {
-            const reference = await this.findElement(WebView.locators.EditorView.webView);
-            const container = await this.getDriver().wait(until.elementLocated(By.id(await reference.getAttribute('aria-flowto'))), 5000);
-            const view = await container.findElement(WebView.locators.WebView.iframe);
-            await this.getDriver().switchTo().frame(view);
+        const handles = await this.getDriver().getAllWindowHandles();
+        for (const handle of handles) {
+            await this.getDriver().switchTo().window(handle);
 
-            await this.getDriver().wait(until.elementLocated(WebView.locators.WebView.activeFrame), 5000);
-            const frame = await this.getDriver().findElement(WebView.locators.WebView.activeFrame);
-            await this.getDriver().switchTo().frame(frame);
-        } else {
-            const handles = await this.getDriver().getAllWindowHandles();
-            for (const handle of handles) {
-                await this.getDriver().switchTo().window(handle);
-    
-                if ((await this.getDriver().getTitle()).includes('Virtual Document')) {
-                    await this.getDriver().switchTo().frame(0);
-                    return;
-                }
+            if ((await this.getDriver().getTitle()).includes('Virtual Document')) {
+                await this.getDriver().switchTo().frame(0);
+                return;
             }
         }
+        await this.getDriver().switchTo().window(WebView.handle);
+
+        const reference = await this.findElement(WebView.locators.EditorView.webView);
+        const container = await this.getDriver().wait(until.elementLocated(By.id(await reference.getAttribute('aria-flowto'))), 5000);
+        
+        const view = await container.getDriver().wait(async () => {
+            const tries = await container.findElements(WebView.locators.WebView.iframe);
+            if (tries.length > 0) {
+                return tries[0];
+            }
+            return undefined;
+        }, 5000) as WebElement;
+        await this.getDriver().switchTo().frame(view);
+
+        await this.getDriver().wait(until.elementLocated(WebView.locators.WebView.activeFrame), 5000);
+        const frame = await this.getDriver().findElement(WebView.locators.WebView.activeFrame);
+        await this.getDriver().switchTo().frame(frame);
     }
 
     /**
