@@ -301,6 +301,7 @@ export interface Locators {
         notifications: By
         bell: By
         item: By
+        itemTitle: string
     }
 
     // Workbench

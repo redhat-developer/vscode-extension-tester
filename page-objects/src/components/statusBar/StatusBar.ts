@@ -19,14 +19,14 @@ export class StatusBar extends AbstractElement {
     }
 
     /**
-     * Find status bar item by title (the one that pops up when you hover the item)
+     * Find status bar item by title/visible label
      * @param title title of the item
      * @returns Promise resolving to a WebElement if item is found, to undefined otherwise
      */
     async getItem(title: string): Promise<WebElement | undefined> {
         const items = await this.getItems();
         for (const item of items) {
-            if (await item.getAttribute('title') === title) {
+            if (await item.getAttribute(StatusBar.locators.StatusBar.itemTitle) === title) {
                 return item;
             }
         }

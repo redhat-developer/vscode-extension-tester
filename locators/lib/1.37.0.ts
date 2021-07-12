@@ -297,7 +297,8 @@ const statusBar = {
         selection: By.id('status.editor.selection'),
         notifications: By.className('notifications-center'),
         bell: By.id('status.notifications'),
-        item: By.className('statusbar-item')
+        item: By.className('statusbar-item'),
+        itemTitle: 'title'
     }
 }
 
