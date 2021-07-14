@@ -1,5 +1,18 @@
 # Change Log
 
+## 4.1.1 (Jul 14)
+ - `ViewSection` now has `moreActions` method to open the `More Actions` context menu if available
+ - `ViewPanelAction`'s `getLabel` method is now async, returns `Promise<string>` instead of a static string
+ - `TreeSection`'s `openItem` now lists available items on given segment of the path if the item could not be found
+ - `CustomTreeItem` now has `getDescription` method
+ - `TreeSection`'s `findItem` now waits for the item container to load if called directly after opening the view
+ - changes to `WebView`:
+   - now checks for both pre and post vscode 1.56 versions of web view when switching to frame (some people seem to be able to still summon both versions)
+   - finds the proper web view to switch to when multiple iframes are present on screen 
+   - allows a few seconds for the web view to load before switching to the iframe
+ - `StatusBar`'s `getItem` now works with vscode 1.58, altough sligtly altered
+   - 1.58 no longer exposes the title of the item (the one that appears when hovering over it), instead label is used (the one that is visible on status bar)
+
 ## 4.1.0 (Jun 16)
  - we are now compatible with vscode 1.56 and 1.57
    - workspace security is disabled by default to keep backwards compatibility, you can enable it with a custom setting if you desire
