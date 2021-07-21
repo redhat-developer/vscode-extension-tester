@@ -101,7 +101,7 @@ export class VSRunner {
             console.log(`Loading mocha configuration from ${file}`);
             if (/\.(yml|yaml)$/.test(file)) {
                 try {
-                    conf = yaml.safeLoad(fs.readFileSync(file, 'utf-8')) as Mocha.MochaOptions;
+                    conf = yaml.load(fs.readFileSync(file, 'utf-8')) as Mocha.MochaOptions;
                 } catch (err) {
                     console.log('Invalid mocha configuration file, will be ignored');
                 }
