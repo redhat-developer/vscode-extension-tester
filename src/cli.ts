@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import * as program from 'commander';
+import { program } from 'commander';
 import { ExTester } from './extester';
 import { ReleaseQuality } from './util/codeUtil';
 const pjson = require('../package.json');
