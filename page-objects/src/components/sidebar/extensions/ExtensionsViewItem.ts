@@ -25,8 +25,14 @@ export class ExtensionsViewItem extends ViewItem {
      * @returns Promise resolving to version string
      */
     async getVersion(): Promise<string> {
-        const version = await this.findElement(ExtensionsViewItem.locators.ExtensionsViewItem.version);
-        return version.getText();
+        const version = await this.findElements(ExtensionsViewItem.locators.ExtensionsViewItem.version);
+        if (version.length > 0) {
+            return version[0].getText();
+        }
+        const label = await this.getAttribute('aria-label');
+        const ver = label.split(',')[1].trim();
+
+        return ver;
     }
 
     /**
