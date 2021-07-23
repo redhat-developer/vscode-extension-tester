@@ -31,7 +31,7 @@ describe('StatusBar', () => {
 
     it('getCurrentLanguage returns editor mode', async () => {
         const mode = await bar.getCurrentLanguage();
-        expect(mode).equals('Plain Text');
+        expect(mode.startsWith('Plain Text')).is.true;
     });
 
     it('openLineEndingSelection works', async () => {
