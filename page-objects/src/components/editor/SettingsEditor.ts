@@ -262,11 +262,11 @@ export class CheckboxSetting extends Setting {
  */
 export class LinkSetting extends Setting {
     async getValue(): Promise<string> {
-        throw new Error('Value not available in settings editor.');
+        throw new Error('Method getValue is not available for LinkSetting');
     }
 
     async setValue(value: string | boolean): Promise<void> {
-        throw new Error('Value not available in settings editor.');
+        throw new Error('Method setValue is not available for LinkSetting');
     }
 
     /**
