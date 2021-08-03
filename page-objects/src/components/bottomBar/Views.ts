@@ -86,13 +86,31 @@ export class TerminalView extends ChannelView {
     }
 
     /**
-     * Execute command in the internal terminal
+     * Execute command in the internal terminal and wait for results
      * @param command text of the command
-     * @returns Promise resolving when the command is filled in and enter is pressed
+     * @param timeout optional maximum time to wait for completion in milliseconds, 0 for unlimited
+     * @returns Promise resolving when the command is finished
      */
-    async executeCommand(command: string): Promise<void> {
+    async executeCommand(command: string, timeout: number = 0): Promise<void> {
         const input = await this.findElement(TerminalView.locators.TerminalView.textArea);
+
+        try {
+            await input.clear();
+        } catch (err) {
+            // try clearing, ignore if not available
+        }
         await input.sendKeys(command, Key.ENTER);
+        
+        let timer = 0;
+        let style = await input.getCssValue('left');
+        do {
+            if (timeout > 0 && timer > timeout) {
+                throw new Error(`Timeout of ${timeout}ms exceeded`);
+            }
+            await new Promise(res => setTimeout(res, 500));
+            timer += 500;
+            style = await input.getCssValue('left');
+        } while(style === '0px')
     }
     
     /**
