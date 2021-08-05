@@ -1,5 +1,5 @@
 import { AbstractElement } from "../AbstractElement";
-import { Key, until, WebElement } from "selenium-webdriver";
+import { By, Key, until, WebElement } from "selenium-webdriver";
 import { TitleBar } from "../menu/TitleBar";
 import { ProblemsView, OutputView, DebugConsoleView, TerminalView } from "../..";
 
@@ -84,8 +84,13 @@ export class BottomBarPanel extends AbstractElement {
         await this.toggle(true);
         const tabContainer = await this.findElement(BottomBarPanel.locators.BottomBarPanel.tabContainer);
         try {
-            const tab = tabContainer.findElement(BottomBarPanel.locators.BottomBarPanel.tab(title));
-            await tab.click();
+            const tabs = await tabContainer.findElements(BottomBarPanel.locators.BottomBarPanel.tab(title));
+            if (tabs.length > 0) {
+                await tabs[0].click();
+            } else {
+                const label = await tabContainer.findElement(By.xpath(`.//a[starts-with(@aria-label, '${title}')]`));
+                await label.click();
+            }
         } catch (err) {
             await new TitleBar().select('View', title);
         }
