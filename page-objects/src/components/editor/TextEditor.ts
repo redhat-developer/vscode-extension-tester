@@ -457,14 +457,16 @@ export class FindWidget extends AbstractElement {
      * Click 'Next match'
      */
     async nextMatch(): Promise<void> {
-        await this.clickButton('Next match', 'find');
+        const name = TextEditor.versionInfo.version < '1.59.0' ? 'Next match' : 'Next Match';
+        await this.clickButton(name, 'find');
     }
 
     /**
      * Click 'Previous match'
      */
     async previousMatch(): Promise<void> {
-        await this.clickButton('Previous match', 'find');
+        const name = TextEditor.versionInfo.version < '1.59.0' ? 'Previous match' : 'Previous Match';
+        await this.clickButton(name, 'find');
     }
 
     /**
