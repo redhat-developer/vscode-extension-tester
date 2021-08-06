@@ -1,6 +1,6 @@
 {
   "name": "monaco-page-objects",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "description": "Page Objects for Monaco Editor",
   "main": "out/index.js",
   "types": "out/index.d.ts",
