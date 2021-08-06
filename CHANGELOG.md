@@ -1,5 +1,12 @@
 # Change Log
 
+## 4.1.2 (Aug 6)
+ - compatibility with vscode 1.59
+ - `LinkSetting` error messages updated to indicate `getValue` and `setValue` are not available
+ - `TerminalView`'s `executeCommand` now waits for the command to finish before resolving, with optional timeout
+ - `BottomBar` open methods should now work when repeatedly switching tabs back and forth
+ - updated most dependencies
+
 ## 4.1.1 (Jul 14)
  - `ViewSection` now has `moreActions` method to open the `More Actions` context menu if available
  - `ViewPanelAction`'s `getLabel` method is now async, returns `Promise<string>` instead of a static string
