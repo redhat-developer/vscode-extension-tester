@@ -4,7 +4,7 @@ import { VSBrowser } from '../browser';
 import * as fs from 'fs-extra';
 import Mocha = require('mocha');
 import * as glob from 'glob';
-import { CodeUtil } from '../util/codeUtil';
+import { CodeUtil, ReleaseQuality } from '../util/codeUtil';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
 import sanitize = require('sanitize-filename');
@@ -38,7 +38,8 @@ export class VSRunner {
     runTests(testFilesPattern: string, code: CodeUtil, logLevel: logging.Level = logging.Level.INFO): Promise<number> {
         return new Promise(resolve => {
             let self = this;
-            let browser: VSBrowser = new VSBrowser(this.codeVersion, this.customSettings, logLevel);
+            const releaseType = path.basename(this.chromeBin).toLowerCase().includes('insider') ? ReleaseQuality.Insider : ReleaseQuality.Stable;
+            let browser: VSBrowser = new VSBrowser(this.codeVersion, releaseType, this.customSettings, logLevel);
             const universalPattern = testFilesPattern.replace(/'/g, '');
             const testFiles = glob.sync(universalPattern);
     

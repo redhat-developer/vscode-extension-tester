@@ -172,6 +172,16 @@ export class CodeUtil {
     }
 
     /**
+     * Open files/folders in running vscode
+     * @param paths vararg paths to files or folders to open
+     */
+    open(...paths: string[]): void {
+        const segments = paths.map(f => `"${f}"`).join(' ');
+        let command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" -r ${segments} --user-data-dir="${path.join(this.downloadFolder, 'settings')}"`;
+        child_process.execSync(command);
+    }
+
+    /**
      * Download a vsix file
      * @param vsixURL URL of the vsix file
      */
@@ -215,12 +225,6 @@ export class CodeUtil {
     uninstallExtension(cleanup?: boolean): void {
         const pjson = require(path.resolve('package.json'));
         const extension = `${pjson.publisher}.${pjson.name}`;
-        const helper = `vscode-extension-tester.api-handler`;
-        let command2 = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --uninstall-extension "${helper}"`;
-        if (this.extensionsFolder) {
-            command2 += ` --extensions-dir=${this.extensionsFolder}`;
-        }
-        child_process.execSync(command2, { stdio: 'inherit' });
 
         if (cleanup) {
             let command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --uninstall-extension "${extension}"`;

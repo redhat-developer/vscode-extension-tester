@@ -7,18 +7,9 @@ describe('DiffEditor', async () => {
 
     before(async function() {
         this.timeout(250000);
-        await new Workbench().executeCommand('extest open file');
-        let input = await InputBox.create();
-        await input.setText(path.resolve(__dirname, '..', '..', '..', '..', 'resources', 'test-file-a.txt'));
-        await input.confirm();
-        await new Promise((res) => { setTimeout(res, 500); });
-        
-        await new Workbench().executeCommand('extest open file');
-        input = await InputBox.create();
-        await input.setText(path.resolve(__dirname, '..', '..', '..', '..', 'resources', 'test-file-b.txt'));
-        await input.confirm();
-        await new Promise((res) => { setTimeout(res, 500); });
-        
+        await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', '..', 'resources', 'test-file-a.txt'),
+            path.resolve(__dirname, '..', '..', '..', '..', 'resources', 'test-file-b.txt'));
+        await new EditorView().openEditor('test-file-b.txt');
         await new Workbench().executeCommand('File: Compare Active File With...');
         let quickOpen: QuickOpenBox | InputBox;
         if (VSBrowser.instance.version >= '1.44.0') {

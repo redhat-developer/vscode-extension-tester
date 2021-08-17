@@ -30,6 +30,7 @@ describe('CustomTreeSection', () => {
         await section.collapse();
         expect(await section.isExpanded()).is.false;
 
+        await new Promise(res => setTimeout(res, 500))
         await section.expand();
         expect(await section.isExpanded()).is.true;
     });

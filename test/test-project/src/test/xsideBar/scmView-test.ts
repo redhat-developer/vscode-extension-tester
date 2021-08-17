@@ -8,11 +8,7 @@ import * as fs from 'fs-extra';
 
     before(async () => {
         fs.writeFileSync(path.resolve('.', 'testfile'), 'content');
-
-        await new Workbench().executeCommand('extest open folder');
-        const input = await InputBox.create();
-        await input.setText(path.resolve('..', '..'));
-        await input.confirm();
+        await VSBrowser.instance.openResources(path.resolve('..', '..'));
 
         view = await (await new ActivityBar().getViewControl('Source Control')).openView() as ScmView;
         await new Promise((res) => { setTimeout(res, 2000); });

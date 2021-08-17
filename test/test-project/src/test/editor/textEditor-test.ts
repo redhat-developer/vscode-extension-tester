@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { expect } from 'chai';
-import { TextEditor, EditorView, StatusBar, InputBox, ContentAssist, Workbench, FindWidget } from "vscode-extension-tester";
+import { TextEditor, EditorView, StatusBar, InputBox, ContentAssist, Workbench, FindWidget, VSBrowser } from "vscode-extension-tester";
 
 describe('ContentAssist', async () => {
     let assist: ContentAssist;
@@ -8,12 +8,7 @@ describe('ContentAssist', async () => {
 
     before(async function() {
         this.timeout(15000);
-        await new Workbench().executeCommand('extest open file');
-        const input = await InputBox.create();
-        await input.setText(path.resolve(__dirname, '..', '..', '..', '..', 'resources', 'test-file.ts'));
-        await input.confirm();
-
-        await new Promise((res) => { setTimeout(res, 1000); });
+        await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', '..', 'resources', 'test-file.ts'));
         editor = new TextEditor();
         assist = await editor.toggleContentAssist(true) as ContentAssist;
     });
