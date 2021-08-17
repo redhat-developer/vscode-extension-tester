@@ -138,7 +138,6 @@ export class ExTester {
      * @returns Promise resolving to the mocha process exit code - 0 for no failures, 1 otherwise
      */
     async runTests(testFilesPattern: string, runOptions: RunOptions = DEFAULT_RUN_OPTIONS): Promise<number> {
-        await this.installVsix({ vsixFile: path.join(__dirname, '..', 'resources', 'api-handler.vsix')});
         return this.code.runTests(testFilesPattern, runOptions);
     }
 }

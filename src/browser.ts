@@ -6,6 +6,7 @@ import compareVersions = require('compare-versions');
 import { WebDriver, Builder, until, By, initPageObjects, logging } from 'monaco-page-objects';
 import { Options } from 'selenium-webdriver/chrome';
 import { getLocatorsPath } from 'vscode-extension-tester-locators';
+import { CodeUtil, ReleaseQuality } from './util/codeUtil';
 
 export class VSBrowser {
     static readonly baseVersion = '1.37.0';
@@ -15,14 +16,16 @@ export class VSBrowser {
     private customSettings: Object;
     private _driver!: WebDriver;
     private codeVersion: string;
+    private releaseType: ReleaseQuality;
     private logLevel: logging.Level;
     private static _instance: VSBrowser;
 
-    constructor(codeVersion: string, customSettings: Object = {}, logLevel: logging.Level = logging.Level.INFO) {
+    constructor(codeVersion: string, releaseType: ReleaseQuality, customSettings: Object = {}, logLevel: logging.Level = logging.Level.INFO) {
         this.storagePath = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.resolve('test-resources');
         this.extensionsFolder = process.env.EXTENSIONS_FOLDER ? process.env.EXTENSIONS_FOLDER : undefined;
         this.customSettings = customSettings;
         this.codeVersion = codeVersion;
+        this.releaseType = releaseType;
 
         this.logLevel = logLevel;
 
@@ -140,5 +143,18 @@ export class VSBrowser {
         const dir = path.join(this.storagePath, 'screenshots');
         fs.mkdirpSync(dir);
         fs.writeFileSync(path.join(dir, `${name}.png`), data, 'base64');
+    }
+
+    /**
+     * Open folder(s) or file(s) in the current instance of vscode.
+     * 
+     * @param paths path(s) of folder(s)/files(s) to open as varargs
+     * @returns Promise resolving when all selected resources are opened and the workbench reloads
+     */
+    async openResources(...paths: string[]): Promise<void> {
+        const code = new CodeUtil(this.storagePath, this.releaseType, this.extensionsFolder);
+        code.open(...paths);
+        await new Promise(res => setTimeout(res, 1000));
+        await this.waitForWorkbench();
     }
 }

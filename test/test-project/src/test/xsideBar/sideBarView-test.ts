@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { expect } from 'chai';
-import { SideBarView, ActivityBar, ViewTitlePart, Workbench, ViewItem, ViewContent, ViewSection, DefaultTreeSection, DefaultTreeItem, TextEditor, EditorView, InputBox, VSBrowser } from "vscode-extension-tester";
+import { SideBarView, ActivityBar, ViewTitlePart, Workbench, ViewItem, ViewContent, ViewSection, DefaultTreeSection, DefaultTreeItem, TextEditor, EditorView, VSBrowser } from "vscode-extension-tester";
 
 describe('SideBarView', () => {
     let view: SideBarView;
@@ -50,11 +50,7 @@ describe('SideBarView', () => {
 
         before(async function() {
             this.timeout(15000);
-            await new Workbench().executeCommand('extest open folder');
-            const input = await InputBox.create();
-            await input.setText(path.resolve(__dirname, '..', '..', '..', '..', 'resources', 'test-folder'));
-            await input.confirm();
-
+            await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', '..', 'resources', 'test-folder'));
             view = await (await new ActivityBar().getViewControl('Explorer')).openView();
             await new Promise((res) => { setTimeout(res, 1000); });
             content = view.getContent();
@@ -80,12 +76,12 @@ describe('SideBarView', () => {
             let section: ViewSection;
 
             before(async () => {
-                section = await content.getSection('Untitled (Workspace)');
+                section = await content.getSection('test-folder');
             });
 
             it('getTitle works', async () => {
                 const title = await section.getTitle();
-                expect(title).equals('Untitled (Workspace)');
+                expect(title).equals('test-folder');
             });
 
             it('collapse/expand works', async () => {
@@ -102,27 +98,27 @@ describe('SideBarView', () => {
             });
 
             it('findItem works', async () => {
-                const item = await section.findItem('test-folder');
+                const item = await section.findItem('foo');
                 expect(item).not.undefined;
             });
 
             it('openItem lists available items when part of the path does not exist', async () => {
                 const items = ['foolder', 'foo'];
                 try {
-                    await section.openItem('test-folder', 'x', 'y');
+                    await section.openItem('x', 'y');
                 } catch (err) {
                     expect(err.message).to.have.string(`Available items in current directory: [${items.toString()}]`);
                 }
             });
 
             it('openItem returns folders subitems', async () => {
-                const items = await section.openItem('test-folder', 'foolder') as ViewItem[];
+                const items = await section.openItem('foolder') as ViewItem[];
                 expect(items.length).equals(1);
             });
 
             it('openItem returns empty array for files', async () => {
-                const items = await section.openItem('test-folder', 'foolder', 'bar') as ViewItem[];
-                await (await section.findItem('test-folder') as DefaultTreeItem).collapse();
+                const items = await section.openItem('foolder', 'bar') as ViewItem[];
+                await (await section.findItem('foolder') as DefaultTreeItem).collapse();
                 expect(items).empty;
             });
 
@@ -156,7 +152,7 @@ describe('SideBarView', () => {
 
                 before(async () => {
                     defaultSection = section as DefaultTreeSection;
-                    item = await defaultSection.findItem('test-folder') as DefaultTreeItem;
+                    item = await defaultSection.findItem('foolder') as DefaultTreeItem;
                 });
 
                 after(async () => {
@@ -165,12 +161,12 @@ describe('SideBarView', () => {
 
                 it('getLabel works', async () => {
                     const label = await item.getLabel();
-                    expect(label).equals('test-folder');
+                    expect(label).equals('foolder');
                 });
 
                 it('getTooltip works', async () => {
                     const tooltip = await item.getTooltip();
-                    expect(tooltip).has.string('test-folder');
+                    expect(tooltip).has.string('foolder');
                 });
 
                 it('selecting folders toggles expand state', async () => {
@@ -188,16 +184,16 @@ describe('SideBarView', () => {
 
                 it('getChildren works', async () => {
                     const children = await item.getChildren();
-                    expect(children.length).equals(2);
+                    expect(children.length).equals(1);
                 });
 
                 it('findChildItem works', async () => {
-                    const child = await item.findChildItem('foo');
+                    const child = await item.findChildItem('bar');
                     expect(child).not.undefined;
                 });
 
                 it('select opens editor for a file', async () => {
-                    const foo = await item.findChildItem('foo') as DefaultTreeItem;
+                    const foo = await item.findChildItem('bar') as DefaultTreeItem;
                     await foo.select();
 
                     try {

@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { Workbench, TextEditor, EditorView, ProblemsView, BottomBarPanel, MarkerType, InputBox } from "vscode-extension-tester";
+import { TextEditor, EditorView, ProblemsView, BottomBarPanel, MarkerType, VSBrowser } from "vscode-extension-tester";
 import { expect } from 'chai';
 
 (process.platform === 'darwin' ? describe.skip : describe)('ProblemsView', () => {
@@ -9,11 +9,7 @@ import { expect } from 'chai';
 
     before(async function() {
         this.timeout(25000);
-        await new Workbench().executeCommand('extest open file');
-        const input = await InputBox.create();
-        await input.setText(path.resolve(__dirname, '..', '..', '..', '..', 'resources', 'test-file.ts'));
-        await input.confirm();
-        await new Promise((res) => { setTimeout(res, 1000); });
+        await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', '..', 'resources', 'test-file.ts'));
 
         bar = new BottomBarPanel();
         await bar.toggle(true);
