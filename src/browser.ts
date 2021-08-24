@@ -46,7 +46,9 @@ export class VSBrowser {
             "workbench.editor.enablePreview": false,
             "window.restoreFullscreen": true,
             "window.newWindowDimensions": "maximized",
-            "security.workspace.trust.enabled": false
+            "security.workspace.trust.enabled": false,
+            "window.dialogStyle": "custom",
+            "files.simpleDialog.enable": true
         };
         if (Object.keys(this.customSettings).length > 0) {
             console.log('Detected user defined code settings');
