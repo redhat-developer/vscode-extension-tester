@@ -8,6 +8,7 @@ export * from './locators/locators';
 export * from './components/menu/Menu';
 export * from './components/menu/MenuItem';
 export * from './components/menu/TitleBar';
+export * from './components/menu/MacTitleBar';
 export * from './components/menu/ContextMenu';
 export * from './components/menu/WindowControls';
 
