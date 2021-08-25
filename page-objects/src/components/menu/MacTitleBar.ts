@@ -33,6 +33,10 @@ export class MacTitleBar {
             commands.push(`end tell`);
         }
         const command = `osascript -e '${commands.join('\n')}'`;
-        execSync(command, { stdio: 'inherit' });
+        const output = execSync(command).toString();
+
+        if (output.includes('execution error')) {
+            throw new Error(output);
+        }
     }
 }
