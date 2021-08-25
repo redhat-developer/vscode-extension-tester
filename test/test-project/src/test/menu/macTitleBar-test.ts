@@ -1,5 +1,5 @@
 import { EditorView, MacTitleBar, OutputView } from "vscode-extension-tester";
-import { expect } from 'chai';
+import { AssertionError, expect } from 'chai';
 
 (process.platform === 'darwin' ? describe : describe.skip)('MacTitleBar test', () => {
     beforeEach(async () => {
@@ -28,9 +28,12 @@ import { expect } from 'chai';
     it('errors when an item does not exist', () => {
         try {
             MacTitleBar.select('File', 'This does not exist');
+            expect.fail('no error was produced');
         } catch (err) {
+            if (err instanceof AssertionError) {
+                throw err;
+            }
             expect(err).not.to.be.empty;
         }
-        expect.fail('no error was produced');
     });
 });
