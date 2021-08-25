@@ -1,8 +1,8 @@
 import { EditorView, MacTitleBar, OutputView } from "vscode-extension-tester";
 import { expect } from 'chai';
 
-describe('MacTitleBar test', () => {
-    before(async () => {
+(process.platform === 'darwin' ? describe : describe.skip)('MacTitleBar test', () => {
+    beforeEach(async () => {
         await new Promise(res => setTimeout(res, 2000));
         await new EditorView().closeAllEditors();
     });
