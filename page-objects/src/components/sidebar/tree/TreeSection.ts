@@ -21,7 +21,8 @@ export abstract class TreeSection extends ViewSection {
                 if (i === 0) {
                     items = await this.getVisibleItems();
                 }
-                const names = await Promise.all(items.map(item => item.getLabel()));
+                let names = await Promise.all(items.map(item => item.getLabel()));
+                names = names.sort((a, b) => a > b ? 1 : (a < b ? -1 : 0));
                 const message = names.length < 1 ? `Current directory is empty.` : `Available items in current directory: [${names.toString()}]`;
 
                 throw new Error(`Item '${path[i]}' not found. ${message}`);
