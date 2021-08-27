@@ -50,7 +50,7 @@ export class ContextMenu extends Menu {
         try {
             await this.getDriver().wait(until.elementIsNotVisible(this));
         } catch (err) {
-            if (err.message.indexOf('stale element reference: element is not attached to the page document') < 0) {
+            if (!(err instanceof error.StaleElementReferenceError)) {
                 throw err;
             }
         }
