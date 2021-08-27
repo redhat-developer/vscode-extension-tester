@@ -1,6 +1,6 @@
 import { AbstractElement } from "./AbstractElement";
 import { ContextMenu } from "..";
-import { Button, until } from 'selenium-webdriver';
+import { Button, until, error } from 'selenium-webdriver';
 
 /**
  * Abstract element that has a context menu
@@ -23,7 +23,7 @@ export abstract class ElementWithContexMenu extends AbstractElement {
             try {
                 await this.getDriver().wait(until.elementIsNotVisible(this), 1000);
             } catch (err) {
-                if (err.message.indexOf('stale element reference: element is not attached to the page document') < 0) {
+                if (!(err instanceof error.StaleElementReferenceError)) {
                     throw err;
                 }
             }

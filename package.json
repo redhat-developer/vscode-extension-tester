@@ -14,13 +14,11 @@
   },
   "scripts": {
     "prepack": "npm run build",
-    "prepare-deps": "npm run build-page-objects && npm run build-locators && npm link page-objects && npm link locators",
+    "prepare-deps": "npm run build-page-objects && npm run build-locators",
     "build-page-objects": "cd page-objects && npm i && npm run build",
-    "build-native": "cd native && npm i && npm run build",
     "build-locators": "cd locators && npm i && npm run build",
     "prebuild": "npm run prepare-deps",
-    "build": "rimraf out/ && tsc && chmod a+x ./out/cli.js",
-    "doc": "typedoc --out docs ./src/",
+    "build": "npm link ./page-objects ./locators && rimraf out/ && tsc && chmod a+x ./out/cli.js",
     "prepare-test": "cd test/test-project && npm install && rimraf package-lock.json",
     "test": "npm run build && cd test/test-project && npm run ui-test",
     "ci-test": "npm run build && cd test/test-project && npm run ci-test"
@@ -51,8 +49,7 @@
     "@types/sanitize-filename": "^1.6.3",
     "mocha": "^9.0.2",
     "rimraf": "^3.0.0",
-    "typedoc": "^0.21.4",
-    "typescript": "^4.3.5"
+    "typescript": "4.4.2"
   },
   "dependencies": {
     "@types/selenium-webdriver": "^3.0.15",

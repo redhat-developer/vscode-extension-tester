@@ -122,7 +122,11 @@ function withErrors(command: (...args: any[]) => Promise<void>) {
         try {
             await command(...args);
         } catch (err) {
-            console.log(err.stack);
+            if (err instanceof Error) {
+                console.log(err.stack);
+            } else {
+                console.log(err);
+            }
             process.exitCode = 1;
         }
     }    
