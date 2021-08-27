@@ -14,13 +14,14 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
-          node-version: 14
+          node-version: 15
       - name: Setup Dependencies
         run: |
           rm -f package-lock.json
           npm run prepare-deps
           npm install
           npm run build
+          npm link page-objects locators
           npm run prepare-test
       - name: Run Tests
         env: 

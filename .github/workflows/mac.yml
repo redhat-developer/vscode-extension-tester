@@ -28,6 +28,7 @@ jobs:
           npm run prepare-deps
           npm install
           npm run build
+          npm link page-objects locators
           npm run prepare-test
       - name: Run Tests
         env: 
