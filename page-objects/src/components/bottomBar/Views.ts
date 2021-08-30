@@ -142,7 +142,7 @@ export class TerminalView extends ChannelView {
      * @returns Promise resolving when New Terminal button is pressed
      */
     async newTerminal(): Promise<void> {
-        await new Workbench().executeCommand('terminal: create new integrated terminal');
+        await new Workbench().executeCommand(TerminalView.locators.TerminalView.newCommand);
         const combo = await this.enclosingItem.findElements(ChannelView.locators.BottomBarViews.channelCombo);
         if (combo.length < 1) {
             await this.getDriver().wait(async () => {

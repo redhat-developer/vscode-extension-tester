@@ -59,7 +59,8 @@ const bottomBar = {
         tabList: By.className('tabs-list'),
         singleTab: By.className('single-terminal-tab'),
         selectedRow: By.className('monaco-list-row selected'),
-        row: By.className('monaco-list-row')
+        row: By.className('monaco-list-row'),
+        newCommand: 'terminal: create new integrated terminal'
     },
     DebugConsoleView: {
         constructor: By.id('workbench.panel.repl')
