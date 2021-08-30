@@ -63,6 +63,7 @@ export interface Locators {
         singleTab: By
         selectedRow: By
         row: By
+        newCommand: string
     }
     DebugConsoleView: {
         constructor: By
