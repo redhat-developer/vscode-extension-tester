@@ -58,14 +58,14 @@
     "fs-extra": "^10.0.0",
     "glob": "^7.1.7",
     "js-yaml": "^4.1.0",
-    "monaco-page-objects": "^1.6.3",
+    "monaco-page-objects": "^1.7.0",
     "request": "^2.88.0",
     "sanitize-filename": "^1.6.3",
     "selenium-webdriver": "^3.0.0",
     "targz": "^1.0.1",
     "unzip-stream": "^0.3.0",
     "vsce": "^1.96.0",
-    "vscode-extension-tester-locators": "^1.59.0"
+    "vscode-extension-tester-locators": "^1.60.0"
   },
   "peerDependencies": {
     "mocha": ">=5.2.0"
