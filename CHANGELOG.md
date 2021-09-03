@@ -1,5 +1,18 @@
 # Change Log
 
+## 4.2.0 (Sep 3)
+ - compatibility with vscode 1.60
+ - changes to opening folders and files
+   - `api-handler` extension is retired
+   - `native` module is now deprecated and will be removed as well
+   - `VSBrowser` now has a new method `openResources` which can open files or folders from multiple paths at the same time
+   - `Files > Simple Dialog` setting is now enabled by default (no more native open dialogs)
+ - `Window > Dialog Style` setting is set to `custom` by default (modal dialogs are no longer native)
+ - first attempt to handle the native title bar on MacOS
+   - new class `MacTitleBar`, allows to select an item from the top menu, e.g. `select('File', 'New File')`
+   - it might not be particularly stable yet
+ - `TreeSection` when `openItem` can't find an item, the available items in the error message will be sorted alphabetically
+
 ## 4.1.2 (Aug 6)
  - compatibility with vscode 1.59
  - `LinkSetting` error messages updated to indicate `getValue` and `setValue` are not available
