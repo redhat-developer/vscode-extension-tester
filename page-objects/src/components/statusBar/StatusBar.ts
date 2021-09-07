@@ -1,4 +1,4 @@
-import { By, Locator, WebElement } from "selenium-webdriver";
+import { By, Locator, WebElement, error } from "selenium-webdriver";
 import { AbstractElement } from "../AbstractElement";
 import { NotificationsCenter } from "../workbench/NotificationsCenter";
 
@@ -26,8 +26,14 @@ export class StatusBar extends AbstractElement {
     async getItem(title: string): Promise<WebElement | undefined> {
         const items = await this.getItems();
         for (const item of items) {
-            if (await item.getAttribute(StatusBar.locators.StatusBar.itemTitle) === title) {
-                return item;
+            try {
+                if (await item.getAttribute(StatusBar.locators.StatusBar.itemTitle) === title) {
+                    return item;
+                }
+            } catch (err) {
+                if (!(err instanceof error.StaleElementReferenceError)) {
+                    throw err;
+                }
             }
         }
         return undefined;
