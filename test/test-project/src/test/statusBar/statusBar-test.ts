@@ -93,8 +93,7 @@ describe('StatusBar', () => {
     });
 
     it('getItem works', async () => {
-        const title = 'UTF-8';
-        const item = await bar.getItem(title);
+        const item = await bar.getItem('UTF-8');
         expect(item).not.undefined;
     });
 });
