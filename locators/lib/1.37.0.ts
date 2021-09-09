@@ -299,7 +299,7 @@ const statusBar = {
         notifications: By.className('notifications-center'),
         bell: By.id('status.notifications'),
         item: By.className('statusbar-item'),
-        itemTitle: 'title'
+        itemTitle: 'aria-label'
     }
 }
 

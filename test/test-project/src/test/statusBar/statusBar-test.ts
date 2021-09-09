@@ -93,8 +93,7 @@ describe('StatusBar', () => {
     });
 
     it('getItem works', async () => {
-        const title = VSBrowser.instance.version >= '1.58.0' ? 'UTF-8' : 'Select Encoding';
-        const item = await bar.getItem(title);
+        const item = await bar.getItem('UTF-8');
         expect(item).not.undefined;
     });
 });
