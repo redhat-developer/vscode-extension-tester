@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { expect } from 'chai';
-import { SideBarView, ActivityBar, ViewTitlePart, Workbench, ViewItem, ViewContent, ViewSection, DefaultTreeSection, DefaultTreeItem, TextEditor, EditorView, VSBrowser } from "vscode-extension-tester";
+import { SideBarView, ActivityBar, ViewTitlePart, Workbench, ViewItem, ViewContent, DefaultTreeSection, DefaultTreeItem, TextEditor, EditorView, VSBrowser } from "vscode-extension-tester";
 
 describe('SideBarView', () => {
     let view: SideBarView;
@@ -73,10 +73,10 @@ describe('SideBarView', () => {
         });
 
         describe('DefaultTreeSection', async () => {
-            let section: ViewSection;
+            let section: DefaultTreeSection;
 
             before(async () => {
-                section = await content.getSection('test-folder');
+                section = await content.getSection('test-folder') as DefaultTreeSection;
             });
 
             it('getTitle works', async () => {
@@ -100,6 +100,13 @@ describe('SideBarView', () => {
             it('findItem works', async () => {
                 const item = await section.findItem('foo');
                 expect(item).not.undefined;
+            });
+
+            it('findItem returns undefined when item exists outside its level range', async () => {
+                await section.openItem('foolder');
+                const item = await section.findItem('bar', 1);
+                (await section.findItem('foolder')).collapse();
+                expect(item).undefined;
             });
 
             it('openItem lists available items when part of the path does not exist', async () => {
