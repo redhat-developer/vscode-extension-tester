@@ -28,7 +28,8 @@ export class DefaultTreeSection extends TreeSection {
                 if (maxLevel < 1 || level <= maxLevel) {
                     item = await new DefaultTreeItem(temp[0], this).wait();
                 }
-            } else {
+            } 
+            if (!item) {
                 const lastrow = await container.findElements(DefaultTreeSection.locators.DefaultTreeSection.lastRow);
                 if (lastrow.length > 0) {
                     break;
