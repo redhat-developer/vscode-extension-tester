@@ -71,6 +71,10 @@ describe('NotificationsCenter', () => {
             expect(source).has.string('Test Project');
         });
 
+        it('expand works', async () => {
+            await notification.expand();
+        });
+
         it('takeAction works', async function() {
             this.timeout(8000);
             const driver = notification.getDriver();

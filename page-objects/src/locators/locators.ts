@@ -317,6 +317,7 @@ export interface Locators {
         source: By
         progress: By
         dismiss: By
+        expand: By
         actions: By
         action: By
         actionLabel: string

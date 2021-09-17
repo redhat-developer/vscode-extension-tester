@@ -315,6 +315,7 @@ const workbench = {
         source: By.className('notification-list-item-source'),
         progress: By.className('monaco-progress-container'),
         dismiss: By.className('clear-notification-action'),
+        expand: By.className('codicon-notifications-expand'),
         actions: By.className('notification-list-item-buttons-container'),
         action: By.className('monaco-button'),
         actionLabel: 'title',
