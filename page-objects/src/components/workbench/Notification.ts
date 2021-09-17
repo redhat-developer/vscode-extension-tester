@@ -92,6 +92,17 @@ export abstract class Notification extends ElementWithContexMenu {
     async takeAction(title: string): Promise<void> {
         await new NotificationButton(title, this).click();
     }
+
+    /**
+     * Expand the notification if possible
+     */
+    async expand(): Promise<void> {
+        await this.getDriver().actions().mouseMove(this).perform();
+        const exp = await this.findElements(Notification.locators.Notification.expand);
+        if (exp[0]) {
+            await exp[0].click();
+        }
+    }
 }
 
 /**
