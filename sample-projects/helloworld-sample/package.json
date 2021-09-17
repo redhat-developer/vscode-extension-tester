@@ -21,6 +21,10 @@
 			{
 				"command": "extension.helloWorld",
 				"title": "Hello World"
+			},
+			{
+				"command": "extension.webview",
+				"title": "Webview Test"
 			}
 		]
 	},
@@ -38,7 +42,7 @@
 		"chai": "^4.2.0",
 		"mocha": "^6.2.0",
 		"tslint": "^5.16.0",
-		"typescript": "4.0.3",
-		"vscode-extension-tester": "^4.0.2"
+		"typescript": "4.4.3",
+		"vscode-extension-tester": "^4.2.0"
 	}
 }
