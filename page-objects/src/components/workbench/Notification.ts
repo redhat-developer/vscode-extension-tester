@@ -45,6 +45,7 @@ export abstract class Notification extends ElementWithContexMenu {
      * @returns Promise resolving to notification source
      */
     async getSource(): Promise<string> {
+        await this.expand();
         return await this.findElement(Notification.locators.Notification.source).getAttribute('title');
     }
 
