@@ -337,6 +337,13 @@ export class CodeUtil {
     }
 
     /**
+     * Get the root folder of VS Code instance
+     */
+    getCodeFolder(): string {
+        return this.codeFolder;
+    }
+
+    /**
      * Check if given version is available in the given stream
      */
     private async checkCodeVersion(vscodeVersion: string): Promise<void> {

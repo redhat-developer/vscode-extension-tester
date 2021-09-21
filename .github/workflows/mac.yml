@@ -32,4 +32,4 @@ jobs:
       - name: Run Tests
         env: 
           CODE_VERSION: ${{ matrix.version }}
-        run: npm run ci-test
+        run: npm test

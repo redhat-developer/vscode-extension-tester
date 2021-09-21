@@ -9,6 +9,7 @@ import * as path from 'path';
 import * as yaml from 'js-yaml';
 import sanitize = require('sanitize-filename');
 import { logging } from 'selenium-webdriver';
+import * as os from 'os';
 
 /**
  * Mocha runner wrapper
@@ -19,6 +20,7 @@ export class VSRunner {
     private customSettings: Object;
     private codeVersion: string;
     private cleanup: boolean;
+    private tmpLink = path.join(os.tmpdir(), 'extest-code');
 
     constructor(bin: string, codeVersion: string, customSettings: Object = {}, cleanup: boolean = false, config?: string) {
         const conf = this.loadConfig(config);
@@ -63,7 +65,8 @@ export class VSRunner {
             this.mocha.suite.beforeAll(async function () {
                 this.timeout(45000);
                 const start = Date.now();
-                await browser.start(self.chromeBin);
+                const binPath = process.platform === 'darwin' ? await self.createShortcut(code.getCodeFolder(), self.tmpLink) : self.chromeBin;
+                await browser.start(binPath);
                 await browser.waitForWorkbench();
                 await new Promise((res) => { setTimeout(res, 2000); });
                 console.log(`Browser ready in ${Date.now() - start} ms`);
@@ -73,6 +76,15 @@ export class VSRunner {
             this.mocha.suite.afterAll(async function() {
                 this.timeout(15000);
                 await browser.quit();
+                if (process.platform === 'darwin') {
+                    if (await fs.pathExists(self.tmpLink)) {
+                        try {
+                            fs.unlinkSync(self.tmpLink);
+                        } catch (err) {
+                            console.log(err);
+                        }
+                    }
+                }
     
                 code.uninstallExtension(self.cleanup);
             });
@@ -82,6 +94,28 @@ export class VSRunner {
                 resolve(process.exitCode);
             });
         });
+    }
+
+    private async createShortcut(src: string, dest: string): Promise<string> {
+        try {
+            await fs.ensureSymlink(src, dest, 'dir');
+        } catch (err) {
+            return this.chromeBin;
+        }
+        
+        const dir = path.parse(src);
+        const segments = this.chromeBin.split(path.sep);
+        const newSegments = dest.split(path.sep);
+        
+        let found = false;
+        for (let i = 0; i < segments.length; i++) {
+            if (!found) {
+                found = segments[i] === dir.base;
+            } else {
+                newSegments.push(segments[i]);
+            }
+        }
+        return path.join(dir.root, ...newSegments);
     }
 
     private loadConfig(config?: string): Mocha.MochaOptions {
