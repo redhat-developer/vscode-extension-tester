@@ -33,6 +33,7 @@ export interface Locators {
         tabContainer: By
         tab: (title: string) => By
         actions: By
+        globalActions: By
         action: (label: string) => By
     }
     BottomBarViews: {
