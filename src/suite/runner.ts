@@ -76,8 +76,14 @@ export class VSRunner {
             this.mocha.suite.afterAll(async function() {
                 this.timeout(15000);
                 await browser.quit();
-                if (process.platform !== 'win32') {
-                    fs.unlinkSync(self.tmpLink);
+                if (process.platform === 'darwin') {
+                    if (await fs.pathExists(self.tmpLink)) {
+                        try {
+                            fs.unlinkSync(self.tmpLink);
+                        } catch (err) {
+                            console.log(err);
+                        }
+                    }
                 }
     
                 code.uninstallExtension(self.cleanup);
