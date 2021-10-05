@@ -107,7 +107,7 @@
 		"lint": "tslint -p ./",
 		"watch": "tsc -watch -p ./",
 		"ui-test": "npm run compile && extest setup-and-run './out/src/test/**/*test.js' -i",
-		"ci-test": "npm run compile && extest setup-and-run './out/src/test/**/*test.js' -u -s ~/test"
+		"ci-test": "npm run compile && extest setup-and-run './out/src/test/**/*test.js' -u -s test-resources"
 	},
 	"devDependencies": {
 		"@types/chai": "^4.2.6",
