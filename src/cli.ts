@@ -22,7 +22,7 @@ program.command('get-vscode')
 program.command('get-chromedriver')
     .description('Download ChromeDriver binary')
     .option('-s, --storage <storage>', 'Use this folder for all test resources')
-    .option('-c, --code_version <version>', 'Version of VSCode you want to run with the CromeDriver')
+    .option('-c, --code_version <version>', 'Version of VSCode you want to run with the ChromeDriver')
     .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
     .action(withErrors(async (cmd) => {
         const extest = new ExTester(cmd.storage, codeStream(cmd.type));
