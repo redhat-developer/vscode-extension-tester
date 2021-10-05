@@ -3,4 +3,5 @@ node_modules
 .vscode-test/
 *.vsix
 test-resources/
+tests-resources/
 package-lock.json
