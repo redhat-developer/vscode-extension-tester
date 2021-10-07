@@ -21,14 +21,16 @@ export class VSRunner {
     private codeVersion: string;
     private cleanup: boolean;
     private tmpLink = path.join(os.tmpdir(), 'extest-code');
+    private releaseType: ReleaseQuality;
 
-    constructor(bin: string, codeVersion: string, customSettings: Object = {}, cleanup: boolean = false, config?: string) {
+    constructor(bin: string, codeVersion: string, customSettings: Object = {}, cleanup: boolean = false, releaseType: ReleaseQuality, config?: string) {
         const conf = this.loadConfig(config);
         this.mocha = new Mocha(conf);
         this.chromeBin = bin;
         this.customSettings = customSettings;
         this.codeVersion = codeVersion;
-        this.cleanup = cleanup; 
+        this.cleanup = cleanup;
+        this.releaseType = releaseType;
     }
 
     /**
@@ -40,8 +42,7 @@ export class VSRunner {
     runTests(testFilesPattern: string, code: CodeUtil, logLevel: logging.Level = logging.Level.INFO): Promise<number> {
         return new Promise(resolve => {
             let self = this;
-            const releaseType = path.basename(this.chromeBin).toLowerCase().includes('insider') ? ReleaseQuality.Insider : ReleaseQuality.Stable;
-            let browser: VSBrowser = new VSBrowser(this.codeVersion, releaseType, this.customSettings, logLevel);
+            let browser: VSBrowser = new VSBrowser(this.codeVersion, this.releaseType, this.customSettings, logLevel);
             const universalPattern = testFilesPattern.replace(/'/g, '');
             const testFiles = glob.sync(universalPattern);
     
