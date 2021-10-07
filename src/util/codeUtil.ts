@@ -260,7 +260,7 @@ export class CodeUtil {
         process.env = finalEnv;
         process.env.TEST_RESOURCES = this.downloadFolder;
         process.env.EXTENSIONS_FOLDER = this.extensionsFolder;
-        const runner = new VSRunner(this.executablePath, literalVersion, this.parseSettings(runOptions.settings ?? DEFAULT_RUN_OPTIONS.settings), runOptions.cleanup, runOptions.config);
+        const runner = new VSRunner(this.executablePath, literalVersion, this.parseSettings(runOptions.settings ?? DEFAULT_RUN_OPTIONS.settings), runOptions.cleanup, this.releaseType, runOptions.config);
         return runner.runTests(testFilesPattern, this, runOptions.logLevel);
     }
 
