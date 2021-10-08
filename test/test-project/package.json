@@ -22,10 +22,22 @@
 		"onCommand:extension.webview",
 		"onCommand:extension.test",
 		"onCommand:extension.notification",
-		"onCommand:extension.quickpick"
+		"onCommand:extension.quickpick",
+		"onCustomEditor:catCustoms.catScratch"
 	],
 	"main": "./out/src/extension.js",
 	"contributes": {
+		"customEditors": [
+			{
+				"viewType": "catCustoms.catScratch",
+				"displayName": "Cat Scratch",
+				"selector": [
+					{
+						"filenamePattern": "*.cscratch"
+					}
+				]
+			}
+		],
 		"commands": [
 			{
 				"command": "extension.helloWorld",

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { TreeView } from './treeView';
+import { CatScratchEditorProvider } from './catScratchEditor';
 
 export const ERROR_MESSAGE_COMMAND = 'extension.errorMsg';
 
@@ -44,6 +45,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(quickPickCommand);
 	context.subscriptions.push(vscode.commands.registerCommand('extension.warningMsg', () => vscode.window.showWarningMessage("This is a warning!")));
 	context.subscriptions.push(vscode.commands.registerCommand(ERROR_MESSAGE_COMMAND, () => vscode.window.showErrorMessage("This is an error!")));
+	context.subscriptions.push(CatScratchEditorProvider.register(context));
 
 	new TreeView(context);
 
