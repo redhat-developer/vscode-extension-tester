@@ -31,17 +31,8 @@ export abstract class ChannelView extends ElementWithContexMenu {
      * @returns Promise resolving to the current channel name
      */
     async getCurrentChannel(): Promise<string> {
-        let text!: string;
         const combo = await this.enclosingItem.findElement(ChannelView.locators.BottomBarViews.channelCombo);
-        const rows = await this.getOptions();
-        for (const row of rows) {
-            if ((await row.getAttribute('class')).indexOf('focused') > -1) {
-                text = await row.findElement(ChannelView.locators.BottomBarViews.channelText).getText();
-                break;
-            }
-        }
-        await combo.click();
-        return text;
+        return combo.getAttribute('title');
     }
 
     /**
