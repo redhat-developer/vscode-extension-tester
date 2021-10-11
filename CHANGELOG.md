@@ -1,5 +1,15 @@
 # Change Log
 
+## 4.2.1 (Oct 12)
+ - compatibility with vscode 1.61
+ - `StatusBarItem` lookup by title is now performed by visible label for all versions of vscode
+ - `DefaultTreeSection` method `findItem` no longer loops indefinitely when `depth` parameter is used and item does not exist within the given depth
+ - `Notification` page object now has an `expand` method
+   - when calling `getSource` a notification is now expanded automatically (usually the source would be hidden unless expanded)
+ - `CustomEditor` page object added to service the custom editor & custom text editor extension points
+ - ChromeDriver should now start properly even if the vscode binary's path is too long for its liking on mac
+ - `VSBrowser#openResources` should now work properly with insider stream on mac
+
 ## 4.2.0 (Sep 3)
  - compatibility with vscode 1.60
  - changes to opening folders and files
