@@ -1,6 +1,6 @@
 {
   "name": "vscode-extension-tester-locators",
-  "version": "1.60.1",
+  "version": "1.61.1",
   "description": "Pluggable object locators for vscode extension tester",
   "main": "out/index.js",
   "types": "out/index.d.ts",
