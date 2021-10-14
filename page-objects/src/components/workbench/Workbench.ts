@@ -107,6 +107,11 @@ export class Workbench extends AbstractElement {
      * @returns Promise resolving to InputBox (vscode 1.44+) or QuickOpenBox (vscode up to 1.43) object
      */
     async openCommandPrompt(): Promise<QuickOpenBox | InputBox> {
+        try {
+            await (await new EditorView().getActiveTab())?.click();
+        } catch (err) {
+            // ignore and move on
+        }
         await this.getDriver().actions().sendKeys(Key.F1).perform();
         if (Workbench.versionInfo.browser.toLowerCase() === 'vscode' && Workbench.versionInfo.version >= '1.44.0') {
             return InputBox.create();
