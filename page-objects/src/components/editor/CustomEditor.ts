@@ -1,4 +1,5 @@
-import { Editor, WebView, Workbench } from "../..";
+import { Key } from "selenium-webdriver";
+import { Editor, WebView } from "../..";
 
 /**
  * Page object for custom editors
@@ -27,6 +28,7 @@ export class CustomEditor extends Editor {
      * Save the editor
      */
     async save(): Promise<void> {
-        await new Workbench().executeCommand('file: save');
+        const tab = await this.getTab();
+        await tab.sendKeys(Key.chord(CustomEditor.ctlKey, 's'));
     }
 }

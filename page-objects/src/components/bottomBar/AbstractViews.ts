@@ -72,6 +72,10 @@ export abstract class ChannelView extends ElementWithContexMenu {
         await combo.click();
         await this.getDriver().sleep(500);
         menu = await workbench.findElement(ChannelView.locators.ContextMenu.contextView);
+        if (!await menu.isDisplayed()) {
+            await combo.click();
+            await this.getDriver().sleep(500);
+        }
         return menu.findElements(ChannelView.locators.BottomBarViews.channelRow);
     }
 }
