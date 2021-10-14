@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import path from 'path';
-import { CustomEditor, EditorView, VSBrowser } from 'vscode-extension-tester';
+import { CustomEditor, EditorView, VSBrowser, By, error } from 'vscode-extension-tester';
 
 describe('CustomEditor', () => {
     let editor: CustomEditor;
@@ -16,23 +16,30 @@ describe('CustomEditor', () => {
 
     it('webview is available', async () => {
         const webview = editor.getWebView();
-        let source = '';
         await webview.switchToFrame();
         try {
-            source = await webview.getDriver().getPageSource();
+            const btn = await webview.findWebElement(By.className('add-button'));
+            await btn.click();
+            await new Promise(res => setTimeout(res, 1000));
+            const notes = await webview.findWebElements(By.className('note'));
+            const note = notes[notes.length - 1];
+            await webview.getDriver().actions().mouseMove(note).perform();
+            await note.findElement(By.className('delete-button')).click();
         } catch(err) {
-            // ignore
+            // if (!(err instanceof error.StaleElementReferenceError)) {
+                expect.fail(err);
+            // }
         } finally {
             await webview.switchBack();
-            expect(source).has.string('<title>Cat Scratch</title>');
         }
     });
 
     it('isDirty works', async () => {
-        expect(await editor.isDirty()).is.false;
+        expect(await editor.isDirty()).is.true;
     });
 
     it('save works', async () => {
         await editor.save();
+        expect(await editor.isDirty()).is.false;
     });
 });
