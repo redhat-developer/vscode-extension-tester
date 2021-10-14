@@ -1,7 +1,7 @@
 import { AbstractElement } from "../AbstractElement";
 import { By, Key, until, WebElement } from "selenium-webdriver";
 import { TitleBar } from "../menu/TitleBar";
-import { ProblemsView, OutputView, DebugConsoleView, TerminalView } from "../..";
+import { ProblemsView, OutputView, DebugConsoleView, TerminalView, EditorView } from "../..";
 
 /**
  * Page object for the bottom view panel
@@ -17,6 +17,11 @@ export class BottomBarPanel extends AbstractElement {
      * @returns Promise resolving when the view visibility is toggled
      */
     async toggle(open: boolean): Promise<void> {
+        try {
+            await (await new EditorView().getActiveTab())?.click();
+        } catch (err) {
+            // ignore and move on
+        }
         const height = (await this.getSize()).height;
         if ((open && height === 0) || !open && height > 0) {
             await this.getDriver().actions().sendKeys(Key.chord(BottomBarPanel.ctlKey, 'j')).perform();
