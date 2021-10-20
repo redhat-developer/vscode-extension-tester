@@ -2,9 +2,9 @@
 
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import request = require('request');
 import * as child_process from 'child_process';
 import { Unpack } from './unpack';
+import { Download } from './download';
 
 /**
  * Handles version checks and download of ChromeDriver
@@ -52,11 +52,7 @@ export class DriverUtil {
         const url = `https://chromedriver.storage.googleapis.com/${version}/chromedriver_${driverPlatform}.zip`;
         const fileName = path.join(this.downloadFolder, path.basename(url));
         console.log(`Downloading ChromeDriver ${version} from: ${url}`);
-        await new Promise<void>((resolve) => {
-            request.get(url)
-                .pipe(fs.createWriteStream(fileName))
-                .on('close', resolve);
-        });
+        await Download.getFile(url, fileName, true);
 
         console.log(`Unpacking ChromeDriver ${version} into ${this.downloadFolder}`);
         await Unpack.unpack(fileName, this.downloadFolder);
@@ -108,11 +104,7 @@ export class DriverUtil {
 
         const url = `https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${majorVersion}`;
         const fileName = 'driverVersion';
-        await new Promise<void>((resolve) => {
-            request.get(url)
-                .pipe(fs.createWriteStream(path.join(this.downloadFolder, fileName)))
-                .on('close', resolve);
-        });
+        await Download.getFile(url, path.join(this.downloadFolder, fileName));
         return fs.readFileSync(path.join(this.downloadFolder, fileName)).toString();
     }
 
