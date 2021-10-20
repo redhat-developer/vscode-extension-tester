@@ -1,12 +1,12 @@
 'use strict';
 
-import request = require("request");
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as child_process from 'child_process';
 import { VSRunner } from "../suite/runner";
 import { Unpack } from "./unpack";
 import { logging } from "selenium-webdriver";
+import { Download } from './download';
 
 export enum ReleaseQuality {
     Stable = 'stable',
@@ -78,21 +78,8 @@ export class CodeUtil {
      */
     async getVSCodeVersions(): Promise<string[]> {
         const apiUrl = `https://update.code.visualstudio.com/api/releases/${this.releaseType}`;
-        const headers = {
-            'user-agent': 'nodejs'
-        };
-    
-        return new Promise<string>((resolve, reject) => {
-            request.get({ url: apiUrl, headers: headers }, (error, response, body) => {
-                if (!error && response && response.statusCode >= 400) {
-                    error = new Error(`Request returned status code: ${response.statusCode}\nDetails: ${response.body}`);
-                    reject(error);
-                }
-                resolve(body);
-            });
-        }).then((json) => {
-            return JSON.parse(json);
-        });
+        const json = await Download.getText(apiUrl);
+        return json as unknown as string[];
     }
 
     /**
@@ -112,11 +99,7 @@ export class CodeUtil {
             const fileName = `${path.basename(url)}.${isTarGz ? 'tar.gz' : 'zip'}`;
     
             console.log(`Downloading VS Code from: ${url}`);
-            await new Promise<void>((resolve) => {
-                request.get(url)
-                    .pipe(fs.createWriteStream(path.join(this.downloadFolder, fileName)))
-                    .on('close', resolve);
-            });
+            await Download.getFile(url, path.join(this.downloadFolder, fileName), true);
             console.log(`Downloaded VS Code into ${path.join(this.downloadFolder, fileName)}`);
     
             console.log(`Unpacking VS Code into ${this.downloadFolder}`);
@@ -194,11 +177,7 @@ export class CodeUtil {
         }
 
         console.log(`Downloading ${fileName}`);
-        await new Promise<void>((resolve) => {
-            request.get(vsixURL)
-                .pipe(fs.createWriteStream(target))
-                .on('close', resolve);
-        });
+        await Download.getFile(vsixURL, target);
         console.log('Success!');
         return target;
     }
@@ -288,11 +267,7 @@ export class CodeUtil {
 
         const fileName = 'manifest.json';
         const url = `https://raw.githubusercontent.com/Microsoft/vscode/${revision}/cgmanifest.json`;
-        await new Promise<void>((resolve) => {
-            request.get(url)
-                .pipe(fs.createWriteStream(path.join(this.downloadFolder, fileName)))
-                .on('close', resolve);
-        });
+        await Download.getFile(url, path.join(this.downloadFolder, fileName));
 
         try {
             const manifest = require(path.join(this.downloadFolder, fileName));
