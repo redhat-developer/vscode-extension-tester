@@ -259,8 +259,18 @@ export class TextEditor extends Editor {
      * @param text text to add
      * @returns Promise resolving when the text is typed in
      */
-    async typeText(line: number, column: number, text: string): Promise<void> {
+    async typeTextAt(line: number, column: number, text: string): Promise<void> {
         await this.moveCursor(line, column);
+        const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
+        await inputarea.sendKeys(text);
+    }
+
+    /**
+     * Type given text at the current coordinates
+     * @param text text to type
+     * @returns promise resolving when the text is typed in
+     */
+    async typeText(text: string): Promise<void> {
         const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
         await inputarea.sendKeys(text);
     }

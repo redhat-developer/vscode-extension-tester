@@ -21,7 +21,7 @@ describe('Text Editor sample tests', () => {
     it('Text manipulation', async () => {
         // the file is currently empty, lets write something in it
         // note the coordinates are (1, 1) for the beginning of the file
-        await editor.typeText(1, 1, 'hello');
+        await editor.typeTextAt(1, 1, 'hello');
 
         // now we can check if the text is correct
         const text = await editor.getText();
