@@ -9,7 +9,7 @@ import { VSBrowser } from 'vscode-extension-tester';
         await new TitleBar().select('File', 'New File');
         await new Promise(res => setTimeout(res, 1000));
         const editor = new TextEditor();
-        await editor.typeText(1, 1, 'text');
+        await editor.typeTextAt(1, 1, 'text');
         await new EditorView().closeEditor(await editor.getTitle());
         dialog = new ModalDialog();
     });

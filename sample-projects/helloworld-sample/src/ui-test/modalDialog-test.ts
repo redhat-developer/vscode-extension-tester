@@ -11,7 +11,7 @@ describe('Sample Modal Dialog Tests', () => {
         await new Workbench().executeCommand('create new file');
         // make some changes
         const editor = new TextEditor();
-        await editor.typeText(1, 1, 'text');
+        await editor.typeTextAt(1, 1, 'text');
         // try to close the editor unsaved, which opens a modal dialog
         await new EditorView().closeEditor(await editor.getTitle());
         dialog = new ModalDialog();
