@@ -42,4 +42,16 @@ describe('CustomEditor', () => {
         await editor.save();
         expect(await editor.isDirty()).is.false;
     });
+
+    it('save as works', async () => {
+        try {
+            const input = await editor.saveAs();
+            expect(await input.isDisplayed()).is.true;
+            if (input && await input.isDisplayed()) {
+                await input.cancel();
+            }
+        } catch (err) {
+            expect.fail(err);
+        }
+    });
 });

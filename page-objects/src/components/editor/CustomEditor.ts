@@ -1,5 +1,5 @@
 import { Key } from "selenium-webdriver";
-import { Editor, WebView } from "../..";
+import { Editor, InputBox, WebView } from "../..";
 
 /**
  * Page object for custom editors
@@ -30,5 +30,16 @@ export class CustomEditor extends Editor {
     async save(): Promise<void> {
         const tab = await this.getTab();
         await tab.sendKeys(Key.chord(CustomEditor.ctlKey, 's'));
+    }
+
+    /**
+     * Open the Save as prompt
+     * 
+     * @returns InputBox serving as a simple file dialog
+     */
+    async saveAs(): Promise<InputBox> {
+        const tab = await this.getTab();
+        await tab.sendKeys(Key.chord(CustomEditor.ctlKey, Key.SHIFT, 's'));
+        return InputBox.create();
     }
 }

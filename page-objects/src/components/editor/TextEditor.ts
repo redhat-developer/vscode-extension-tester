@@ -1,4 +1,4 @@
-import { ContentAssist, ContextMenu } from "../..";
+import { ContentAssist, ContextMenu, InputBox } from "../..";
 import { Button, By, Key, until, WebElement } from "selenium-webdriver";
 import { fileURLToPath } from "url";
 import * as clipboard from 'clipboardy';
@@ -29,6 +29,17 @@ export class TextEditor extends Editor {
     async save(): Promise<void> {
         const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
         await inputarea.sendKeys(Key.chord(TextEditor.ctlKey, 's'));
+    }
+
+    /**
+     * Open the Save as prompt
+     * 
+     * @returns InputBox serving as a simple file dialog
+     */
+    async saveAs(): Promise<InputBox> {
+        const tab = await this.getTab();
+        await tab.sendKeys(Key.chord(TextEditor.ctlKey, Key.SHIFT, 's'));
+        return InputBox.create();
     }
 
     /**
