@@ -14,6 +14,7 @@ describe('ContentAssist', async () => {
 
     beforeEach(async () => {
         assist = await editor.toggleContentAssist(true) as ContentAssist;
+        await new Promise(res => setTimeout(res, 1000));
     });
 
     after(async () => {
@@ -22,6 +23,7 @@ describe('ContentAssist', async () => {
 
     afterEach(async () => {
         await editor.toggleContentAssist(false);
+        await new Promise(res => setTimeout(res, 1000));
     });
 
     it('getItems retrieves the suggestions', async () => {
