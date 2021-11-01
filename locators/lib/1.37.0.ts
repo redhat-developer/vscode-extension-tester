@@ -120,7 +120,9 @@ const editor = {
         itemRows: By.className('monaco-list-rows'),
         itemRow: By.className('monaco-list-row'),
         itemLabel: By.className('label-name'),
-        itemText: By.xpath(`./span/span`)
+        itemText: By.xpath(`./span/span`),
+        itemList: By.className('monaco-list'),
+        firstItem: By.xpath(`.//div[@data-index='0']`)
     },
     SettingsEditor: {
         title: 'Settings',

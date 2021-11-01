@@ -10,25 +10,39 @@ describe('ContentAssist', async () => {
         this.timeout(15000);
         await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', '..', 'resources', 'test-file.ts'));
         editor = new TextEditor();
+    });
+
+    beforeEach(async () => {
         assist = await editor.toggleContentAssist(true) as ContentAssist;
     });
 
     after(async () => {
-        await editor.toggleContentAssist(false);
         await new EditorView().closeAllEditors();
     });
 
-    it('getItems retrieves the suggestions', async function() {
-        this.timeout(5000);
+    afterEach(async () => {
+        await editor.toggleContentAssist(false);
+    });
+
+    it('getItems retrieves the suggestions', async () => {
         const items = await assist.getItems();
         expect(items).not.empty;
     });
 
     it('getItem retrieves suggestion by text', async function() {
-        this.timeout(5000);
         const item = await assist.getItem('AbortController');
         expect(await item.getLabel()).equals('AbortController');
     });
+
+    it('getItem can find an item beyond visible range', async () => {
+        const item = await assist.getItem('Buffer');
+        expect(item).not.undefined;
+    }).timeout(15000);
+
+    it('hasItem finds items beyond visible range', async () => {
+        const exists = await assist.hasItem('CSSRule');
+        expect(exists).is.true;
+    }).timeout(15000);
 });
 
 describe('TextEditor', () => {

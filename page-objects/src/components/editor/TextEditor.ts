@@ -87,12 +87,7 @@ export class TextEditor extends Editor {
             return assist;
         } else {
             if (!isHidden) {
-                const col = (await this.getCoordinates())[1];
-                await inputarea.sendKeys(Key.LEFT);
-                await inputarea.sendKeys(Key.RIGHT);
-                if (col < 2) {
-                    await inputarea.sendKeys(Key.LEFT);
-                }
+                await inputarea.sendKeys(Key.ESCAPE);
             }
         }
     }
