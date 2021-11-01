@@ -97,6 +97,7 @@ export class Workbench extends AbstractElement {
      */
     async openSettings(): Promise<SettingsEditor> {
         await this.executeCommand('open user settings');
+        await new EditorView().openEditor('Settings');
         await Workbench.driver.wait(until.elementLocated(Workbench.locators.Editor.constructor));
         await new Promise((res) => setTimeout(res, 500));
         return new SettingsEditor();
@@ -107,10 +108,13 @@ export class Workbench extends AbstractElement {
      * @returns Promise resolving to InputBox (vscode 1.44+) or QuickOpenBox (vscode up to 1.43) object
      */
     async openCommandPrompt(): Promise<QuickOpenBox | InputBox> {
-        try {
-            await (await new EditorView().getActiveTab())?.click();
-        } catch (err) {
-            // ignore and move on
+        const webview = await new EditorView().findElements(EditorView.locators.EditorView.webView);
+        if (webview.length > 0) {
+            const tab = await new EditorView().getActiveTab();
+            if (tab) {
+                await tab.sendKeys(Key.F1);
+                return InputBox.create();
+            }
         }
         await this.getDriver().actions().sendKeys(Key.F1).perform();
         if (Workbench.versionInfo.browser.toLowerCase() === 'vscode' && Workbench.versionInfo.version >= '1.44.0') {
