@@ -123,6 +123,8 @@ export interface Locators {
         itemRow: By
         itemLabel: By
         itemText: By
+        itemList: By
+        firstItem: By
     }
     SettingsEditor: {
         title: string
