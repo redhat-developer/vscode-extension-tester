@@ -23,6 +23,7 @@
 		"onCommand:extension.test",
 		"onCommand:extension.notification",
 		"onCommand:extension.quickpick",
+		"onCommand:extension.enableCodeLens",
 		"onCustomEditor:catCustoms.catScratch"
 	],
 	"main": "./out/src/extension.js",
@@ -82,7 +83,15 @@
 			{
 				"command": "extension.populateTestView",
 				"title": "Populate Test View"
-			}
+			},
+			{
+				"command": "extension.enableCodeLens",
+                "title": "Enable CodeLens"
+            },
+            {
+				"command": "extension.disableCodeLens",
+                "title": "Disable Codelens"
+            }
 		],
 		"views": {
 			"explorer": [
@@ -109,7 +118,11 @@
 					"type": "boolean",
 					"default": false,
 					"description": "Hello World!"
-				}
+				},
+				"testProject.enableCodeLens": {
+                    "type": "boolean",
+                    "default": false
+                }
 			}
 		}
 	},

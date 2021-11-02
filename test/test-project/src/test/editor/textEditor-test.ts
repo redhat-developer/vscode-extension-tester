@@ -247,4 +247,42 @@ describe('TextEditor', () => {
             await widget.togglePreserveCase(true);
         });
     });
+
+    describe('CodeLens', () => {
+
+        before(async () => {
+            await new Workbench().executeCommand('enable codelens');
+            await new Promise(res => setTimeout(res, 1000));
+        });
+
+        after(async () => {
+            await new Workbench().executeCommand('disable codelens');
+        });
+
+        it('getCodeLenses works', async () => {
+            const lenses = await editor.getCodeLenses();
+            expect(lenses).not.empty;
+        });
+
+        it('getCodeLens works with index', async () => {
+            const lens0 = await editor.getCodeLens(0);
+            const lens1 = await editor.getCodeLens(1);
+
+            expect(await lens0.getAttribute('widgetid')).not.equal(await lens1.getAttribute('widgetid'));
+        });
+
+        it('getCodeLens works with partial text', async () => {
+            const lens = await editor.getCodeLens('Codelens provided');
+            expect(await lens.getText()).has.string('Codelens provided');
+            expect(await lens.getTooltip()).has.string('Tooltip provided');
+        });
+
+        it('getCodeLens returns undefined when nothing is found', async () => {
+            const lens1 = await editor.getCodeLens('This does not exist');
+            expect(lens1).is.undefined;
+
+            const lens2 = await editor.getCodeLens(666);
+            expect(lens2).is.undefined;
+        });
+    });
 });

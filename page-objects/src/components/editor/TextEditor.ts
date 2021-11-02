@@ -380,6 +380,44 @@ export class TextEditor extends Editor {
         } 
         return false;
     }
+
+    /**
+     * Get all code lenses within the editor
+     * @returns list of CodeLens page objects
+     */
+    async getCodeLenses(): Promise<CodeLens[]> {
+        const lenses: CodeLens[] = [];
+        const widgets = await this.findElement(By.className('contentWidgets'));
+        const items = await widgets.findElements(By.xpath(`.//span[contains(@widgetid, 'codelens.widget')]`));
+
+        for (const item of items) {
+            lenses.push(await new CodeLens(item, this).wait());
+        }
+        return lenses;
+    }
+
+    /**
+     * Get a code lens based on title, or zero based index
+     * 
+     * @param indexOrTitle zero based index (counting from the top of the editor), or partial title of the code lens
+     * @returns CodeLens object if such a code lens exists, undefined otherwise
+     */
+    async getCodeLens(indexOrTitle: number | string): Promise<CodeLens | undefined> {
+        const lenses = await this.getCodeLenses();
+        
+        if (typeof(indexOrTitle) === 'string') {
+            for (const lens of lenses) {
+                const title = await lens.getText();
+                const match = title.match(indexOrTitle);
+                if (match && match.length > 0) {
+                    return lens;
+                }
+            }
+        } else if (lenses[indexOrTitle]) {
+            return lenses[indexOrTitle];
+        }
+        return undefined;
+    }
 }
 
 /**
@@ -400,6 +438,33 @@ class Selection extends ElementWithContexMenu {
             return new ContextMenu(shadowRoot).wait();
         }
         return super.openContextMenu();
+    }
+}
+
+/**
+ * Page object for Code Lens inside a text editor
+ */
+export class CodeLens extends AbstractElement {
+    constructor(element: WebElement, editor: TextEditor) {
+        super(element, editor);
+    }
+
+    /**
+     * Get the text displayed on the code lens
+     * @returns text as string
+     */
+    async getText(): Promise<string> {
+        const link = await this.findElement(By.css('a'));
+        return link.getText();
+    }
+
+    /**
+     * Get tooltip of the code lens
+     * @returns tooltip as string
+     */
+    async getTooltip(): Promise<string> {
+        const link = await this.findElement(By.css('a'));
+        return link.getAttribute('title');
     }
 }
 
