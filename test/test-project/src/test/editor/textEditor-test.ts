@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { expect } from 'chai';
-import { TextEditor, EditorView, StatusBar, InputBox, ContentAssist, Workbench, FindWidget, VSBrowser } from "vscode-extension-tester";
+import { TextEditor, EditorView, StatusBar, InputBox, ContentAssist, Workbench, FindWidget, VSBrowser, Notification } from "vscode-extension-tester";
 
 describe('ContentAssist', async () => {
     let assist: ContentAssist;
@@ -252,6 +252,9 @@ describe('TextEditor', () => {
 
         before(async () => {
             await new Workbench().executeCommand('enable codelens');
+            // older versions of vscode dont fire the update event immediately, give it some encouragement
+            // otherwise the lenses end up empty
+            await new Workbench().executeCommand('enable codelens');
             await new Promise(res => setTimeout(res, 1000));
         });
 
@@ -283,6 +286,22 @@ describe('TextEditor', () => {
 
             const lens2 = await editor.getCodeLens(666);
             expect(lens2).is.undefined;
+        });
+
+        it('clicking triggers the lens command', async () => {
+            const lens = await editor.getCodeLens(0);
+            await lens.click();
+            await lens.getDriver().sleep(1000);
+            const notifications = await new Workbench().getNotifications();
+            let notification: Notification;
+
+            for (const not of notifications) {
+                if ((await not.getMessage()).startsWith('CodeLens action clicked')) {
+                    notification = not;
+                    break;
+                }
+            }
+            expect(notification).not.undefined;
         });
     });
 });
