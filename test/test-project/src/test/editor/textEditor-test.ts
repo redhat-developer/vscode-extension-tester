@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { expect } from 'chai';
-import { TextEditor, EditorView, StatusBar, InputBox, ContentAssist, Workbench, FindWidget, VSBrowser } from "vscode-extension-tester";
+import { TextEditor, EditorView, StatusBar, InputBox, ContentAssist, Workbench, FindWidget, VSBrowser, Notification } from "vscode-extension-tester";
 
 describe('ContentAssist', async () => {
     let assist: ContentAssist;
@@ -245,6 +245,63 @@ describe('TextEditor', () => {
 
         it('togglePreserveCase works', async () => {
             await widget.togglePreserveCase(true);
+        });
+    });
+
+    describe('CodeLens', () => {
+
+        before(async () => {
+            await new Workbench().executeCommand('enable codelens');
+            // older versions of vscode dont fire the update event immediately, give it some encouragement
+            // otherwise the lenses end up empty
+            await new Workbench().executeCommand('enable codelens');
+            await new Promise(res => setTimeout(res, 1000));
+        });
+
+        after(async () => {
+            await new Workbench().executeCommand('disable codelens');
+        });
+
+        it('getCodeLenses works', async () => {
+            const lenses = await editor.getCodeLenses();
+            expect(lenses).not.empty;
+        });
+
+        it('getCodeLens works with index', async () => {
+            const lens0 = await editor.getCodeLens(0);
+            const lens1 = await editor.getCodeLens(1);
+
+            expect(await lens0.getAttribute('widgetid')).not.equal(await lens1.getAttribute('widgetid'));
+        });
+
+        it('getCodeLens works with partial text', async () => {
+            const lens = await editor.getCodeLens('Codelens provided');
+            expect(await lens.getText()).has.string('Codelens provided');
+            expect(await lens.getTooltip()).has.string('Tooltip provided');
+        });
+
+        it('getCodeLens returns undefined when nothing is found', async () => {
+            const lens1 = await editor.getCodeLens('This does not exist');
+            expect(lens1).is.undefined;
+
+            const lens2 = await editor.getCodeLens(666);
+            expect(lens2).is.undefined;
+        });
+
+        it('clicking triggers the lens command', async () => {
+            const lens = await editor.getCodeLens(0);
+            await lens.click();
+            await lens.getDriver().sleep(1000);
+            const notifications = await new Workbench().getNotifications();
+            let notification: Notification;
+
+            for (const not of notifications) {
+                if ((await not.getMessage()).startsWith('CodeLens action clicked')) {
+                    notification = not;
+                    break;
+                }
+            }
+            expect(notification).not.undefined;
         });
     });
 });

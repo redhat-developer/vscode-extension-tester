@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { TreeView } from './treeView';
 import { CatScratchEditorProvider } from './catScratchEditor';
+import { CodelensProvider } from './codelensProvider';
 
 export const ERROR_MESSAGE_COMMAND = 'extension.errorMsg';
 
@@ -53,12 +54,27 @@ export function activate(context: vscode.ExtensionContext) {
 		getChildren: () => emptyViewNoContent ? undefined : [{key: "There is content!"}],
 		getTreeItem: (e) => new vscode.TreeItem(e.key),
 		onDidChangeTreeData: emitter.event,
-	}}))
+	}}));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
 		"extension.populateTestView",
 		() => { emptyViewNoContent = false; emitter.fire(undefined); }
 	));
+	
+	const codelensProvider = new CodelensProvider();
+	context.subscriptions.push(vscode.languages.registerCodeLensProvider("*", codelensProvider));
+	context.subscriptions.push(
+		vscode.commands.registerCommand("extension.enableCodeLens", () => {
+			vscode.workspace.getConfiguration("testProject").update("enableCodeLens", true, true);
+		}));
+	context.subscriptions.push(
+		vscode.commands.registerCommand("extension.disableCodeLens", () => {
+			vscode.workspace.getConfiguration("testProject").update("enableCodeLens", false, true);
+		}));
+	context.subscriptions.push(
+		vscode.commands.registerCommand("extension.codelensAction", (args: any) => {
+			vscode.window.showInformationMessage(`CodeLens action clicked with args=${args}`);
+		}));
 }
 
 export function deactivate() {}

@@ -95,6 +95,7 @@ describe('SettingsEditor', () => {
         it('setValue works', async () => {
             await setting.setValue(false);
             expect(await setting.getValue()).is.false;
+            await setting.setValue(true);
         });
     });
 });
