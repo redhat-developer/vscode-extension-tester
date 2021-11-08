@@ -89,7 +89,8 @@ const editor = {
     },
     Editor: {
         constructor: By.className('editor-instance'),
-        inputArea: By.className('inputarea')
+        inputArea: By.className('inputarea'),
+        title: By.className('label-name')
     },
     TextEditor: {
         activeTab: By.css('div.tab.active'),

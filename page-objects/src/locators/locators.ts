@@ -92,6 +92,7 @@ export interface Locators {
     Editor: {
         constructor: By
         inputArea: By
+        title: By
     }
     TextEditor: {
         activeTab: By

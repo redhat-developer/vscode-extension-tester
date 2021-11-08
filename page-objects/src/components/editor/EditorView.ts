@@ -1,7 +1,6 @@
 import { AbstractElement } from "../AbstractElement";
 import { TextEditor } from "../..";
 import { WebElement } from "selenium-webdriver";
-import * as path from 'path';
 import { Editor } from "./Editor";
 import { SettingsEditor } from "./SettingsEditor";
 import { WebView } from "./WebView";
@@ -239,7 +238,7 @@ export class EditorGroup extends AbstractElement {
         const tabs = await this.findElements(EditorView.locators.EditorView.tab);
         const titles = [];
         for (const tab of tabs) {
-            const title = path.basename(await tab.getAttribute(EditorView.locators.EditorView.tabTitle));
+            const title = await new EditorTab(tab, this.enclosingItem as EditorView).getTitle();
             titles.push(title);
         }
         return titles;
@@ -252,18 +251,14 @@ export class EditorGroup extends AbstractElement {
      */
     async getTabByTitle(title: string): Promise<EditorTab> {
         const tabs = await this.findElements(EditorView.locators.EditorView.tab);
-        let tab!: WebElement;
         for (const element of tabs) {
-            const label = await element.getAttribute(EditorView.locators.EditorView.tabLabel);
-            if (label.startsWith(`${title}${EditorView.locators.EditorView.tabSeparator}`)) {
-                tab = element;
-                break;
+            const tab = new EditorTab(element, this.enclosingItem as EditorView);
+            const label = await tab.getTitle();
+            if (label === title) {
+                return tab;
             }
         }
-        if (!tab) {
-            throw new Error(`No editor with title '${title}' available`);
-        }
-        return new EditorTab(tab, this.enclosingItem as EditorView);
+        throw new Error(`No editor with title '${title}' available`);
     }
 
     /**
@@ -326,8 +321,8 @@ export class EditorTab extends ElementWithContexMenu {
      * Get the tab title as string
      */
     async getTitle(): Promise<string> {
-        const title = path.basename(await this.getAttribute(EditorView.locators.EditorView.tabTitle));
-        return title;
+        const label = await this.findElement(EditorTab.locators.Editor.title);
+        return label.getText();
     }
 
     /**
