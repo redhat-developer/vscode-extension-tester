@@ -16,7 +16,7 @@ export abstract class Editor extends ElementWithContexMenu {
      */
     async getTitle(): Promise<string> {
         const tab = await this.getTab();
-        return tab.getTitle()
+        return tab.getTitle();
     }
 
     /**
