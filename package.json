@@ -58,13 +58,13 @@
     "glob": "^7.1.7",
     "got": "^11.8.2",
     "js-yaml": "^4.1.0",
-    "monaco-page-objects": "^1.8.1",
+    "monaco-page-objects": "^1.9.0",
     "sanitize-filename": "^1.6.3",
     "selenium-webdriver": "^3.0.0",
     "targz": "^1.0.1",
     "unzip-stream": "^0.3.0",
     "vsce": "^1.96.0",
-    "vscode-extension-tester-locators": "^1.61.1"
+    "vscode-extension-tester-locators": "^1.62.0"
   },
   "peerDependencies": {
     "mocha": ">=5.2.0"
