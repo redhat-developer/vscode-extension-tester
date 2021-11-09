@@ -1,5 +1,20 @@
 # Change Log
 
+## 4.2.2 (Nov 8)
+ - compatible with vscode 1.62
+ - CustomEditor save action should no longer get swallowed by the webview in some cases
+ - Workbench should now properly open command prompt even if a webview is opened in the editor
+ - TextEditor and CustomEditor now have a `saveAs` method
+ - TextEditor `typeText` has been split to:
+   - `typeText` - types text at current coordinates
+   - `typeTextAt` - types text at given coordinates
+ - All methods that perform a lookup of editors by title now use the same locator to retrieve the title
+ - TextEditor can now search for `CodeLens` objects
+ - ContentAssist now scrolls through its entire list to find items with `getItem` or `hasItem` methods
+ - Replaced `request` with `got` as the library that downloads files
+   - no more deprecation warnings
+   - reports download progress every 2 seconds
+
 ## 4.2.1 (Oct 12)
  - compatibility with vscode 1.61
  - `StatusBarItem` lookup by title is now performed by visible label for all versions of vscode
