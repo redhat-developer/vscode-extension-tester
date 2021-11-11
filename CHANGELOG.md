@@ -1,5 +1,8 @@
 # Change Log
 
+## 4.2.3 (Nov 11)
+ - fix for vscode 1.62.1 cli commands not working
+
 ## 4.2.2 (Nov 8)
  - compatible with vscode 1.62
  - CustomEditor save action should no longer get swallowed by the webview in some cases
