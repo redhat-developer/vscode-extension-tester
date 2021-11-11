@@ -147,7 +147,7 @@ export class CodeUtil {
     }
 
     private installExt(pathOrID: string): void {
-        let command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --install-extension "${pathOrID}"`;
+        let command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --ms-enable-electron-run-as-node --install-extension "${pathOrID}"`;
         if (this.extensionsFolder) {
             command += ` --extensions-dir=${this.extensionsFolder}`;
         }
@@ -160,7 +160,7 @@ export class CodeUtil {
      */
     open(...paths: string[]): void {
         const segments = paths.map(f => `"${f}"`).join(' ');
-        let command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" -r ${segments} --user-data-dir="${path.join(this.downloadFolder, 'settings')}"`;
+        let command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --ms-enable-electron-run-as-node -r ${segments} --user-data-dir="${path.join(this.downloadFolder, 'settings')}"`;
         child_process.execSync(command);
     }
 
@@ -206,7 +206,7 @@ export class CodeUtil {
         const extension = `${pjson.publisher}.${pjson.name}`;
 
         if (cleanup) {
-            let command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --uninstall-extension "${extension}"`;
+            let command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --ms-enable-electron-run-as-node --uninstall-extension "${extension}"`;
             if (this.extensionsFolder) {
                 command += ` --extensions-dir=${this.extensionsFolder}`;
             }
@@ -334,13 +334,13 @@ export class CodeUtil {
      * Check what VS Code version is present in the testing folder
      */
     private getExistingCodeVersion(): Promise<string> {
-        const command = [this.cliEnv, `"${this.executablePath}"`, `"${this.cliPath}"`, '-v'].join(' ');
+        const command = [this.cliEnv, `"${this.executablePath}"`, `"${this.cliPath}"`, '--ms-enable-electron-run-as-node', '-v'].join(' ');
         return new Promise<string>((resolve, reject) => {
             child_process.exec(command, (err, stdout) => {
                 if (err) return reject(err);
                 resolve(stdout.split('\n')[0]);
             });
-        })
+        });
     }
 
     /**
