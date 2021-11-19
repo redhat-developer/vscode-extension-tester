@@ -63,7 +63,7 @@
     "selenium-webdriver": "^3.0.0",
     "targz": "^1.0.1",
     "unzip-stream": "^0.3.0",
-    "vsce": "^1.96.0",
+    "vsce": "^2.3.0",
     "vscode-extension-tester-locators": "^1.62.0"
   },
   "peerDependencies": {
