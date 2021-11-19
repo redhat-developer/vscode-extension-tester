@@ -147,7 +147,7 @@ export class CodeUtil {
     }
 
     private installExt(pathOrID: string): void {
-        let command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --ms-enable-electron-run-as-node --install-extension "${pathOrID}"`;
+        let command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --ms-enable-electron-run-as-node --force --install-extension "${pathOrID}"`;
         if (this.extensionsFolder) {
             command += ` --extensions-dir=${this.extensionsFolder}`;
         }
