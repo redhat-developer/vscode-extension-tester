@@ -2,6 +2,7 @@ import * as fs from 'fs-extra';
 import got from 'got';
 import { promisify } from 'util';
 import stream = require('stream');
+import  'global-agent/bootstrap';
 
 export class Download {
     static async getText(uri: string): Promise<string> {
