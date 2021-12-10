@@ -16,8 +16,12 @@ export class ContextMenu extends Menu {
      */
     async getItem(name: string): Promise<ContextMenuItem | undefined> {
         try {
-            await this.findElement(ContextMenu.locators.ContextMenu.itemConstructor(name));
-            return new ContextMenuItem(name, this).wait();
+            const items = await this.getItems();
+            for (const item of items) {
+                if (await item.getLabel() === name) {
+                    return item;
+                }
+            }
         } catch (err) {
             return undefined;
         }
@@ -34,8 +38,7 @@ export class ContextMenu extends Menu {
         for (const element of elements) {
             const klass = await element.getAttribute('class');
             if (klass.indexOf('disabled') < 0) {
-                const labelItem = await element.findElement(ContextMenu.locators.ContextMenu.itemLabel);
-                items.push(await new ContextMenuItem(await labelItem.getAttribute(ContextMenu.locators.ContextMenu.itemText), this).wait());
+                items.push(await new ContextMenuItem(element, this).wait());
             }
         }
         return items;
@@ -87,10 +90,9 @@ export class ContextMenu extends Menu {
  * Object representing an item of a context menu
  */
 export class ContextMenuItem extends MenuItem {
-    constructor(label: string, parent: Menu) {
-        super(ContextMenu.locators.ContextMenu.itemConstructor(label), parent);
+    constructor(item: WebElement, parent: Menu) {
+        super(item, parent);
         this.parent = parent;
-        this.label = label;
     }
 
     async select(): Promise<Menu | undefined> {
@@ -100,6 +102,11 @@ export class ContextMenuItem extends MenuItem {
             return await new ContextMenu(this).wait();
         }
         return undefined;
+    }
+
+    async getLabel(): Promise<string> {
+        const labelItem = await this.findElement(ContextMenu.locators.ContextMenu.itemLabel);
+        return labelItem.getAttribute(ContextMenu.locators.ContextMenu.itemText);
     }
 
     private async isNesting(): Promise<boolean> {
