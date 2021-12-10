@@ -69,6 +69,9 @@ export abstract class ViewSection extends AbstractElement {
     public async findWelcomeContent(): Promise<WelcomeContentSection | undefined> {
         try {
             const res = await this.findElement(ViewSection.locators.ViewSection.welcomeContent);
+            if (!await res.isDisplayed()) {
+                return undefined;
+            }
             return new WelcomeContentSection(res, this);
         } catch (_err) {
             return undefined;

@@ -210,7 +210,7 @@ const sideBar = {
         buttonLabel: 'title',
         level: 'aria-level',
         index: 'data-index',
-        welcomeContent: By.xpath('.//div[@class="pane-body welcome"]')
+        welcomeContent: By.className('welcome-view')
     },
     TreeItem: {
         actions: By.className('actions-container'),
