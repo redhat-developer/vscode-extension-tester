@@ -42,7 +42,6 @@
   "devDependencies": {
     "@types/fs-extra": "^9.0.12",
     "@types/glob": "^7.1.4",
-    "@types/global-agent": "^2.1.1",
     "@types/js-yaml": "^4.0.2",
     "@types/mocha": "^8.2.3",
     "@types/node": "^14.11.2",
@@ -57,7 +56,6 @@
     "compare-versions": "^3.6.0",
     "fs-extra": "^10.0.0",
     "glob": "^7.1.7",
-    "global-agent": "^3.0.0",
     "got": "^11.8.2",
     "js-yaml": "^4.1.0",
     "monaco-page-objects": "^1.9.0",
