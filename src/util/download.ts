@@ -1,18 +1,36 @@
 import * as fs from 'fs-extra';
-import got from 'got';
+import got, { OptionsOfTextResponseBody } from 'got';
 import { promisify } from 'util';
 import stream = require('stream');
-import  'global-agent/bootstrap';
+import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
+
+const httpProxyAgent = !process.env.HTTP_PROXY ? undefined : new HttpProxyAgent({
+    proxy: process.env.HTTP_PROXY
+});
+
+const httpsProxyAgent = !process.env.HTTPS_PROXY ? undefined : new HttpsProxyAgent({
+    proxy: process.env.HTTPS_PROXY
+});
+
+const options: OptionsOfTextResponseBody & { isStream?: undefined } = {
+    headers: {
+        'user-agent': 'nodejs'
+    },
+    agent: {
+        http: httpProxyAgent,
+        https: httpsProxyAgent
+    }
+}
 
 export class Download {
     static async getText(uri: string): Promise<string> {
-        const body = await got(uri, { headers: { 'user-agent': 'nodejs' } }).text();
+        const body = await got(uri, options).text();
         return JSON.parse(body as string)
     }
 
     static getFile(uri: string, destination: string, progress = false): Promise<void> {
         let lastTick = 0;
-        const dlStream = got.stream(uri);
+        const dlStream = got.stream(uri, options);
         if (progress) {
             dlStream.on('downloadProgress', ({ transferred, total, percent }) => {
                 const currentTime = Date.now();
