@@ -1,5 +1,10 @@
 # Change Log
 
+## 4.2.4 (Feb 22)
+ - fixes for dependabot allerts
+ - Compatible with 1.62.3, 1.63.2 and 1.64.0
+ - include proxy support when downloading components, #400
+
 ## 4.2.3 (Nov 11)
  - fix for vscode 1.62.1 cli commands not working
 
