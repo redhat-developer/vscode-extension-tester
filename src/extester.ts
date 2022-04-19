@@ -9,6 +9,7 @@ import { URL } from 'url';
 export { ReleaseQuality }
 export { MochaOptions } from 'mocha';
 export * from './browser';
+export * from './suite/mochaHooks';
 export * from 'monaco-page-objects';
 
 export interface SetupOptions {
