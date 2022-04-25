@@ -88,7 +88,15 @@ import { expect } from "chai";
             const debugConsole = new DebugConsoleView();
             await debugConsole.setExpression('cons');
             await new Promise(res => setTimeout(res, 1000));
-            const assist = await debugConsole.getContentAssist();
+            let assist;
+            try {
+                assist = await debugConsole.getContentAssist();
+            } catch (error) {
+                if (error.name() === 'NoSuchElementError') {
+                    assist = await debugConsole.getContentAssist();
+                }
+                else throw error;
+            }
             const list = await assist.getItems();
 
             expect(list).not.to.be.empty;
