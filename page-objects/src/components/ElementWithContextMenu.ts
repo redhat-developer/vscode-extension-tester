@@ -1,6 +1,6 @@
 import { AbstractElement } from "./AbstractElement";
 import { ContextMenu } from "..";
-import { Button, until, error } from 'selenium-webdriver';
+import { Button, until } from 'selenium-webdriver';
 
 /**
  * Abstract element that has a context menu
@@ -23,9 +23,9 @@ export abstract class ElementWithContexMenu extends AbstractElement {
             try {
                 await this.getDriver().wait(until.elementIsNotVisible(this), 1000);
             } catch (err) {
-                if (!(err instanceof error.StaleElementReferenceError)) {
-                    throw err;
-                }
+                // if (!(err instanceof error.StaleElementReferenceError)) {
+                //     throw err;
+                // }
             }
         }
         await this.getDriver().actions().click(this, Button.RIGHT).perform();
