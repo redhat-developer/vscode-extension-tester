@@ -1,4 +1,4 @@
-import { Key } from "selenium-webdriver";
+import { Key, until } from "selenium-webdriver";
 import { BottomBarPanel, ContentAssist, Workbench } from "../..";
 import { TextView, ChannelView } from "./AbstractViews";
 import * as clipboard from 'clipboardy';
@@ -72,6 +72,7 @@ export class DebugConsoleView extends ElementWithContexMenu {
      * @returns promise resolving to ContentAssist object
      */
     async getContentAssist(): Promise<ContentAssist> {
+        await this.getDriver().wait(until.elementLocated(ContentAssist.locators.ContentAssist.constructor), 1000);
         return new ContentAssist(this).wait();
     }
 }

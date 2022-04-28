@@ -1,4 +1,4 @@
-import { ActivityBar, DebugConsoleView, DebugToolbar, DebugView, DefaultTreeSection, EditorView, InputBox, TextEditor, TitleBar, until, VSBrowser, Workbench } from "vscode-extension-tester";
+import { ActivityBar, DebugConsoleView, DebugToolbar, DebugView, DefaultTreeSection, EditorView, InputBox, Key, TextEditor, TitleBar, until, VSBrowser, Workbench } from "vscode-extension-tester";
 import * as path from 'path';
 import { expect } from "chai";
 
@@ -86,9 +86,15 @@ import { expect } from "chai";
 
         it('check content assist', async () => {
             const debugConsole = new DebugConsoleView();
-            await debugConsole.setExpression('cons');
+            await debugConsole.setExpression('i');
             await new Promise(res => setTimeout(res, 1000));
-            const assist = await debugConsole.getContentAssist();
+            let assist;
+            try {
+                assist = await debugConsole.getContentAssist();
+            } catch(err) {
+                VSBrowser.instance.driver.actions().sendKeys(Key.chord(Key.CONTROL, Key.SPACE)).perform();
+                assist = await debugConsole.getContentAssist();
+            }
             const list = await assist.getItems();
 
             expect(list).not.to.be.empty;
