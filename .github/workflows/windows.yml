@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node: [15]
+        node: [16]
         version: [latest]
       fail-fast: false
     
