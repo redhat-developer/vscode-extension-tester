@@ -86,7 +86,7 @@ import { expect } from "chai";
 
         it('check content assist', async () => {
             const debugConsole = new DebugConsoleView();
-            await debugConsole.setExpression('toS');
+            await debugConsole.setExpression('i');
             await new Promise(res => setTimeout(res, 1000));
             let assist;
             try {
@@ -95,7 +95,6 @@ import { expect } from "chai";
                 VSBrowser.instance.driver.actions().sendKeys(Key.chord(Key.CONTROL, Key.SPACE)).perform();
                 assist = await debugConsole.getContentAssist();
             }
-            await new Promise(res => setTimeout(res, 1000));
             const list = await assist.getItems();
 
             expect(list).not.to.be.empty;

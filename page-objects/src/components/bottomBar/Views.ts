@@ -72,7 +72,7 @@ export class DebugConsoleView extends ElementWithContexMenu {
      * @returns promise resolving to ContentAssist object
      */
     async getContentAssist(): Promise<ContentAssist> {
-        await this.getDriver().wait(until.elementLocated(ContentAssist.locators.ContentAssist.constructor), 3000);
+        await this.getDriver().wait(until.elementLocated(ContentAssist.locators.ContentAssist.constructor), 1000);
         return new ContentAssist(this).wait();
     }
 }
