@@ -4,3 +4,4 @@ test-resources
 .vscode
 docs
 resources/api-handler.vsix
+.npmrc
