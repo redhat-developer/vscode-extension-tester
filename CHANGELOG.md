@@ -1,5 +1,10 @@
 # Change Log
 
+## 4.2.5 (May 2)
+ - fixes for dependabot allerts
+ - Compatible with 1.65 and 1.66
+ - Update node version in github workflows to LTS 16
+
 ## 4.2.4 (Feb 22)
  - fixes for dependabot allerts
  - Compatible with 1.62.3, 1.63.2 and 1.64.0
