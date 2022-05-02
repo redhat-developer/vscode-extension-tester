@@ -2,7 +2,7 @@
 
 ## 4.2.5 (May 2)
  - fixes for dependabot allerts
- - Compatible with 1.65 and 1.66
+ - Compatible with 1.65
  - Update node version in github workflows to LTS 16
 
 ## 4.2.4 (Feb 22)
