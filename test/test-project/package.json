@@ -132,8 +132,8 @@
 		"lint": "tslint -p ./",
 		"watch": "tsc -watch -p ./",
 		"hook-test": "node out/src/test/hookTestLauncher.js",
-		"ui-test": "npm run compile && extest setup-and-run './out/src/test/**/*test.js' -i && npm run hook-test",
-		"ci-test": "npm run compile && extest setup-and-run './out/src/test/**/*test.js' -u -s ~/test && npm run hook-test"
+		"ui-test": "extest setup-and-run './out/src/test/**/*textEditor-test.js' -i; npm run hook-test",
+		"ci-test": "extest setup-and-run './out/src/test/**/*textEditor-test.js' -u -s ~/test; npm run hook-test"
 	},
 	"devDependencies": {
 		"@types/chai": "^4.2.6",

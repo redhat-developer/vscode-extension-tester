@@ -10,7 +10,7 @@ const MOCHA_FOLDER = path.join(__dirname, 'mocha');
 /**
  * List of all base hooks.
  */
-const HOOKS = ['before', 'beforeEach', 'after', 'afterEach'];
+const HOOKS = ['before', 'beforeEach'];
 
 /**
  * Allowed hook segments.
@@ -22,8 +22,13 @@ const ALLOWED_HOOK_SEGMENTS = ['before', 'after', 'each'];
  */
 const LONGEST_HOOK = 'beforeEachNestedAnonymous';
 
+/**
+ * The storage location used for UI tests
+ */
+const UITEST_STORAGE = 'test-resources';
+
 async function main() {
-    const tester = new ExTester("test-resources");
+    const tester = new ExTester(UITEST_STORAGE);
     await tester.downloadCode();
     await tester.downloadChromeDriver();
     let results = new Map<string, number>();
@@ -38,7 +43,7 @@ async function main() {
                 cleanup: false
             });
             
-            if (fs.existsSync(path.join('test-resources', 'screenshots', expectedScreenshotFilename))) {
+            if (fs.existsSync(path.join(UITEST_STORAGE, 'screenshots', expectedScreenshotFilename))) {
                 errors.set(hookName, []);
             }
             else {

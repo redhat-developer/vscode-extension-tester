@@ -67,7 +67,18 @@ export class VSRunner {
                 this.timeout(45000);
                 const start = Date.now();
                 const binPath = process.platform === 'darwin' ? await self.createShortcut(code.getCodeFolder(), self.tmpLink) : self.chromeBin;
+                console.log('List project files...');
+                fs.readdirSync('.').forEach(file => {
+                    console.log(file);
+                });
+                console.log('List TMP DIR...');
+                fs.readdirSync(os.tmpdir()).forEach(file => {
+                    console.log(file);
+                });
+                console.log('Starting browser...');
                 await browser.start(binPath);
+                await new Promise((res) => { setTimeout(res, 5000); });
+                console.log('Browser started...');
                 await browser.waitForWorkbench();
                 await new Promise((res) => { setTimeout(res, 2000); });
                 console.log(`Browser ready in ${Date.now() - start} ms`);
