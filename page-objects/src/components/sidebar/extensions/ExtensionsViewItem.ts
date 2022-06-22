@@ -70,7 +70,8 @@ export class ExtensionsViewItem extends ViewItem {
      * @returns Promise resolving to ContextMenu object
      */
     async manage(): Promise<ContextMenu> {
-        const button = await this.findElement(ExtensionsViewItem.locators.ExtensionsViewItem.manage);
+        await this.getDriver().wait(until.elementLocated(ExtensionsViewItem.locators.ExtensionsViewItem.manage), 1000);
+        const button = await this.enclosingItem.findElement(ExtensionsViewItem.locators.ExtensionsViewItem.manage);
         if ((await button.getAttribute('class')).indexOf('disabled') > -1) {
             throw new Error(`Extension '${await this.getTitle()}' is not installed`);
         }

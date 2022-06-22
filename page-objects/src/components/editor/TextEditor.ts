@@ -1,5 +1,5 @@
 import { ContentAssist, ContextMenu, InputBox } from "../..";
-import { Button, By, Key, until, WebElement } from "selenium-webdriver";
+import { By, ChromiumWebDriver, Key, until, WebElement } from "selenium-webdriver";
 import { fileURLToPath } from "url";
 import * as clipboard from 'clipboardy';
 import { StatusBar } from "../statusBar/StatusBar";
@@ -100,7 +100,7 @@ export class TextEditor extends Editor {
         const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
         await inputarea.sendKeys(Key.chord(TextEditor.ctlKey, 'a'), Key.chord(TextEditor.ctlKey, 'c'));
         const text = clipboard.readSync();
-        await inputarea.getDriver().actions().sendKeys(Key.UP).perform();
+        await inputarea.sendKeys(Key.UP);
         clipboard.writeSync('');
         return text;
     }
@@ -204,12 +204,14 @@ export class TextEditor extends Editor {
 
         await this.moveCursor(lineNum, column);
         
-        let action = this.getDriver().actions().keyDown(Key.SHIFT);
+        let actions = this.getDriver().actions();
+        await actions.clear();
+        actions.keyDown(Key.SHIFT);
         for (let i = 0; i < text.length; i++) {
-            action = action.sendKeys(Key.RIGHT);
+            actions = actions.sendKeys(Key.RIGHT);
         }
-        action = action.keyUp(Key.SHIFT);
-        await action.perform();
+        actions = actions.keyUp(Key.SHIFT);
+        await actions.perform();
         await new Promise(res => setTimeout(res, 500));
     }
 
@@ -240,7 +242,9 @@ export class TextEditor extends Editor {
     }
 
     async openFindWidget(): Promise<FindWidget> {
-        await this.getDriver().actions().sendKeys(Key.chord(TextEditor.ctlKey, 'f')).perform();
+        let actions = this.getDriver().actions();
+        await actions.clear();
+        await actions.keyDown(TextEditor.ctlKey).sendKeys('f').keyUp(TextEditor.ctlKey).perform();
         const widget = await this.getDriver().wait(until.elementLocated(TextEditor.locators.TextEditor.findWidget), 2000);
         await this.getDriver().wait(until.elementIsVisible(widget), 2000);
 
@@ -296,7 +300,8 @@ export class TextEditor extends Editor {
         const columnKey = columnGap >= 0 ? Key.LEFT : Key.RIGHT;
         for (let i = 0; i < Math.abs(columnGap); i++) {
             await inputarea.sendKeys(columnKey);
-            if ((await this.getCoordinates())[0] != coordinates[0]) {
+            let actualCoordinates = (await this.getCoordinates())[0];
+            if (actualCoordinates != coordinates[0]) {
                 throw new Error(`Column number ${column} is not accessible on line ${line}`);
             }
         }
@@ -328,12 +333,21 @@ export class TextEditor extends Editor {
     }
 
     async openContextMenu(): Promise<ContextMenu> {
-        await this.getDriver().actions().click(this, Button.RIGHT).perform();
+        await this.getDriver().actions().contextClick(this).perform();
         const shadowRootHost = await this.enclosingItem.findElements(By.className('shadow-root-host'));
         
         if (shadowRootHost.length > 0) {
-            const shadowRoot = await this.getDriver().executeScript('return arguments[0].shadowRoot', shadowRootHost[0]) as WebElement;
-            return new ContextMenu(shadowRoot).wait();
+            let shadowRoot;
+            const webdriverCapabilities = await (this.getDriver() as ChromiumWebDriver).getCapabilities();
+            const chromiumVersion = webdriverCapabilities.getBrowserVersion();
+            if (chromiumVersion && parseInt(chromiumVersion.split('.')[0]) >= 96) {
+                shadowRoot = await shadowRootHost[0].getShadowRoot();
+                return new ContextMenu(await shadowRoot.findElement(By.className('monaco-menu-container'))).wait();
+            } else {
+                shadowRoot = await this.getDriver().executeScript('return arguments[0].shadowRoot', shadowRootHost[0]) as WebElement;
+                return new ContextMenu(shadowRoot).wait();
+            }
+            
         }
         return super.openContextMenu();
     }
@@ -362,7 +376,7 @@ export class TextEditor extends Editor {
     async toggleBreakpoint(line: number): Promise<boolean> {
         const margin = await this.findElement(TextEditor.locators.TextEditor.marginArea);
         const lineNum = await margin.findElement(TextEditor.locators.TextEditor.lineNumber(line));
-        await this.getDriver().actions().mouseMove(lineNum).perform();
+        await this.getDriver().actions().move({origin: lineNum}).perform();
 
         const lineOverlay = await margin.findElement(TextEditor.locators.TextEditor.lineOverlay(line));
         const breakPoint = await lineOverlay.findElements(TextEditor.locators.TextEditor.breakPoint);
@@ -430,12 +444,20 @@ class Selection extends ElementWithContexMenu {
 
     async openContextMenu(): Promise<ContextMenu> {
         const ed = this.getEnclosingElement() as TextEditor;
-        await this.getDriver().actions().click(this, Button.RIGHT).perform();
+        await this.getDriver().actions().contextClick(this).perform();
         const shadowRootHost = await ed.getEnclosingElement().findElements(By.className('shadow-root-host'));
         
         if (shadowRootHost.length > 0) {
-            const shadowRoot = await this.getDriver().executeScript('return arguments[0].shadowRoot', shadowRootHost[0]) as WebElement;
-            return new ContextMenu(shadowRoot).wait();
+            let shadowRoot;
+            const webdriverCapabilities = await (this.getDriver() as ChromiumWebDriver).getCapabilities();
+            const chromiumVersion = webdriverCapabilities.getBrowserVersion();
+            if (chromiumVersion && parseInt(chromiumVersion.split('.')[0]) >= 96) {
+                shadowRoot = await shadowRootHost[0].getShadowRoot();
+                return new ContextMenu(await shadowRoot.findElement(By.className('monaco-menu-container'))).wait();
+            } else {
+                shadowRoot = await this.getDriver().executeScript('return arguments[0].shadowRoot', shadowRootHost[0]) as WebElement;
+                return new ContextMenu(shadowRoot).wait();
+            }
         }
         return super.openContextMenu();
     }

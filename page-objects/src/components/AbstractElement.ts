@@ -22,8 +22,7 @@ export abstract class AbstractElement extends WebElement {
         let item: WebElement = AbstractElement.driver.findElement(By.css('html'));
         if (!enclosingItem) {
             enclosingItem = item;
-        }
-
+        }   
         if (enclosingItem instanceof WebElement) {
             item = enclosingItem;
         } else {
@@ -33,10 +32,9 @@ export abstract class AbstractElement extends WebElement {
         if (base instanceof WebElement) {
             super(AbstractElement.driver, base.getId());
         } else {
-            super(
-                AbstractElement.driver,
-                item.findElement(base).getId()
-            );
+            let toFind = item.findElement(base);
+            let id = toFind.getId();
+            super(AbstractElement.driver, id);
         }
         this.enclosingItem = item;
     }
