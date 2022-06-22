@@ -30,11 +30,13 @@ export interface Locators {
         terminalTab: string
         maximize: string
         restore: string
+        close: string
         tabContainer: By
         tab: (title: string) => By
         actions: By
         globalActions: By
-        action: (label: string) => By
+        action: (label: string) => By,
+        closeAction: By
     }
     BottomBarViews: {
         actionsContainer: (label: string) => By

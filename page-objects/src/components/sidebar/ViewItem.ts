@@ -110,7 +110,7 @@ export abstract class TreeItem extends ViewItem {
      * actions associated
      */
     async getActionButtons(): Promise<ViewItemAction[]> {
-        await this.getDriver().actions().mouseMove(this).perform();
+        await this.getDriver().actions().move({origin: this}).perform();
         let container: WebElement;
         try {
             container = await this.findElement(TreeItem.locators.TreeItem.actions);

@@ -1,5 +1,5 @@
 import { AbstractElement } from "../AbstractElement";
-import { By, Key, until, WebElement } from "selenium-webdriver";
+import { By, until, WebElement } from "selenium-webdriver";
 import { TitleBar } from "../menu/TitleBar";
 import { ProblemsView, OutputView, DebugConsoleView, TerminalView, EditorView } from "../..";
 
@@ -18,16 +18,18 @@ export class BottomBarPanel extends AbstractElement {
      */
     async toggle(open: boolean): Promise<void> {
         try {
-            await (await new EditorView().getActiveTab())?.click();
+            const tab = await new EditorView().getActiveTab();
+            await tab?.click();
         } catch (err) {
             // ignore and move on
         }
-        const height = (await this.getSize()).height;
+        const height = (await this.getRect()).height;
         if ((open && height === 0) || !open && height > 0) {
-            await this.getDriver().actions().sendKeys(Key.chord(BottomBarPanel.ctlKey, 'j')).perform();
             if (open) {
+                await this.getDriver().actions().keyDown(BottomBarPanel.ctlKey).sendKeys('j').perform();
                 await this.wait();
             } else {
+                await this.closePanel();
                 await this.getDriver().wait(until.elementIsNotVisible(this));
             }
         }
@@ -113,5 +115,10 @@ export class BottomBarPanel extends AbstractElement {
         if (action) {
             await action.click();
         }
+    }
+
+    public async closePanel() {
+        let closeButton = await this.findElement(BottomBarPanel.locators.BottomBarPanel.closeAction);
+        await closeButton.click();
     }
 }

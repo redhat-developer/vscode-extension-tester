@@ -22,7 +22,7 @@ export class ContentAssist extends Menu {
 
         let firstItem = await this.findElements(ContentAssist.locators.ContentAssist.firstItem);
         while(firstItem.length < 1) {
-            await scrollable.sendKeys(Key.PAGE_UP);
+            await scrollable.sendKeys(Key.PAGE_UP, Key.NULL);
             firstItem = await this.findElements(ContentAssist.locators.ContentAssist.firstItem);
         }
 

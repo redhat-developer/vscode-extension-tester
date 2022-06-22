@@ -63,7 +63,7 @@ export abstract class Notification extends ElementWithContexMenu {
      * @returns Promise resolving when notification is dismissed
      */
     async dismiss(): Promise<void> {
-        await this.getDriver().actions().mouseMove(this).perform();
+        await this.getDriver().actions().move({origin: this}).perform();
         const btn = await this.findElement(Notification.locators.Notification.dismiss);
         await this.getDriver().wait(until.elementIsVisible(btn), 2000);
         await btn.click();
@@ -98,7 +98,7 @@ export abstract class Notification extends ElementWithContexMenu {
      * Expand the notification if possible
      */
     async expand(): Promise<void> {
-        await this.getDriver().actions().mouseMove(this).perform();
+        await this.getDriver().actions().move({origin: this}).perform();
         const exp = await this.findElements(Notification.locators.Notification.expand);
         if (exp[0]) {
             await exp[0].click();
