@@ -72,3 +72,10 @@ Now that the changes are in a branch in your fork, you can submit a new pull req
 If your pull request is intended to fix an issue in the tracker, make sure to link the two together. You can do that by adding for example ```fix #<issue number>``` to the commit message, or to any comment on the pull request.
 
 Lastly, a pull request check on Travis is going to kick in whenever a change is pushed. Please make sure it ends up green. Otherwise it might need a change on your part. Or maybe it also needs a change on our part - in that case opening an issue is the best way to go.
+
+### Certificate of Origin
+
+By contributing to this project you agree to the Developer Certificate of
+Origin (DCO). This document was created by the Linux Kernel community and is a
+simple statement that you, as a contributor, have the legal right to make the
+contribution. See the [DCO](DCO) file for details.
