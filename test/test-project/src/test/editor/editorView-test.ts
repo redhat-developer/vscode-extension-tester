@@ -105,26 +105,29 @@ describe('EditorView', () => {
         });
 
         it('getEditorGroups works', async () => {
-            await view.getDriver().actions().sendKeys(Key.chord(EditorView.ctlKey, '\\')).perform();
+            let driverActions = view.getDriver().actions();
+            driverActions.clear();
+            driverActions.keyDown(Key.CONTROL).sendKeys('\\').keyUp(Key.CONTROL).perform();
+            
             await new Promise((res) => { setTimeout(res, 500); });
             const groups = await view.getEditorGroups();
             const group1 = await view.getEditorGroup(0);
             const group2 = await view.getEditorGroup(1);
 
             expect(groups.length).equals(2);
-            expect((await group1.getLocation()).x).equals((await groups[0].getLocation()).x);
-            expect((await group2.getLocation()).x).equals((await groups[1].getLocation()).x);
+            expect((await group1.getRect()).x).equals((await groups[0].getRect()).x);
+            expect((await group2.getRect()).x).equals((await groups[1].getRect()).x);
         });
 
         it('openEditor works for different groups', async () => {
             const editor1 = await view.openEditor('Untitled-3', 0);
             const editor2 = await view.openEditor('Untitled-3', 1);
 
-            expect((await editor1.getLocation()).x < (await editor2.getLocation()).x);
+            expect((await editor1.getRect()).x < (await editor2.getRect()).x);
         });
 
         it('closeEditor works for different groups', async () => {
-            await view.getDriver().actions().sendKeys(Key.chord(EditorView.ctlKey, '\\')).perform();
+            await view.getDriver().actions().keyDown(EditorView.ctlKey).sendKeys('\\').perform();
             await new Promise((res) => { setTimeout(res, 500); });
 
             await view.closeEditor('Untitled-3', 2);

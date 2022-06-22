@@ -9,6 +9,7 @@ import { BottomBarPanel, OutputView, TerminalView, VSBrowser, Workbench } from '
     before(async () => {
         const center = await new Workbench().openNotificationsCenter();
         await center.clearAllNotifications();
+        await center.close();
         panel = new BottomBarPanel();
         await panel.toggle(true);
         view = await panel.openOutputView();
@@ -36,6 +37,7 @@ import { BottomBarPanel, OutputView, TerminalView, VSBrowser, Workbench } from '
 
     it('getText returns all current text', async () => {
         await view.selectChannel(channelName);
+        await new Promise(resolve => setTimeout(resolve, 2000));
         const text = await view.getText();
         expect(text).not.empty;
     });

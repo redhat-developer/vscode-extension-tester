@@ -92,7 +92,7 @@ import { expect } from "chai";
             try {
                 assist = await debugConsole.getContentAssist();
             } catch(err) {
-                VSBrowser.instance.driver.actions().sendKeys(Key.chord(Key.CONTROL, Key.SPACE)).perform();
+                VSBrowser.instance.driver.actions().keyDown(Key.CONTROL).sendKeys(Key.SPACE).perform();
                 assist = await debugConsole.getContentAssist();
             }
             const list = await assist.getItems();

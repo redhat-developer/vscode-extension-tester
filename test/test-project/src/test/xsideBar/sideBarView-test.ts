@@ -142,7 +142,7 @@ describe('SideBarView', () => {
             (process.platform === 'darwin' ? it.skip : it)('moreActions works', async () => {
                 const outline = await content.getSection('Outline');
                 await outline.expand();
-                await outline.getDriver().actions().mouseMove(outline).perform();
+                await outline.getDriver().actions().move({origin:outline}).perform();
 
                 const menu = await outline.moreActions();
                 expect(menu).not.undefined;
