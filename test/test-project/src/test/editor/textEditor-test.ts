@@ -90,8 +90,10 @@ describe('TextEditor', () => {
         expect(line).has.string('line11');
     });
 
-    it('getCoordinates works', async () => {
+    it('getCoordinates works', async function() {
+        this.timeout(5000);
         await editor.moveCursor(1, 1);
+
         expect(await editor.getCoordinates()).to.deep.equal([1, 1]);
 
         const lineCount = await editor.getNumberOfLines();
@@ -100,7 +102,7 @@ describe('TextEditor', () => {
         await editor.moveCursor(lineCount, lastLine.length);
 
         expect(await editor.getCoordinates()).to.deep.equal([lineCount, lastLine.length]);
-    })
+    });
 
     it('getNumberOfLines works', async () => {
         const lines = await editor.getNumberOfLines();
@@ -187,9 +189,9 @@ describe('TextEditor', () => {
         });
 
         it('toggleReplace works', async () => {
-            const height = (await widget.getSize()).height;
+            const height = (await widget.getRect()).height;
             await widget.toggleReplace(true);
-            expect((await widget.getSize()).height).to.be.gt(height);
+            expect((await widget.getRect()).height).to.be.gt(height);
         });
 
         it('setSearchText works', async () => {

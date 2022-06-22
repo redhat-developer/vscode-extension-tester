@@ -23,7 +23,7 @@ describe('CustomEditor', () => {
             await new Promise(res => setTimeout(res, 1000));
             const notes = await webview.findWebElements(By.className('note'));
             const note = notes[notes.length - 1];
-            await webview.getDriver().actions().mouseMove(note).perform();
+            await webview.getDriver().actions().move({origin:note}).perform();
             await note.findElement(By.className('delete-button')).click();
         } catch(err) {
             // if (!(err instanceof error.StaleElementReferenceError)) {
