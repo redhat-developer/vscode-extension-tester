@@ -1,6 +1,6 @@
 {
   "name": "vscode-extension-tester-locators",
-  "version": "1.62.2",
+  "version": "2.0.0",
   "description": "Pluggable object locators for vscode extension tester",
   "main": "out/index.js",
   "types": "out/index.d.ts",
@@ -30,13 +30,13 @@
   "homepage": "https://github.com/redhat-developer/vscode-extension-tester#readme",
   "devDependencies": {
     "@types/node": "^16.11.7",
-    "@types/selenium-webdriver": "^3.0.15",
+    "@types/selenium-webdriver": "^4.1.1",
     "monaco-page-objects": "file:../page-objects",
     "rimraf": "^3.0.0",
     "typescript": "4.4.2"
   },
   "peerDependencies": {
-    "monaco-page-objects": "^1.0.0",
-    "selenium-webdriver": "^3.0.0"
+    "monaco-page-objects": "^1.10.0",
+    "selenium-webdriver": "^4.2.0"
   }
 }

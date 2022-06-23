@@ -1,5 +1,5 @@
 import { SideBarView } from "../SideBarView";
-import { WebElement, Key, By } from "selenium-webdriver";
+import { WebElement, Key, By, ChromiumWebDriver } from "selenium-webdriver";
 import { AbstractElement } from "../../AbstractElement";
 import { ContextMenu } from "../../..";
 import { ElementWithContexMenu } from "../../ElementWithContextMenu";
@@ -84,7 +84,7 @@ export class ScmProvider extends AbstractElement {
             const view = this.enclosingItem as ScmView;
             actions = await view.getTitlePart().getActions();
         } else {
-            await this.getDriver().actions().mouseMove(this).perform();
+            await this.getDriver().actions().move({origin: this}).perform();
             actions = await header.findElements(ScmProvider.locators.ScmView.action);
         }
         const names = await Promise.all(actions.map(async action => action.getAttribute('title')));
@@ -106,7 +106,7 @@ export class ScmProvider extends AbstractElement {
         if ((await header.getAttribute('class')).indexOf('hidden') > -1) {
             return new MoreAction(this.enclosingItem as ScmView).openContextMenu();
         } else {
-            await this.getDriver().actions().mouseMove(this).perform();
+            await this.getDriver().actions().move({origin: this}).perform();
             return new MoreAction(this).openContextMenu();
         }
     }
@@ -241,7 +241,7 @@ export class ScmChange extends ElementWithContexMenu {
      * false if the given button does not exist
      */
     async takeAction(title: string): Promise<boolean> {
-        await this.getDriver().actions().mouseMove(this).perform();
+        await this.getDriver().actions().move({origin: this}).perform();
         const actions = await this.findElements(ScmChange.locators.ScmView.action);
         const names = await Promise.all(actions.map(async action => action.getAttribute('title')));
         const index = names.findIndex(item => item === title);
@@ -262,14 +262,24 @@ export class MoreAction extends ElementWithContexMenu {
     async openContextMenu(): Promise<ContextMenu> {
         await this.click();
         const shadowRootHost = await this.enclosingItem.findElements(By.className('shadow-root-host'));
-        await this.getDriver().actions().sendKeys(Key.ESCAPE).perform();
+        let actions = this.getDriver().actions();
+        await actions.clear();
+        await actions.sendKeys(Key.ESCAPE).perform();
 
         if (shadowRootHost.length > 0) {
             if (await this.getAttribute('aria-expanded') !== 'true') {
                 await this.click();
             }
-            const shadowRoot = await this.getDriver().executeScript('return arguments[0].shadowRoot', shadowRootHost[0]) as WebElement;
-            return new ContextMenu(shadowRoot).wait();
+            let shadowRoot;
+            const webdriverCapabilities = await (this.getDriver() as ChromiumWebDriver).getCapabilities();
+            const chromiumVersion = webdriverCapabilities.getBrowserVersion();
+            if (chromiumVersion && parseInt(chromiumVersion.split('.')[0]) >= 96) {
+                shadowRoot = await shadowRootHost[0].getShadowRoot();
+                return new ContextMenu(await shadowRoot.findElement(By.className('monaco-menu-container'))).wait();
+            } else {
+                shadowRoot = await this.getDriver().executeScript('return arguments[0].shadowRoot', shadowRootHost[0]) as WebElement;
+                return new ContextMenu(shadowRoot).wait();
+            }
         }
         return super.openContextMenu();
     }

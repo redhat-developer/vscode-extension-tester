@@ -14,15 +14,16 @@ export abstract class ChannelView extends ElementWithContexMenu {
     */
     async getChannelNames(): Promise<string[]> {
         const names: string[] = [];
-        const elements = await this.enclosingItem.findElement(ChannelView.locators.BottomBarViews.actionsContainer(this.actionsLabel))
+        const elements = await (await this.enclosingItem.findElement(ChannelView.locators.BottomBarViews.actionsContainer(this.actionsLabel)))
             .findElements(ChannelView.locators.BottomBarViews.channelOption);
 
-        for (const element of elements) {
+        await Promise.all(elements.map(async element => { 
             const disabled = await element.getAttribute('disabled');
             if (!disabled) {
                 names.push(await element.getAttribute('value'));
             }
-        }
+        }));
+
         return names;
     }
 
@@ -91,11 +92,12 @@ export abstract class TextView extends ChannelView {
      * @returns Promise resolving to the view's text
      */
     async getText(): Promise<string> {
-        const textarea = await this.findElement(ChannelView.locators.BottomBarViews.textArea);
+        let textarea = await this.findElement(ChannelView.locators.BottomBarViews.textArea);
         await textarea.sendKeys(Key.chord(TextView.ctlKey, 'a'));
         await textarea.sendKeys(Key.chord(TextView.ctlKey, 'c'));
         const text = clipboard.readSync();
-        await textarea.click();
+        // workaround as we are getting "element click intercepted" during the send keys actions.
+        // await textarea.click();
         clipboard.writeSync('');
         return text;
     }

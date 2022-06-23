@@ -1,6 +1,6 @@
 import { AbstractElement } from "./AbstractElement";
 import { ContextMenu } from "..";
-import { Button, until, error } from 'selenium-webdriver';
+import { until, error } from 'selenium-webdriver';
 
 /**
  * Abstract element that has a context menu
@@ -15,11 +15,12 @@ export abstract class ElementWithContexMenu extends AbstractElement {
         const menus = await workbench.findElements(ElementWithContexMenu.locators.ContextMenu.contextView);
 
         if (menus.length < 1) {
-            await this.getDriver().actions().click(this, Button.RIGHT).perform();
+            await this.getDriver().actions().contextClick(this).perform();
             await this.getDriver().wait(until.elementLocated(ElementWithContexMenu.locators.ContextMenu.contextView), 2000);
             return new ContextMenu(workbench).wait();
         } else if ((await workbench.findElements(ElementWithContexMenu.locators.ContextMenu.viewBlock)).length > 0) {
-            await this.getDriver().actions().click(this, Button.RIGHT).perform();
+
+            await this.getDriver().actions().contextClick(this).perform();
             try {
                 await this.getDriver().wait(until.elementIsNotVisible(this), 1000);
             } catch (err) {
@@ -28,7 +29,7 @@ export abstract class ElementWithContexMenu extends AbstractElement {
                 }
             }
         }
-        await this.getDriver().actions().click(this, Button.RIGHT).perform();
+        await this.getDriver().actions().contextClick(this).perform();
 
         return new ContextMenu(workbench).wait();
     }

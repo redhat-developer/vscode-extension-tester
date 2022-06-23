@@ -42,8 +42,13 @@ export class ExtensionsViewSection extends ViewSection {
         const progress = await this.enclosingItem.findElement(ExtensionsViewSection.locators.ViewContent.progress);
         const searchField = await this.enclosingItem.findElement(ExtensionsViewSection.locators.ExtensionsViewSection.searchBox);
         await searchField.sendKeys(title);
-
-        await this.getDriver().wait(until.elementIsVisible(progress));
+        try {
+            await this.getDriver().wait(until.elementIsVisible(progress), 1000);
+        } catch (err) {
+            if ((err as Error).name !== "TimeoutError"){
+                throw err;
+            }
+        }
         await this.getDriver().wait(until.elementIsNotVisible(progress));
 
         const parent = this.enclosingItem as ViewContent;

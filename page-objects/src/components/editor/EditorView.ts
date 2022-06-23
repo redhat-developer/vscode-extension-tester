@@ -125,7 +125,7 @@ export class EditorView extends AbstractElement {
         // sort the groups by x coordinates, so the leftmost is always at index 0
         for (let i = 0; i < groups.length - 1; i++) {
             for (let j = 0; j < groups.length - i - 1; j++) {
-                if ((await groups[j].getLocation()).x > (await groups[j + 1].getLocation()).x) {
+                if ((await groups[j].getRect()).x > (await groups[j + 1].getRect()).x) {
                     let temp = groups[j];
                     groups[j] = groups[j + 1];
                     groups[j + 1] = temp;
@@ -207,7 +207,7 @@ export class EditorGroup extends AbstractElement {
      */
     async closeEditor(title: string): Promise<void> {
         const tab = await this.getTabByTitle(title);
-        await EditorView.driver.actions().mouseMove(tab).perform();
+        await EditorView.driver.actions().move({origin: tab}).perform();
         const closeButton = await tab.findElement(EditorView.locators.EditorView.closeTab);
         await closeButton.click();
     }

@@ -27,11 +27,13 @@ const bottomBar = {
         terminalTab: 'Terminal',
         maximize: 'Maximize Panel Size',
         restore: 'Restore Panel Size',
+        close: 'Close Panel',
         tabContainer: By.className('panel-switcher-container'),
         tab: (title: string) => By.xpath(`.//li[starts-with(@title, '${title}')]`),
         actions: By.className('title-actions'),
         globalActions: By.className('title-actions'),
-        action: (label: string) => By.xpath(`.//a[starts-with(@title, '${label}')]`)
+        action: (label: string) => By.xpath(`.//a[starts-with(@title, '${label}')]`),
+        closeAction: By.className('codicon-panel-close')
     },
     BottomBarViews: {
         actionsContainer: (label: string) => By.xpath(`.//ul[@aria-label='${label}']`),
