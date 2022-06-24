@@ -1,5 +1,11 @@
 # Change Log
 
+## 4.3.0 (June 24)
+ - upgraded to use selenium-webdriver 4
+ - supports vscode 1.66.2
+ - fixed closeAllEditors(groupIndex) method
+ - dependabot alerts fixes
+
 ## 4.2.5 (May 2)
  - fixes for dependabot allerts
  - Compatible with 1.65
