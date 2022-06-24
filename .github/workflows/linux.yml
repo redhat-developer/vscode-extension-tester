@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         node: [16]
-        version: [1.61.2, 1.62.3, 1.63.2, 1.64.2, 1.65.2]
+        version: [1.62.3, 1.63.2, 1.64.2, 1.65.2, 1.66.2]
       fail-fast: false
     
     steps:
@@ -41,5 +41,5 @@ jobs:
         uses: actions/upload-artifact@v2
         if: failure()
         with: 
-          name: screenshots
+          name: screenshots-${{ matrix.version }}
           path: ~/test/**/screenshots/*.png

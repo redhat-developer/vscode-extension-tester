@@ -60,6 +60,6 @@ import { BottomBarPanel, WebElement, Workbench } from 'vscode-extension-tester';
 });
 
 async function getHeight(element: WebElement): Promise<number> {
-    const size = await element.getSize();
+    const size = await element.getRect();
     return size.height;
 }
