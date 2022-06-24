@@ -45,7 +45,7 @@ export class EditorView extends AbstractElement {
     async closeAllEditors(groupIndex?: number): Promise<void> {
         let groups = await this.getEditorGroups();
         if (groupIndex !== undefined) {
-            return groups[0].closeAllEditors();
+            return groups[groupIndex].closeAllEditors();
         }
 
         while (groups.length > 0 && (await groups[0].getOpenEditorTitles()).length > 0) {
