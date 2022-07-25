@@ -73,7 +73,6 @@ export class VSBrowser {
             args.push(`--extensionDevelopmentPath=${process.cwd()}`);
         }
 
-        console.log(`codePath: ${codePath}, args: ${args}`);
         let options = new Options().setChromeBinaryPath(codePath).addArguments(...args) as any;
         options['options_'].windowTypes = ['webview'];
         options = options as Options;
@@ -82,7 +81,7 @@ export class VSBrowser {
         prefs.setLevel(logging.Type.DRIVER, this.logLevel);
         options.setLoggingPrefs(prefs);
 
-        console.log('Launching browser...2')
+        console.log('Launching browser...');
         this._driver = await new Builder()
             .forBrowser('chrome')
             .setChromeOptions(options)
@@ -118,19 +117,17 @@ export class VSBrowser {
      * Waits until parts of the workbench are loaded
      */
     async waitForWorkbench(): Promise<void> {
-        await new Promise(res => setTimeout(res, 3000));
-        // const version = VSBrowser.instance.codeVersion;
-        // const major = version.substring(0, version.indexOf('.'));
-        // const minor = version.substring(version.indexOf('.') + 1, version.lastIndexOf('.'));
-        // if (parseInt(major) >= 1 && parseInt(minor) >= 69) {
-        //     console.log('version 1.69');
-        //     await this.retryForDetachedFrame(this._driver, 'monaco-workbench', 0);
-        // } else {
-        //     console.log('other version');
-        //     await this._driver.wait(until.elementLocated(By.className('monaco-workbench')));
-        // }
+        // Workaround/patch for https://github.com/redhat-developer/vscode-extension-tester/issues/466
+        try {
+            await this._driver.wait(until.elementLocated(By.className('monaco-workbench')));
+        } catch (err) {
+            if((err as Error).name === 'WebDriverError') {
+                await new Promise(res => setTimeout(res, 3000));
+            } else {
+                throw err;
+            }
+        }
     }
-    
 
     /**
      * Terminates the webdriver/browser
@@ -171,23 +168,5 @@ export class VSBrowser {
         await new Promise(res => setTimeout(res, 2000));
         await this.waitForWorkbench();
 
-    }
-
-    async retryForDetachedFrame(driver: WebDriver, elementXpath: string, frameId: number) {
-        let webDriverExceptionCounter = 0;
-        while (webDriverExceptionCounter < 5) {
-            try {
-                await this._driver.wait(until.elementLocated(By.className(elementXpath)));
-                break;
-            } catch (err) {
-                webDriverExceptionCounter++;
-                if (webDriverExceptionCounter == 5) {
-                    throw err;
-                } else {
-                    await new Promise(res => setTimeout(res, 500));
-                    await driver.wait(until.ableToSwitchToFrame(frameId));
-                }
-            }
-        }
     }
 }

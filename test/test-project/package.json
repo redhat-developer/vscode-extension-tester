@@ -7,7 +7,7 @@
 	"license": "MIT",
 	"repository": "https://github.com/redhat-developer/vscode-extension-tester/test/test-project/",
 	"engines": {
-		"vscode": "^1.66.0"
+		"vscode": "^1.34.0"
 	},
 	"categories": [
 		"Other"
