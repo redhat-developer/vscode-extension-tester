@@ -6,10 +6,11 @@ import * as fs from 'fs-extra';
 (VSBrowser.instance.version >= '1.38.0' ? describe : describe.skip)('SCM View', () => {
     let view: ScmView;
 
-    before(async () => {
+    before(async function context() {
+        this.timeout(15000);
         fs.writeFileSync(path.resolve('.', 'testfile'), 'content');
         await VSBrowser.instance.openResources(path.resolve('..', '..'));
-
+        await new Promise((res) => { setTimeout(res, 2000); });
         view = await (await new ActivityBar().getViewControl('Source Control')).openView() as ScmView;
         await new Promise((res) => { setTimeout(res, 2000); });
     });
