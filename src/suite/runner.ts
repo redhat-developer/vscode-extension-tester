@@ -75,7 +75,7 @@ export class VSRunner {
             });
     
             this.mocha.suite.afterAll(async function() {
-                this.timeout(15000);
+                this.timeout(30000);
                 await browser.quit();
                 if (process.platform === 'darwin') {
                     if (await fs.pathExists(self.tmpLink)) {
