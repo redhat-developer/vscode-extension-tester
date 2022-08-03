@@ -265,7 +265,8 @@ export class MoreAction extends ElementWithContexMenu {
         let actions = this.getDriver().actions();
         await actions.clear();
         await actions.sendKeys(Key.ESCAPE).perform();
-
+        const webdriverCapabilities = await (this.getDriver() as ChromiumWebDriver).getCapabilities();
+        const chromiumVersion = webdriverCapabilities.getBrowserVersion();
         if (shadowRootHost.length > 0) {
             if (await this.getAttribute('aria-expanded') !== 'true') {
                 await this.click();
@@ -280,6 +281,10 @@ export class MoreAction extends ElementWithContexMenu {
                 shadowRoot = await this.getDriver().executeScript('return arguments[0].shadowRoot', shadowRootHost[0]) as WebElement;
                 return new ContextMenu(shadowRoot).wait();
             }
+        } else if (chromiumVersion && parseInt(chromiumVersion.split('.')[0]) >= 100) {
+            await this.click();
+            const workbench = await this.getDriver().findElement(ElementWithContexMenu.locators.Workbench.constructor);
+            return new ContextMenu(workbench).wait();
         }
         return super.openContextMenu();
     }

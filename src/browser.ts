@@ -3,7 +3,7 @@
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import compareVersions = require('compare-versions');
-import { WebDriver, Builder, until, By, initPageObjects, logging } from 'monaco-page-objects';
+import { WebDriver, Builder, until, initPageObjects, logging, By } from 'monaco-page-objects';
 import { Options } from 'selenium-webdriver/chrome';
 import { getLocatorsPath } from 'vscode-extension-tester-locators';
 import { CodeUtil, ReleaseQuality } from './util/codeUtil';
@@ -81,7 +81,7 @@ export class VSBrowser {
         prefs.setLevel(logging.Type.DRIVER, this.logLevel);
         options.setLoggingPrefs(prefs);
 
-        console.log('Launching browser...')
+        console.log('Launching browser...');
         this._driver = await new Builder()
             .forBrowser('chrome')
             .setChromeOptions(options)
@@ -117,7 +117,16 @@ export class VSBrowser {
      * Waits until parts of the workbench are loaded
      */
     async waitForWorkbench(): Promise<void> {
-        await this._driver.wait(until.elementLocated(By.className('monaco-workbench')));
+        // Workaround/patch for https://github.com/redhat-developer/vscode-extension-tester/issues/466
+        try {
+            await this._driver.wait(until.elementLocated(By.className('monaco-workbench')));
+        } catch (err) {
+            if((err as Error).name === 'WebDriverError') {
+                await new Promise(res => setTimeout(res, 3000));
+            } else {
+                throw err;
+            }
+        }
     }
 
     /**
@@ -156,7 +165,8 @@ export class VSBrowser {
     async openResources(...paths: string[]): Promise<void> {
         const code = new CodeUtil(this.storagePath, this.releaseType, this.extensionsFolder);
         code.open(...paths);
-        await new Promise(res => setTimeout(res, 1000));
+        await new Promise(res => setTimeout(res, 2000));
         await this.waitForWorkbench();
+
     }
 }
