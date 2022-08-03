@@ -1,5 +1,12 @@
 # Change Log
 
+## 4.4.0 (August 03 2022)
+ - support for taking screenshots on error in beforeAll/afterAll methods
+ - included support for VSCode 1.69
+ - patch for opening command pallette on Mac OS
+ - increased timeout for mocha suite afterAll method
+ - added 1.67.x and 1.68.x as tested configuration on GitHub Actions
+
 ## 4.3.0 (June 24)
  - upgraded to use selenium-webdriver 4
  - supports vscode 1.66.2
