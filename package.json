@@ -59,7 +59,7 @@
     "got": "^11.8.2",
     "hpagent": "^0.1.2",
     "js-yaml": "^4.1.0",
-    "monaco-page-objects": "^2.0.0",
+    "monaco-page-objects": "^2.0.1",
     "sanitize-filename": "^1.6.3",
     "selenium-webdriver": "^4.2.0",
     "targz": "^1.0.1",

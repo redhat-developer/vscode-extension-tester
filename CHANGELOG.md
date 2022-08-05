@@ -1,5 +1,8 @@
 # Change Log
 
+## 4.4.1 (August 05 2022)
+ - Upversion vscode-extension-tester dependency on monaco-page-objects to 2.0.1
+
 ## 4.4.0 (August 03 2022)
  - support for taking screenshots on error in beforeAll/afterAll methods
  - included support for VSCode 1.69
