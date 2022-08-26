@@ -26,6 +26,8 @@ export interface RunOptions {
     logLevel?: logging.Level;
     /** try to perform all setup without internet connection, needs all requirements pre-downloaded manually */
     offline?: boolean;
+    /** list of resources to be opened by VS Code */
+    resources: string[];
 }
 
 /** defaults for the [[RunOptions]] */
@@ -33,7 +35,8 @@ export const DEFAULT_RUN_OPTIONS = {
     vscodeVersion: 'latest',
     settings: '',
     logLevel: logging.Level.INFO,
-    offline: false
+    offline: false,
+    resources: []
 }
 
 /**
@@ -240,7 +243,7 @@ export class CodeUtil {
         process.env.TEST_RESOURCES = this.downloadFolder;
         process.env.EXTENSIONS_FOLDER = this.extensionsFolder;
         const runner = new VSRunner(this.executablePath, literalVersion, this.parseSettings(runOptions.settings ?? DEFAULT_RUN_OPTIONS.settings), runOptions.cleanup, this.releaseType, runOptions.config);
-        return runner.runTests(testFilesPattern, this, runOptions.logLevel);
+        return runner.runTests(testFilesPattern, this, runOptions.logLevel, runOptions.resources);
     }
 
     /**
