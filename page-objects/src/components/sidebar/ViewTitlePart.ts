@@ -1,6 +1,6 @@
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
 import { AbstractElement } from "../AbstractElement";
-import { SideBarView } from "../..";
+import { By, SideBarView } from "../..";
 
 /**
  * Page object representing the top (title) part of a side bar view
@@ -27,7 +27,7 @@ export class ViewTitlePart extends ElementWithContexMenu {
         const elements = await this.findElements(ViewTitlePart.locators.ViewTitlePart.action);
         for (const element of elements) {
             const title = await element.getAttribute(ViewTitlePart.locators.ViewTitlePart.actionLabel);
-            actions.push(await new TitleActionButton(title, this).wait());
+            actions.push(await new TitleActionButton(TitleActionButton.locators.ViewTitlePart.actionContstructor(title), title, this).wait());
         }
         return actions;
     }
@@ -38,7 +38,7 @@ export class ViewTitlePart extends ElementWithContexMenu {
      * @returns Promise resolving to TitleActionButton object
      */
     async getAction(title: string): Promise<TitleActionButton> {
-        return new TitleActionButton(title, this);
+        return new TitleActionButton(TitleActionButton.locators.ViewTitlePart.actionContstructor(title), title, this);
     }
  }
 
@@ -48,8 +48,8 @@ export class ViewTitlePart extends ElementWithContexMenu {
  export class TitleActionButton extends AbstractElement {
     private title: string;
 
-    constructor(title: string, viewTitle: ViewTitlePart) {
-        super(TitleActionButton.locators.ViewTitlePart.actionContstructor(title), viewTitle);
+    constructor(actionConstructor: By, title: string, viewTitle: ViewTitlePart) {
+        super(actionConstructor, viewTitle);
         this.title = title;
     }
 

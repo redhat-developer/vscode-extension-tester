@@ -267,6 +267,7 @@ export interface Locators {
         providerTitle: By
         providerType: By
         action: By
+        actionConstructor: (title: string) => By
         inputField: By
         changeItem: By
         changeName: By
