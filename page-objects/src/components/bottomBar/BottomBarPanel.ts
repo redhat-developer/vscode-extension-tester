@@ -107,8 +107,8 @@ export class BottomBarPanel extends AbstractElement {
         await this.toggle(true);
         let action!: WebElement;
         try {
-            action = await this.findElement(BottomBarPanel.locators.BottomBarPanel.globalActions)
-                .findElement(BottomBarPanel.locators.BottomBarPanel.action(label));
+            const actionParent = await this.findElement(BottomBarPanel.locators.BottomBarPanel.globalActions);
+            action = await actionParent.findElement(BottomBarPanel.locators.BottomBarPanel.action(label));
         } catch (err) {
             // the panel is already maximized
         }
