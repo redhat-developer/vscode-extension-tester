@@ -52,7 +52,7 @@ export class SingleScmProvider extends ScmProvider {
         const buttons: TitleActionButton[] = [];
         for (const element of elements) {
             const title = await element.getAttribute('title');
-            buttons.push(await new TitleActionButton(ScmView.locators.ScmView.actionConstructor(title), title, titlePart).wait());
+            buttons.push(await new TitleActionButton(ScmView.locators.ScmView.actionConstructor(title), titlePart).wait());
         }
         const names = await Promise.all(buttons.map(async button => button.getTitle()));
         const index = names.findIndex(name => name === title)
@@ -99,7 +99,6 @@ export class MultiScmProvider extends ScmProvider {
         const actions = await this.findElements(ScmProvider.locators.ScmView.action);
         const names = await Promise.all(actions.map(async action => action.getAttribute('title')));
         const index = names.findIndex(item => item === title);
-        console.log(`MultiSCMProvider takeAction results: ${names}`);
 
         if (index > -1) {
             await actions[index].click();

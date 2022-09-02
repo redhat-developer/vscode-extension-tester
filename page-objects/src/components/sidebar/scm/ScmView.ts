@@ -78,7 +78,6 @@ export class ScmProvider extends AbstractElement {
      * @returns true if the given action could be performed, false if the button doesn't exist
      */
     async takeAction(title: string): Promise<boolean> {
-        console.log(`SCMProvider takeAction...`);
         const header = await this.findElement(ScmProvider.locators.ScmView.providerHeader);
         let actions: WebElement[] = [];
         if ((await header.getAttribute('class')).indexOf('hidden') > -1) {
@@ -89,7 +88,6 @@ export class ScmProvider extends AbstractElement {
             actions = await header.findElements(ScmProvider.locators.ScmView.action);
         }
         const names = await Promise.all(actions.map(async action => action.getAttribute('title')));
-        console.log(`    names results: ${names}`);
         const index = names.findIndex(item => item === title);
 
         if (index > -1) {
