@@ -40,7 +40,7 @@ describe('SideBarView', () => {
             if (VSBrowser.instance.version >= '1.47.0') {
                 expect(actions).not.empty;
             } else {
-                expect(actions).empty;   
+                expect(actions).empty;
             }
         });
     });
