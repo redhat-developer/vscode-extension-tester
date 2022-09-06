@@ -26,6 +26,9 @@ export const DEFAULT_SETUP_OPTIONS = {
     installDependencies: false
 }
 
+export const VSCODE_VERSION_MIN = '1.67.2';
+export const VSCODE_VERSION_MAX = '1.71.0';
+
 /**
  * VSCode Extension Tester
  */
@@ -98,6 +101,7 @@ export class ExTester {
      */
     async setupRequirements(options: SetupOptions = DEFAULT_SETUP_OPTIONS, offline = false): Promise<void> {
         const { useYarn, vscodeVersion, installDependencies } = options;
+        console.log(`Downloading VSCode: ${options.vscodeVersion}`);
         if (!offline) {
             await this.downloadCode(vscodeVersion);
             await this.downloadChromeDriver(vscodeVersion);
