@@ -63,7 +63,9 @@ describe('NotificationsCenter', () => {
 
         it('getActions looks for action buttons', async () => {
             const actions = await notification.getActions();
-            expect(actions.map(item => item.getTitle())).deep.equals(['Yes', 'No']);
+            expect(await Promise.all(actions.map(async (item) => {
+                return item.getTitle();
+            }))).deep.equals(['Yes', 'No']);
         });
 
         it('getSource returns title of origin', async () => {
