@@ -138,6 +138,8 @@ export interface Locators {
         action: (label: string) => By
         settingConstructor: (title: string, category: string) => By
         settingDesctiption: By
+        settingLabel: By
+        settingCategory: By
         comboSetting: By
         comboOption: By
         textSetting: By
