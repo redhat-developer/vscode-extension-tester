@@ -1,6 +1,6 @@
 import { Editor } from "./Editor";
 import { ContextMenu } from "../menu/ContextMenu";
-import { WebElement, Key } from "selenium-webdriver";
+import { WebElement, Key, By } from "selenium-webdriver";
 import { AbstractElement } from "../AbstractElement";
 import { EditorView, EditorGroup } from "../..";
 
@@ -82,22 +82,22 @@ export class SettingsEditor extends Editor {
         try {
             // try a combo setting
             await element.findElement(SettingsEditor.locators.SettingsEditor.comboSetting);
-            return new ComboSetting(title, category, this);
+            return new ComboSetting(SettingsEditor.locators.SettingsEditor.settingConstructor(title, category), this);
         } catch (err) {
             try {
                 // try text setting
                 await element.findElement(SettingsEditor.locators.SettingsEditor.textSetting);
-                return new TextSetting(title, category, this);
+                return new TextSetting(SettingsEditor.locators.SettingsEditor.settingConstructor(title, category), this);
             } catch (err) {
                 try {
                     // try checkbox setting
                     await element.findElement(SettingsEditor.locators.SettingsEditor.checkboxSetting);
-                    return new CheckboxSetting(title, category, this);
+                    return new CheckboxSetting(SettingsEditor.locators.SettingsEditor.settingConstructor(title, category), this);
                 } catch (err) {
                     // try link setting
                     try {
                         await element.findElement(SettingsEditor.locators.SettingsEditor.linkButton);
-                        return new LinkSetting(title, category, this);
+                        return new LinkSetting(SettingsEditor.locators.SettingsEditor.settingConstructor(title, category), this);
                     } catch (err) {
                         throw new Error('Setting type not supported');
                     }
@@ -112,13 +112,9 @@ export class SettingsEditor extends Editor {
  * an input element (combo/textbox/checkbox/link)
  */
 export abstract class Setting extends AbstractElement {
-    private title: string;
-    private category: string;
 
-    constructor(title: string, category: string, settings: SettingsEditor) {
-        super(SettingsEditor.locators.SettingsEditor.settingConstructor(title, category), settings);
-        this.title = title;
-        this.category = category;
+    constructor(settingsConstructor: By, settings: SettingsEditor) {
+        super(settingsConstructor, settings);
     }
 
     /**
@@ -139,8 +135,8 @@ export abstract class Setting extends AbstractElement {
      * Get the category of the setting
      * All settings are labeled as Category: Title
      */
-    getCategory(): string {
-        return this.category;
+    async getCategory(): Promise<string> {
+        return await this.findElement(SettingsEditor.locators.SettingsEditor.settingCategory).getText();
     }
 
     /**
@@ -148,15 +144,14 @@ export abstract class Setting extends AbstractElement {
      * @returns Promise resolving to setting description
      */
     async getDescription(): Promise<string> {
-        const desc = await this.findElement(SettingsEditor.locators.SettingsEditor.settingDesctiption);
-        return await desc.getText();
+        return await this.findElement(SettingsEditor.locators.SettingsEditor.settingDesctiption).getText();
     }
 
     /**
      * Get title of the setting
      */
-    getTitle(): string {
-        return this.title;
+    async getTitle(): Promise<string> {
+        return await this.findElement(SettingsEditor.locators.SettingsEditor.settingLabel).getText();
     }
 }
 
