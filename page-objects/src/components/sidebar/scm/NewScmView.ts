@@ -2,6 +2,7 @@ import { ScmView, ScmProvider, MoreAction, ScmChange } from "./ScmView";
 import { WebElement, Key } from "selenium-webdriver";
 import { ContextMenu } from "../../menu/ContextMenu";
 import { ElementWithContexMenu } from "../../ElementWithContextMenu";
+import { TitleActionButton } from "../ViewTitlePart";
 
 /**
  * New SCM view for code 1.47 onwards
@@ -46,9 +47,14 @@ export class SingleScmProvider extends ScmProvider {
 
     async takeAction(title: string): Promise<boolean> {
         const view = this.enclosingItem as NewScmView;
-        const buttons = await view.getTitlePart().getActions();
+        const titlePart = view.getTitlePart();
+        const elements = await titlePart.findElements(ScmView.locators.ScmView.action);
+        const buttons: TitleActionButton[] = [];
+        for (const element of elements) {
+            const title = await element.getAttribute('title');
+            buttons.push(await new TitleActionButton(ScmView.locators.ScmView.actionConstructor(title), titlePart).wait());
+        }
         const names = await Promise.all(buttons.map(async button => button.getTitle()));
-
         const index = names.findIndex(name => name === title)
         if (index > -1) {
             await buttons[index].click();

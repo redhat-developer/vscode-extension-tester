@@ -39,7 +39,7 @@ export class VSRunner {
      * @param logLevel The logging level for the Webdriver
      * @return The exit code of the mocha process
      */
-    runTests(testFilesPattern: string, code: CodeUtil, logLevel: logging.Level = logging.Level.INFO): Promise<number> {
+    runTests(testFilesPattern: string, code: CodeUtil, logLevel: logging.Level = logging.Level.INFO, resources: string[]): Promise<number> {
         return new Promise(resolve => {
             let self = this;
             let browser: VSBrowser = new VSBrowser(this.codeVersion, this.releaseType, this.customSettings, logLevel);
@@ -68,6 +68,7 @@ export class VSRunner {
                 const start = Date.now();
                 const binPath = process.platform === 'darwin' ? await self.createShortcut(code.getCodeFolder(), self.tmpLink) : self.chromeBin;
                 await browser.start(binPath);
+                await browser.openResources(...resources);
                 await browser.waitForWorkbench();
                 await new Promise((res) => { setTimeout(res, 2000); });
                 console.log(`Browser ready in ${Date.now() - start} ms`);

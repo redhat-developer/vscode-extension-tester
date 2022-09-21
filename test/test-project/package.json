@@ -131,8 +131,8 @@
 		"compile": "rimraf out && tsc -p ./",
 		"lint": "tslint -p ./",
 		"watch": "tsc -watch -p ./",
-		"ui-test": "npm run compile && extest setup-and-run './out/src/test/**/customView*test.js' -i",
-		"ci-test": "npm run compile && extest setup-and-run './out/src/test/**/*test.js' -u -s ~/test"
+		"ui-test": "npm run compile && extest setup-and-run './out/src/test/**/customView*test.js' -i -r .",
+		"ci-test": "npm run compile && extest setup-and-run './out/src/test/**/*test.js' -u -s ~/test -r ."
 	},
 	"devDependencies": {
 		"@types/chai": "^4.2.6",

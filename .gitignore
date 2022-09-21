@@ -1,7 +1,7 @@
 out
 node_modules
 test-resources
-.vscode
+./.vscode
 docs
 resources/api-handler.vsix
 .npmrc
