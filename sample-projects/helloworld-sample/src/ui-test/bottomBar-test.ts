@@ -2,10 +2,6 @@ import { BottomBarPanel, MarkerType, OutputView, ProblemsView, TerminalView, VSB
 import * as path from 'path';
 import { expect } from "chai";
 
-// import { Workbench } from "vscode-extension-tester";
-// import * as clipboard from 'clipboardy';
-
-
 // Sample tests using the Bottom Bar, the panel that houses the terminal, output, problems, etc.
 describe('Bottom Bar Example Tests', () => {
     let bottomBar: BottomBarPanel;
