@@ -31,58 +31,58 @@ import { expect } from 'chai';
     });
 
     it('get all markers works', async () => {
-        const markers = await view.getAllMarkers(MarkerType.Any);
+        const markers = await view.getAllVisibleMarkers(MarkerType.Any);
         expect(markers.length).greaterThan(1);
     });
 
     it('get warnings works', async () => {
-        const markers = await view.getAllMarkers(MarkerType.Warning);
+        const markers = await view.getAllVisibleMarkers(MarkerType.Warning);
         expect(markers).empty;
     });
 
     it('get errors works', async () => {
-        const markers = await view.getAllMarkers(MarkerType.Error);
+        const markers = await view.getAllVisibleMarkers(MarkerType.Error);
         expect(markers.length).equals(1);
     });
 
     it('get files works', async () => {
-        const markers = await view.getAllMarkers(MarkerType.File);
+        const markers = await view.getAllVisibleMarkers(MarkerType.File);
         expect(markers.length).equals(1);
     });
 
     it('filtering works', async () => {
         await view.setFilter('aaaa');
         await view.getDriver().sleep(500);
-        const markers = await view.getAllMarkers(MarkerType.Any);
+        const markers = await view.getAllVisibleMarkers(MarkerType.Any);
         expect(markers.length).equals(2);
     });
 
     describe('Marker', () => {
         it('getType works', async () => {
-            const markers = await view.getAllMarkers(MarkerType.Error);
+            const markers = await view.getAllVisibleMarkers(MarkerType.Error);
             expect(await markers[0].getType()).equals(MarkerType.Error);
         });
 
         it('getText works', async () => {
-            const markers = await view.getAllMarkers(MarkerType.File);
+            const markers = await view.getAllVisibleMarkers(MarkerType.File);
             expect(await markers[0].getText()).has.string('test-file.ts');
         });
 
         it('toggleExpand works', async () => {
-            const marker = (await view.getAllMarkers(MarkerType.File))[0];
+            const marker = (await view.getAllVisibleMarkers(MarkerType.File))[0];
             await marker.toggleExpand(false);
-            let markers = await view.getAllMarkers(MarkerType.Any);
+            let markers = await view.getAllVisibleMarkers(MarkerType.Any);
             expect(markers.length).equals(1);
 
 
             await marker.toggleExpand(true);
-            markers = await view.getAllMarkers(MarkerType.Any);
+            markers = await view.getAllVisibleMarkers(MarkerType.Any);
             expect(markers.length).equals(2);
         });
     });
 });
 
 async function problemsExist(view: ProblemsView) {
-    const markers = await view.getAllMarkers(MarkerType.Any);
+    const markers = await view.getAllVisibleMarkers(MarkerType.Any);
     return markers.length > 0;
 }

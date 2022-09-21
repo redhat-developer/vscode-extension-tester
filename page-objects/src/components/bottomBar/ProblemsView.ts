@@ -13,7 +13,7 @@ export class ProblemsView extends AbstractElement {
 
     /**
      * Set the filter using the input box on the problems view
-     * @param pattern filter to use, prefferably a glob pattern
+     * @param pattern filter to use, preferably a glob pattern
      * @returns Promise resolving when the filter pattern is filled in
      */
     async setFilter(pattern: string): Promise<void> {
@@ -23,7 +23,7 @@ export class ProblemsView extends AbstractElement {
 
     /**
      * Clear all filters
-     * @returns Promise resolving to the filter field WebElement 
+     * @returns Promise resolving to the filter field WebElement
      */
     async clearFilter(): Promise<WebElement> {
         const filterField = await this.enclosingItem.findElement(ProblemsView.locators.BottomBarPanel.actions)
@@ -44,12 +44,22 @@ export class ProblemsView extends AbstractElement {
     }
 
     /**
-     * Get all markers from the problems view with the given type.
+     * @deprecated The method should not be used and getAllVisibleMarkers() should be used instead.
+     */
+     async getAllMarkers(type: MarkerType): Promise<Marker[]> {
+        return this.getAllVisibleMarkers(type);
+    }
+
+    /**
+     * Get all visible markers from the problems view with the given type.
+     * Warning: this only returns the markers that are visible, and not the
+     * entire list, so calls to this function may change depending on the
+     * environment  in which the tests are running in.
      * To get all markers regardless of type, use MarkerType.Any
      * @param type type of markers to retrieve
      * @returns Promise resolving to array of Marker objects
      */
-    async getAllMarkers(type: MarkerType): Promise<Marker[]> {
+    async getAllVisibleMarkers(type: MarkerType): Promise<Marker[]> {
         const markers: Marker[] = [];
         const elements = await this.findElements(ProblemsView.locators.ProblemsView.markerRow);
         for (const element of elements) {
@@ -60,6 +70,14 @@ export class ProblemsView extends AbstractElement {
             }
         }
         return markers;
+    }
+
+    /**
+     * Gets the count badge
+     * @returns Promise resolving to the WebElement representing the count badge
+     */
+    async getCountBadge(): Promise<WebElement> {
+        return await this.findElement(ProblemsView.locators.ProblemsView.changeCount);
     }
 }
 
@@ -79,7 +97,7 @@ export class Marker extends ElementWithContexMenu {
     async getType(): Promise<MarkerType> {
         const twist = await this.findElement(ProblemsView.locators.ProblemsView.markerTwistie);
         if ((await twist.getAttribute('class')).indexOf('collapsible') > -1) {
-            return MarkerType.File;            
+            return MarkerType.File;
         }
         const text = await this.getText();
         if (text.startsWith('Error')) {

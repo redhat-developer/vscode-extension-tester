@@ -1,5 +1,5 @@
 import { By } from "selenium-webdriver";
-import { DeepPartial } from 'ts-essentials'; 
+import { DeepPartial } from 'ts-essentials';
 
 /**
  * Type definitions for all used locators
@@ -55,6 +55,7 @@ export interface Locators {
         markerRow: By
         rowLabel: string
         markerTwistie: By
+        changeCount: By
     }
     TerminalView: {
         constructor: By
@@ -296,7 +297,7 @@ export interface Locators {
         ctor: By
         button: (title: string) => By
     }
-    
+
     // Status Bar
     StatusBar: {
         constructor: By
