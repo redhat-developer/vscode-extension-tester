@@ -46,7 +46,7 @@ export class ExTester {
      * @param version version to download, default latest
      */
     async downloadCode(version: string = 'latest'): Promise<void> {
-        return this.code.downloadVSCode(version);
+        return this.code.downloadVSCode(loadCodeVersion(version));
     }
 
     /**
@@ -89,7 +89,7 @@ export class ExTester {
      * @param vscodeVersion selected versio nof VSCode, default latest
      */
     async downloadChromeDriver(vscodeVersion: string = 'latest'): Promise<void> {
-        const chromiumVersion = await this.code.getChromiumVersion(vscodeVersion);
+        const chromiumVersion = await this.code.getChromiumVersion(loadCodeVersion(vscodeVersion));
         await this.chrome.downloadChromeDriverForChromiumVersion(chromiumVersion);
     }
 
@@ -101,10 +101,12 @@ export class ExTester {
      */
     async setupRequirements(options: SetupOptions = DEFAULT_SETUP_OPTIONS, offline = false): Promise<void> {
         const { useYarn, vscodeVersion, installDependencies } = options;
-        console.log(`Downloading VSCode: ${options.vscodeVersion}`);
+
+        const vscodeParsedVersion = loadCodeVersion(vscodeVersion);
+        console.log(`Downloading VSCode: ${vscodeParsedVersion}`);
         if (!offline) {
-            await this.downloadCode(vscodeVersion);
-            await this.downloadChromeDriver(vscodeVersion);
+            await this.downloadCode(vscodeParsedVersion);
+            await this.downloadChromeDriver(vscodeParsedVersion);
         } else {
             console.log('Attempting Setup in offline mode');
             const expectedChromeVersion = (await this.code.checkOfflineRequirements()).split('.')[0];
@@ -143,6 +145,22 @@ export class ExTester {
      * @returns Promise resolving to the mocha process exit code - 0 for no failures, 1 otherwise
      */
     async runTests(testFilesPattern: string, runOptions: RunOptions = DEFAULT_RUN_OPTIONS): Promise<number> {
+        runOptions.vscodeVersion = loadCodeVersion(runOptions.vscodeVersion);
         return this.code.runTests(testFilesPattern, runOptions);
     }
+}
+
+export function loadCodeVersion(version: string | undefined): string {
+    const code_version = process.env.CODE_VERSION ? process.env.CODE_VERSION : version;
+
+    if (code_version !== undefined) {
+        if (code_version.toLowerCase() === 'max') {
+            return VSCODE_VERSION_MAX;
+        }
+        if (code_version.toLowerCase() === 'min') {
+            return VSCODE_VERSION_MIN;
+        }
+        return code_version;
+    }
+    return 'latest';
 }

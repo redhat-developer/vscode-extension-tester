@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { program } from 'commander';
-import { ExTester, VSCODE_VERSION_MAX, VSCODE_VERSION_MIN } from './extester';
+import { ExTester } from './extester';
 import { ReleaseQuality } from './util/codeUtil';
 const pjson = require('../package.json');
 
@@ -15,8 +15,7 @@ program.command('get-vscode')
     .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
     .action(withErrors(async (cmd) => {
         const extest = new ExTester(cmd.storage, codeStream(cmd.type));
-        const version = loadCodeVersion(cmd.code_version);
-        await extest.downloadCode(version);
+        await extest.downloadCode(cmd.code_version);
     }));
 
 program.command('get-chromedriver')
@@ -26,8 +25,7 @@ program.command('get-chromedriver')
     .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
     .action(withErrors(async (cmd) => {
         const extest = new ExTester(cmd.storage, codeStream(cmd.type));
-        const version = loadCodeVersion(cmd.code_version);
-        await extest.downloadChromeDriver(version);
+        await extest.downloadChromeDriver(cmd.code_version);
     }));
 
 program.command('install-vsix')
@@ -67,8 +65,7 @@ program.command('setup-tests')
     .option('-i, --install_dependencies', 'Automatically install extensions your extension depends on', false)
     .action(withErrors(async (cmd) => {
         const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
-        const vscodeVersion = loadCodeVersion(cmd.code_version);
-        await extest.setupRequirements({vscodeVersion, useYarn: cmd.yarn, installDependencies: cmd.install_dependencies});
+        await extest.setupRequirements({vscodeVersion: cmd.code_version, useYarn: cmd.yarn, installDependencies: cmd.install_dependencies});
     }));
 
 program.command('run-tests <testFiles>')
@@ -85,8 +82,7 @@ program.command('run-tests <testFiles>')
     .option('-r --open_resource <resources...>', 'Open resources in VS Code. Multiple files and folders can be specified.')
     .action(withErrors(async (testFiles, cmd) => {
         const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
-        const vscodeVersion = loadCodeVersion(cmd.code_version);
-        await extest.runTests(testFiles, {vscodeVersion, settings: cmd.code_settings, cleanup: cmd.uninstall_extension, config: cmd.mocha_config, logLevel: cmd.log_level, offline: cmd.offline, resources: cmd.open_resource ?? []});
+        await extest.runTests(testFiles, {vscodeVersion: cmd.code_version, settings: cmd.code_settings, cleanup: cmd.uninstall_extension, config: cmd.mocha_config, logLevel: cmd.log_level, offline: cmd.offline, resources: cmd.open_resource ?? []});
     }));
 
 program.command('setup-and-run <testFiles>')
@@ -105,16 +101,10 @@ program.command('setup-and-run <testFiles>')
     .option('-r --open_resource <resources...>', 'Open resources in VS Code. Multiple files and folders can be specified.')
     .action(withErrors(async (testFiles, cmd) => {
         const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
-        const vscodeVersion = loadCodeVersion(cmd.code_version);
-        await extest.setupAndRunTests(testFiles, vscodeVersion, {useYarn: cmd.yarn, installDependencies: cmd.install_dependencies}, {settings: cmd.code_settings, cleanup: cmd.uninstall_extension, config: cmd.mocha_config, logLevel: cmd.log_level, resources: cmd.open_resource ?? []});
+        await extest.setupAndRunTests(testFiles, cmd.code_version, {useYarn: cmd.yarn, installDependencies: cmd.install_dependencies}, {settings: cmd.code_settings, cleanup: cmd.uninstall_extension, config: cmd.mocha_config, logLevel: cmd.log_level, resources: cmd.open_resource ?? []});
     }));
 
 program.parse(process.argv);
-
-function loadCodeVersion(version: string | undefined) {
-    const code_version = process.env.CODE_VERSION ? process.env.CODE_VERSION : version;
-    return code_version && code_version.toLowerCase() === 'max' ? VSCODE_VERSION_MAX : (code_version && code_version.toLowerCase() === 'min' ? VSCODE_VERSION_MIN : code_version);
-}
 
 function withErrors(command: (...args: any[]) => Promise<void>) {
     return async (...args: any[]) => {
