@@ -123,7 +123,9 @@ export class TerminalView extends ChannelView {
         const workbench = new Workbench();
         await workbench.executeCommand('terminal select all');
         await workbench.getDriver().sleep(500);
-        await workbench.executeCommand('terminal copy selection');
+        const menu = await this.openContextMenu();
+        await workbench.getDriver().sleep(500);
+        await menu.select('Copy');
         await workbench.getDriver().sleep(500);
         const text = clipboard.readSync();
         clipboard.writeSync('');
