@@ -87,7 +87,7 @@ export class VSBrowser {
             .setChromeOptions(options)
             .build();
         VSBrowser._instance = this;
-
+        
         initPageObjects(this.codeVersion, VSBrowser.baseVersion, getLocatorsPath(), this._driver, VSBrowser.browserName);
         return this;
     }
@@ -163,10 +163,13 @@ export class VSBrowser {
      * @returns Promise resolving when all selected resources are opened and the workbench reloads
      */
     async openResources(...paths: string[]): Promise<void> {
+        if (paths.length === 0) {
+            return;
+        }
+
         const code = new CodeUtil(this.storagePath, this.releaseType, this.extensionsFolder);
         code.open(...paths);
         await new Promise(res => setTimeout(res, 2000));
         await this.waitForWorkbench();
-
     }
 }

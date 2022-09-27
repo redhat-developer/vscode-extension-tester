@@ -33,14 +33,14 @@ describe('SettingsEditor', () => {
             setting = await editor.findSetting('Title Bar Style', 'Window') as ComboSetting;
         });
 
-        it('getTitle works', () => {
-            const title = setting.getTitle();
+        it('getTitle works', async () => {
+            const title = await setting.getTitle();
             expect(title).equals('Title Bar Style');
         });
 
-        it('getCategory works', () => {
-            const cat = setting.getCategory();
-            expect(cat).equals('Window');
+        it('getCategory works', async () => {
+            const cat = await setting.getCategory();
+            expect(cat).equals('Window:');
         });
 
         it('getValue works', async () => {

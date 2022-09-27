@@ -139,6 +139,8 @@ export interface Locators {
         action: (label: string) => By
         settingConstructor: (title: string, category: string) => By
         settingDesctiption: By
+        settingLabel: By
+        settingCategory: By
         comboSetting: By
         comboOption: By
         textSetting: By
@@ -268,6 +270,7 @@ export interface Locators {
         providerTitle: By
         providerType: By
         action: By
+        actionConstructor: (title: string) => By
         inputField: By
         changeItem: By
         changeName: By

@@ -1,5 +1,12 @@
 # Change Log
 
+## 5.0.0 (September 19 2022)
+ - Included support for VSCode 1.70.2, 1.71.2
+ - Add placeholder min/max values to --code_version option
+ - Add open resource CLI/API option
+ - Fix yarn compatibility
+ - Rewrite synchronized getters in Notifications, ViewItem and SettingsEditor to async
+
 ## 4.4.1 (August 05 2022)
  - Upversion vscode-extension-tester dependency on monaco-page-objects to 2.0.1
 

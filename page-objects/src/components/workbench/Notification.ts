@@ -1,6 +1,6 @@
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
 import { AbstractElement } from "../AbstractElement";
-import { until, WebElement } from "selenium-webdriver";
+import { By, until, WebElement } from "selenium-webdriver";
 
 /**
  * Available types of notifications
@@ -80,7 +80,8 @@ export abstract class Notification extends ElementWithContexMenu {
             .findElements(Notification.locators.Notification.action);
 
         for (const button of elements) {
-            buttons.push(await new NotificationButton(await button.getAttribute(Notification.locators.Notification.actionLabel), this).wait());
+            const title = await button.getAttribute('title');
+            buttons.push(await new NotificationButton(Notification.locators.Notification.buttonConstructor(title), this).wait());
         }
         return buttons;
     }
@@ -91,7 +92,7 @@ export abstract class Notification extends ElementWithContexMenu {
      * @returns Promise resolving when the select button is pressed
      */
     async takeAction(title: string): Promise<void> {
-        await new NotificationButton(title, this).click();
+        await new NotificationButton(Notification.locators.Notification.buttonConstructor(title), this).click();
     }
 
     /**
@@ -128,14 +129,12 @@ export class CenterNotification extends Notification {
  * Notification button
  */
 class NotificationButton extends AbstractElement {
-    private title: string;
 
-    constructor(title: string, notification: Notification) {
-        super(NotificationButton.locators.Notification.buttonConstructor(title), notification);
-        this.title = title;
+    constructor(buttonConstructor: By, notification: Notification) {
+        super(buttonConstructor, notification);
     }
 
-    getTitle(): string {
-        return this.title;
+    async getTitle(): Promise<string> {
+        return await this.getAttribute('title');
     }
 }

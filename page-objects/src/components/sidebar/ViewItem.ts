@@ -122,7 +122,7 @@ export abstract class TreeItem extends ViewItem {
 
         for (const item of items) {
             const label = await item.getAttribute(TreeItem.locators.TreeItem.actionTitle);
-            actions.push(new ViewItemAction(label, this));
+            actions.push(new ViewItemAction(ViewItemAction.locators.ViewSection.actionConstructor(label), this));
         }
         return actions;
     }
@@ -136,7 +136,7 @@ export abstract class TreeItem extends ViewItem {
     async getActionButton(label: string): Promise<ViewItemAction | undefined> {
         const actions = await this.getActionButtons();
         if (actions.length > 0) {
-            return actions.find((item) => { return item.getLabel().indexOf(label) > -1; });
+            return actions.find(async (item) => { return (await item.getLabel()).indexOf(label) > -1; });
         } else {
             return undefined;
         }
@@ -177,17 +177,15 @@ export abstract class TreeItem extends ViewItem {
  * Action button bound to a view item
  */
 export class ViewItemAction extends AbstractElement {
-    private label: string;
 
-    constructor(label: string, viewItem: TreeItem) {
-        super(ViewItemAction.locators.ViewSection.actionConstructor(label), viewItem);
-        this.label = label;
+    constructor(actionConstructor: By, viewItem: TreeItem) {
+        super(actionConstructor, viewItem);
     }
 
     /**
      * Get label of the action button
      */
-    getLabel(): string {
-        return this.label;
+    async getLabel(): Promise<string> {
+        return await this.getAttribute(ViewItemAction.locators.ViewSection.buttonLabel);
     }
 }

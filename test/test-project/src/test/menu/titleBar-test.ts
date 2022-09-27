@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { TitleBar, ContextMenu, BottomBarPanel, TitleBarItem } from 'vscode-extension-tester';
+import { TitleBar, ContextMenu, BottomBarPanel, TitleBarItem, VSBrowser } from 'vscode-extension-tester';
 
 (process.platform === 'darwin' ? describe.skip : describe)('TitleBar', () => {
     let bar: TitleBar;
@@ -48,7 +48,11 @@ import { TitleBar, ContextMenu, BottomBarPanel, TitleBarItem } from 'vscode-exte
     });
 
     it('select navigates a multi level path', async () => {
-        const menu = await bar.select('View', 'Appearance', 'Show Panel');
+        let showPanelName = 'Show Panel';
+        if (VSBrowser.instance.version >= '1.70.0') {
+            showPanelName = 'Panel'
+        }
+        const menu = await bar.select('View', 'Appearance', showPanelName);
         expect(menu).is.undefined;
         await new BottomBarPanel().toggle(false);
     });

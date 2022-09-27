@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { program } from 'commander';
-import { ExTester } from './extester';
+import { ExTester, VSCODE_VERSION_MAX, VSCODE_VERSION_MIN } from './extester';
 import { ReleaseQuality } from './util/codeUtil';
 const pjson = require('../package.json');
 
@@ -11,7 +11,7 @@ program.version(pjson.version)
 program.command('get-vscode')
     .description('Download VSCode for testing')
     .option('-s, --storage <storage>', 'Use this folder for all test resources')
-    .option('-c, --code_version <version>', 'Version of VSCode to download')
+    .option('-c, --code_version <version>', 'Version of VSCode to download, use `min`/`max` to download the oldest/latest VSCode supported by extester')
     .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
     .action(withErrors(async (cmd) => {
         const extest = new ExTester(cmd.storage, codeStream(cmd.type));
@@ -22,7 +22,7 @@ program.command('get-vscode')
 program.command('get-chromedriver')
     .description('Download ChromeDriver binary')
     .option('-s, --storage <storage>', 'Use this folder for all test resources')
-    .option('-c, --code_version <version>', 'Version of VSCode you want to run with the ChromeDriver')
+    .option('-c, --code_version <version>', 'Version of VSCode you want to run with the ChromeDriver, use `min`/`max` to download the oldest/latest VSCode supported by extester')
     .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
     .action(withErrors(async (cmd) => {
         const extest = new ExTester(cmd.storage, codeStream(cmd.type));
@@ -61,7 +61,7 @@ program.command('setup-tests')
     .description('Set up all necessary requirements for tests to run')
     .option('-s, --storage <storage>', 'Use this folder for all test resources')
     .option('-e, --extensions_dir <extensions_directory>', 'VSCode will use this directory for managing extensions')
-    .option('-c, --code_version <version>', 'Version of VSCode to download')
+    .option('-c, --code_version <version>', 'Version of VSCode to download, use `min`/`max` to download the oldest/latest VSCode supported by extester')
     .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
     .option('-y, --yarn', 'Use yarn to build the extension via vsce instead of npm', false)
     .option('-i, --install_dependencies', 'Automatically install extensions your extension depends on', false)
@@ -75,24 +75,25 @@ program.command('run-tests <testFiles>')
     .description('Run the test files specified by a glob pattern')
     .option('-s, --storage <storage>', 'Use this folder for all test resources')
     .option('-e, --extensions_dir <extensions_directory>', 'VSCode will use this directory for managing extensions')
-    .option('-c, --code_version <version>', 'Version of VSCode to be used')
+    .option('-c, --code_version <version>', 'Version of VSCode to be used, use `min`/`max` to download the oldest/latest VSCode supported by extester')
     .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
     .option('-o, --code_settings <settings.json>', 'Path to custom settings for VS Code json file')
     .option('-u, --uninstall_extension', 'Uninstall the extension after the test run', false)
     .option('-m, --mocha_config <mocharc.js>', 'Path to Mocha configuration file')
     .option('-l, --log_level <level>', 'Log messages from webdriver with a given level', 'Info')
     .option('-f, --offline', 'Attempt to run without internet connection, make sure to have all requirements downloaded', false)
+    .option('-r --open_resource <resources...>', 'Open resources in VS Code. Multiple files and folders can be specified.')
     .action(withErrors(async (testFiles, cmd) => {
         const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
         const vscodeVersion = loadCodeVersion(cmd.code_version);
-        await extest.runTests(testFiles, {vscodeVersion, settings: cmd.code_settings, cleanup: cmd.uninstall_extension, config: cmd.mocha_config, logLevel: cmd.log_level, offline: cmd.offline});
+        await extest.runTests(testFiles, {vscodeVersion, settings: cmd.code_settings, cleanup: cmd.uninstall_extension, config: cmd.mocha_config, logLevel: cmd.log_level, offline: cmd.offline, resources: cmd.open_resource ?? []});
     }));
 
 program.command('setup-and-run <testFiles>')
     .description('Perform all setup and run tests specified by glob pattern')
     .option('-s, --storage <storage>', 'Use this folder for all test resources')
     .option('-e, --extensions_dir <extensions_directory>', 'VSCode will use this directory for managing extensions')
-    .option('-c, --code_version <version>', 'Version of VSCode to download')
+    .option('-c, --code_version <version>', 'Version of VSCode to download, use `min`/`max` to download the oldest/latest VSCode supported by extester')
     .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
     .option('-o, --code_settings <settings.json>', 'Path to custom settings for VS Code json file')
     .option('-y, --yarn', 'Use yarn to build the extension via vsce instead of npm', false)
@@ -101,20 +102,18 @@ program.command('setup-and-run <testFiles>')
     .option('-i, --install_dependencies', 'Automatically install extensions your extension depends on', false)
     .option('-l, --log_level <level>', 'Log messages from webdriver with a given level', 'Info')
     .option('-f, --offline', 'Attempt to run without internet connection, make sure to have all requirements downloaded', false)
+    .option('-r --open_resource <resources...>', 'Open resources in VS Code. Multiple files and folders can be specified.')
     .action(withErrors(async (testFiles, cmd) => {
         const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
         const vscodeVersion = loadCodeVersion(cmd.code_version);
-        await extest.setupAndRunTests(testFiles, vscodeVersion, {useYarn: cmd.yarn, installDependencies: cmd.install_dependencies}, {settings: cmd.code_settings, cleanup: cmd.uninstall_extension, config: cmd.mocha_config, logLevel: cmd.log_level});
+        await extest.setupAndRunTests(testFiles, vscodeVersion, {useYarn: cmd.yarn, installDependencies: cmd.install_dependencies}, {settings: cmd.code_settings, cleanup: cmd.uninstall_extension, config: cmd.mocha_config, logLevel: cmd.log_level, resources: cmd.open_resource ?? []});
     }));
 
 program.parse(process.argv);
 
 function loadCodeVersion(version: string | undefined) {
-    const envVersion = process.env.CODE_VERSION;
-    if (!version && envVersion) {
-        return envVersion;
-    }
-    return version;
+    const code_version = process.env.CODE_VERSION ? process.env.CODE_VERSION : version;
+    return code_version && code_version.toLowerCase() === 'max' ? VSCODE_VERSION_MAX : (code_version && code_version.toLowerCase() === 'min' ? VSCODE_VERSION_MIN : code_version);
 }
 
 function withErrors(command: (...args: any[]) => Promise<void>) {
