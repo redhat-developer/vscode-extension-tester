@@ -44,34 +44,34 @@ describe('Bottom Bar Example Tests', () => {
         // These tests use getAllVisibleMarkers() and are unreliable and should not be included.
         //
         // now we can look at the error markers
-        // it('Error markers are displayed', async () => {
-        //     // generally, there are 3 marker types (warning, error, and file - file just contains other markers though)
-        //     // we want to see the errors
-        //     const errors = await view.getAllVisibleMarkers(MarkerType.Error);
-        //
-        //     // assert that there are errors (there should be about 8 in the file)
-        //     expect(errors.length).is.greaterThan(5);
-        // });
-        //
+        it.skip('Error markers are displayed', async () => {
+            // generally, there are 3 marker types (warning, error, and file - file just contains other markers though)
+            // we want to see the errors
+            const errors = await view.getAllVisibleMarkers(MarkerType.Error);
+
+            // assert that there are errors (there should be about 8 in the file)
+            expect(errors.length).is.greaterThan(5);
+        });
+
         // we can make sure no warnings are present at the same time
-        // it('There are no warnings', async () => {
-        //     const warnings = await view.getAllVisibleMarkers(MarkerType.Warning);
-        //     expect(warnings).is.empty;
-        // });
-        //
+        it.skip('There are no warnings', async () => {
+            const warnings = await view.getAllVisibleMarkers(MarkerType.Warning);
+            expect(warnings).is.empty;
+        });
+
         // there is also a file marker (out problematic file that contains the errors)
-        // it('There is a file marker', async () => {
-        //     const files = await view.getAllVisibleMarkers(MarkerType.File);
-        //     const file = files[0];
-        //
-        //     // we can get the text of the marker
-        //     expect(await file.getText()).contains('problems.ts');
-        //     // and the type
-        //     expect(await file.getType()).equals(MarkerType.File);
-        //     // and we can collapse & expand the file marker
-        //     await file.toggleExpand(false);
-        //     await file.toggleExpand(true);
-        // });
+        it.skip('There is a file marker', async () => {
+            const files = await view.getAllVisibleMarkers(MarkerType.File);
+            const file = files[0];
+
+            // we can get the text of the marker
+            expect(await file.getText()).contains('problems.ts');
+            // and the type
+            expect(await file.getType()).equals(MarkerType.File);
+            // and we can collapse & expand the file marker
+            await file.toggleExpand(false);
+            await file.toggleExpand(true);
+        });
 
         it('Markers are displayed', async () => {
             // Need to throttle this test in order for VS Code to load/display all of the errors
