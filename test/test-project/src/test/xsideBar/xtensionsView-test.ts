@@ -1,4 +1,4 @@
-import { ActivityBar, ExtensionsViewSection, EditorView, ExtensionsViewItem, VSBrowser } from "vscode-extension-tester";
+import { ActivityBar, ExtensionsViewSection, EditorView, ExtensionsViewItem, SideBarView, VSBrowser, ViewTitlePart } from "vscode-extension-tester";
 import { expect } from 'chai';
 import pjson from '../../../package.json';
 
@@ -36,6 +36,44 @@ describe('ExtensionsView', () => {
         item = await section.findItem(`@installed ${pjson.displayName}`) as ExtensionsViewItem;
         expect(item).not.undefined;
     });
+
+    describe('ExtensionsViewSection SideBar', async () => {
+        let sideBar: SideBarView;
+        let titlePart: ViewTitlePart;
+
+        before(async () => {
+            sideBar = new SideBarView();
+            titlePart = sideBar.getTitlePart();
+        });
+
+        it('getAction Filter Extensions... works', async () => {
+            const filterExtensions = 'Filter Extensions...';
+            const action = await titlePart.getAction(filterExtensions);
+            expect(action).not.undefined;
+            expect(await action.getTitle()).equals(filterExtensions);
+        });
+    
+        it('getAction Refresh works', async () => {
+            const filterExtensions = 'Refresh';
+            const action = await titlePart.getAction(filterExtensions);
+            expect(action).not.undefined;
+            expect(await action.getTitle()).equals(filterExtensions);
+        });
+    
+        it('getAction Clear Extensions Search Results works', async () => {
+            const filterExtensions = 'Clear Extensions Search Results';
+            const action = await titlePart.getAction(filterExtensions);
+            expect(action).not.undefined;
+            expect(await action.getTitle()).equals(filterExtensions);
+        });
+    
+        it('getActions works', async () => {
+            const actions = await titlePart.getActions();
+            expect(actions).not.undefined;
+            expect(await actions.length).to.be.greaterThan(0);
+        });
+    });
+
 
     describe('ExtensionsViewItem', async () => {
 

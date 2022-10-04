@@ -55,6 +55,6 @@ export class ViewTitlePart extends ElementWithContexMenu {
      * Get title of the button
      */
     async getTitle(): Promise<string> {
-        return await this.getAttribute('title');
+        return await this.getAttribute(ViewTitlePart.locators.ViewTitlePart.actionLabel);
     }
  }

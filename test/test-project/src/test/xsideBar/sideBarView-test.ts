@@ -37,6 +37,7 @@ describe('SideBarView', () => {
 
         it('getActions works', async () => {
             const actions = await part.getActions();
+            console.log(`actions: ${await Promise.all(actions.map(async item => await item.getTitle()))}`);
             if (VSBrowser.instance.version >= '1.47.0') {
                 expect(actions).not.empty;
             } else {
@@ -131,12 +132,44 @@ describe('SideBarView', () => {
 
             it('getActions works', async () => {
                 const actions = await section.getActions();
+                console.log(`actions: ${await Promise.all(actions.map(async item => await item.getLabel()))}`);
                 expect(actions).not.empty;
             });
 
-            it('getAction works', async () => {
+            it('getAction Refresh Explorer works', async () => {
                 const action = await section.getAction('Refresh Explorer');
+                expect(action).not.undefined;
                 expect(await action.getLabel()).equals('Refresh Explorer');
+            });
+
+            it('getAction New Folder... works', async () => {
+                let folderLabel: string;
+                if (VSBrowser.instance.version >= '1.71.0') {
+                    folderLabel = 'New Folder...';
+                } else {
+                    folderLabel = 'New Folder'
+                }
+                const action = await section.getAction(folderLabel);
+                expect(action).not.undefined;
+                expect(await action.getLabel()).equals(folderLabel);
+            });
+
+            it('getAction Collapse Folders in Explorer works', async () => {
+                const action = await section.getAction('Collapse Folders in Explorer');
+                expect(action).not.undefined;
+                expect(await action.getLabel()).equals('Collapse Folders in Explorer');
+            });
+
+            it('getAction New File... works', async () => {
+                let fileLabel: string;
+                if (VSBrowser.instance.version >= '1.71.0') {
+                    fileLabel = 'New File...';
+                } else {
+                    fileLabel = 'New File'
+                }
+                const action = await section.getAction(fileLabel);
+                expect(action).not.undefined;
+                expect(await action.getLabel()).equals(fileLabel);
             });
 
             (process.platform === 'darwin' ? it.skip : it)('moreActions works', async () => {
