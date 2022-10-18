@@ -1,8 +1,10 @@
-name: Nightly Insiders
+name: Insiders CI
 
 on:
   schedule:
     - cron: "0 0 * * *"
+  push:
+    branches: [ master ]
   workflow_dispatch:
 
 jobs:
@@ -33,6 +35,6 @@ jobs:
       - name: Upload screenshots
         uses: actions/upload-artifact@v3
         if: failure()
-        with: 
+        with:
           name: screenshots
           path: ~/test/**/screenshots/*.png

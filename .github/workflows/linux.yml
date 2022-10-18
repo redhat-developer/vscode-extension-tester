@@ -12,8 +12,8 @@ jobs:
 
     strategy:
       matrix:
-        node: [16]
-        version: [min, 1.68.1, 1.69.2, 1.70.2, max]
+        node: [ 16 ]
+        version:  [ min, 1.68.1, 1.69.2, 1.70.2, max ]
       fail-fast: false
     
     steps:
@@ -40,6 +40,6 @@ jobs:
       - name: Upload screenshots
         uses: actions/upload-artifact@v3
         if: failure()
-        with: 
+        with:
           name: screenshots-${{ matrix.version }}
           path: ~/test/**/screenshots/*.png
