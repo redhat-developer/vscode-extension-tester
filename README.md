@@ -1,6 +1,10 @@
-[![Build Status](https://travis-ci.org/redhat-developer/vscode-extension-tester.svg?branch=master)](https://travis-ci.org/redhat-developer/vscode-extension-tester)
+#### Stable VSCode
+[![Linux CI](https://github.com/redhat-developer/vscode-extension-tester/actions/workflows/linux.yml/badge.svg)](https://github.com/redhat-developer/vscode-extension-tester/actions/workflows/linux.yml) [![MacOS CI](https://github.com/redhat-developer/vscode-extension-tester/actions/workflows/mac.yml/badge.svg)](https://github.com/redhat-developer/vscode-extension-tester/actions/workflows/mac.yml) [![Windows CI](https://github.com/redhat-developer/vscode-extension-tester/actions/workflows/windows.yml/badge.svg)](https://github.com/redhat-developer/vscode-extension-tester/actions/workflows/windows.yml)
 
-# vscode-extension-tester
+#### Insider VSCode
+[![Nightly Insiders](https://github.com/redhat-developer/vscode-extension-tester/actions/workflows/insiders.yml/badge.svg)](https://github.com/redhat-developer/vscode-extension-tester/actions/workflows/insiders.yml)
+
+# vscode-extension-tester [![npm version](https://badge.fury.io/js/vscode-extension-tester.svg?style=flat)](https://badge.fury.io/js/vscode-extension-tester) [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg?style=flat)](https://github.com/redhat-developer/vscode-extension-tester/blob/master/LICENSE)
 
 VSCode Extension Tester is a package designed to help you run UI tests for your VS Code extensions using [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver).
 
