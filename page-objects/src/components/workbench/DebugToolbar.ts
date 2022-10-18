@@ -45,6 +45,13 @@ export class DebugToolbar extends AbstractElement {
     }
 
     /**
+     * Click Disconnect
+     */
+    async disconnect(): Promise<void> {
+        await (await this.getButton('disconnect')).click();
+    }
+
+    /**
      * Click Pause
      */
     async pause(): Promise<void> {
