@@ -12,8 +12,8 @@ jobs:
 
     strategy:
       matrix:
-        node: [16]
-        version: [max]
+        node: [ 16 ]
+        version: [ max ]
       fail-fast: false
     
     steps:
@@ -33,3 +33,9 @@ jobs:
         env: 
           CODE_VERSION: ${{ matrix.version }}
         run: npm test
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: screenshots-${{ matrix.version }}
+          path: ~/test/**/screenshots/*.png
