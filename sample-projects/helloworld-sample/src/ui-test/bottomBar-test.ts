@@ -10,7 +10,7 @@ describe('Bottom Bar Example Tests', () => {
         // init the bottom bar page object
         bottomBar = new BottomBarPanel();
 
-        // make sure the panel is open 
+        // make sure the panel is open
         await bottomBar.toggle(true);
     });
 
@@ -22,7 +22,7 @@ describe('Bottom Bar Example Tests', () => {
         // wait condition for problem markers to exist within problems view
         async function problemsExist(view: ProblemsView) {
             // search for markers regardless of type until some are found
-            const markers = await view.getAllMarkers(MarkerType.Any);
+            const markers = await view.getAllVisibleMarkers(MarkerType.Any);
             return markers.length > 0;
         }
 
@@ -41,25 +41,27 @@ describe('Bottom Bar Example Tests', () => {
             await view.getDriver().wait(() => { return problemsExist(view); }, 15000);
         });
 
+        // These tests use getAllVisibleMarkers() and are unreliable and should not be included.
+        //
         // now we can look at the error markers
-        it('Error markers are displayed', async () => {
+        it.skip('Error markers are displayed', async () => {
             // generally, there are 3 marker types (warning, error, and file - file just contains other markers though)
-            // we want to see the errors 
-            const errors = await view.getAllMarkers(MarkerType.Error);
+            // we want to see the errors
+            const errors = await view.getAllVisibleMarkers(MarkerType.Error);
 
             // assert that there are errors (there should be about 8 in the file)
             expect(errors.length).is.greaterThan(5);
         });
 
         // we can make sure no warnings are present at the same time
-        it('There are no warnings', async () => {
-            const warnings = await view.getAllMarkers(MarkerType.Warning);
+        it.skip('There are no warnings', async () => {
+            const warnings = await view.getAllVisibleMarkers(MarkerType.Warning);
             expect(warnings).is.empty;
         });
 
         // there is also a file marker (out problematic file that contains the errors)
-        it('There is a file marker', async () => {
-            const files = await view.getAllMarkers(MarkerType.File);
+        it.skip('There is a file marker', async () => {
+            const files = await view.getAllVisibleMarkers(MarkerType.File);
             const file = files[0];
 
             // we can get the text of the marker
@@ -71,13 +73,31 @@ describe('Bottom Bar Example Tests', () => {
             await file.toggleExpand(true);
         });
 
+        it('Markers are displayed', async () => {
+            // Need to throttle this test in order for VS Code to load/display all of the errors
+            // and warnings.
+            await new Promise(res => setTimeout((res), 3000));
+
+            const markers = await view.getAllVisibleMarkers(MarkerType.Any);
+            const badgeElement = await view.getCountBadge();
+            const badgeText = await badgeElement.getText();
+
+            // getAllVisibleMarkers() only returns the **visible** markers, so we can't rely on the count,
+            // but we should be able to rely on at least one appearing.
+            expect(markers.length).is.greaterThan(0);
+
+            // Regardless of how many are visible, the first row contains the summary, and the badge
+            // contains the count.
+            expect(badgeText).equals("19");
+        });
+
         // we can also define filtering for problems
         it('Filtering works', async () => {
             // set filter to something more specific
             await view.setFilter('aa');
             // wait a bit for the filter to apply
             await new Promise(res => setTimeout(res, 1000));
-            const errors = await view.getAllMarkers(MarkerType.Error);
+            const errors = await view.getAllVisibleMarkers(MarkerType.Error);
 
             // now there should be just a single error
             expect(errors.length).equals(1);
@@ -108,7 +128,7 @@ describe('Bottom Bar Example Tests', () => {
         it('Clear the output channel', async () => {
             await view.clearText();
             const text = await view.getText();
-            
+
             // now the log is technically empty, it just contains a newline character
             expect(text).equals('\n');
         });

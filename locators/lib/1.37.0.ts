@@ -51,7 +51,8 @@ const bottomBar = {
         collapseAll: By.className('collapse-all'),
         markerRow: By.className('monaco-list-row'),
         rowLabel: 'aria-label',
-        markerTwistie: By.className('monaco-tl-twistie')
+        markerTwistie: By.className('monaco-tl-twistie'),
+        changeCount: By.className('monaco-count-badge')
     },
     TerminalView: {
         constructor: By.id('workbench.panel.terminal'),
