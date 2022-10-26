@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         node: [ 16 ]
-        version:  [ min, 1.68.1, 1.69.2, 1.70.2, max ]
+        version:  [ min, 1.69.2, 1.70.2, 1.71.2, max ]
       fail-fast: false
     
     steps:
