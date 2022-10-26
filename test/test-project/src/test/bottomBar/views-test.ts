@@ -1,10 +1,17 @@
 import { expect } from 'chai';
+import * as path from 'path';
 import { BottomBarPanel, OutputView, TerminalView, VSBrowser, Workbench } from 'vscode-extension-tester';
 
 (process.platform === 'darwin' ? describe.skip : describe)('Output View/Text Views', () => {
     let panel: BottomBarPanel;
     let view: OutputView;
-    const channelName = 'Git';
+    const channelName = (VSBrowser.instance.version > '1.72.2' && VSBrowser.instance.version < '1.74.0') ? 'Log (Git)' : 'Git';
+
+    before(async function() {
+        this.timeout(25000);
+        await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', '..', 'resources'));
+        VSBrowser.instance.waitForWorkbench();
+    });
 
     before(async () => {
         const center = await new Workbench().openNotificationsCenter();
@@ -12,6 +19,7 @@ import { BottomBarPanel, OutputView, TerminalView, VSBrowser, Workbench } from '
         await center.close();
         panel = new BottomBarPanel();
         await panel.toggle(true);
+        await panel.maximize();
         view = await panel.openOutputView();
     });
 
