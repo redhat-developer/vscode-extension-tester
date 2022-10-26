@@ -4,7 +4,7 @@ import { BottomBarPanel, OutputView, TerminalView, VSBrowser, Workbench } from '
 (process.platform === 'darwin' ? describe.skip : describe)('Output View/Text Views', () => {
     let panel: BottomBarPanel;
     let view: OutputView;
-    const channelName = 'Git';
+    const channelName = 'Log (Main)';
 
     before(async () => {
         const center = await new Workbench().openNotificationsCenter();
