@@ -1,5 +1,12 @@
 # Change Log
 
+## 5.1.0 (October 26 2022)
+ - Added GitHub Actions badges into package readme file
+ - Added getAllVisibleMarkers instead unstable getAllAMarkers in ProblemsView component
+ - Added Disconnect button click to DebugToolBar component
+ - Applied min/max placeholder feature to API
+ - Fixed TerminalView.getText() method
+
 ## 5.0.0 (September 19 2022)
  - Included support for VSCode 1.70.2, 1.71.2
  - Add placeholder min/max values to --code_version option
