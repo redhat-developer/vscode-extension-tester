@@ -103,7 +103,6 @@ export class ExTester {
         const { useYarn, vscodeVersion, installDependencies } = options;
 
         const vscodeParsedVersion = loadCodeVersion(vscodeVersion);
-        console.log(`Downloading VSCode: ${vscodeParsedVersion}`);
         if (!offline) {
             await this.downloadCode(vscodeParsedVersion);
             await this.downloadChromeDriver(vscodeParsedVersion);
