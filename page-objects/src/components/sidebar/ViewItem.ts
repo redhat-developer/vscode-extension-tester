@@ -1,6 +1,7 @@
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
 import { AbstractElement } from "../AbstractElement";
-import { WebElement, By } from "selenium-webdriver";
+import { WebElement, By, error } from "selenium-webdriver";
+import { NullAttributeError } from "../../errors/NullAttributeError";
 
 /**
  * Arbitrary item in the side bar view
@@ -24,15 +25,13 @@ export abstract class TreeItem extends ViewItem {
     /**
      * Retrieves the label of this view item
      */
-    async getLabel(): Promise<string> {
-        return '';
-    }
+    abstract getLabel(): Promise<string>;
 
     /**
      * Retrieves the tooltip of this TreeItem.
      * @returns A promise resolving to the tooltip or undefined if the TreeItem has no tooltip.
      */
-    async getTooltip(): Promise<string|undefined> {
+    async getTooltip(): Promise<string | undefined> {
         return undefined;
     }
 
@@ -110,20 +109,46 @@ export abstract class TreeItem extends ViewItem {
      * actions associated
      */
     async getActionButtons(): Promise<ViewItemAction[]> {
-        await this.getDriver().actions().move({origin: this}).perform();
+        await this.getDriver().actions().move({ origin: this }).perform();
+
         let container: WebElement;
         try {
             container = await this.findElement(TreeItem.locators.TreeItem.actions);
-        } catch(err) {
-            return [];
+        } catch (e) {
+            if (e instanceof error.NoSuchElementError) {
+                return [];
+            }
+            throw e;
         }
+
         const actions: ViewItemAction[] = [];
         const items = await container.findElements(TreeItem.locators.TreeItem.actionLabel);
 
         for (const item of items) {
             const label = await item.getAttribute(TreeItem.locators.TreeItem.actionTitle);
-            actions.push(new ViewItemAction(ViewItemAction.locators.ViewSection.actionConstructor(label), this));
+
+            if (label === '' || label === null) {
+                // unknown, skip the item
+                continue;
+            }
+
+            try {
+                actions.push(new ViewItemAction(ViewItemAction.locators.ViewSection.actionConstructor(label), this));
+            }
+            catch (e) {
+                // the item was destroyed in meantime
+                if (e instanceof error.NoSuchElementError) {
+                    continue;
+                }
+
+                if (e instanceof error.StaleElementReferenceError) {
+                    console.warn('ViewItem has become stale');
+                }
+
+                throw e;
+            }
         }
+
         return actions;
     }
 
@@ -135,11 +160,22 @@ export abstract class TreeItem extends ViewItem {
      */
     async getActionButton(label: string): Promise<ViewItemAction | undefined> {
         const actions = await this.getActionButtons();
-        if (actions.length > 0) {
-            return actions.find(async (item) => { return (await item.getLabel()).indexOf(label) > -1; });
-        } else {
-            return undefined;
+
+        for (const action of actions) {
+            try {
+                if ((await action.getLabel()).includes(label)) {
+                    return action;
+                }
+            }
+            catch (e) {
+                if (e instanceof NullAttributeError || e instanceof error.StaleElementReferenceError) {
+                    continue;
+                }
+                throw e;
+            }
         }
+
+        return undefined;
     }
 
     /**
@@ -186,6 +222,12 @@ export class ViewItemAction extends AbstractElement {
      * Get label of the action button
      */
     async getLabel(): Promise<string> {
-        return await this.getAttribute(ViewItemAction.locators.ViewSection.buttonLabel);
+        const value = await this.getAttribute(ViewItemAction.locators.ViewSection.buttonLabel);
+
+        if (value === null) {
+            throw new NullAttributeError(`${this.constructor.name}.getLabel returned null`);
+        }
+
+        return value;
     }
 }
