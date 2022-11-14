@@ -1,6 +1,7 @@
 import { TreeItem } from "../../ViewItem";
 import { TreeSection } from "../TreeSection";
 import { WebElement } from "selenium-webdriver";
+import { NullAttributeError } from "../../../../errors/NullAttributeError";
 
 /**
  * Default tree item base on the items in explorer view
@@ -11,7 +12,13 @@ export class DefaultTreeItem extends TreeItem {
     }
 
     async getLabel(): Promise<string> {
-        return this.getAttribute(DefaultTreeItem.locators.DefaultTreeSection.itemLabel);
+        const value = this.getAttribute(DefaultTreeItem.locators.DefaultTreeSection.itemLabel);
+
+        if (value === null) {
+            throw new NullAttributeError(`${this.constructor.name}.getLabel returned null`);
+        }
+        
+        return value;
     }
 
     async getTooltip(): Promise<string> {
