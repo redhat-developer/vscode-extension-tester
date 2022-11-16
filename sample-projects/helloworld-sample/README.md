@@ -19,7 +19,7 @@ In order to run the extension tester, the extension needs 2 packages as (dev)Dep
 
 This sample also uses `chai` as the assertion framework of choice, but feel free to use any assertion package you like.
 
-Also note that the folder `test-resources` (which stores all the required binaries for testing) is excluded from typescript compiler and tslint. This is necessary for both to work when building your project. We also recommend adding the folder into your `.gitignore` file.
+Also note that the folder `test-resources` (which stores all the required binaries for testing) is excluded from typescript compiler and ESLint. This is necessary for both to work when building your project. We also recommend adding the folder into your `.gitignore` file.
 
 
 ## Running the Sample
