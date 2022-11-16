@@ -86,12 +86,12 @@
 			},
 			{
 				"command": "extension.enableCodeLens",
-                "title": "Enable CodeLens"
-            },
-            {
+				"title": "Enable CodeLens"
+			},
+			{
 				"command": "extension.disableCodeLens",
-                "title": "Disable Codelens"
-            }
+				"title": "Disable Codelens"
+			}
 		],
 		"views": {
 			"explorer": [
@@ -120,9 +120,9 @@
 					"description": "Hello World!"
 				},
 				"testProject.enableCodeLens": {
-                    "type": "boolean",
-                    "default": false
-                }
+					"type": "boolean",
+					"default": false
+				}
 			}
 		}
 	},
@@ -135,14 +135,16 @@
 		"ci-test": "npm run compile && extest setup-and-run './out/src/test/**/*test.js' -u -s ~/test -r ."
 	},
 	"devDependencies": {
-		"@types/chai": "^4.2.6",
-		"@types/node": "^16.11.7",
+		"@types/chai": "^4.3.4",
+		"@types/node": "^16.18.3",
 		"@types/vscode": "^1.34.0",
-		"chai": "^4.2.0",
-		"mocha": "^8.1.3",
-		"rimraf": "^3.0.0",
+		"@typescript-eslint/eslint-plugin": "^5.43.0",
+		"@typescript-eslint/parser": "^5.43.0",
+		"chai": "^4.3.7",
+		"mocha": "^10.1.0",
+		"rimraf": "^3.0.2",
 		"tslint": "^6.1.3",
-		"typescript": "4.4.2",
+		"typescript": "^4.9.3",
 		"vscode-extension-tester": "file:../.."
 	}
 }
