@@ -31,7 +31,7 @@ import { BottomBarPanel, WebElement, Workbench } from 'vscode-extension-tester';
         await panel.maximize();
         const maxHeight = await getHeight(panel);
         expect(maxHeight).greaterThan(initHeight);
-        await new Promise(res => setTimeout(res, 1000))
+        await new Promise(res => setTimeout(res, 1000));
 
         await panel.restore();
         const restoredHeight = await getHeight(panel);

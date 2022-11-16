@@ -6,13 +6,13 @@ describe('Simple open file dialog', () => {
 
     it('Opens a file', async () => {
         const input = await new Workbench().openCommandPrompt();
-        await input.setText('>File: Open File...')
+        await input.setText('>File: Open File...');
         await input.selectQuickPick('File: Open File...');
         await new Promise(res => setTimeout(res, 1000));
         await input.setText(filePath);
         await input.confirm();
         await new Promise(res => setTimeout(res, 1000));
 
-        await new EditorView().openEditor('package.json')
+        await new EditorView().openEditor('package.json');
     });
 });

@@ -50,7 +50,7 @@ import { TitleBar, ContextMenu, BottomBarPanel, TitleBarItem, VSBrowser } from '
     it('select navigates a multi level path', async () => {
         let showPanelName = 'Show Panel';
         if (VSBrowser.instance.version >= '1.70.0') {
-            showPanelName = 'Panel'
+            showPanelName = 'Panel';
         }
         const menu = await bar.select('View', 'Appearance', showPanelName);
         expect(menu).is.undefined;

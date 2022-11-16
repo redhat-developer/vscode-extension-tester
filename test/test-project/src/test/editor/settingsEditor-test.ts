@@ -10,7 +10,7 @@ describe('SettingsEditor', () => {
     });
 
     after(async () => {
-        await new EditorView().closeAllEditors()
+        await new EditorView().closeAllEditors();
     });
 
     it('findSetting works', async function() {

@@ -8,7 +8,7 @@ describe('ExtensionsView', () => {
 
     let sectionTitle = 'Enabled';
     if (VSBrowser.browserName === 'vscode' && VSBrowser.instance.version >= '1.48.0') {
-        sectionTitle = 'Installed'
+        sectionTitle = 'Installed';
     }
 
     before(async () => {

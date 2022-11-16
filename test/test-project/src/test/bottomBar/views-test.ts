@@ -79,9 +79,9 @@ import { BottomBarPanel, OutputView, TerminalView, VSBrowser, Workbench } from '
         });
 
         it('executeCommand works', async () => {
-            const command = `${process.platform === 'win32' ? 'start-sleep -s' : 'sleep'} 2`
+            const command = `${process.platform === 'win32' ? 'start-sleep -s' : 'sleep'} 2`;
             await terminal.executeCommand(command, 3000);
-        })
+        });
 
         it('newTerminal opens a new term channel', async () => {
             await terminal.newTerminal();
