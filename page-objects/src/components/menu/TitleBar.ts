@@ -69,7 +69,7 @@ export class TitleBarItem extends MenuItem {
 
     async select(): Promise<ContextMenu> {
         const openMenus = await this.getDriver().findElements(TitleBar.locators.ContextMenu.constructor);
-        if (openMenus.length > 0 && openMenus[0].isDisplayed()) {
+        if (openMenus.length > 0 && await openMenus[0].isDisplayed()) {
             await this.getDriver().actions().sendKeys(Key.ESCAPE).perform();
         }
         await this.click();
