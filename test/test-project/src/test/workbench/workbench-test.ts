@@ -52,7 +52,7 @@ describe('Workbench', () => {
 
     it('executeCommand works', async () => {
         await bench.executeCommand('hello world');
-        await bench.getDriver().sleep(500)
+        await bench.getDriver().sleep(500);
         const notifications = await bench.getNotifications();
         expect(notifications).not.empty;
     });

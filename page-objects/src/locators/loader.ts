@@ -1,7 +1,7 @@
 import { Locators, LocatorDiff } from './locators';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import compareVersions = require('compare-versions');
+import { compareVersions } from 'compare-versions';
 import { Merge, DeepPartial, DeepRequired } from 'ts-essentials';
 import clone = require('clone-deep');
 

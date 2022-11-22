@@ -2,7 +2,7 @@
 
 import * as path from 'path';
 import * as fs from 'fs-extra';
-import compareVersions = require('compare-versions');
+import { compareVersions } from 'compare-versions';
 import { WebDriver, Builder, until, initPageObjects, logging, By } from 'monaco-page-objects';
 import { Options } from 'selenium-webdriver/chrome';
 import { getLocatorsPath } from 'vscode-extension-tester-locators';

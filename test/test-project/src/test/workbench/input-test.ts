@@ -64,7 +64,7 @@ describe('QuickOpenBox', () => {
         await input.setText('>');
         const pick = await input.findQuickPick('thisdoesnot exits definitely');
         expect(pick).undefined;
-    })
+    });
 });
 
 describe('QuickPickItem', () => {

@@ -105,7 +105,7 @@ describe('NotificationsCenter', () => {
             expect(await notification.getType()).to.equal(NotificationType.Warning);
             await notification.dismiss();
             await center.getDriver().wait(until.stalenessOf(notification));
-        })
+        });
 
         it('get error notification works', async () => {
             await new Workbench().executeCommand('Error Message');
@@ -117,6 +117,6 @@ describe('NotificationsCenter', () => {
             expect(await notification.getType()).to.equal(NotificationType.Error);
             await notification.dismiss();
             await center.getDriver().wait(until.stalenessOf(notification));
-        })
+        });
     });
 });

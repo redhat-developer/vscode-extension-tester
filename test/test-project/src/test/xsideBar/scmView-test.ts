@@ -42,7 +42,7 @@ import * as fs from 'fs-extra';
             } else {
                 expect(title).equals('vscode-extension-tester');
             }
-        })
+        });
 
         it('getType works', async () => {
             const type = await provider.getType();

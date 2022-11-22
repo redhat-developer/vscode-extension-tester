@@ -129,7 +129,7 @@ describe('TextEditor', () => {
     describe('searching', () => {
         before(async () => {
             await editor.setText('aline\nbline\ncline\ndline\nnope\neline');
-        })
+        });
 
         it('getLineOfText works', async () => {
             const line = await editor.getLineOfText('line');
@@ -158,7 +158,7 @@ describe('TextEditor', () => {
         });
 
         it('selectText errors if given text doesnt exist', async () => {
-            const text = 'wat'
+            const text = 'wat';
             try {
                 await editor.selectText(text);
             } catch (err) {

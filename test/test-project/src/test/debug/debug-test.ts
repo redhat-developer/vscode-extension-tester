@@ -9,7 +9,7 @@ import { expect } from "chai";
 
     before(async function() {
         this.timeout(15000);
-        await new Workbench().executeCommand('File: Open Folder...')
+        await new Workbench().executeCommand('File: Open Folder...');
         const input = await InputBox.create();
         await input.setText(folder);
         await input.confirm();
@@ -39,7 +39,7 @@ import { expect } from "chai";
         it('selectLaunchConfiguration works', async () => {
             await view.selectLaunchConfiguration('Test Launch2');
             const config = await view.getLaunchConfiguration();
-            expect(config).equals('Test Launch2')
+            expect(config).equals('Test Launch2');
         });
     });
 

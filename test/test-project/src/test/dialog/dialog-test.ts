@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { EditorView, InputBox, ModalDialog, TextEditor, TitleBar, until } from "monaco-page-objects";
 import { VSBrowser } from 'vscode-extension-tester';
 
-(VSBrowser.instance.version >= '1.50.0' && process.platform != 'darwin' ? describe : describe.skip)('Modal Dialog', () => {
+(VSBrowser.instance.version >= '1.50.0' && process.platform !== 'darwin' ? describe : describe.skip)('Modal Dialog', () => {
     let dialog: ModalDialog;
 
     before(async function() {

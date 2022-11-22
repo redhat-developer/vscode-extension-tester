@@ -30,7 +30,7 @@ describe('CustomTreeSection', () => {
         await section.collapse();
         expect(await section.isExpanded()).is.false;
 
-        await new Promise(res => setTimeout(res, 500))
+        await new Promise(res => setTimeout(res, 500));
         await section.expand();
         expect(await section.isExpanded()).is.true;
     });
@@ -71,7 +71,7 @@ describe('CustomTreeSection', () => {
 
     it('findWelcomeContent returns undefined if no WelcomeContent is present', async () => {
         expect(await section.findWelcomeContent()).to.equal(undefined);
-        expect(await emptyViewSection.findWelcomeContent()).to.not.equal(undefined)
+        expect(await emptyViewSection.findWelcomeContent()).to.not.equal(undefined);
     });
 
     it('findWelcomeContent returns the section', async () => {
@@ -99,7 +99,7 @@ describe('CustomTreeSection', () => {
         expect(await (welcomeContentEntries[1] as WelcomeContentButton).getText()).to.deep.equal("Add stuff into this View");
         expect(welcomeContentEntries[2]).to.deep.equal("This is the second line");
         expect(welcomeContentEntries[3]).to.deep.equal("And yet another line.");
-    })
+    });
 
     describe('WelcomeContentButton', () => {
         it('takeAction executes the command', async () => {
@@ -126,12 +126,12 @@ describe('CustomTreeSection', () => {
         it('getTooltip works', async () => {
             const tooltip = await item.getTooltip();
             expect(tooltip).equals('Tooltip for a');
-        })
+        });
 
         it('getDescription works', async () => {
             const description = await item.getDescription();
             expect(description).equals('Description for a');
-        })
+        });
 
         it('collapse works', async () => {
             await item.collapse();
@@ -216,9 +216,9 @@ describe('CustomTreeSection', () => {
                 await dItem.click();
                 const errorNotification = await (await bench.openNotificationsCenter()).getNotifications(NotificationType.Error);
                 expect(errorNotification).to.have.length(1);
-                expect(await errorNotification[0].getMessage()).to.equal("This is an error!")
+                expect(await errorNotification[0].getMessage()).to.equal("This is an error!");
                 await errorNotification[0].dismiss();
-            })
+            });
         });
     });
 });
