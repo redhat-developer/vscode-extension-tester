@@ -5,3 +5,4 @@ test-resources
 docs
 resources/api-handler.vsix
 .npmrc
+*.tgz
