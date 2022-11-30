@@ -1,5 +1,5 @@
 import { Editor } from "./Editor";
-import { By, Locator, until, WebElement } from "selenium-webdriver";
+import { Locator, until, WebElement } from "selenium-webdriver";
 
 /**
  * Page object representing an open editor containing a web view
@@ -55,8 +55,8 @@ export class WebView extends Editor {
         await this.getDriver().switchTo().window(WebView.handle);
 
         const reference = await this.findElement(WebView.locators.EditorView.webView);
-        const container = await this.getDriver().wait(until.elementLocated(By.id(await reference.getAttribute('aria-flowto'))), 5000);
-        
+        const container = await this.getDriver().wait(until.elementLocated(WebView.locators.WebView.container(await reference.getAttribute(WebView.locators.WebView.attribute))), 5000);
+
         const view = await container.getDriver().wait(async () => {
             const tries = await container.findElements(WebView.locators.WebView.iframe);
             if (tries.length > 0) {
