@@ -1,5 +1,15 @@
 # Change Log
 
+## 5.2.0 (December 1 2022)
+ - Bump 'max' placeholder to 1.73.1 version
+ - Compatible with 1.72.1, 1.72.2 and 1.73.1
+ - Improved looking up actions via label-name
+ - Migrated from deprecated TSLint to ESLint
+ - Bump extester inner dependencies to latest versions, e.g.
+   - selenium-webdriver | 4.2.0 --> 4.6.1
+   - typescript | 4.4.2 --> 4.9.3
+   - @types/mocha | 8.2.3 --> 10.0.0
+
 ## 5.1.0 (October 26 2022)
  - Added GitHub Actions badges into package readme file
  - Added getAllVisibleMarkers instead unstable getAllAMarkers in ProblemsView component
