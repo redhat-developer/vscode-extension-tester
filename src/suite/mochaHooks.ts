@@ -40,7 +40,7 @@ function createScreenshotCallbackFunction(name: string | undefined, hookType: Ho
 
     return async function (this: Mocha.Context) {
         try {
-            await fn();
+            await fn.call(this);
         }
         catch (e) {
             if (this === undefined) throw e;
@@ -88,7 +88,7 @@ function callHook(hookType: HookType, firstArgument: string | Function | undefin
     const fn = (typeof firstArgument === 'function') ? (firstArgument) : (secondArgument);
 
     const hook = getHookFunction(hookType);
-    const callback = fn ? createScreenshotCallbackFunction(name, hookType, fn) : (() => { });
+    const callback = fn ? fn : (() => { });
 
     if (name !== undefined) {
         hook(name, createScreenshotCallbackFunction(name, hookType, callback));
