@@ -10,7 +10,7 @@ export class CustomTreeSection extends TreeSection {
 
     async getVisibleItems(): Promise<TreeItem[]> {
         const items: TreeItem[] = [];
-        const elements = await this.findElements(CustomTreeSection.locators.CustomTreeSection.itemRow);
+        const elements = await (await this.getContainer()).findElements(CustomTreeSection.locators.CustomTreeSection.itemRow);
         for (const element of elements) {
             items.push(await new CustomTreeItem(element, this).wait());
         }
@@ -18,13 +18,8 @@ export class CustomTreeSection extends TreeSection {
     }
 
     async findItem(label: string, maxLevel: number = 0): Promise<TreeItem | undefined> {
-        await this.expand();
-        await this.getDriver().wait(until.elementLocated(CustomTreeSection.locators.CustomTreeSection.rowContainer), 5000);
-        const container = await this.findElement(CustomTreeSection.locators.CustomTreeSection.rowContainer);
-        await container.sendKeys(Key.HOME);
         let item: TreeItem | undefined = undefined;
-        
-        const elements = await container.findElements(CustomTreeSection.locators.CustomTreeSection.itemRow);
+        const elements = await (await this.getContainer()).findElements(CustomTreeSection.locators.CustomTreeSection.itemRow);
         for (const element of elements) {
             const temp = await element.findElements(CustomTreeSection.locators.CustomTreeSection.rowWithLabel(label));
             if (temp.length > 0) {
@@ -35,5 +30,13 @@ export class CustomTreeSection extends TreeSection {
             }
         }            
         return item;
+    }
+
+    private async getContainer(): Promise<CustomTreeSection> {
+        await this.expand();
+        await this.getDriver().wait(until.elementLocated(CustomTreeSection.locators.CustomTreeSection.rowContainer), 5000);
+        const container = await this.findElement(CustomTreeSection.locators.CustomTreeSection.rowContainer);
+        await container.sendKeys(Key.HOME);
+        return container as CustomTreeSection;
     }
 }

@@ -33,6 +33,8 @@ describe('CustomTreeSection', () => {
         await new Promise(res => setTimeout(res, 500));
         await section.expand();
         expect(await section.isExpanded()).is.true;
+
+        await section.collapse();
     });
 
     it('getVisibleItems works', async () => {
