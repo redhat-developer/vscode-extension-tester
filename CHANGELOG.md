@@ -1,5 +1,11 @@
 # Change Log
 
+## 5.2.1 (December 20 2022)
+ - Bump 'max' placeholder to 1.74.1 version
+ - Compatible with 1.74.0 and 1.74.1
+ - Fix Hook context for screenshots in before/after/beforeAll/afterAll
+ - Fix WebView component
+
 ## 5.2.0 (December 1 2022)
  - Bump 'max' placeholder to 1.73.1 version
  - Compatible with 1.72.1, 1.72.2 and 1.73.1
