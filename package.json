@@ -33,6 +33,10 @@
     "vscode",
     "extension"
   ],
+  "workspaces": [
+    "page-objects",
+    "locators"
+  ],
   "author": "Red Hat",
   "license": "Apache-2.0",
   "bugs": {
