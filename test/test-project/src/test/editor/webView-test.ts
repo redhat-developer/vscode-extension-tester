@@ -8,6 +8,7 @@ describe('WebView', () => {
     before(async function() {
         this.timeout(8000);
         await new Workbench().executeCommand('Webview Test');
+        await new Workbench().executeCommand('Webview Test');
         await new Promise((res) => { setTimeout(res, 500); });
         view = new WebView();
         await view.switchToFrame();
@@ -27,4 +28,5 @@ describe('WebView', () => {
         const elements = await view.findWebElements(By.css('h1'));
         expect(elements.length).equals(1);
     });
+
 });
