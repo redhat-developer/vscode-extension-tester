@@ -8,3 +8,15 @@ updates:
     open-pull-requests-limit: 3
     labels:
       - "skip-changelog"
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'daily'
+  - package-ecosystem: 'npm'
+    directory: 'page-objects'
+    schedule:
+      interval: 'daily'
+  - package-ecosystem: 'npm'
+    directory: 'locators'
+    schedule:
+      interval: 'daily'
