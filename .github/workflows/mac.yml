@@ -37,5 +37,5 @@ jobs:
         uses: actions/upload-artifact@v3
         if: failure()
         with:
-          name: screenshots-${{ matrix.version }}
-          path: ~/test/**/screenshots/*.png
+          name: screenshots-macos-${{ matrix.version }}
+          path: test/test-project/test-resources/screenshots/*.png
