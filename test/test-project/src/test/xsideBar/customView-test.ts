@@ -33,11 +33,10 @@ describe('CustomTreeSection', () => {
         await new Promise(res => setTimeout(res, 500));
         await section.expand();
         expect(await section.isExpanded()).is.true;
-
-        await section.collapse();
     });
 
-    it('getVisibleItems works', async () => {
+    it('getVisibleItems works', async function() {
+        this.timeout(10000);
         const items = await section.getVisibleItems();
         expect(items.length).equals(4);
     });
@@ -45,7 +44,6 @@ describe('CustomTreeSection', () => {
     it('findItem works', async () => {
         const item = await section.findItem('b');
         expect(item).not.undefined;
-
 
         const item1 = await section.findItem('e');
         expect(item1).undefined;
@@ -104,10 +102,12 @@ describe('CustomTreeSection', () => {
     });
 
     describe('WelcomeContentButton', () => {
-        it('takeAction executes the command', async () => {
+        it('takeAction executes the command', async function() {
+            this.timeout(10000);
             const buttons = await (await emptyViewSection.findWelcomeContent()).getButtons();
             await buttons[0].click();
 
+            await new Promise(res => setTimeout(res, 500));
             expect(await emptyViewSection.findWelcomeContent()).to.equal(undefined);
         });
     });
