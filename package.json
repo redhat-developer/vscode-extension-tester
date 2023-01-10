@@ -60,7 +60,7 @@
     "compare-versions": "^5.0.1",
     "fs-extra": "^10.1.0",
     "glob": "^8.0.3",
-    "got": "^11.8.6",
+    "got": "^12.5.3",
     "hpagent": "^1.2.0",
     "js-yaml": "^4.1.0",
     "monaco-page-objects": "^3.2.1",
