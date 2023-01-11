@@ -48,7 +48,7 @@
     "@types/glob": "^8.0.0",
     "@types/js-yaml": "^4.0.5",
     "@types/mocha": "^10.0.1",
-    "@types/node": "^16.18.3",
+    "@types/node": "^18.11.18",
     "@types/sanitize-filename": "^1.6.3",
     "mocha": "^10.1.0",
     "rimraf": "^3.0.2",
