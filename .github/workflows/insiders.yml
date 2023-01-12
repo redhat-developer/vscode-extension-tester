@@ -7,10 +7,13 @@ on:
     branches: [ insider ]
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
-    
     steps:
       - uses: actions/checkout@v3
       - name: Setup Node
@@ -25,12 +28,12 @@ jobs:
           npm run build
           npm run prepare-test
       - name: Run Tests
-        env: 
+        env:
           CODE_TYPE: insider
         run: |
           sudo apt-get install xvfb
           export DISPLAY=:99.0
-          Xvfb -ac :99 -screen 0 1920x1080x16 & 
+          Xvfb -ac :99 -screen 0 1920x1080x16 &
           npm run ci-test
       - name: Upload screenshots
         uses: actions/upload-artifact@v3

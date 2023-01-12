@@ -12,11 +12,14 @@ updates:
     directory: '/'
     schedule:
       interval: 'daily'
+    versioning-strategy: increase
   - package-ecosystem: 'npm'
     directory: 'page-objects'
     schedule:
       interval: 'daily'
+    versioning-strategy: increase
   - package-ecosystem: 'npm'
     directory: 'locators'
     schedule:
       interval: 'daily'
+    versioning-strategy: increase
