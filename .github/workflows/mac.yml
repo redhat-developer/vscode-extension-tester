@@ -2,9 +2,13 @@ name: MacOS CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
 
 jobs:
   test:
@@ -15,7 +19,7 @@ jobs:
         node: [ 16 ]
         version: [ max ]
       fail-fast: false
-    
+
     steps:
       - uses: actions/checkout@v3
       - name: Setup Node
@@ -30,7 +34,7 @@ jobs:
           npm run build
           npm run prepare-test
       - name: Run Tests
-        env: 
+        env:
           CODE_VERSION: ${{ matrix.version }}
         run: npm test
       - name: Upload screenshots
