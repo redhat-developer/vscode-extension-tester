@@ -40,7 +40,7 @@
     "clipboardy": "^2.3.0",
     "clone-deep": "^4.0.1",
     "compare-versions": "^5.0.1",
-    "fs-extra": "^10.1.0",
+    "fs-extra": "^11.1.0",
     "ts-essentials": "^9.3.0"
   },
   "peerDependencies": {
