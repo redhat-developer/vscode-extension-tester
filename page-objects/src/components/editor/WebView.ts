@@ -55,15 +55,18 @@ export class WebView extends Editor {
         await this.getDriver().switchTo().window(WebView.handle);
 
         const reference = await this.findElement(WebView.locators.EditorView.webView);
-        const container = await this.getDriver().wait(until.elementLocated(WebView.locators.WebView.container(await reference.getAttribute(WebView.locators.WebView.attribute))), 5000);
+        const containers = await this.getDriver().wait(until.elementsLocated(WebView.locators.WebView.container(await reference.getAttribute(WebView.locators.WebView.attribute))), 5000);
 
-        const view = await container.getDriver().wait(async () => {
-            const tries = await container.findElements(WebView.locators.WebView.iframe);
-            if (tries.length > 0) {
-                return tries[0];
+        const view = await containers[0].getDriver().wait(async () => {
+            for (let index = 0; index < containers.length; index++) {
+                const tries = await containers[index].findElements(WebView.locators.WebView.iframe);
+                if (tries.length > 0) {
+                    return tries[0];
+                }
             }
             return undefined;
         }, 5000) as WebElement;
+
         await this.getDriver().switchTo().frame(view);
 
         await this.getDriver().wait(until.elementLocated(WebView.locators.WebView.activeFrame), 5000);
