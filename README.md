@@ -1,5 +1,5 @@
 #### Stable VSCode
-[![Linux CI](https://github.com/redhat-developer/vscode-extension-tester/actions/workflows/linux.yml/badge.svg)](https://github.com/redhat-developer/vscode-extension-tester/actions/workflows/linux.yml) [![MacOS CI](https://github.com/redhat-developer/vscode-extension-tester/actions/workflows/mac.yml/badge.svg)](https://github.com/redhat-developer/vscode-extension-tester/actions/workflows/mac.yml) [![Windows CI](https://github.com/redhat-developer/vscode-extension-tester/actions/workflows/windows.yml/badge.svg)](https://github.com/redhat-developer/vscode-extension-tester/actions/workflows/windows.yml)
+[![Main CI](https://github.com/redhat-developer/vscode-extension-tester/actions/workflows/main.yml/badge.svg)](https://github.com/redhat-developer/vscode-extension-tester/actions/workflows/main.yml)
 
 #### Insider VSCode
 [![Nightly Insiders](https://github.com/redhat-developer/vscode-extension-tester/actions/workflows/insiders.yml/badge.svg)](https://github.com/redhat-developer/vscode-extension-tester/actions/workflows/insiders.yml)
