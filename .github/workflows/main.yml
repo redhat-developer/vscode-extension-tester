@@ -1,0 +1,90 @@
+name: Main CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+        version:  [ min, 1.71.2, 1.72.2, 1.73.1, max ]
+        include:
+          - os: macos-latest
+            version: max
+          - os: windows-latest
+            version: max
+      fail-fast: false
+
+    env:
+      CODE_VERSION: ${{ matrix.version }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: npm
+
+      - name: Setup Dependencies
+        run: |
+          rm package-lock.json
+          npm run prepare-deps
+      - name: Install
+        run: npm install
+      - name: Build
+        run: npm run build
+      - name: Prepare Tests
+        run: npm run prepare-test
+
+      - name: Run Tests (mac, win)
+        if: ${{ contains(matrix.os, 'mac') || contains(matrix.os, 'win') }}
+        run: |
+          npm run test
+
+      - name: Run Tests (linux)
+        if: ${{ contains(matrix.os, 'ubuntu') }}
+        run: |
+          sudo apt-get install xvfb
+          export DISPLAY=:99
+          Xvfb -ac :99 -screen 0 1920x1080x16 &
+          npm run ci-test
+
+      - name: Upload Screenshots
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: screenshots-${{ matrix.os }}-${{ matrix.version }}
+          path: test/test-project/**/screenshots/*.png
+
+  check:
+    if: always()
+    runs-on: ubuntu-latest
+    name: Status Check
+    needs: [ test ]
+    steps:
+      - name: Test Matrix Result
+        run: |
+          echo result = ${{ needs.test.result }}
+      - name: Status Check - success
+        if: ${{ needs.test.result == 'success' }}
+        run: |
+          echo "All tests successfully completed!"
+          exit 0
+      - name: Status Check - failure
+        if: ${{ needs.test.result != 'success' }}
+        run: |
+          echo "Status Check failed!"
+          exit 1
