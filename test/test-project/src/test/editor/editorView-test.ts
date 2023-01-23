@@ -32,7 +32,13 @@ describe('EditorView', () => {
     });
 
     it('openEditor works with webview editor', async () => {
-        const editor = await view.openEditor('Test WebView') as WebView;
+        let editorTitle: string;
+        (await view.getOpenEditorTitles()).forEach(title => {
+            if(title.startsWith('Test WebView')) {
+                editorTitle = title;
+            }
+        });
+        const editor = await view.openEditor(editorTitle) as WebView;
         expect(editor.findWebElement).not.undefined;
     });
 
