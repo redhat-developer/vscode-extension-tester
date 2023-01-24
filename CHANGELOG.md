@@ -1,5 +1,13 @@
 # Change Log
 
+## 5.3.0 (January 24 2023)
+ - Renamed default branch from 'master' to 'main'
+ - Fixed Werbview.switchToFrame with VS Code 1.74+ when there are several webview opened
+ - Bump extester inner dependencies
+ - Stabilized flaky CustomTreeSection > getVisibleItems tests on macOS
+ - Improved ExTester GH workflows
+ - Enabled dependabot for the repository
+
 ## 5.2.1 (December 20 2022)
  - Bump 'max' placeholder to 1.74.1 version
  - Compatible with 1.74.0 and 1.74.1
