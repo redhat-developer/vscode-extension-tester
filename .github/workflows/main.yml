@@ -67,7 +67,7 @@ jobs:
         if: failure()
         with:
           name: screenshots-${{ matrix.os }}-${{ matrix.version }}
-          path: test/test-project/**/screenshots/*.png
+          path: ${{ github.workspace }}/test/**/screenshots/*.png
 
   check:
     if: always()
