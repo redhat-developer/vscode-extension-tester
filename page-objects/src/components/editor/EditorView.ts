@@ -1,11 +1,18 @@
 import { AbstractElement } from "../AbstractElement";
 import { TextEditor } from "../..";
-import { WebElement } from "selenium-webdriver";
+import { error, WebElement } from "selenium-webdriver";
 import { Editor } from "./Editor";
 import { SettingsEditor } from "./SettingsEditor";
 import { WebView } from "./WebView";
 import { DiffEditor } from './DiffEditor';
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
+
+export class EditorTabNotFound extends Error {
+    constructor(title: string, group: number) {
+        super(`No editor with title '${title}' in group '${group}' available`);
+    }
+}
+
 
 /**
  * View handling the open editors
@@ -51,7 +58,7 @@ export class EditorView extends AbstractElement {
         while (groups.length > 0 && (await groups[0].getOpenEditorTitles()).length > 0) {
             await groups[0].closeAllEditors();
             groups = await this.getEditorGroups();
-        }        
+        }
     }
 
     /**
@@ -105,12 +112,13 @@ export class EditorView extends AbstractElement {
      */
     async getActiveTab(): Promise<EditorTab | undefined> {
         const tabs = await this.getOpenTabs();
-        const klasses = await Promise.all(tabs.map(async tab => tab.getAttribute('class')));
-        const index = klasses.findIndex(klass => klass.indexOf('active') > -1);
 
-        if (index > -1) {
-            return tabs[index];
+        for (const tab of tabs) {
+            if (await tab.isSelected()) {
+                return tab;
+            }
         }
+
         return undefined;
     }
 
@@ -120,8 +128,8 @@ export class EditorView extends AbstractElement {
      */
     async getEditorGroups(): Promise<EditorGroup[]> {
         const elements = await this.findElements(EditorGroup.locators.EditorView.editorGroup);
-        const groups = await Promise.all(elements.map(async (element) => new EditorGroup(element, this).wait()));
-        
+        const groups = await Promise.all(elements.map(async (element, index) => new EditorGroup(element, this, index).wait()));
+
         // sort the groups by x coordinates, so the leftmost is always at index 0
         for (let i = 0; i < groups.length - 1; i++) {
             for (let j = 0; j < groups.length - i - 1; j++) {
@@ -169,10 +177,10 @@ export class EditorView extends AbstractElement {
  * Page object representing an editor group
  */
 export class EditorGroup extends AbstractElement {
-    constructor(element: WebElement, view: EditorView = new EditorView()) {
+    constructor(element: WebElement, view: EditorView = new EditorView(), private index: number = 0) {
         super(element, view);
     }
-    
+
     /**
      * Switch to an editor tab with the given title
      * @param title title of the tab
@@ -207,7 +215,7 @@ export class EditorGroup extends AbstractElement {
      */
     async closeEditor(title: string): Promise<void> {
         const tab = await this.getTabByTitle(title);
-        await EditorView.driver.actions().move({origin: tab}).perform();
+        await EditorView.driver.actions().move({ origin: tab }).perform();
         const closeButton = await tab.findElement(EditorView.locators.EditorView.closeTab);
         await closeButton.click();
     }
@@ -238,8 +246,16 @@ export class EditorGroup extends AbstractElement {
         const tabs = await this.findElements(EditorView.locators.EditorView.tab);
         const titles = [];
         for (const tab of tabs) {
-            const title = await new EditorTab(tab, this.enclosingItem as EditorView).getTitle();
-            titles.push(title);
+            try {
+                const title = await new EditorTab(tab, this.enclosingItem as EditorView).getTitle();
+                titles.push(title);
+            }
+            catch (e) {
+                if (e instanceof error.StaleElementReferenceError) {
+                    continue;
+                }
+                throw e;
+            }
         }
         return titles;
     }
@@ -252,13 +268,21 @@ export class EditorGroup extends AbstractElement {
     async getTabByTitle(title: string): Promise<EditorTab> {
         const tabs = await this.findElements(EditorView.locators.EditorView.tab);
         for (const element of tabs) {
-            const tab = new EditorTab(element, this.enclosingItem as EditorView);
-            const label = await tab.getTitle();
-            if (label === title) {
-                return tab;
+            try {
+                const tab = new EditorTab(element, this.enclosingItem as EditorView);
+                const label = await tab.getTitle();
+                if (label === title) {
+                    return tab;
+                }
+            }
+            catch (e) {
+                if (e instanceof error.StaleElementReferenceError) {
+                    continue;
+                }
+                throw e;
             }
         }
-        throw new Error(`No editor with title '${title}' available`);
+        throw new EditorTabNotFound(title, this.index);
     }
 
     /**
@@ -276,12 +300,13 @@ export class EditorGroup extends AbstractElement {
      */
     async getActiveTab(): Promise<EditorTab | undefined> {
         const tabs = await this.getOpenTabs();
-        const klasses = await Promise.all(tabs.map(async tab => tab.getAttribute('class')));
-        const index = klasses.findIndex(klass => klass.indexOf('active') > -1);
 
-        if (index > -1) {
-            return tabs[index];
+        for (const tab of tabs) {
+            if (await tab.isSelected()) {
+                return tab;
+            }
         }
+
         return undefined;
     }
 
@@ -330,5 +355,11 @@ export class EditorTab extends ElementWithContexMenu {
      */
     async select(): Promise<void> {
         await this.click();
+    }
+
+    async isSelected(): Promise<boolean> {
+        const klass = await this.getAttribute('class');
+        const segments = klass?.split(/\s+/g) ?? [];
+        return await super.isSelected() || segments.includes('active');
     }
 }
