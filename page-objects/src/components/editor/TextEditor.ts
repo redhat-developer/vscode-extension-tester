@@ -6,6 +6,9 @@ import { StatusBar } from "../statusBar/StatusBar";
 import { Editor } from "./Editor";
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
 import { AbstractElement } from "../AbstractElement";
+import { Breakpoint } from "./Breakpoint";
+
+export class BreakpointError extends Error {}
 
 /**
  * Page object representing the active text editor
@@ -379,7 +382,7 @@ export class TextEditor extends Editor {
         await this.getDriver().actions().move({origin: lineNum}).perform();
 
         const lineOverlay = await margin.findElement(TextEditor.locators.TextEditor.lineOverlay(line));
-        const breakPoint = await lineOverlay.findElements(TextEditor.locators.TextEditor.breakPoint);
+        const breakPoint = await lineOverlay.findElements(TextEditor.locators.TextEditor.breakpoint.generalSelector);
         if (breakPoint.length > 0) {
             await breakPoint[0].click();
             await new Promise(res => setTimeout(res, 200));
@@ -393,6 +396,27 @@ export class TextEditor extends Editor {
             return true;
         } 
         return false;
+    }
+
+    /**
+     * Get paused breakpoint if available. Otherwise, return undefined.
+     * @returns promise which resolves to either Breakpoint page object or undefined
+     */
+    async getPausedBreakpoint(): Promise<Breakpoint | undefined> {
+        const breakpointLocators = Breakpoint.locators.TextEditor.breakpoint;
+        const breakpoints = await this.findElements(breakpointLocators.pauseSelector);
+        
+        if (breakpoints.length === 0) {
+            return undefined;
+        }
+
+        if (breakpoints.length > 1) {
+            throw new BreakpointError(`unexpected number of paused breakpoints: ${breakpoints.length}; expected 1 at most`);
+        }
+
+        // get parent
+        const lineElement = breakpoints[0].findElement(By.xpath('./..'));
+        return new Breakpoint(breakpoints[0], lineElement);
     }
 
     /**
