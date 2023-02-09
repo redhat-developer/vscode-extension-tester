@@ -46,7 +46,7 @@ function createScreenshotCallbackFunction(name: string | undefined, hookType: Ho
             if (this === undefined) throw e;
             if (this.test === undefined) {
                 try {
-                    await VSBrowser.instance.takeScreenshot(alternativeFileName);
+                    await VSBrowser.instance.takeScreenshot(alternativeFileName.replace(/"/g, "'"));
                 }
                 catch (screenshotError) {
                     console.error(`Could not take screenshot. this.test is undefined. Reason:\n${screenshotError}\n\n`);
@@ -56,7 +56,7 @@ function createScreenshotCallbackFunction(name: string | undefined, hookType: Ho
 
             try {
                 const titlePath = this.test.titlePath();
-                await VSBrowser.instance.takeScreenshot(titlePath.join('.'));
+                await VSBrowser.instance.takeScreenshot(titlePath.join('.').replace(/"/g, "'"));
             }
             catch (screenshotError) {
                 console.error(`Could not take screenshot. Reason:\n${screenshotError}\n\n`);
