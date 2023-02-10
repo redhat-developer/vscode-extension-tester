@@ -166,8 +166,17 @@ export class TerminalView extends ChannelView {
         }
         const list = await this.findElement(TerminalView.locators.TerminalView.tabList);
         const row = await list.findElement(TerminalView.locators.TerminalView.selectedRow);
-        const label = (await row.getAttribute('aria-label')).split(' ');
+        // const label = (await row.getAttribute('aria-label')).split(' ');
 
+        let label: string[] = [];
+        await this.getDriver().wait(async function () {
+            label = (await row.getAttribute('aria-label')).split(' ');
+            console.log("label length = " + label.length);
+            
+            return label.length > 1;
+        }, 5000);
+        
+        console.log(`LABEL = ${label[1]}: ${label[2]}`);
         return `${label[1]}: ${label[2]}`
     }
 
@@ -177,6 +186,7 @@ export class TerminalView extends ChannelView {
             return super.selectChannel(name);
         }
         const singleTerm = await this.enclosingItem.findElements(TerminalView.locators.TerminalView.singleTab);
+        
         if (singleTerm.length > 0) {
             return;
         }
