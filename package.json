@@ -13,6 +13,7 @@
     "extest": "out/cli.js"
   },
   "scripts": {
+    "deps": "ncu --upgrade --root -w page-objects -w locators --interactive --enginesNode",
     "prepack": "npm run build",
     "prepare-deps": "npm run build-page-objects && npm run build-locators",
     "build-page-objects": "cd page-objects && npm i && npm run build",
@@ -20,8 +21,8 @@
     "prebuild": "npm run prepare-deps",
     "build": "npm link ./page-objects ./locators && rimraf out/ && tsc && chmod a+x ./out/cli.js",
     "prepare-test": "cd test/test-project && npm install && rimraf package-lock.json",
-    "test": "npm run build && cd test/test-project && npm run ui-test",
-    "ci-test": "npm run build && cd test/test-project && npm run ci-test"
+    "test": "npm run build && cd test/test-project && npm install && npm run ui-test",
+    "ci-test": "npm run build && cd test/test-project && npm install && npm run ci-test"
   },
   "repository": {
     "type": "git",
@@ -51,6 +52,7 @@
     "@types/node": "^16.18.12",
     "mocha": "^10.2.0",
     "rimraf": "^4.1.2",
+    "npm-check-updates": "^16.7.4",
     "typescript": "*"
   },
   "dependencies": {

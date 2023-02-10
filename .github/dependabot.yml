@@ -13,13 +13,28 @@ updates:
     schedule:
       interval: 'daily'
     versioning-strategy: increase
+    ignore:
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: 'npm'
     directory: 'page-objects'
     schedule:
       interval: 'daily'
     versioning-strategy: increase
+    ignore:
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: 'npm'
     directory: 'locators'
     schedule:
       interval: 'daily'
     versioning-strategy: increase
+    ignore:
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
