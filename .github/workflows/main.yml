@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest ]
-        version:  [ min, 1.71.2, 1.72.2, 1.73.1, max ]
+        version:  [ min, 1.72.2, 1.73.1, 1.74.3, max ]
         include:
           - os: macos-latest
             version: max
@@ -57,10 +57,7 @@ jobs:
       - name: Run Tests (linux)
         if: ${{ contains(matrix.os, 'ubuntu') }}
         run: |
-          sudo apt-get install xvfb
-          export DISPLAY=:99
-          Xvfb -ac :99 -screen 0 1920x1080x16 &
-          npm run ci-test
+          xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' npm run ci-test
 
       - name: Upload Screenshots
         uses: actions/upload-artifact@v3
