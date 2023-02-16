@@ -1,4 +1,4 @@
-import { ActivityBar, DebugConsoleView, DebugToolbar, DebugView, DefaultTreeSection, EditorView, InputBox, Key, TextEditor, TitleBar, until, VSBrowser, Workbench } from "vscode-extension-tester";
+import { ActivityBar, Breakpoint, DebugConsoleView, DebugToolbar, DebugView, DefaultTreeSection, EditorView, InputBox, Key, TextEditor, TitleBar, until, VSBrowser, WebDriver, Workbench } from "vscode-extension-tester";
 import * as path from 'path';
 import { expect } from "chai";
 
@@ -46,9 +46,13 @@ import { expect } from "chai";
     describe('Debug Session', () => {
         let editor: TextEditor;
         let debugBar: DebugToolbar;
+        let driver: WebDriver;
+        let breakpoint!: Breakpoint;
+        const line = 6;
 
         before(async () => {
             editor = (await new EditorView().openEditor('test.js')) as TextEditor;
+            driver = editor.getDriver();
         });
 
         after(async function() {
@@ -62,7 +66,7 @@ import { expect } from "chai";
         });
 
         it('set a breakpoint', async () => {
-            const result = await editor.toggleBreakpoint(6);
+            const result = await editor.toggleBreakpoint(line);
             expect(result).to.be.true;
         });
 
@@ -70,6 +74,18 @@ import { expect } from "chai";
             await view.start();
             debugBar = await DebugToolbar.create();
             await debugBar.waitForBreakPoint();
+        });
+
+        it('TextEditor: getPausedBreakpoint works', async function() {
+            breakpoint = await driver.wait<Breakpoint>(() => editor.getPausedBreakpoint(), 10000, 'could not find paused breakpoint') as Breakpoint;
+        });
+
+        it('Breakpoint: getLineNumber works', async function() {
+            expect(await breakpoint.getLineNumber()).equals(line);
+        });
+
+        it('Breakpoint: isPaused works', async function() {
+            expect(await breakpoint.isPaused()).to.be.true;
         });
 
         it('evaluate an expression', async () => {
