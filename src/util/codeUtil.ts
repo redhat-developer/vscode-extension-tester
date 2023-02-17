@@ -94,6 +94,12 @@ export class CodeUtil {
         await this.checkCodeVersion(version);
 
         const literalVersion = version === 'latest' ? this.availableVersions[0] : version;
+        if(this.releaseType == ReleaseQuality.Stable && literalVersion !== this.availableVersions[0]) {
+            console.log(`
+                WARNING: You are using the outdated VSCode version '${literalVersion}'. The latest stable version is '${this.availableVersions[0]}'.
+            `);
+        }
+
         console.log(`Downloading VSCode: ${literalVersion} / ${this.releaseType}`);
         if (!fs.existsSync(this.executablePath) || await this.getExistingCodeVersion() !== literalVersion) {
             fs.mkdirpSync(this.downloadFolder);
