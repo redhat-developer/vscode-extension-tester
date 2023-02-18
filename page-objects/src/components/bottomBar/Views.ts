@@ -166,6 +166,7 @@ export class TerminalView extends ChannelView {
         }
         const list = await this.findElement(TerminalView.locators.TerminalView.tabList);
         const row = await list.findElement(TerminalView.locators.TerminalView.selectedRow);
+        await this.getDriver().sleep(1000);
         const label = (await row.getAttribute('aria-label')).split(' ');
 
         return `${label[1]}: ${label[2]}`

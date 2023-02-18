@@ -55,7 +55,8 @@ describe('TextEditor', () => {
 
     before(async function() {
         this.timeout(8000);
-        await new Workbench().executeCommand('File: New File');
+        await new Workbench().executeCommand('Create: New File...');
+        await (await InputBox.create()).selectQuickPick('Text File');
         await new Promise((res) => { setTimeout(res, 1000); });
         view = new EditorView();
         editor = new TextEditor(view);
@@ -291,7 +292,7 @@ describe('TextEditor', () => {
         });
 
         it('clicking triggers the lens command', async () => {
-            const lens = await editor.getCodeLens(0);
+            const lens = await editor.getCodeLens(2);
             await lens.click();
             await lens.getDriver().sleep(1000);
             const notifications = await new Workbench().getNotifications();

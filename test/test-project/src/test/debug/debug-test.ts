@@ -1,4 +1,4 @@
-import { ActivityBar, Breakpoint, DebugConsoleView, DebugToolbar, DebugView, DefaultTreeSection, EditorView, InputBox, Key, TextEditor, TitleBar, until, VSBrowser, WebDriver, Workbench } from "vscode-extension-tester";
+import { ActivityBar, BottomBarPanel, Breakpoint, DebugConsoleView, DebugToolbar, DebugView, DefaultTreeSection, EditorView, InputBox, Key, TextEditor, TitleBar, until, VSBrowser, WebDriver, Workbench } from "vscode-extension-tester";
 import * as path from 'path';
 import { expect } from "chai";
 
@@ -22,6 +22,16 @@ import { expect } from "chai";
         await (await tree.findItem('test.js')).select();
 
         view = (await (await new ActivityBar().getViewControl('Run')).openView()) as DebugView;
+
+        // clear notifications center which causes flaky tests from VSCode version 1.75.x
+        await (await new Workbench().openNotificationsCenter()).clearAllNotifications();
+    });
+
+    after('After cleanup', async function () {
+        this.timeout(10000);
+        await new EditorView().closeAllEditors();
+        await (await new ActivityBar().getViewControl('Run and Debug')).closeView();
+        await new BottomBarPanel().toggle(false);
     });
 
     describe('Debug View', () => {
