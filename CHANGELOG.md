@@ -1,5 +1,12 @@
 # Change Log
 
+## 5.4.0 (February 21 2023)
+
+- Compatible with VS Code 1.75.0 and 1.75.1 versions
+- Override WebElement.isSelected for EditorView
+- Provide log warning when used vscode version differs from 'latest' version enhancement
+- Fix invalid artefact screenshot path in Github Actions
+
 ## 5.3.0 (January 24 2023)
 
 - Renamed default branch from 'master' to 'main'
