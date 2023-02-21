@@ -1,5 +1,5 @@
-import { By } from "selenium-webdriver";
-import { Locators } from "monaco-page-objects";
+import { By, WebElement } from "selenium-webdriver";
+import { Locators, hasClass, hasNotClass } from "monaco-page-objects";
 
 const activityBar = {
     ActivityBar: {
@@ -97,13 +97,24 @@ const editor = {
     },
     TextEditor: {
         activeTab: By.css('div.tab.active'),
+        breakpoint: {
+            pauseSelector: By.className('codicon-debug-stackframe'),
+            generalSelector: By.className('codicon-debug-breakpoint'),
+            properties: {
+                enabled: hasNotClass('codicon-debug-breakpoint-unverified'),
+                line: {
+                    selector: By.className('line-numbers'),
+                    number: (line: WebElement) => line.getText().then((line) => Number.parseInt(line))
+                },
+                paused: hasClass('codicon-debug-stackframe'),
+            }
+        },
         editorContainer: By.className('monaco-editor'),
         dataUri: 'data-uri',
         formatDoc: 'Format Document',
         marginArea: By.className('margin-view-overlays'),
         lineNumber: (line: number) => By.xpath(`.//div[contains(@class, 'line-numbers') and text() = '${line}']`),
         lineOverlay: (line: number) => By.xpath(`.//div[contains(@class, 'line-numbers') and text() = '${line}']/..`),
-        breakPoint: By.className('codicon-debug-breakpoint'),
         debugHint: By.className('codicon-debug-hint'),
         selection: By.className('cslr selected-text top-left-radius bottom-left-radius top-right-radius bottom-right-radius'),
         findWidget: By.className('find-widget')

@@ -1,4 +1,4 @@
-import { By } from "selenium-webdriver";
+import { By, WebElement } from "selenium-webdriver";
 import { DeepPartial } from 'ts-essentials';
 
 /**
@@ -99,13 +99,24 @@ export interface Locators {
     }
     TextEditor: {
         activeTab: By
+        breakpoint: {
+            pauseSelector: By
+            generalSelector: By
+            properties: {
+                enabled: (el: WebElement) => Promise<boolean>
+                line: {
+                    selector: By
+                    number: (line: WebElement) => Promise<number>
+                }
+                paused: (el: WebElement) => Promise<boolean>
+            }
+        }
         editorContainer: By
         dataUri: string
         formatDoc: string
         marginArea: By
         lineNumber: (line: number) => By
         lineOverlay: (line: number) => By
-        breakPoint: By
         debugHint: By
         selection: By
         findWidget: By
@@ -396,4 +407,18 @@ export interface Locators {
 export interface LocatorDiff {
     locators: DeepPartial<Locators>
     extras?: Object
+}
+
+export function hasClass(klass: string): ((el: WebElement) => Promise<boolean>) {
+    return async (el: WebElement) => {
+        const klasses = await el.getAttribute('class');
+        const segments = klasses?.split(/\s+/g);
+        return segments.includes(klass);
+    }
+}
+
+export function hasNotClass(klass: string): ((el: WebElement) => Promise<boolean>) {
+    return async (el: WebElement) => {
+        return !(await hasClass(klass).call(undefined, el));
+    };
 }
