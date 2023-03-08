@@ -68,8 +68,8 @@ program.command('setup-tests')
         await extest.setupRequirements({vscodeVersion: cmd.code_version, useYarn: cmd.yarn, installDependencies: cmd.install_dependencies});
     }));
 
-program.command('run-tests <testFiles>')
-    .description('Run the test files specified by a glob pattern')
+program.command('run-tests <testFiles...>')
+    .description('Run the test files specified by glob pattern(s)')
     .option('-s, --storage <storage>', 'Use this folder for all test resources')
     .option('-e, --extensions_dir <extensions_directory>', 'VSCode will use this directory for managing extensions')
     .option('-c, --code_version <version>', 'Version of VSCode to be used, use `min`/`max` to download the oldest/latest VSCode supported by extester')
@@ -85,8 +85,8 @@ program.command('run-tests <testFiles>')
         await extest.runTests(testFiles, {vscodeVersion: cmd.code_version, settings: cmd.code_settings, cleanup: cmd.uninstall_extension, config: cmd.mocha_config, logLevel: cmd.log_level, offline: cmd.offline, resources: cmd.open_resource ?? []});
     }));
 
-program.command('setup-and-run <testFiles>')
-    .description('Perform all setup and run tests specified by glob pattern')
+program.command('setup-and-run <testFiles...>')
+    .description('Perform all setup and run tests specified by glob pattern(s)')
     .option('-s, --storage <storage>', 'Use this folder for all test resources')
     .option('-e, --extensions_dir <extensions_directory>', 'VSCode will use this directory for managing extensions')
     .option('-c, --code_version <version>', 'Version of VSCode to download, use `min`/`max` to download the oldest/latest VSCode supported by extester')

@@ -39,19 +39,20 @@ export class VSRunner {
      * @param logLevel The logging level for the Webdriver
      * @return The exit code of the mocha process
      */
-    runTests(testFilesPattern: string, code: CodeUtil, logLevel: logging.Level = logging.Level.INFO, resources: string[]): Promise<number> {
+    runTests(testFilesPattern: string[], code: CodeUtil, logLevel: logging.Level = logging.Level.INFO, resources: string[]): Promise<number> {
         return new Promise(resolve => {
             let self = this;
             let browser: VSBrowser = new VSBrowser(this.codeVersion, this.releaseType, this.customSettings, logLevel);
-            const universalPattern = testFilesPattern.replace(/'/g, '');
-            const testFiles = glob.sync(universalPattern);
+
+            const testFiles = new Set<string>();
+            for (const pattern of testFilesPattern) {
+                const universalPattern = pattern.replace(/'/g, '');
+                glob.sync(universalPattern)
+                    .filter((file) => fs.existsSync(file) && file.endsWith('.js'))
+                    .forEach((val) => testFiles.add(val));
+            }
     
-            testFiles.forEach((file) => {
-                if (fs.existsSync(file) && file.substr(-3) === '.js') {
-                    this.mocha.addFile(file);
-                }
-            });
-    
+            testFiles.forEach((file) => this.mocha.addFile(file));
             this.mocha.suite.afterEach(async function () {
                 if (this.currentTest && this.currentTest.state !== 'passed') {
                     try {

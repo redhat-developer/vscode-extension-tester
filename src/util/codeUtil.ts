@@ -232,7 +232,7 @@ export class CodeUtil {
      *
      * @return The exit code of the mocha process
      */
-    async runTests(testFilesPattern: string, runOptions: RunOptions = DEFAULT_RUN_OPTIONS): Promise<number> {
+    async runTests(testFilesPattern: string[], runOptions: RunOptions = DEFAULT_RUN_OPTIONS): Promise<number> {
         if (!runOptions.offline) {
             await this.checkCodeVersion(runOptions.vscodeVersion ?? DEFAULT_RUN_OPTIONS.vscodeVersion);
         } else {
