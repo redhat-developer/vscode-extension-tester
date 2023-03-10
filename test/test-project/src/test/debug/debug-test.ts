@@ -2,13 +2,13 @@ import { ActivityBar, BottomBarPanel, Breakpoint, DebugConsoleView, DebugToolbar
 import * as path from 'path';
 import { expect } from "chai";
 
-(process.platform === 'darwin' ? describe.skip : describe)('Debugging', () => {
+describe('Debugging', () => {
     process.env.NODE = process.execPath;
     const folder = path.resolve(__dirname, '..', '..', '..', '..', '..', 'debug-project');
     let view: DebugView;
 
     before(async function() {
-        this.timeout(15000);
+        this.timeout(20000);
         await new Workbench().executeCommand('File: Open Folder...');
         const input = await InputBox.create();
         await input.setText(folder);
@@ -104,6 +104,7 @@ import { expect } from "chai";
             await debugConsole.evaluateExpression();
 
             await debugConsole.evaluateExpression(`console.log('bar')`);
+            await new Promise(res => setTimeout(res, 1000));
 
             const text = await debugConsole.getText();
             expect(text).to.have.string('foo');

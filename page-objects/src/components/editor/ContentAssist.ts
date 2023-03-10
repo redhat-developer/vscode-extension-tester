@@ -47,7 +47,7 @@ export class ContentAssist extends Menu {
      * @returns Promise resolving to array of ContentAssistItem objects
      */
     async getItems(): Promise<ContentAssistItem[]> {
-        await this.getDriver().wait(() => { return this.isLoaded(); });
+        await this.getDriver().wait(async () => { return await this.isLoaded(); });
 
         const elements = await this.findElement(ContentAssist.locators.ContentAssist.itemRows)
             .findElements(ContentAssist.locators.ContentAssist.itemRow);

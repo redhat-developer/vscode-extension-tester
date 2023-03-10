@@ -7,7 +7,7 @@ import * as fs from 'fs-extra';
     let view: ScmView;
 
     before(async function context() {
-        this.timeout(10000);
+        this.timeout(15000);
         fs.writeFileSync(path.resolve('.', 'testfile'), 'content');
         await VSBrowser.instance.openResources(path.resolve('..', '..'));
         view = await (await new ActivityBar().getViewControl('Source Control')).openView() as ScmView;

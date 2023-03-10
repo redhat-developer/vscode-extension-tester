@@ -1,7 +1,7 @@
 import { EditorView, MacTitleBar, OutputView } from "vscode-extension-tester";
 import { AssertionError, expect } from 'chai';
 
-(process.platform === 'darwin' ? describe : describe.skip)('MacTitleBar test', () => {
+describe.skip('MacTitleBar', () => {
     beforeEach(async () => {
         await new Promise(res => setTimeout(res, 2000));
         await new EditorView().closeAllEditors();

@@ -1,5 +1,5 @@
 import { Key, until } from "selenium-webdriver";
-import { BottomBarPanel, ContentAssist, Workbench } from "../..";
+import { BottomBarPanel, ContentAssist, InputBox, Workbench } from "../..";
 import { TextView, ChannelView } from "./AbstractViews";
 import * as clipboard from 'clipboardy';
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
@@ -12,6 +12,20 @@ export class OutputView extends TextView {
         super(OutputView.locators.OutputView.constructor, panel);
         this.actionsLabel = OutputView.locators.OutputView.actionsLabel;
     }
+
+    /**
+     * Select a channel using the selector combo
+     * @param name name of the channel to open
+     */
+    async selectChannel(name: string): Promise<void> {
+        if(process.platform === 'darwin') {
+            await new Workbench().executeCommand('Output: Show Output Channels...');
+            const input = await InputBox.create();
+            await input.selectQuickPick(name);
+        } else {
+            await super.selectChannel(name);
+        }
+    }
 }
 
 /**
@@ -21,17 +35,6 @@ export class OutputView extends TextView {
 export class DebugConsoleView extends ElementWithContexMenu {
     constructor(panel: BottomBarPanel = new BottomBarPanel()) {
         super(DebugConsoleView.locators.DebugConsoleView.constructor, panel);
-    }
-
-    /**
-     * Get all text from the debug console
-     */
-    async getText(): Promise<string> {
-        const menu = await this.openContextMenu();
-        await menu.select('Copy All');
-        const text = await clipboard.read();
-        await clipboard.write('');
-        return text;
     }
 
     /**
@@ -117,16 +120,22 @@ export class TerminalView extends ChannelView {
     /**
      * Get all text from the internal terminal
      * Beware, no formatting.
+     *
+     * macOS - To allow getText on macOS, you need to add specific vscode settings:
+     *  "terminal.integrated.copyOnSelection": true
+     *
      * @returns Promise resolving to all terminal text
      */
     async getText(): Promise<string> {
         const workbench = new Workbench();
         await workbench.executeCommand('terminal select all');
         await workbench.getDriver().sleep(500);
-        const menu = await this.openContextMenu();
-        await workbench.getDriver().sleep(500);
-        await menu.select('Copy');
-        await workbench.getDriver().sleep(500);
+        if(process.platform !== 'darwin') {
+            const menu = await this.openContextMenu();
+            await workbench.getDriver().sleep(500);
+            await menu.select('Copy');
+            await workbench.getDriver().sleep(500);
+        }
         const text = clipboard.readSync();
         clipboard.writeSync('');
         return text;
