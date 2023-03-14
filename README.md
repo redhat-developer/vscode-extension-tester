@@ -42,7 +42,7 @@ Extension Tester is a package that is designed to help you run UI tests for your
 - Supported Operating Systems
   - **Linux**
   - **Windows**
-  - **macOS** (only limited features, because of native Title Bar and Context Menu - unavailable for webdriver to handle)
+  - **macOS** (platform specific limitations, more in [Known Issues](KNOWN_ISSUES.md#macos-known-limitations-of-native-objects))
 
 ### Usage
 
