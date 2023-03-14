@@ -20,8 +20,8 @@
     "prebuild": "npm run prepare-deps",
     "build": "npm link ./page-objects ./locators && rimraf out/ && tsc && chmod a+x ./out/cli.js",
     "prepare-test": "cd test/test-project && npm install && rimraf package-lock.json",
-    "test": "npm run build && cd test/test-project && npm run ui-test",
-    "ci-test": "npm run build && cd test/test-project && npm run ci-test"
+    "test": "npm run build && npm run prepare-test && cd test/test-project && npm run ui-test",
+    "ci-test": "npm run build && npm run prepare-test && cd test/test-project && npm run ci-test"
   },
   "repository": {
     "type": "git",

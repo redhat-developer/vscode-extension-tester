@@ -38,17 +38,6 @@ jobs:
           node-version: 16
           cache: npm
 
-      - name: Setup Dependencies
-        run: |
-          rm package-lock.json
-          npm run prepare-deps
-      - name: Install
-        run: npm install
-      - name: Build
-        run: npm run build
-      - name: Prepare Tests
-        run: npm run prepare-test
-
       - name: Run Tests (windows)
         if: ${{ contains(matrix.os, 'win') }}
         run: |
