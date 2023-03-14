@@ -48,7 +48,7 @@
     "@types/glob": "^8.1.0",
     "@types/js-yaml": "^4.0.5",
     "@types/mocha": "^10.0.1",
-    "@types/node": "^16.18.14",
+    "@types/node": "^16.18.15",
     "mocha": "^10.2.0",
     "rimraf": "^4.4.0",
     "typescript": "*"
