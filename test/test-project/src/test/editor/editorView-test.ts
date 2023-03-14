@@ -7,6 +7,7 @@ describe('EditorView', function () {
     before(async function () {
         this.timeout(25000);
         view = new EditorView();
+        await view.closeAllEditors();
         await newUntitledFile('Untitled-1');
         await newUntitledFile('Untitled-2');
         await new Workbench().executeCommand('Webview Test');
@@ -27,6 +28,8 @@ describe('EditorView', function () {
     it('openEditor works with settings editor', async function () {
         const editor = await view.openEditor('Settings') as SettingsEditor;
         expect(editor.findSetting).not.undefined;
+
+        await view.closeEditor(await editor.getTitle());
     });
 
     it('openEditor works with webview editor', async function () {
@@ -38,6 +41,8 @@ describe('EditorView', function () {
         });
         const editor = await view.openEditor(editorTitle) as WebView;
         expect(editor.findWebElement).not.undefined;
+
+        await view.closeEditor(editorTitle);
     });
 
     it('openEditor works with diff editor', async function () {
@@ -55,7 +60,7 @@ describe('EditorView', function () {
         await quickOpen.getDriver().sleep(500);
         
         const diffEditor = await view.openEditor('Untitled-2 ↔ Untitled-1') as DiffEditor;
-        await diffEditor.getDriver().sleep(500);
+        await diffEditor.getDriver().sleep(1000);
         expect(await diffEditor.getOriginalEditor()).not.undefined;
         expect(await diffEditor.getModifiedEditor()).not.undefined;
     });

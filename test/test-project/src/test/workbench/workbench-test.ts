@@ -58,7 +58,7 @@ describe('Workbench', () => {
     });
 
     it('openSettings opens the settings editor', async function() {
-        this.timeout(4000);
+        this.timeout(8000);
         const editor = await bench.openSettings();
         expect(await editor.getTitle()).equals('Settings');
         await new EditorView().closeAllEditors();

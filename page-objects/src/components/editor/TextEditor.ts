@@ -102,6 +102,7 @@ export class TextEditor extends Editor {
     async getText(): Promise<string> {
         const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
         await inputarea.sendKeys(Key.chord(TextEditor.ctlKey, 'a'), Key.chord(TextEditor.ctlKey, 'c'));
+        await new Promise(res => setTimeout(res, 500));
         const text = clipboard.readSync();
         await inputarea.sendKeys(Key.UP);
         clipboard.writeSync('');
