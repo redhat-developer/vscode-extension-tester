@@ -169,7 +169,7 @@ export class VSBrowser {
 
         const code = new CodeUtil(this.storagePath, this.releaseType, this.extensionsFolder);
         code.open(...paths);
-        await new Promise(res => setTimeout(res, 2000));
+        await new Promise(res => setTimeout(res, 3000));
         await this.waitForWorkbench();
     }
 }

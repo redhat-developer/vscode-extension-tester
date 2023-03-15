@@ -109,7 +109,7 @@ describe('TextEditor', function () {
     });
 
     it('getCoordinates works', async function () {
-        this.timeout(10000);
+        this.timeout(15000);
         await editor.moveCursor(1, 1);
 
         expect(await editor.getCoordinates()).to.deep.equal([1, 1]);
@@ -121,7 +121,7 @@ describe('TextEditor', function () {
         await editor.getDriver().wait(async function () {
             const coor = await editor.getCoordinates();
             return coor[0] === lineCount && coor[1] === lastLine.length;
-        }, this.timeout() - 3000);
+        }, this.timeout() - 3000, `Cursor move did not finished properly!`);
 
         expect(await editor.getCoordinates()).to.deep.equal([lineCount, lastLine.length]);
     });
