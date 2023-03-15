@@ -1,5 +1,9 @@
 # Change Log
 
+## 5.5.1 (March 16 2023)
+
+- Bump 'max' placeholder to 1.76.2 version
+
 ## 5.5.0 (March 15 2023)
 
 - Compatible with VS Code 1.76.0 and 1.76.1 versions
