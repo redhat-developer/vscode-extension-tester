@@ -108,7 +108,7 @@ describe('QuickPickItem', () => {
     });
 });
 
-describe('InputBox', () => {
+describe.only('InputBox', () => {
     let input: InputBox;
 
     before(async function () {
@@ -185,5 +185,13 @@ describe('Multiple selection input', () => {
         await input.toggleAllQuickPicks(false);
         const checkbox = await input.findElement(By.css('input'));
         expect(await checkbox.isSelected()).is.false;
+    });
+
+    it('allows retrieving quickpicks', async () => {
+        const [first] = await input.getCheckboxes();
+        expect(await first.getText()).equals('test1');
+        await first.select();
+        const checkbox = await first.findElement(By.css('input'));
+        expect(await checkbox.isSelected()).is.true;
     });
 });

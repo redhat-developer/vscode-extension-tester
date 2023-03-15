@@ -1,4 +1,6 @@
 import { LocatorDiff } from "monaco-page-objects";
+import { By } from "selenium-webdriver";
+
 export const diff: LocatorDiff = {
     locators: {
         EditorView: {
@@ -6,6 +8,9 @@ export const diff: LocatorDiff = {
         },
         TreeItem: {
             actionTitle: 'aria-label'
+        },
+        Input: {
+            multiSelectIndex: (index: number) => By.xpath(`.//div[@role='checkbox' and @data-index='${index}']`)
         }
     }
 }

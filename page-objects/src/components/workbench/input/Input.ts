@@ -225,11 +225,16 @@ export abstract class Input extends AbstractElement {
 export class QuickPickItem extends AbstractElement {
     private index: number;
 
-    constructor(index: number, input: Input) {
+    constructor(index: number, input: Input, isMultiSelect = false) {
         let locator = Input.locators.Input.quickPickIndex(index);
         if (input instanceof QuickOpenBox) {
             locator = Input.locators.Input.quickPickPosition(index);
         }
+
+        if (isMultiSelect) {
+            locator = Input.locators.Input.multiSelectIndex(index);
+        }
+
         super(locator, input);
         this.index = index;
     }
