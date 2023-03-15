@@ -1,5 +1,11 @@
 # Change Log
 
+## 5.5.0 (March 15 2023)
+
+- Compatible with VS Code 1.76.0 and 1.76.1 versions
+- Bump extester inner dependencies
+- Fixed [#537](https://github.com/redhat-developer/vscode-extension-tester/issues/537) Can't get text from terminal view
+
 ## 5.4.0 (February 21 2023)
 
 - Compatible with VS Code 1.75.0 and 1.75.1 versions
