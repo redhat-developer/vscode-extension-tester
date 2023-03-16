@@ -48,7 +48,8 @@ export class VSBrowser {
             "window.newWindowDimensions": "maximized",
             "security.workspace.trust.enabled": false,
             "window.dialogStyle": "custom",
-            "files.simpleDialog.enable": true
+            "files.simpleDialog.enable": true,
+            "terminal.integrated.copyOnSelection": true
         };
         if (Object.keys(this.customSettings).length > 0) {
             console.log('Detected user defined code settings');
