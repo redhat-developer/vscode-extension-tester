@@ -48,7 +48,6 @@ export class VSRunner {
             for (const pattern of testFilesPattern) {
                 const universalPattern = pattern.replace(/'/g, '');
                 glob.sync(universalPattern)
-                    .filter((file) => fs.existsSync(file) && file.endsWith('.js'))
                     .forEach((val) => testFiles.add(val));
             }
     
