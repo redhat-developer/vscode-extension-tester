@@ -71,7 +71,7 @@ export class ExTester {
                 target = await this.code.downloadExtension(vsixFile);
             }
         } else {
-            this.code.packageExtension(useYarn);
+            await this.code.packageExtension(useYarn);
         }
         return this.code.installExtension(target);
     }
