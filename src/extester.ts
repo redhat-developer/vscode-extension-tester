@@ -124,28 +124,29 @@ export class ExTester {
     /**
      * Performs requirements setup and runs extension tests
      * 
-     * @param testFilesPattern glob pattern for test files to run
+     * @param testFilesPattern glob pattern(s) for test files to run
      * @param vscodeVersion version of VSCode to test against, defaults to latest
      * @param setupOptions Additional options for setting up the tests
      * @param runOptions Additional options for running the tests
      * 
      * @returns Promise resolving to the mocha process exit code - 0 for no failures, 1 otherwise
      */
-    async setupAndRunTests(testFilesPattern: string, vscodeVersion: string = 'latest', setupOptions: Omit<SetupOptions, "vscodeVersion"> = DEFAULT_SETUP_OPTIONS, runOptions: Omit<RunOptions, "vscodeVersion"> = DEFAULT_RUN_OPTIONS): Promise<number> {
+    async setupAndRunTests(testFilesPattern: string | string[], vscodeVersion: string = 'latest', setupOptions: Omit<SetupOptions, "vscodeVersion"> = DEFAULT_SETUP_OPTIONS, runOptions: Omit<RunOptions, "vscodeVersion"> = DEFAULT_RUN_OPTIONS): Promise<number> {
         await this.setupRequirements({...setupOptions, vscodeVersion}, runOptions.offline);
         return this.runTests(testFilesPattern, {...runOptions, vscodeVersion});
     }
 
     /**
      * Runs the selected test files in VS Code using mocha and webdriver
-     * @param testFilesPattern glob pattern for selected test files
+     * @param testFilesPattern glob pattern(s) for selected test files
      * @param runOptions Additional options for running the tests
      * 
      * @returns Promise resolving to the mocha process exit code - 0 for no failures, 1 otherwise
      */
-    async runTests(testFilesPattern: string, runOptions: RunOptions = DEFAULT_RUN_OPTIONS): Promise<number> {
+    async runTests(testFilesPattern: string | string[], runOptions: RunOptions = DEFAULT_RUN_OPTIONS): Promise<number> {
         runOptions.vscodeVersion = loadCodeVersion(runOptions.vscodeVersion);
-        return this.code.runTests(testFilesPattern, runOptions);
+        const patterns = (typeof testFilesPattern === 'string') ? ([testFilesPattern]) : (testFilesPattern);
+        return this.code.runTests(patterns, runOptions);
     }
 }
 
