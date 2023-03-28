@@ -108,7 +108,7 @@ describe('QuickPickItem', () => {
     });
 });
 
-describe.only('InputBox', () => {
+describe('InputBox', () => {
     let input: InputBox;
 
     before(async function () {
