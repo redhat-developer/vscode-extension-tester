@@ -1,8 +1,9 @@
 'use strict';
 
+import * as child_process from 'child_process';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import * as child_process from 'child_process';
+import * as vsce from '@vscode/vsce';
 import { VSRunner } from "../suite/runner";
 import { Unpack } from "./unpack";
 import { logging } from "selenium-webdriver";
@@ -94,7 +95,7 @@ export class CodeUtil {
         await this.checkCodeVersion(version);
 
         const literalVersion = version === 'latest' ? this.availableVersions[0] : version;
-        if(this.releaseType == ReleaseQuality.Stable && literalVersion !== this.availableVersions[0]) {
+        if (this.releaseType == ReleaseQuality.Stable && literalVersion !== this.availableVersions[0]) {
             console.log(`
                 WARNING: You are using the outdated VSCode version '${literalVersion}'. The latest stable version is '${this.availableVersions[0]}'.
             `);
@@ -107,11 +108,11 @@ export class CodeUtil {
             const url = ['https://update.code.visualstudio.com', version, this.downloadPlatform, this.releaseType].join('/');
             const isTarGz = this.downloadPlatform.indexOf('linux') > -1;
             const fileName = `${path.basename(url)}.${isTarGz ? 'tar.gz' : 'zip'}`;
-    
+
             console.log(`Downloading VS Code from: ${url}`);
             await Download.getFile(url, path.join(this.downloadFolder, fileName), true);
             console.log(`Downloaded VS Code into ${path.join(this.downloadFolder, fileName)}`);
-    
+
             console.log(`Unpacking VS Code into ${this.downloadFolder}`);
             const target = await fs.mkdtemp('vscode');
             await Unpack.unpack(path.join(this.downloadFolder, fileName), target);
@@ -196,14 +197,10 @@ export class CodeUtil {
      * Package extension into a vsix file
      * @param useYarn false to use npm as packaging system, true to use yarn instead
      */
-    packageExtension(useYarn?: boolean): void {
-        let vscePath = path.join(__dirname, '..', '..', 'node_modules', '.bin', 'vsce');
-        if (!fs.existsSync(vscePath)) {
-            vscePath = path.join('node_modules', '.bin', 'vsce');
-        }
-        const cliCall = `${vscePath} package ${useYarn ? '--yarn' : '--no-yarn'}`;
-
-        child_process.execSync(cliCall, { stdio: 'inherit' });
+    async packageExtension(useYarn?: boolean): Promise<void> {
+        await vsce.createVSIX({
+            useYarn
+        });
     }
 
     /**
@@ -303,7 +300,7 @@ export class CodeUtil {
             await this.getExistingCodeVersion();
         } catch (err) {
             console.log('ERROR: Cannot find a local copy of VS Code in offline mode, exiting.');
-            throw(err);
+            throw (err);
         }
         return this.getChromiumVersionOffline();
     }
