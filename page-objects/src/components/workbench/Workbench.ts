@@ -116,8 +116,10 @@ export class Workbench extends AbstractElement {
                 return InputBox.create();
             }
         }
-        await this.getDriver().actions().keyDown(Workbench.ctlKey).keyDown(Key.SHIFT).sendKeys('p').perform();
-        if (Workbench.versionInfo.browser.toLowerCase() === 'vscode' && Workbench.versionInfo.version >= '1.44.0') {
+        const driver = this.getDriver();
+        await driver.actions().keyDown(Workbench.ctlKey).keyDown(Key.SHIFT).sendKeys('p').perform();
+
+        if (Workbench.versionInfo.version >= '1.44.0') {
             return InputBox.create();
         }
         return QuickOpenBox.create();
