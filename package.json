@@ -1,6 +1,6 @@
 {
   "name": "vscode-extension-tester",
-  "version": "5.5.1",
+  "version": "5.5.2",
   "description": "Webdriver Testing for VSCode Extensions",
   "main": "out/extester.js",
   "types": "out/extester.d.ts",
@@ -63,7 +63,7 @@
     "got": "^11.8.6",
     "hpagent": "^1.2.0",
     "js-yaml": "^4.1.0",
-    "monaco-page-objects": "^3.5.0",
+    "monaco-page-objects": "^3.5.1",
     "sanitize-filename": "^1.6.3",
     "selenium-webdriver": "^4.8.1",
     "targz": "^1.0.1",

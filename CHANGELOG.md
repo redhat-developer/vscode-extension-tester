@@ -1,5 +1,13 @@
 # Change Log
 
+## 5.5.2 (April 04 2023)
+
+- Remove versionInfo.browser check in Workbench
+- Remove .js file existence restriction
+- Use vsce API instead CLI
+- Allow to consume multiple strings blob as extester cli arg
+- Provide terminal.copyOnSelection as default extester vscode setting
+
 ## 5.5.1 (March 16 2023)
 
 - Bump 'max' placeholder to 1.76.2 version
