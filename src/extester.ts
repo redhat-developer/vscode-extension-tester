@@ -27,7 +27,7 @@ export const DEFAULT_SETUP_OPTIONS = {
 }
 
 export const VSCODE_VERSION_MIN = '1.72.2';
-export const VSCODE_VERSION_MAX = '1.77.0';
+export const VSCODE_VERSION_MAX = '1.77.3';
 
 /**
  * VSCode Extension Tester
