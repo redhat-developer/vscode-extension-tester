@@ -1,5 +1,9 @@
 # Change Log
 
+## 5.5.3 (April 25 2023)
+
+- Bump 'max' placeholder to 1.77.3 version
+
 ## 5.5.2 (April 04 2023)
 
 - Remove versionInfo.browser check in Workbench
