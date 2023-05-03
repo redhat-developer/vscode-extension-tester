@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra';
 import { exec } from 'child_process';
 const targz = require('targz');
-const unzip = require('unzip-stream');
+const AdmZip = require("adm-zip");
 
 export class Unpack {
     static unpack(input: fs.PathLike, target: fs.PathLike): Promise<void> {
@@ -25,10 +25,8 @@ export class Unpack {
                         }
                     });
                 } else {
-                    fs.createReadStream(input)
-                        .pipe(unzip.Extract({ path: target }))
-                        .on('error', reject)
-                        .on('close', resolve);
+                    const zip = new AdmZip(input.toString());
+                    zip.extractAllTo(target.toString(), true);
                 }
             }
             else {
