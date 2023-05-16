@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest ]
-        version:  [ min, 1.74.3, 1.75.1, 1.76.2, max ]
+        version:  [ min, 1.75.1, 1.76.2, 1.77.3, max ]
         include:
           - os: macos-latest
             version: max
