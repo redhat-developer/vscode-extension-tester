@@ -93,6 +93,12 @@ describe('EditorView', function () {
         expect(action).not.undefined;
     });
 
+    it('Editor getAction works', async function () {
+        await new EditorView().openEditor('Untitled-2');
+        const editorAction = await view.getAction('Hello World');
+        expect(editorAction).not.undefined;
+    });
+
     describe('Editor Tab', function () {
         let tab2: EditorTab;
         let tab3: EditorTab;

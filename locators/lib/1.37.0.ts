@@ -88,7 +88,8 @@ const editor = {
         tabSeparator: ', tab',
         tabLabel: 'aria-label',
         actionContainer: By.className('editor-actions'),
-        actionItem: By.className('action-label')
+        actionItem: By.className('action-label'),
+        attribute: 'title'
     },
     Editor: {
         constructor: By.className('editor-instance'),

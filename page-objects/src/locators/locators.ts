@@ -91,6 +91,7 @@ export interface Locators {
         tabLabel: string
         actionContainer: By
         actionItem: By
+        attribute: string
     }
     Editor: {
         constructor: By

@@ -42,7 +42,8 @@
 		"commands": [
 			{
 				"command": "extension.helloWorld",
-				"title": "Hello World"
+				"title": "Hello World",
+				"icon": "$(rocket)"
 			},
 			{
 				"command": "extension.warningMsg",
@@ -124,6 +125,15 @@
 					"default": false
 				}
 			}
+		},
+		"menus": {
+			"editor/title": [
+				{
+					"command": "extension.helloWorld",
+					"group": "navigation",
+					"when": "resourceFilename =~ /Untitled.*$/"
+				}
+			]
 		}
 	},
 	"scripts": {
