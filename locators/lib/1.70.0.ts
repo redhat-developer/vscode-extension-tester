@@ -15,6 +15,9 @@ export const diff: LocatorDiff = {
         ScmView: {
             action: By.className('action-item menu-entry'),
             actionConstructor: (title: string) => By.xpath(`.//li[@title='${title}']`)
+        },
+        EditorView: {
+            attribute: 'aria-label'
         }
     }
 }
