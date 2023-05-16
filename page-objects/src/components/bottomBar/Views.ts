@@ -130,7 +130,7 @@ export class TerminalView extends ChannelView {
         const workbench = new Workbench();
         await workbench.executeCommand('terminal select all');
         await workbench.getDriver().sleep(500);
-        if(process.platform !== 'darwin') {
+        if(process.platform === 'linux') {
             const menu = await this.openContextMenu();
             await workbench.getDriver().sleep(500);
             await menu.select('Copy');

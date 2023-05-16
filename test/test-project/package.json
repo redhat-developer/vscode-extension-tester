@@ -131,7 +131,7 @@
 		"compile": "rimraf out && tsc -p ./ && npm run lint",
 		"lint": "eslint src --ext .ts",
 		"watch": "tsc -watch -p ./",
-		"ui-test": "extest setup-and-run './out/src/test/cli/order-3-test.js' './out/src/test/cli/order-2-test.js' './out/src/test/cli/order-1-test.js' './out/src/test/**/customView*test.js' -u -i -r . -e ./test-extensions",
+		"ui-test": "extest setup-and-run './out/src/test/cli/order-3-test.js' './out/src/test/cli/order-2-test.js' './out/src/test/cli/order-1-test.js' './out/src/test/**/customView*test.js' './out/src/test/**/views*test.js' -u -i -r . -e ./test-extensions",
 		"ci-test": "extest setup-and-run './out/src/test/cli/order-3-test.js' './out/src/test/cli/order-2-test.js' './out/src/test/cli/order-1-test.js' './out/src/test/**/*test.js' -u -i -r . -e ./test-extensions"
 	},
 	"devDependencies": {
