@@ -83,7 +83,7 @@ describe('Output View/Text Views', function () {
 
         it('executeCommand works', async function () {
             const command = `${process.platform === 'win32' ? 'start-sleep -s' : 'sleep'} 2`;
-            await terminal.executeCommand(command, 3000);
+            await terminal.executeCommand(command, 5000);
         });
 
         it('newTerminal opens a new term channel', async function () {

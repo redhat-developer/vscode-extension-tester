@@ -23,6 +23,8 @@ jobs:
             version: max
           - os: windows-latest
             version: max
+          - os: windows-latest
+            version: 1.67.2
       fail-fast: false
 
     env:
