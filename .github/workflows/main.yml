@@ -16,13 +16,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest ]
-        version:  [ min, 1.75.1, 1.76.2, 1.77.3, max ]
-        include:
-          - os: macos-latest
-            version: max
-          - os: windows-latest
-            version: max
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        version:  [ min, 1.77.3, max ]
       fail-fast: false
 
     env:
