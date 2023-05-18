@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/redhat-developer/vscode-extension-tester#readme",
   "devDependencies": {
-    "@types/node": "^16.18.16",
+    "@types/node": "^20.2.1",
     "@types/selenium-webdriver": "^4.1.13",
     "monaco-page-objects": "file:../page-objects",
     "rimraf": "^4.4.0",
