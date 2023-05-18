@@ -1,12 +1,14 @@
 import { expect } from 'chai';
-import { EditorView, TextEditor, Workbench } from 'vscode-extension-tester';
+import { EditorView, InputBox, TextEditor, Workbench } from 'vscode-extension-tester';
 
 describe('Text Editor sample tests', () => {
     let editor: TextEditor;
 
     before(async () => {
         // create a file to open in an editor
-        await new Workbench().executeCommand('create new file');
+        await new Workbench().executeCommand('Create: New File...');
+        await (await InputBox.create()).selectQuickPick('Text File');
+        await new Promise((res) => { setTimeout(res, 1000); });
         editor = await new EditorView().openEditor('Untitled-1') as TextEditor;
         // or if the file we want is currently opened we can simply do
         // editor = new TextEditor();
