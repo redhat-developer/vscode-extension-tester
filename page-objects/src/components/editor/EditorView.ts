@@ -6,6 +6,7 @@ import { SettingsEditor } from "./SettingsEditor";
 import { WebView } from "./WebView";
 import { DiffEditor } from './DiffEditor';
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
+import { EditorAction } from "./EditorAction";
 
 export class EditorTabNotFound extends Error {
     constructor(title: string, group: number) {
@@ -156,21 +157,22 @@ export class EditorView extends AbstractElement {
     /**
      * Get editor actions of a select editor group
      * @param groupIndex zero based index of the editor group (leftmost group has index 0), default 0
-     * @returns promise resolving to list of WebElement objects
+     * @returns promise resolving to list of EditorAction objects
      */
-    async getActions(groupIndex = 0): Promise<WebElement[]> {
+    async getActions(groupIndex: number = 0): Promise<EditorAction[]> {
         const group = await this.getEditorGroup(groupIndex);
         return group.getActions();
     }
 
     /**
-     * Get editor action of a select editor group, search by title
+     * Get editor action of a select editor group, search by title or predicate
+     * @param predicateOrTitle title or predicate to be used in search process
      * @param groupIndex zero based index of the editor group (leftmost group has index 0), default 0
-     * @returns promise resolving to WebElement object if found, undefined otherwise
+     * @returns promise resolving to EditorAction object if found, undefined otherwise
      */
-    async getAction(title: string, groupIndex = 0): Promise<WebElement | undefined> {
+    async getAction(predicateOrTitle: string | ((action: EditorAction) => boolean | PromiseLike<boolean>), groupIndex: number = 0): Promise<EditorAction | undefined> {
         const group = await this.getEditorGroup(groupIndex);
-        return group.getAction(title);
+        return group.getAction(predicateOrTitle);
     }
 }
 
@@ -312,23 +314,30 @@ export class EditorGroup extends AbstractElement {
     }
 
     /**
-     * Retrieve the editor action buttons as WebElements
-     * @returns promise resolving to list of WebElement objects
+     * Retrieve the editor action buttons as EditorActions
+     * @returns promise resolving to list of EditorAction objects
      */
-    async getActions(): Promise<WebElement[]> {
-        return this.findElement(EditorGroup.locators.EditorView.actionContainer).findElements(EditorGroup.locators.EditorView.actionItem);
+    async getActions(): Promise<EditorAction[]> {
+        const actions = await
+            this.findElement(EditorGroup.locators.EditorView.actionContainer)
+                .findElements(EditorGroup.locators.EditorView.actionItem);
+        return actions.map((action) => new EditorAction(action, this));
     }
 
     /**
-     * Find an editor action button by title
-     * @param title title of the button
-     * @returns promise resolving to WebElement representing the button if found, undefined otherwise
+     * Find an editor action button by predicate or title
+     * @param predicateOrTitle predicate/title to be used
+     * @returns promise resolving to EditorAction representing the button if found, undefined otherwise
      */
-    async getAction(title: string): Promise<WebElement | undefined> {
+    async getAction(predicateOrTitle: string | ((action: EditorAction) => boolean | PromiseLike<boolean>)): Promise<EditorAction | undefined> {
+        const predicate = (typeof predicateOrTitle === 'string') ?
+            (async (action: EditorAction) => await action.getTitle() === predicateOrTitle) : (predicateOrTitle);
+
         const actions = await this.getActions();
-        for (const item of actions) {
-            if (await item.getAttribute(EditorGroup.locators.EditorView.attribute) === title) {
-                return item;
+
+        for (const action of actions) {
+            if (await predicate(action)) {
+                return action;
             }
         }
         return undefined;
