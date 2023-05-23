@@ -502,16 +502,7 @@ class Selection extends ElementWithContexMenu {
  */
 export class CodeLens extends AbstractElement {
     constructor(element: WebElement, editor: TextEditor) {
-        super(element, editor);
-    }
-
-    /**
-     * Get the text displayed on the code lens
-     * @returns text as string
-     */
-    async getText(): Promise<string> {
-        const link = await this.findElement(By.css('a'));
-        return link.getText();
+        super(element.findElement(By.css('a')), editor);
     }
 
     /**
@@ -519,8 +510,7 @@ export class CodeLens extends AbstractElement {
      * @returns tooltip as string
      */
     async getTooltip(): Promise<string> {
-        const link = await this.findElement(By.css('a'));
-        return link.getAttribute('title');
+        return this.getAttribute('title');
     }
 }
 

@@ -289,9 +289,11 @@ describe('TextEditor', function () {
 
         it('getCodeLens works with index', async function () {
             const lens0 = await editor.getCodeLens(0);
+            const lens0Duplicate = await editor.getCodeLens(0);
             const lens1 = await editor.getCodeLens(1);
 
-            expect(await lens0.getAttribute('widgetid')).not.equal(await lens1.getAttribute('widgetid'));
+            expect(await lens0.getId()).not.equal(await lens1.getId());
+            expect(await lens0.getId()).equal(await lens0Duplicate.getId());
         });
 
         it('getCodeLens works with partial text', async function () {
