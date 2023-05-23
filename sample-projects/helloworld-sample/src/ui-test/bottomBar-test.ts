@@ -3,10 +3,10 @@ import * as path from 'path';
 import { expect } from "chai";
 
 // Sample tests using the Bottom Bar, the panel that houses the terminal, output, problems, etc.
-describe('Bottom Bar Example Tests', () => {
+describe('Bottom Bar Example Tests', function () {
     let bottomBar: BottomBarPanel;
 
-    before(async () => {
+    before(async function () {
         // init the bottom bar page object
         bottomBar = new BottomBarPanel();
 
@@ -14,9 +14,14 @@ describe('Bottom Bar Example Tests', () => {
         await bottomBar.toggle(true);
     });
 
+    after(async function () {
+        // make sure the panel is closed
+        await bottomBar.toggle(false);
+    });
+
     // The panel houses potentially several different views, lets test those
     // starting with the problems view
-    describe('Problems View', () => {
+    describe('Problems View', function () {
         let view: ProblemsView;
 
         // wait condition for problem markers to exist within problems view
@@ -26,7 +31,7 @@ describe('Bottom Bar Example Tests', () => {
             return markers.length > 0;
         }
 
-        before(async function() {
+        before(async function () {
             // this operation will likely take more than 2 seconds (default mocha timeout)
             // we need to increase the timeout, unless we're using a global config file for that
             this.timeout(30000);
@@ -38,13 +43,13 @@ describe('Bottom Bar Example Tests', () => {
             await VSBrowser.instance.openResources(path.join('src', 'ui-test', 'resources', 'problems.ts'));
 
             // wait for the editor to parse the file and display the problem markers
-            await view.getDriver().wait(() => { return problemsExist(view); }, 15000);
+            await view.getDriver().wait(async function () { return await problemsExist(view); }, 15000);
         });
 
         // These tests use getAllVisibleMarkers() and are unreliable and should not be included.
         //
         // now we can look at the error markers
-        it.skip('Error markers are displayed', async () => {
+        it('Error markers are displayed', async function () {
             // generally, there are 3 marker types (warning, error, and file - file just contains other markers though)
             // we want to see the errors
             const errors = await view.getAllVisibleMarkers(MarkerType.Error);
@@ -54,13 +59,13 @@ describe('Bottom Bar Example Tests', () => {
         });
 
         // we can make sure no warnings are present at the same time
-        it.skip('There are no warnings', async () => {
+        it('There are no warnings', async function () {
             const warnings = await view.getAllVisibleMarkers(MarkerType.Warning);
             expect(warnings).is.empty;
         });
 
         // there is also a file marker (out problematic file that contains the errors)
-        it.skip('There is a file marker', async () => {
+        it('There is a file marker', async function () {
             const files = await view.getAllVisibleMarkers(MarkerType.File);
             const file = files[0];
 
@@ -73,7 +78,7 @@ describe('Bottom Bar Example Tests', () => {
             await file.toggleExpand(true);
         });
 
-        it('Markers are displayed', async () => {
+        it('Markers are displayed', async function () {
             // Need to throttle this test in order for VS Code to load/display all of the errors
             // and warnings.
             await new Promise(res => setTimeout((res), 3000));
@@ -88,15 +93,19 @@ describe('Bottom Bar Example Tests', () => {
 
             // Regardless of how many are visible, the first row contains the summary, and the badge
             // contains the count.
-            expect(badgeText).equals("19");
+            expect(badgeText).equals('7');
         });
 
         // we can also define filtering for problems
-        it('Filtering works', async () => {
+        it('Filtering works', async function () {
             // set filter to something more specific
+            // Workaround: calling twice to bypass some weird behaviour in some local cases
             await view.setFilter('aa');
+            await view.getDriver().sleep(500);
+            await view.setFilter('aa');
+
             // wait a bit for the filter to apply
-            await new Promise(res => setTimeout(res, 1000));
+            await view.getDriver().sleep(500);
             const errors = await view.getAllVisibleMarkers(MarkerType.Error);
 
             // now there should be just a single error
@@ -108,10 +117,10 @@ describe('Bottom Bar Example Tests', () => {
     });
 
     // lets test the output view now
-    describe('Output View', () => {
+    describe('Output View', function () {
         let view: OutputView;
 
-        before(async () => {
+        before(async function () {
             // open the output view first
             view = await bottomBar.openOutputView();
 
@@ -120,12 +129,12 @@ describe('Bottom Bar Example Tests', () => {
         });
 
         // check if there is text in the output
-        it('Get the text', async () => {
+        it('Get the text', async function () {
             const text = await view.getText();
             expect(text).is.not.empty;
         });
 
-        it('Clear the output channel', async () => {
+        it('Clear the output channel', async function () {
             await view.clearText();
             const text = await view.getText();
 
@@ -134,15 +143,15 @@ describe('Bottom Bar Example Tests', () => {
         });
     });
 
-    describe('Terminal View', () => {
+    describe('Terminal View', function () {
         let view: TerminalView;
 
-        before(async () => {
+        before(async function () {
             view = await bottomBar.openTerminalView();
         });
 
-        it('Execute a command', async () => {
-            await view.executeCommand('echo "hello world!"');
+        it('Execute a command', async function () {
+            await view.executeCommand('echo "hello world\\!"', 2000);
 
             // now there should be a line saying 'hello world!' in the terminal
             const text = await view.getText();

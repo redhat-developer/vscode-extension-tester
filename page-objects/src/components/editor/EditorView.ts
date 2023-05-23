@@ -327,7 +327,7 @@ export class EditorGroup extends AbstractElement {
     async getAction(title: string): Promise<WebElement | undefined> {
         const actions = await this.getActions();
         for (const item of actions) {
-            if (await item.getAttribute('title') === title) {
+            if (await item.getAttribute(EditorGroup.locators.EditorView.attribute) === title) {
                 return item;
             }
         }
