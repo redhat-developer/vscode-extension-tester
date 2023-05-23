@@ -39,6 +39,10 @@ export abstract class AbstractElement extends WebElement {
         this.enclosingItem = item;
     }
 
+    async isEnabled(): Promise<boolean> {
+        return await super.isEnabled() && AbstractElement.locators.AbstractElement.enabled(this);
+    }
+
     /**
      * Wait for the element to become visible
      * @param timeout custom timeout for the wait
