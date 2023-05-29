@@ -1,10 +1,17 @@
 import { By, WebElement } from "selenium-webdriver";
 import { DeepPartial } from 'ts-essentials';
 
+type WebElementFunction<T> = (element: WebElement) => T | PromiseLike<T>;
+
 /**
  * Type definitions for all used locators
  */
 export interface Locators {
+    // AbstractElement properties
+    AbstractElement: {
+        enabled: WebElementFunction<boolean>
+    }
+
     // Activity Bar
     ActivityBar: {
         constructor: By
@@ -91,6 +98,7 @@ export interface Locators {
         tabLabel: string
         actionContainer: By
         actionItem: By
+        attribute: string
     }
     Editor: {
         constructor: By
@@ -103,12 +111,12 @@ export interface Locators {
             pauseSelector: By
             generalSelector: By
             properties: {
-                enabled: (el: WebElement) => Promise<boolean>
+                enabled: WebElementFunction<boolean>
                 line: {
                     selector: By
-                    number: (line: WebElement) => Promise<number>
+                    number: WebElementFunction<number>
                 }
-                paused: (el: WebElement) => Promise<boolean>
+                paused: WebElementFunction<boolean>
             }
         }
         editorContainer: By

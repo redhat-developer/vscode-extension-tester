@@ -1,4 +1,4 @@
-import { ContentAssist, ContextMenu, InputBox } from "../..";
+import { ContentAssist, ContextMenu, InputBox, Workbench } from "../..";
 import { By, ChromiumWebDriver, Key, until, WebElement } from "selenium-webdriver";
 import { fileURLToPath } from "url";
 import * as clipboard from 'clipboardy';
@@ -264,8 +264,7 @@ export class TextEditor extends Editor {
      */
     async typeTextAt(line: number, column: number, text: string): Promise<void> {
         await this.moveCursor(line, column);
-        const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
-        await inputarea.sendKeys(text);
+        await this.typeText(text);
     }
 
     /**
@@ -291,24 +290,34 @@ export class TextEditor extends Editor {
         if (column < 1) {
             throw new Error(`Column number ${column} does not exist`);
         }
-        const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
-        let coordinates = await this.getCoordinates();
-        const lineGap = coordinates[0] - line;
-        const lineKey = lineGap >= 0 ? Key.UP : Key.DOWN;
-        for (let i = 0; i < Math.abs(lineGap); i++) {
-            await inputarea.sendKeys(lineKey);
-        }
+        if(process.platform === 'darwin') {
+            const input = await new Workbench().openCommandPrompt();
+            await input.setText(`:${line},${column}`);
+            await input.confirm();
+        } else {
+            const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
+            let coordinates = await this.getCoordinates();
+            const lineGap = coordinates[0] - line;
+            const lineKey = lineGap >= 0 ? Key.UP : Key.DOWN;
+            for (let i = 0; i < Math.abs(lineGap); i++) {
+                await inputarea.sendKeys(lineKey);
+            }
 
-        coordinates = await this.getCoordinates();
-        const columnGap = coordinates[1] - column;
-        const columnKey = columnGap >= 0 ? Key.LEFT : Key.RIGHT;
-        for (let i = 0; i < Math.abs(columnGap); i++) {
-            await inputarea.sendKeys(columnKey);
-            let actualCoordinates = (await this.getCoordinates())[0];
-            if (actualCoordinates != coordinates[0]) {
-                throw new Error(`Column number ${column} is not accessible on line ${line}`);
+            coordinates = await this.getCoordinates();
+            const columnGap = coordinates[1] - column;
+            const columnKey = columnGap >= 0 ? Key.LEFT : Key.RIGHT;
+            for (let i = 0; i < Math.abs(columnGap); i++) {
+                await inputarea.sendKeys(columnKey);
+                let actualCoordinates = (await this.getCoordinates())[0];
+                if (actualCoordinates != coordinates[0]) {
+                    throw new Error(`Column number ${column} is not accessible on line ${line}`);
+                }
             }
         }
+        await this.getDriver().wait(async () => {
+            const coor = await this.getCoordinates();
+            return coor[0] === line && coor[1] === column;
+        });
     }
 
     /**
@@ -493,16 +502,7 @@ class Selection extends ElementWithContexMenu {
  */
 export class CodeLens extends AbstractElement {
     constructor(element: WebElement, editor: TextEditor) {
-        super(element, editor);
-    }
-
-    /**
-     * Get the text displayed on the code lens
-     * @returns text as string
-     */
-    async getText(): Promise<string> {
-        const link = await this.findElement(By.css('a'));
-        return link.getText();
+        super(element.findElement(By.css('a')), editor);
     }
 
     /**
@@ -510,8 +510,7 @@ export class CodeLens extends AbstractElement {
      * @returns tooltip as string
      */
     async getTooltip(): Promise<string> {
-        const link = await this.findElement(By.css('a'));
-        return link.getAttribute('title');
+        return this.getAttribute('title');
     }
 }
 

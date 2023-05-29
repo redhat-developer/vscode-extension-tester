@@ -1,5 +1,11 @@
 # Change Log
 
+## 5.6.0 (May 17 2023)
+
+- Bump 'max' placeholder to 1.78.2 version
+- Fix EditorView.getAction() is not working with VS Code 1.70+ (#771)
+- Fix regression Terminal View bug in VS Code 1.67.2 (#770)
+
 ## 5.5.3 (April 25 2023)
 
 - Bump 'max' placeholder to 1.77.3 version

@@ -10,6 +10,9 @@
 	},
 	"defaultSeverity": "warning",
 	"linterOptions": {
-		"exclude": ["test-resources"]
+		"exclude": [
+			"test-resources",
+			".test-extensions"
+		]
 	}
 }

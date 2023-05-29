@@ -1,6 +1,12 @@
 import { By, WebElement } from "selenium-webdriver";
 import { Locators, hasClass, hasNotClass } from "monaco-page-objects";
 
+const abstractElement = {
+    AbstractElement: {
+        enabled: hasNotClass("disabled")
+    }
+}
+
 const activityBar = {
     ActivityBar: {
         constructor: By.id('workbench.parts.activitybar'),
@@ -88,7 +94,8 @@ const editor = {
         tabSeparator: ', tab',
         tabLabel: 'aria-label',
         actionContainer: By.className('editor-actions'),
-        actionItem: By.className('action-label')
+        actionItem: By.className('action-label'),
+        attribute: 'title'
     },
     Editor: {
         constructor: By.className('editor-instance'),
@@ -414,6 +421,7 @@ const welcome = {
  * All available locators for vscode version 1.37.0
  */
 export const locators: Locators = {
+    ...abstractElement,
     ...activityBar,
     ...bottomBar,
     ...editor,

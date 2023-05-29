@@ -110,19 +110,14 @@ describe('TextEditor', function () {
 
     it('getCoordinates works', async function () {
         this.timeout(15000);
-        await editor.moveCursor(1, 1);
 
+        await editor.moveCursor(1, 1);
         expect(await editor.getCoordinates()).to.deep.equal([1, 1]);
 
         const lineCount = await editor.getNumberOfLines();
         const lastLine = await editor.getTextAtLine(lineCount);
 
         await editor.moveCursor(lineCount, lastLine.length);
-        await editor.getDriver().wait(async function () {
-            const coor = await editor.getCoordinates();
-            return coor[0] === lineCount && coor[1] === lastLine.length;
-        }, this.timeout() - 3000, `Cursor move did not finished properly!`);
-
         expect(await editor.getCoordinates()).to.deep.equal([lineCount, lastLine.length]);
     });
 
@@ -294,9 +289,11 @@ describe('TextEditor', function () {
 
         it('getCodeLens works with index', async function () {
             const lens0 = await editor.getCodeLens(0);
+            const lens0Duplicate = await editor.getCodeLens(0);
             const lens1 = await editor.getCodeLens(1);
 
-            expect(await lens0.getAttribute('widgetid')).not.equal(await lens1.getAttribute('widgetid'));
+            expect(await lens0.getId()).not.equal(await lens1.getId());
+            expect(await lens0.getId()).equal(await lens0Duplicate.getId());
         });
 
         it('getCodeLens works with partial text', async function () {
