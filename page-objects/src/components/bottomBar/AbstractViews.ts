@@ -92,13 +92,14 @@ export abstract class TextView extends ChannelView {
      * @returns Promise resolving to the view's text
      */
     async getText(): Promise<string> {
+        const originalClipboard = clipboard.readSync();
         let textarea = await this.findElement(ChannelView.locators.BottomBarViews.textArea);
         await textarea.sendKeys(Key.chord(TextView.ctlKey, 'a'));
         await textarea.sendKeys(Key.chord(TextView.ctlKey, 'c'));
         const text = clipboard.readSync();
         // workaround as we are getting "element click intercepted" during the send keys actions.
         // await textarea.click();
-        clipboard.writeSync('');
+        clipboard.writeSync(originalClipboard);
         return text;
     }
 

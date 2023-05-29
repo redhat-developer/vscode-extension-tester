@@ -100,12 +100,13 @@ export class TextEditor extends Editor {
      * @returns Promise resolving to editor text
      */
     async getText(): Promise<string> {
+        const originalClipboard = clipboard.readSync();
         const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
         await inputarea.sendKeys(Key.chord(TextEditor.ctlKey, 'a'), Key.chord(TextEditor.ctlKey, 'c'));
         await new Promise(res => setTimeout(res, 500));
         const text = clipboard.readSync();
         await inputarea.sendKeys(Key.UP);
-        clipboard.writeSync('');
+        clipboard.writeSync(originalClipboard);
         return text;
     }
 
@@ -116,10 +117,11 @@ export class TextEditor extends Editor {
      * @returns Promise resolving once the new text is copied over
      */
     async setText(text: string, formatText: boolean = false): Promise<void> {
+        const originalClipboard = clipboard.readSync();
         const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
         clipboard.writeSync(text);
         await inputarea.sendKeys(Key.chord(TextEditor.ctlKey, 'a'), Key.chord(TextEditor.ctlKey, 'v'));
-        clipboard.writeSync('');
+        clipboard.writeSync(originalClipboard);
         if (formatText) {
             await this.formatDocument();
         }
@@ -223,6 +225,7 @@ export class TextEditor extends Editor {
      * Get the text that is currently selected as string
      */
     async getSelectedText(): Promise<string> {
+        const originalClipboard = clipboard.readSync();
         const selection = await this.getSelection();
         if (!selection) {
             return '';
@@ -230,7 +233,9 @@ export class TextEditor extends Editor {
         const menu = await selection.openContextMenu();
         await menu.select('Copy');
         await new Promise(res => setTimeout(res, 500));
-        return clipboard.read();
+        const text = clipboard.readSync();
+        clipboard.writeSync(originalClipboard);
+        return text;
     }
 
     /**
