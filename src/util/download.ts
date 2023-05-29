@@ -19,6 +19,10 @@ const options: OptionsOfTextResponseBody & { isStream?: undefined } = {
     agent: {
         http: httpProxyAgent,
         https: httpsProxyAgent
+    },
+    timeout: {
+        request: 60 * 1000,
+        lookup: 500
     }
 }
 
@@ -28,7 +32,7 @@ export class Download {
         return JSON.parse(body as string)
     }
 
-    static getFile(uri: string, destination: string, progress = false): Promise<void> {
+    static async getFile(uri: string, destination: string, progress = false): Promise<void> {
         let lastTick = 0;
         const dlStream = got.stream(uri, options);
         if (progress) {
