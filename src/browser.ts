@@ -42,12 +42,13 @@ export class VSBrowser {
             fs.removeSync(path.join(this.storagePath, 'settings'));
         }
         let defaultSettings = { 
-            "window.titleBarStyle": "custom",
             "workbench.editor.enablePreview": false,
+            "workbench.startupEditor": "none",
+            "window.titleBarStyle": "custom",
+            "window.dialogStyle": "custom",
             "window.restoreFullscreen": true,
             "window.newWindowDimensions": "maximized",
             "security.workspace.trust.enabled": false,
-            "window.dialogStyle": "custom",
             "files.simpleDialog.enable": true,
             "terminal.integrated.copyOnSelection": true
         };
