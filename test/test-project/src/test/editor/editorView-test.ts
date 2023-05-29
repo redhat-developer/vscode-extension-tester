@@ -88,9 +88,14 @@ describe('EditorView', function () {
         expect(actions).not.empty;
     });
 
-    it('getAction works', async function () {
+    it('getAction(title: string) works', async function () {
         const action = await view.getAction('More Actions...');
-        expect(action).not.undefined;
+        expect(await action.getTitle()).equal('More Actions...');
+    });
+
+    it('getAction(predicate: PredicateFunction) works', async function () {
+        const action = await view.getAction(async (action) => await action.getTitle() === 'More Actions...');
+        expect(await action.getTitle()).equal('More Actions...');
     });
 
     it('Editor getAction works', async function () {

@@ -40,6 +40,7 @@ export * from './components/bottomBar/Views';
 export * from './components/statusBar/StatusBar';
 
 export * from './components/editor/EditorView';
+export * from './components/editor/EditorAction';
 export * from './components/editor/Breakpoint';
 export * from './components/editor/TextEditor';
 export * from './components/editor/Editor';
