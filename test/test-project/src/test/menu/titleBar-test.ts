@@ -1,13 +1,18 @@
 import { expect } from 'chai';
+import * as path from 'path';
 import { ActivityBar, TitleBar, ContextMenu, TitleBarItem, EditorView, VSBrowser } from 'vscode-extension-tester';
 
 (process.platform === 'darwin' ? describe.skip : describe)('TitleBar', function () {
+
     let bar: TitleBar;
 
     before(async function () {
-        this.timeout(10000);
-
+        this.timeout(30000);
+        await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', '..', 'resources', 'test-folder'));
+        await VSBrowser.instance.driver.sleep(5000);
         bar = new TitleBar();
+
+        await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', '..', 'resources', 'test-folder', 'foo'));
 
         // workspace cleanup before tests
         await new EditorView().closeAllEditors();
@@ -22,7 +27,7 @@ import { ActivityBar, TitleBar, ContextMenu, TitleBarItem, EditorView, VSBrowser
     it('getTitle returns the window title', async function() {
         const title = await bar.getTitle();
         expect(title).not.empty;
-        expect(title).has.string('Visual Studio Code');
+        expect(title).to.includes('Visual Studio Code');
     });
 
     it('getWindowControls works', async function () {
@@ -32,19 +37,14 @@ import { ActivityBar, TitleBar, ContextMenu, TitleBarItem, EditorView, VSBrowser
 
     it('getItem returns an item with the given name', async function () {
         const item = await bar.getItem('File');
-        expect(item.getLabel()).equals('File');
+        expect(await item.getLabel()).equals('File');
     });
 
     it('getItems returns all top menu items', async function () {
         this.timeout(4000);
         const items = (await bar.getItems()).map((item) => { return item.getLabel(); });
         expect(items.length).greaterThan(5);
-
-        let lastVisibleMenuItem = 'Help';
-        if(VSBrowser.instance.version >= '1.75.0') {
-            lastVisibleMenuItem = 'More';
-        }
-        expect(items).contains.members(['File', 'Edit', 'Selection', 'View', lastVisibleMenuItem]);
+        expect(items).contains.members(['File', 'Edit', 'Selection', 'View', 'Go', 'Run']);
     });
 
     it('hasItem returns true if item exists', async function () {
@@ -72,11 +72,12 @@ import { ActivityBar, TitleBar, ContextMenu, TitleBarItem, EditorView, VSBrowser
         let item: TitleBarItem;
 
         before(async function () {
+            bar = new TitleBar();
             item = await bar.getItem('File');
         });
 
         it('getParent returns the title bar', async function() {
-            const parent = await item.getParent();
+            const parent = item.getParent();
             expect(parent).equals(bar);
         });
 

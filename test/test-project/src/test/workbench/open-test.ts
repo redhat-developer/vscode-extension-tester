@@ -1,10 +1,12 @@
 import { EditorView, Workbench } from 'monaco-page-objects';
 import * as path from 'path';
 
-describe('Simple open file dialog', () => {
+describe('Simple open file dialog', function () {
+
     const filePath = path.resolve('.', 'package.json');
 
-    it('Opens a file', async () => {
+    it('Opens a file', async function () {
+        this.timeout(30000);
         const input = await new Workbench().openCommandPrompt();
         await input.setText('>File: Open File...');
         await input.selectQuickPick('File: Open File...');

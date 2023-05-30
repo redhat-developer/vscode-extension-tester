@@ -25,7 +25,7 @@ export class DebugToolbar extends AbstractElement {
     /**
      * Wait for the execution to pause at the next breakpoint
      */
-    async waitForBreakPoint(): Promise<void> {
+    async waitForBreakPoint(timeout = undefined): Promise<void> {
         let btn = await this.getDriver().wait(until.elementLocated(DebugToolbar.locators.DebugToolbar.button('continue')));
         await this.getDriver().wait(async () => {
             try {
@@ -34,7 +34,7 @@ export class DebugToolbar extends AbstractElement {
             } catch(err) {
                 btn = await this.findElement(DebugToolbar.locators.DebugToolbar.button('continue'));
             }
-        });
+        }, timeout);
     }
 
     /**
@@ -94,6 +94,6 @@ export class DebugToolbar extends AbstractElement {
     }
 
     private async getButton(name: string): Promise<WebElement> {
-        return this.findElement(DebugToolbar.locators.DebugToolbar.button(name));
+        return await this.findElement(DebugToolbar.locators.DebugToolbar.button(name));
     }
 }

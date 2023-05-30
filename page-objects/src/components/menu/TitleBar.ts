@@ -7,6 +7,7 @@ import { MenuItem } from "./MenuItem";
  * Page object representing the custom VSCode title bar
  */
 export class TitleBar extends Menu {
+
     constructor() {
         super(TitleBar.locators.TitleBar.constructor, TitleBar.locators.Workbench.constructor);
     }
@@ -46,7 +47,7 @@ export class TitleBar extends Menu {
      * @returns Promise resolving to the window title
      */
     async getTitle(): Promise<string> {
-        return this.findElement(TitleBar.locators.TitleBar.title).getText();
+        return await this.findElement(TitleBar.locators.TitleBar.title).getText();
     }
 
     /**
@@ -61,6 +62,7 @@ export class TitleBar extends Menu {
  * Page object representing an item of the custom VSCode title bar
  */
 export class TitleBarItem extends MenuItem {
+
     constructor(label: string, parent: Menu) {
         super(TitleBar.locators.TitleBar.itemConstructor(label), parent);
         this.parent = parent;
@@ -73,6 +75,7 @@ export class TitleBarItem extends MenuItem {
             await this.getDriver().actions().sendKeys(Key.ESCAPE).perform();
         }
         await this.click();
+        await new Promise(res => setTimeout(res, 500));
         return new ContextMenu(this).wait();
     }
 }

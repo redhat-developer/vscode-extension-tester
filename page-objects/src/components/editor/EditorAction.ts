@@ -11,6 +11,6 @@ export class EditorAction extends AbstractElement {
      * Get text description of the action.
      */
     async getTitle(): Promise<string> {
-        return this.getAttribute(EditorAction.locators.EditorView.attribute);
+        return await this.getAttribute(EditorAction.locators.EditorView.attribute);
     }
 }

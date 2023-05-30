@@ -37,7 +37,7 @@ describe('Open resource test', function () {
                     openFolderPath = path.join(os.homedir(), openFolderPath.slice(2));
                 }
 
-                expect(openFolderPath).equals(process.cwd());
+                expect(openFolderPath.split(' ')[0]).equals(process.cwd());
                 return true;
             }
 

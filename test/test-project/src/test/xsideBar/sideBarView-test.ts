@@ -204,7 +204,7 @@ describe('SideBarView', () => {
                     await foo.select();
 
                     try {
-                        const editor = new TextEditor().wait();
+                        await new TextEditor().wait();
                     } catch (err) {
                         expect.fail('No editor was opened');
                     }

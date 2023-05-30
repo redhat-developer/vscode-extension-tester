@@ -46,6 +46,6 @@ export class Download {
         }
         const writeStream = fs.createWriteStream(destination);
 
-        return promisify(stream.pipeline)(dlStream, writeStream);
+        return await promisify(stream.pipeline)(dlStream, writeStream);
     }
 }

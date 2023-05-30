@@ -22,7 +22,7 @@ export class NewScmView extends ScmView {
         }
 
         const elements = await this.findElements(NewScmView.locators.ScmView.multiProviderItem);
-        return Promise.all(elements.map(async element => new MultiScmProvider(element, this).wait()));
+        return await Promise.all(elements.map(async element => new MultiScmProvider(element, this).wait()));
     }
 }
 
@@ -65,7 +65,7 @@ export class SingleScmProvider extends ScmProvider {
 
     async openMoreActions(): Promise<ContextMenu> {
         const view = this.enclosingItem as NewScmView;
-        return new MoreAction(view).openContextMenu();
+        return await new MoreAction(view).openContextMenu();
     }
 
     async getChanges(staged: boolean = false): Promise<ScmChange[]> {
@@ -97,7 +97,7 @@ export class MultiScmProvider extends ScmProvider {
 
     async takeAction(title: string): Promise<boolean> {
         const actions = await this.findElements(ScmProvider.locators.ScmView.action);
-        const names = await Promise.all(actions.map(async action => action.getAttribute('title')));
+        const names = await Promise.all(actions.map(async action => await action.getAttribute('title')));
         const index = names.findIndex(item => item === title);
 
         if (index > -1) {
@@ -108,7 +108,7 @@ export class MultiScmProvider extends ScmProvider {
     }
 
     async openMoreActions(): Promise<ContextMenu> {
-        return new MultiMoreAction(this).openContextMenu();
+        return await new MultiMoreAction(this).openContextMenu();
     }
 
     async commitChanges(message: string): Promise<void> {
@@ -149,7 +149,7 @@ export class MultiScmProvider extends ScmProvider {
                 }
             }
         }
-        return Promise.all(elements.map(async element => new ScmChange(element, this).wait()));
+        return await Promise.all(elements.map(async element => new ScmChange(element, this).wait()));
     }
 
     async getChangeCount(staged: boolean = false): Promise<number> {

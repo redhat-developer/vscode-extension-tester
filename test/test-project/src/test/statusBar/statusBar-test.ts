@@ -5,7 +5,7 @@ describe('StatusBar', () => {
     let bar: StatusBar;
 
     before(async function() {
-        this.timeout(5000);
+        this.timeout(30000);
         await new Workbench().executeCommand('Create: New File...');
         await (await InputBox.create()).selectQuickPick('Text File');
         bar = new StatusBar();

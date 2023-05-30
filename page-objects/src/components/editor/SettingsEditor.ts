@@ -136,7 +136,7 @@ export abstract class Setting extends AbstractElement {
      * All settings are labeled as Category: Title
      */
     async getCategory(): Promise<string> {
-        return await this.findElement(SettingsEditor.locators.SettingsEditor.settingCategory).getText();
+        return await (await this.findElement(SettingsEditor.locators.SettingsEditor.settingCategory)).getText();
     }
 
     /**
@@ -144,14 +144,14 @@ export abstract class Setting extends AbstractElement {
      * @returns Promise resolving to setting description
      */
     async getDescription(): Promise<string> {
-        return await this.findElement(SettingsEditor.locators.SettingsEditor.settingDesctiption).getText();
+        return await (await this.findElement(SettingsEditor.locators.SettingsEditor.settingDesctiption)).getText();
     }
 
     /**
      * Get title of the setting
      */
     async getTitle(): Promise<string> {
-        return await this.findElement(SettingsEditor.locators.SettingsEditor.settingLabel).getText();
+        return await (await this.findElement(SettingsEditor.locators.SettingsEditor.settingLabel)).getText();
     }
 }
 
@@ -159,6 +159,7 @@ export abstract class Setting extends AbstractElement {
  * Setting with a combo box 
  */
 export class ComboSetting extends Setting {
+
     async getValue(): Promise<string> {
         const combo = await this.findElement(SettingsEditor.locators.SettingsEditor.comboSetting);
         return await combo.getAttribute('title');
@@ -168,7 +169,7 @@ export class ComboSetting extends Setting {
         const rows = await this.getOptions();
         for (let i = 0; i < rows.length; i++) {
             if ((await rows[i].getAttribute('class')).indexOf('disabled') < 0) {
-                const text = await rows[i].findElement(SettingsEditor.locators.SettingsEditor.comboOption).getText();
+                const text = await (await rows[i].findElement(SettingsEditor.locators.SettingsEditor.comboOption)).getText();
                 if (value === text) {
                     return await rows[i].click();
                 }
@@ -185,7 +186,7 @@ export class ComboSetting extends Setting {
         const rows = await this.getOptions();
 
         for (const row of rows) {
-            values.push(await row.findElement(SettingsEditor.locators.SettingsEditor.comboOption).getText())
+            values.push(await (await row.findElement(SettingsEditor.locators.SettingsEditor.comboOption)).getText())
         }
         return values;
     }
@@ -219,6 +220,7 @@ export class ComboSetting extends Setting {
  * Setting with a text box input
  */
 export class TextSetting extends Setting {
+
     async getValue(): Promise<string> {
         const input = await this.findElement(SettingsEditor.locators.SettingsEditor.textSetting);
         return await input.getAttribute('value');
@@ -235,6 +237,7 @@ export class TextSetting extends Setting {
  * Setting with a checkbox
  */
 export class CheckboxSetting extends Setting {
+
     async getValue(): Promise<boolean> {
         const checkbox = await this.findElement(SettingsEditor.locators.SettingsEditor.checkboxSetting);
         const checked = await checkbox.getAttribute(SettingsEditor.locators.SettingsEditor.checkboxChecked);
@@ -256,6 +259,7 @@ export class CheckboxSetting extends Setting {
  * Setting with no value, with a link to settings.json instead
  */
 export class LinkSetting extends Setting {
+
     async getValue(): Promise<string> {
         throw new Error('Method getValue is not available for LinkSetting');
     }

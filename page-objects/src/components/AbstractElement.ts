@@ -40,7 +40,7 @@ export abstract class AbstractElement extends WebElement {
     }
 
     async isEnabled(): Promise<boolean> {
-        return await super.isEnabled() && AbstractElement.locators.AbstractElement.enabled(this);
+        return await super.isEnabled() && await AbstractElement.locators.AbstractElement.enabled(this);
     }
 
     /**

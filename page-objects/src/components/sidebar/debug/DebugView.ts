@@ -12,7 +12,7 @@ export class DebugView extends SideBarView {
     async getLaunchConfiguration(): Promise<string> {
         const action = await this.getTitlePart().findElement(DebugView.locators.DebugView.launchCombo);
         const combo = await action.findElement(DebugView.locators.DebugView.launchSelect);
-        return combo.getAttribute('title');
+        return await combo.getAttribute('title');
     }
 
     /**

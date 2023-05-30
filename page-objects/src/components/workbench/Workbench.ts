@@ -86,8 +86,8 @@ export class Workbench extends AbstractElement {
      * Opens the notifications center
      * @returns Promise resolving to NotificationsCenter object
      */
-    openNotificationsCenter(): Promise<NotificationsCenter> {
-        return new StatusBar().openNotificationsCenter();
+    async openNotificationsCenter(): Promise<NotificationsCenter> {
+        return await new StatusBar().openNotificationsCenter();
     }
     
     /**
@@ -113,16 +113,16 @@ export class Workbench extends AbstractElement {
             const tab = await new EditorView().getActiveTab();
             if (tab) {
                 await tab.sendKeys(Key.F1);
-                return InputBox.create();
+                return await InputBox.create();
             }
         }
         const driver = this.getDriver();
         await driver.actions().keyDown(Workbench.ctlKey).keyDown(Key.SHIFT).sendKeys('p').perform();
 
         if (Workbench.versionInfo.version >= '1.44.0') {
-            return InputBox.create();
+            return await InputBox.create();
         }
-        return QuickOpenBox.create();
+        return await QuickOpenBox.create();
      }
 
     /**

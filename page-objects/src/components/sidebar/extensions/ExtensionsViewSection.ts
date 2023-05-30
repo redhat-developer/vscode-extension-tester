@@ -18,11 +18,12 @@ enum ExtensionCategory {
  * View section containing extensions
  */
 export class ExtensionsViewSection extends ViewSection {
+
     async getVisibleItems(): Promise<ExtensionsViewItem[]> {
         const extensionTable = await this.findElement(ExtensionsViewSection.locators.ExtensionsViewSection.items);
         const extensionRows = await extensionTable.findElements(ExtensionsViewSection.locators.ExtensionsViewSection.itemRow);
 
-        return Promise.all(extensionRows.map(async row => new ExtensionsViewItem(row, this).wait()));
+        return await Promise.all(extensionRows.map(async row => new ExtensionsViewItem(row, this).wait()));
     }
 
     /**

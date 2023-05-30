@@ -18,7 +18,7 @@ export class WelcomeContentButton extends AbstractElement {
 
     /** Return the title displayed on this button */
     public async getTitle(): Promise<string> {
-        return this.getText();
+        return await this.getText();
     }
 }
 
@@ -51,7 +51,7 @@ export class WelcomeContentSection extends AbstractElement {
         return Promise.all(elements.map(async (e) => {
             const tagName = await e.getTagName();
             if (tagName === "p") {
-                return e.getText();
+                return await e.getText();
             } else {
                 return new WelcomeContentButton(e, this);
             }
@@ -70,8 +70,8 @@ export class WelcomeContentSection extends AbstractElement {
      * element in an array.
      */
     public async getTextSections(): Promise<string[]> {
-        return Promise.all(
-            (await this.findElements(WelcomeContentSection.locators.WelcomeContent.text)).map((elem) => elem.getText())
+        return await Promise.all(
+            (await this.findElements(WelcomeContentSection.locators.WelcomeContent.text)).map(async(elem) => await elem.getText())
         );
     }
 }

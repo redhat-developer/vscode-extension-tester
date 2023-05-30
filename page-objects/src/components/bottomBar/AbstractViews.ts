@@ -33,7 +33,7 @@ export abstract class ChannelView extends ElementWithContexMenu {
      */
     async getCurrentChannel(): Promise<string> {
         const combo = await this.enclosingItem.findElement(ChannelView.locators.BottomBarViews.channelCombo);
-        return combo.getAttribute('title');
+        return await combo.getAttribute('title');
     }
 
     /**
@@ -65,7 +65,7 @@ export abstract class ChannelView extends ElementWithContexMenu {
             await combo.click();
             await this.getDriver().sleep(500);
             menu = await workbench.findElement(ChannelView.locators.ContextMenu.contextView);
-            return menu.findElements(ChannelView.locators.BottomBarViews.channelRow);
+            return await menu.findElements(ChannelView.locators.BottomBarViews.channelRow);
         } else if (await menus[0].isDisplayed()) {
             await combo.click();
             await this.getDriver().sleep(500);
@@ -77,7 +77,7 @@ export abstract class ChannelView extends ElementWithContexMenu {
             await combo.click();
             await this.getDriver().sleep(500);
         }
-        return menu.findElements(ChannelView.locators.BottomBarViews.channelRow);
+        return await menu.findElements(ChannelView.locators.BottomBarViews.channelRow);
     }
 }
 
