@@ -54,7 +54,7 @@ export class ExTester {
      * @param vsixFile path to extension .vsix file. If not set, default vsce path will be used
      * @param useYarn when true run `vsce package` with the `--yarn` flag
      */
-    async installVsix({vsixFile, useYarn}: {vsixFile?: string, useYarn?: boolean} = {}): Promise<void> {
+    async installVsix({vsixFile, useYarn, installDependencies}: {vsixFile?: string, useYarn?: boolean, installDependencies?: boolean} = {}): Promise<void> {
         let target = vsixFile;
         if (vsixFile) {
             try {
@@ -73,7 +73,10 @@ export class ExTester {
         } else {
             await this.code.packageExtension(useYarn);
         }
-        return this.code.installExtension(target);
+        this.code.installExtension(target);
+        if (installDependencies) {
+            this.code.installDependencies();
+        }
     }
 
     /**
