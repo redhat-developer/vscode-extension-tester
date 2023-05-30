@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { BottomBarPanel, WebElement, Workbench } from 'vscode-extension-tester';
+import { BottomBarPanel, WebElement, Workbench, ViewControl, ActivityBar } from 'vscode-extension-tester';
 
 describe('BottomBarPanel', () => {
     let panel: BottomBarPanel;
@@ -7,6 +7,7 @@ describe('BottomBarPanel', () => {
     before(async () => {
         panel = new BottomBarPanel();
         await (await new Workbench().openNotificationsCenter()).clearAllNotifications();
+        await (await new ActivityBar().getViewControl('Explorer') as ViewControl).openView();
     });
 
     after(async () => {

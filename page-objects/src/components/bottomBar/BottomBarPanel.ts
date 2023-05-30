@@ -1,7 +1,6 @@
 import { AbstractElement } from "../AbstractElement";
 import { By, until, WebElement } from "selenium-webdriver";
-import { TitleBar } from "../menu/TitleBar";
-import { ProblemsView, OutputView, DebugConsoleView, TerminalView, EditorView } from "../..";
+import { ProblemsView, OutputView, DebugConsoleView, TerminalView, EditorView, Workbench } from "../..";
 
 /**
  * Page object for the bottom view panel
@@ -99,7 +98,7 @@ export class BottomBarPanel extends AbstractElement {
                 await label.click();
             }
         } catch (err) {
-            await new TitleBar().select('View', title);
+            await new Workbench().executeCommand(`${title}: Focus on ${title} View`);
         }
     }
 
