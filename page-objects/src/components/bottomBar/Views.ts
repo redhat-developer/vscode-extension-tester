@@ -127,6 +127,7 @@ export class TerminalView extends ChannelView {
      * @returns Promise resolving to all terminal text
      */
     async getText(): Promise<string> {
+        const originalClipboard = clipboard.readSync();
         const workbench = new Workbench();
         await workbench.executeCommand('terminal select all');
         await workbench.getDriver().sleep(500);
@@ -137,7 +138,7 @@ export class TerminalView extends ChannelView {
             await workbench.getDriver().sleep(500);
         }
         const text = clipboard.readSync();
-        clipboard.writeSync('');
+        clipboard.writeSync(originalClipboard);
         return text;
     }
 
