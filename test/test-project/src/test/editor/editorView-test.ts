@@ -1,11 +1,11 @@
 import { expect } from 'chai';
-import { after, before, EditorView, EditorTab, EditorTabNotFound, error, Workbench, TextEditor, SettingsEditor, WebView, QuickOpenBox, DiffEditor, Key, InputBox, VSBrowser } from 'vscode-extension-tester';
+import { after, before, EditorView, EditorTab, EditorTabNotFound, error, Workbench, TextEditor, SettingsEditor, WebView, QuickOpenBox, DiffEditor, InputBox, VSBrowser } from 'vscode-extension-tester';
 
 describe('EditorView', function () {
     let view: EditorView;
 
     before(async function () {
-        this.timeout(25000);
+        this.timeout(60000);
         view = new EditorView();
         await view.closeAllEditors();
         await newUntitledFile('Untitled-1');

@@ -1,12 +1,14 @@
 import { expect } from 'chai';
 import path from 'path';
-import { CustomEditor, EditorView, VSBrowser, By, error } from 'vscode-extension-tester';
+import { CustomEditor, EditorView, VSBrowser, By } from 'vscode-extension-tester';
 
 describe('CustomEditor', () => {
     let editor: CustomEditor;
 
+    const CUSTOM_TITLE: string = 'example.cscratch';
+
     before(async () => {
-        await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', '..', 'resources', 'example.cscratch'));
+        await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', '..', 'resources', CUSTOM_TITLE));
         editor = new CustomEditor();
     });
 
@@ -19,6 +21,7 @@ describe('CustomEditor', () => {
         await webview.switchToFrame();
         try {
             const btn = await webview.findWebElement(By.className('add-button'));
+            await new Promise(res => setTimeout(res, 500));
             await btn.click();
             await new Promise(res => setTimeout(res, 1000));
             const notes = await webview.findWebElements(By.className('note'));
@@ -35,15 +38,22 @@ describe('CustomEditor', () => {
     });
 
     it('isDirty works', async () => {
+        await new EditorView().openEditor(CUSTOM_TITLE);
+        await new Promise(res => setTimeout(res, 500));
         expect(await editor.isDirty()).is.true;
     });
 
     it('save works', async () => {
+        await new EditorView().openEditor(CUSTOM_TITLE);
+        await new Promise(res => setTimeout(res, 500));
         await editor.save();
+        await new Promise(res => setTimeout(res, 500));
         expect(await editor.isDirty()).is.false;
     });
 
     it('save as works', async () => {
+        await new EditorView().openEditor(CUSTOM_TITLE);
+        await new Promise(res => setTimeout(res, 500));
         try {
             const input = await editor.saveAs();
             expect(await input.isDisplayed()).is.true;

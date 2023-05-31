@@ -1,4 +1,4 @@
-import { ScmView, Workbench, InputBox, ActivityBar, ScmProvider, ScmChange, EditorView, VSBrowser } from 'vscode-extension-tester';
+import { ScmView, ActivityBar, ScmProvider, ScmChange, EditorView, VSBrowser } from 'vscode-extension-tester';
 import * as path from 'path';
 import { expect } from 'chai';
 import * as fs from 'fs-extra';
@@ -10,11 +10,12 @@ import * as fs from 'fs-extra';
         this.timeout(15000);
         fs.writeFileSync(path.resolve('.', 'testfile'), 'content');
         await VSBrowser.instance.openResources(path.resolve('..', '..'));
+        await VSBrowser.instance.waitForWorkbench();
         view = await (await new ActivityBar().getViewControl('Source Control')).openView() as ScmView;
         await new Promise((res) => { setTimeout(res, 2000); });
     });
 
-    after(async () => {
+    after(() => {
         fs.unlinkSync(path.resolve('.', 'testfile'));
     });
 

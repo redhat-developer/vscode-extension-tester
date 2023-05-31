@@ -16,7 +16,7 @@ export abstract class Editor extends ElementWithContexMenu {
      */
     async getTitle(): Promise<string> {
         const tab = await this.getTab();
-        return tab.getTitle();
+        return await tab.getTitle();
     }
 
     /**
@@ -24,6 +24,6 @@ export abstract class Editor extends ElementWithContexMenu {
      */
     async getTab(): Promise<EditorTab> {
         const element = this.enclosingItem as EditorView | EditorGroup;
-        return element.getActiveTab() as Promise<EditorTab>;
+        return await element.getActiveTab() as EditorTab;
     }
 }

@@ -52,7 +52,7 @@ describe('QuickOpenBox', () => {
     });
 
     it('findQuickPick works when item exists', async function() {
-        this.timeout(100000);
+        this.timeout(150000);
         await input.setText('>');
         const pick = await input.findQuickPick('Workspaces: Add Folder to Workspace...');
         expect(pick).not.undefined;
@@ -60,7 +60,7 @@ describe('QuickOpenBox', () => {
 
 
     it('findQuickPick works when item does not exist', async function() {
-        this.timeout(100000);
+        this.timeout(150000);
         await input.setText('>');
         const pick = await input.findQuickPick('thisdoesnot exits definitely');
         expect(pick).undefined;
