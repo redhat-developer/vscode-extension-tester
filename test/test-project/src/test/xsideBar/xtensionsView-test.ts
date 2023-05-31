@@ -1,4 +1,4 @@
-import { ActivityBar, ExtensionsViewSection, EditorView, ExtensionsViewItem, VSBrowser } from "vscode-extension-tester";
+import { ActivityBar, ExtensionsViewSection, EditorView, ExtensionsViewItem, VSBrowser, beforeEach } from "vscode-extension-tester";
 import { expect } from 'chai';
 import pjson from '../../../package.json';
 
@@ -13,6 +13,9 @@ describe('ExtensionsView', () => {
 
     before(async () => {
         const view = await (await new ActivityBar().getViewControl('Extensions')).openView();
+        await view.getDriver().wait(async function () {
+            return (await view.getContent().getSections()).length > 0;
+        });
         section = await view.getContent().getSection(sectionTitle) as ExtensionsViewSection;
     });
 
@@ -32,12 +35,22 @@ describe('ExtensionsView', () => {
     });
 
     it('findItem works', async function() {
-        this.timeout(10000);
-        item = await section.findItem(`@installed ${pjson.displayName}`) as ExtensionsViewItem;
+        this.timeout(30000);
+        await section.getDriver().wait(async function () {
+            item = await section.findItem(`@installed ${pjson.displayName}`) as ExtensionsViewItem;
+            return item !== undefined;
+        });
         expect(item).not.undefined;
     });
 
     describe('ExtensionsViewItem', async () => {
+
+        beforeEach(async function () {
+            await section.getDriver().wait(async function () {
+                item = await section.findItem(`@installed ${pjson.displayName}`) as ExtensionsViewItem;
+                return item !== undefined;
+            });
+        });
 
         after(async () => {
             await section.clearSearch();

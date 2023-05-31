@@ -1,6 +1,5 @@
 import { expect } from "chai";
-import { EditorView, InputBox, ModalDialog, TextEditor, TitleBar, until } from "monaco-page-objects";
-import { VSBrowser } from 'vscode-extension-tester';
+import { EditorView, InputBox, ModalDialog, TextEditor, TitleBar, until, VSBrowser } from 'vscode-extension-tester';
 
 (VSBrowser.instance.version >= '1.50.0' && process.platform !== 'darwin' ? describe : describe.skip)('Modal Dialog', () => {
     let dialog: ModalDialog;
@@ -18,7 +17,9 @@ import { VSBrowser } from 'vscode-extension-tester';
         await new Promise(res => setTimeout(res, 1000));
         const editor = new TextEditor();
         await editor.typeTextAt(1, 1, 'text');
+        await new Promise(res => setTimeout(res, 1000));
         await new EditorView().closeEditor(await editor.getTitle());
+        await new Promise(res => setTimeout(res, 1000));
         dialog = new ModalDialog();
     });
 
