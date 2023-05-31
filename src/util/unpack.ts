@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra';
 import { exec } from 'child_process';
 const targz = require('targz');
-const unzip = require('unzip-stream');
+import * as unzipper from 'unzipper';
 
 export class Unpack {
     static unpack(input: fs.PathLike, target: fs.PathLike): Promise<void> {
@@ -26,7 +26,7 @@ export class Unpack {
                     });
                 } else {
                     fs.createReadStream(input)
-                        .pipe(unzip.Extract({ path: target }))
+                        .pipe(unzipper.Extract({ path: target.toString() }))
                         .on('error', reject)
                         .on('close', resolve);
                 }
