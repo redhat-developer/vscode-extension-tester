@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { ActivityBar, TitleBar, ContextMenu, TitleBarItem, EditorView, VSBrowser } from 'vscode-extension-tester';
+import { ActivityBar, TitleBar, ContextMenu, TitleBarItem, EditorView, VSBrowser } from '../../../../../out/extester';
 
 (process.platform === 'darwin' ? describe.skip : describe)('TitleBar', function () {
     let bar: TitleBar;

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { error, TitleBar, VSBrowser } from 'vscode-extension-tester';
+import { error, TitleBar, VSBrowser } from '../../../../../out/extester';
 import * as os from 'os';
 import * as path from 'path';
 

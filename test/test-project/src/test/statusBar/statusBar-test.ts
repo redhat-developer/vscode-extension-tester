@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { StatusBar, EditorView, InputBox, QuickOpenBox, Workbench, VSBrowser } from 'vscode-extension-tester';
+import { StatusBar, EditorView, InputBox, QuickOpenBox, Workbench, VSBrowser } from '../../../../../out/extester';
 
 describe('StatusBar', () => {
     let bar: StatusBar;

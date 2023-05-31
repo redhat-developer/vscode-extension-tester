@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { ActivityBar } from 'vscode-extension-tester';
+import { ActivityBar } from '../../../../../out/extester';
 
 describe('ActivityBar', () => {
     let bar: ActivityBar;

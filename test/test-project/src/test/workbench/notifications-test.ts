@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { NotificationsCenter, Workbench, NotificationType, Notification, until } from 'vscode-extension-tester';
+import { NotificationsCenter, Workbench, NotificationType, Notification, until } from '../../../../../out/extester';
 
 describe('NotificationsCenter', () => {
     let center: NotificationsCenter;

@@ -1,4 +1,4 @@
-import { Workbench, EditorView, WebView, By } from 'vscode-extension-tester';
+import { Workbench, EditorView, WebView, By } from '../../../../../out/extester';
 import { expect } from 'chai';
 
 describe('WebViews', function () {

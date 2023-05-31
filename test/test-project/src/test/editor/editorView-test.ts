@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { after, before, EditorView, EditorTab, EditorTabNotFound, error, Workbench, TextEditor, SettingsEditor, WebView, QuickOpenBox, DiffEditor, InputBox, VSBrowser } from 'vscode-extension-tester';
+import { after, before, EditorView, EditorTab, EditorTabNotFound, error, Workbench, TextEditor, SettingsEditor, WebView, QuickOpenBox, DiffEditor, InputBox, VSBrowser } from '../../../../../out/extester';
 
 describe('EditorView', function () {
     let view: EditorView;

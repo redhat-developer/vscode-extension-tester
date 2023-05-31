@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as path from 'path';
-import { BottomBarPanel, OutputView, TerminalView, VSBrowser, Workbench, after, before } from 'vscode-extension-tester';
+import { BottomBarPanel, OutputView, TerminalView, VSBrowser, Workbench, after, before } from '../../../../../out/extester';
 
 describe('Output View/Text Views', function () {
     let panel: BottomBarPanel;

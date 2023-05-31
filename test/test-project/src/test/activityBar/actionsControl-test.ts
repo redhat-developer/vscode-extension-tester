@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { ActivityBar, ActionsControl } from 'vscode-extension-tester';
+import { ActivityBar, ActionsControl } from '../../../../../out/extester';
 
 (process.platform === 'darwin' ? describe.skip : describe)('ActionsControl', () => {
     let bar: ActivityBar;

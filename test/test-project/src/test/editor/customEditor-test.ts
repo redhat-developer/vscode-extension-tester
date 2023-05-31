@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import path from 'path';
-import { CustomEditor, EditorView, VSBrowser, By } from 'vscode-extension-tester';
+import { CustomEditor, EditorView, VSBrowser, By } from '../../../../../out/extester';
 
 describe('CustomEditor', () => {
     let editor: CustomEditor;

@@ -1,4 +1,4 @@
-import { ScmView, ActivityBar, ScmProvider, ScmChange, EditorView, VSBrowser } from 'vscode-extension-tester';
+import { ScmView, ActivityBar, ScmProvider, ScmChange, EditorView, VSBrowser } from '../../../../../out/extester';
 import * as path from 'path';
 import { expect } from 'chai';
 import * as fs from 'fs-extra';

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { TitleBar, ContextMenu, VSBrowser } from 'vscode-extension-tester';
+import { TitleBar, ContextMenu, VSBrowser } from '../../../../../out/extester';
 
 (process.platform === 'darwin' ? describe.skip : describe)('ContextMenu', () => {
     let bar: TitleBar;

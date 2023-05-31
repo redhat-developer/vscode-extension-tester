@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { SettingsEditor, Workbench, EditorView, ComboSetting, TextSetting, CheckboxSetting } from 'vscode-extension-tester';
+import { SettingsEditor, Workbench, EditorView, ComboSetting, TextSetting, CheckboxSetting } from '../../../../../out/extester';
 
 describe('SettingsEditor', () => {
     let editor: SettingsEditor;

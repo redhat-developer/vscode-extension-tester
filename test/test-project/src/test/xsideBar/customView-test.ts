@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { ActivityBar, CustomTreeItem, CustomTreeSection, NotificationType, TreeItem, ViewContent, ViewItem, WelcomeContentButton, Workbench } from 'vscode-extension-tester';
+import { ActivityBar, CustomTreeItem, CustomTreeSection, NotificationType, TreeItem, ViewContent, ViewItem, WelcomeContentButton, Workbench } from '../../../../../out/extester';
 
 describe('CustomTreeSection', () => {
     let section: CustomTreeSection;

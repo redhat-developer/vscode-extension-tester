@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { EditorView, Workbench } from 'vscode-extension-tester';
+import { EditorView, Workbench } from '../../../../../out/extester';
 
 describe('Workbench', () => {
     let bench: Workbench;

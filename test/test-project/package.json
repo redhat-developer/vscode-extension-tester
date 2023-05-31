@@ -13,18 +13,7 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onView:fileExplorer",
-		"onView:testView",
-		"onCommand:extension.helloWorld",
-		"onCommand:extension.openFile",
-		"onCommand:extension.openFolder",
-		"onCommand:extension.closeFolder",
-		"onCommand:extension.webview",
-		"onCommand:extension.test",
-		"onCommand:extension.notification",
-		"onCommand:extension.quickpick",
-		"onCommand:extension.enableCodeLens",
-		"onCustomEditor:catCustoms.catScratch"
+		"onView:fileExplorer"
 	],
 	"main": "./out/src/extension.js",
 	"contributes": {

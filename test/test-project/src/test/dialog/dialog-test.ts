@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { EditorView, InputBox, ModalDialog, TextEditor, TitleBar, until, VSBrowser } from 'vscode-extension-tester';
+import { EditorView, InputBox, ModalDialog, TextEditor, TitleBar, until, VSBrowser } from '../../../../../out/extester';
 
 (VSBrowser.instance.version >= '1.50.0' && process.platform !== 'darwin' ? describe : describe.skip)('Modal Dialog', () => {
     let dialog: ModalDialog;

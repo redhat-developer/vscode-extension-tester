@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { BottomBarPanel, WebElement, Workbench, ViewControl, ActivityBar } from 'vscode-extension-tester';
+import { BottomBarPanel, WebElement, Workbench, ViewControl, ActivityBar } from '../../../../../out/extester';
 
 describe('BottomBarPanel', () => {
     let panel: BottomBarPanel;
