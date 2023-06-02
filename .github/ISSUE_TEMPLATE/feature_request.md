@@ -2,7 +2,7 @@
 name: Feature request
 about: "If you have a feature request \U0001F680"
 title: "[Request] "
-labels: enhancement, new issue
+labels: enhancement, new-issue
 assignees: ''
 
 ---

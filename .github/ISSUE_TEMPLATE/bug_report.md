@@ -2,7 +2,7 @@
 name: Bug report
 about: If something isn't working ⚠️
 title: "[Bug] "
-labels: bug, new issue
+labels: bug, new-issue
 assignees: ''
 
 ---
