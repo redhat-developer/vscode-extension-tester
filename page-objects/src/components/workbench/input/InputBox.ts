@@ -12,9 +12,10 @@ export class InputBox extends Input {
     /**
      * Construct a new InputBox instance after waiting for its underlying element to exist
      * Use when an input box is scheduled to appear.
+     * @param timeout max time to wait in milliseconds, default 5000
      */
-    static async create(): Promise<InputBox> {
-        await InputBox.driver.wait(until.elementLocated(InputBox.locators.InputBox.constructor), 5000);
+    static async create(timeout: number = 5000): Promise<InputBox> {
+        await InputBox.driver.wait(until.elementLocated(InputBox.locators.InputBox.constructor), timeout);
         return new InputBox().wait();
     }
 
