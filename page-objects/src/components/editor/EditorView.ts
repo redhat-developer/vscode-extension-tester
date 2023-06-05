@@ -218,7 +218,8 @@ export class EditorGroup extends AbstractElement {
      */
     async closeEditor(title: string): Promise<void> {
         const tab = await this.getTabByTitle(title);
-        await EditorView.driver.actions().move({ origin: tab }).perform();
+        await EditorView.driver.actions().move({ origin: tab, x: 5, y: 5 }).click();
+
         const closeButton = await tab.findElement(EditorView.locators.EditorView.closeTab);
         await closeButton.click();
     }
