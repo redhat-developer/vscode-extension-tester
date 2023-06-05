@@ -49,6 +49,7 @@
     "@types/js-yaml": "^4.0.5",
     "@types/mocha": "^10.0.1",
     "@types/node": "^16.18.16",
+    "@types/unzipper": "^0.10.6",
     "mocha": "^10.2.0",
     "rimraf": "^5.0.1",
     "typescript": "*"
@@ -67,7 +68,7 @@
     "sanitize-filename": "^1.6.3",
     "selenium-webdriver": "^4.9.2",
     "targz": "^1.0.1",
-    "unzip-stream": "^0.3.1",
+    "unzipper": "^0.10.14",
     "vscode-extension-tester-locators": "^3.4.2"
   },
   "peerDependencies": {
