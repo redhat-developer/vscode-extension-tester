@@ -5,6 +5,7 @@ import { AbstractElement } from "../AbstractElement";
  * Page Object for Custom Style Modal Dialogs (non-native)
  */
 export class ModalDialog extends AbstractElement {
+
     constructor() {
         super(ModalDialog.locators.Dialog.constructor);
     }
@@ -14,7 +15,7 @@ export class ModalDialog extends AbstractElement {
      */
     async getMessage(): Promise<string> {
         const message = await this.findElement(ModalDialog.locators.Dialog.message);
-        return message.getText();
+        return await message.getText();
     }
 
     /**
@@ -22,7 +23,7 @@ export class ModalDialog extends AbstractElement {
      */
     async getDetails(): Promise<string> {
         const details = await this.findElement(ModalDialog.locators.Dialog.details);
-        return details.getText();
+        return await details.getText();
     }
 
     /**
@@ -31,7 +32,7 @@ export class ModalDialog extends AbstractElement {
      * @returns Promise resolving to Array of WebElement items representing the buttons
      */
     async getButtons(): Promise<WebElement[]> {
-        return this.findElement(ModalDialog.locators.Dialog.buttonContainer).findElements(ModalDialog.locators.Dialog.button);
+        return await this.findElement(ModalDialog.locators.Dialog.buttonContainer).findElements(ModalDialog.locators.Dialog.button);
     }
 
     /**
@@ -53,6 +54,6 @@ export class ModalDialog extends AbstractElement {
      */
     async close(): Promise<void> {
         const btn = await this.findElement(ModalDialog.locators.Dialog.closeButton);
-        return btn.click();
+        return await btn.click();
     }
 }
