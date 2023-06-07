@@ -1,5 +1,20 @@
 # Change Log
 
+## 5.7.0
+
+> June 07 2023
+
+- [Bug] Test suite is not fully executed on Windows
+- [Bug] TextEditor > getSelectedText is not working on macOS
+- [Request] Replace unmaintained unzip-stream dependency
+- [Request] Inputbox's create function does not have a field to pass a timeout
+- [Bug] BottomBar open view method is not working properly in case there is '...' (More) button displayed
+- [Bug] RequestError: getaddrinfo ENOTFOUND update.code.visualstudio.com when running the demo
+- [Bug] Verify clipboard is preserved during test run
+- [Bug] Codelens.click does not work in some cases
+- [Bug] TextEditor > typeTextAt() method is not properly working mainly on macOS
+- [Bug] helloworld-sample not working as expected and Debug not working
+
 ## 5.6.0 (May 17 2023)
 
 - Bump 'max' placeholder to 1.78.2 version
