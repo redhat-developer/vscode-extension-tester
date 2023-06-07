@@ -226,12 +226,19 @@ export class TextEditor extends Editor {
      */
     async getSelectedText(): Promise<string> {
         const originalClipboard = clipboard.readSync();
-        const selection = await this.getSelection();
-        if (!selection) {
-            return '';
+        if(process.platform !== 'darwin') {
+            const selection = await this.getSelection();
+            if (!selection) {
+                return '';
+            }
+            const menu = await selection.openContextMenu();
+            await menu.select('Copy');
+        } else {
+            const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
+            await inputarea.sendKeys(Key.chord(TextEditor.ctlKey, 'c'));
+            await new Promise(res => setTimeout(res, 500));
+            await inputarea.sendKeys(Key.UP);
         }
-        const menu = await selection.openContextMenu();
-        await menu.select('Copy');
         await new Promise(res => setTimeout(res, 500));
         const text = clipboard.readSync();
         clipboard.writeSync(originalClipboard);
@@ -477,6 +484,7 @@ export class TextEditor extends Editor {
  * Text selection block
  */
 class Selection extends ElementWithContexMenu {
+
     constructor(el: WebElement, editor: TextEditor) {
         super(el, editor);
     }

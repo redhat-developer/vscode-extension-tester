@@ -169,7 +169,7 @@ describe('TextEditor', function () {
             expect(line).equals(6);
         });
 
-        (process.platform === 'darwin' ? it.skip : it)('text can be selected', async function () {
+        it('selected text can be get', async function () {
             const text = 'bline';
             await editor.selectText(text);
             expect(await editor.getSelectedText()).equals(text);
