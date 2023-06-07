@@ -19,7 +19,7 @@ export class ScmView extends SideBarView {
         if (!title || providers.length === 1) {
             return providers[0];
         }
-        const names = await Promise.all(providers.map(async item => item.getTitle()));
+        const names = await Promise.all(providers.map(async item => await item.getTitle()));
         const index = names.findIndex(name => name === title)
 
         return index > -1 ? providers[index] : undefined;
@@ -31,8 +31,8 @@ export class ScmView extends SideBarView {
      */
     async getProviders(): Promise<ScmProvider[]> {
         const headers = await this.findElements(ScmView.locators.ScmView.providerHeader);
-        const sections = await Promise.all(headers.map(async header => header.findElement(ScmView.locators.ScmView.providerRelative)));
-        return Promise.all(sections.map(async section => new ScmProvider(section, this)));
+        const sections = await Promise.all(headers.map(async header => await header.findElement(ScmView.locators.ScmView.providerRelative)));
+        return await Promise.all(sections.map(async section => new ScmProvider(section, this)));
     }
 
     /**
@@ -62,14 +62,14 @@ export class ScmProvider extends AbstractElement {
      * Get title of the scm provider
      */
     async getTitle(): Promise<string> {
-        return this.findElement(ScmProvider.locators.ScmView.providerTitle).getAttribute('innerHTML');
+        return await this.findElement(ScmProvider.locators.ScmView.providerTitle).getAttribute('innerHTML');
     }
 
     /**
      * Get type of the scm provider (e.g. Git)
      */
     async getType(): Promise<string> {
-        return this.findElement(ScmProvider.locators.ScmView.providerType).getAttribute('innerHTML');
+        return await this.findElement(ScmProvider.locators.ScmView.providerType).getAttribute('innerHTML');
     }
 
     /**
@@ -87,7 +87,7 @@ export class ScmProvider extends AbstractElement {
             await this.getDriver().actions().move({origin: this}).perform();
             actions = await header.findElements(ScmProvider.locators.ScmView.action);
         }
-        const names = await Promise.all(actions.map(async action => action.getAttribute('title')));
+        const names = await Promise.all(actions.map(async action => await action.getAttribute('title')));
         const index = names.findIndex(item => item === title);
 
         if (index > -1) {
@@ -104,10 +104,10 @@ export class ScmProvider extends AbstractElement {
     async openMoreActions(): Promise<ContextMenu> {
         const header = await this.findElement(ScmProvider.locators.ScmView.providerHeader);
         if ((await header.getAttribute('class')).indexOf('hidden') > -1) {
-            return new MoreAction(this.enclosingItem as ScmView).openContextMenu();
+            return await new MoreAction(this.enclosingItem as ScmView).openContextMenu();
         } else {
             await this.getDriver().actions().move({origin: this}).perform();
-            return new MoreAction(this).openContextMenu();
+            return await new MoreAction(this).openContextMenu();
         }
     }
 
@@ -148,7 +148,7 @@ export class ScmProvider extends AbstractElement {
             }
             elements = elements.slice(i, i + changes);
         }
-        return Promise.all(elements.map(async element => new ScmChange(element, this).wait()));
+        return await Promise.all(elements.map(async element => new ScmChange(element, this).wait()));
     }
 
     /**
@@ -182,7 +182,7 @@ export class ScmChange extends ElementWithContexMenu {
      */
     async getLabel(): Promise<string> {
         const label = await this.findElement(ScmChange.locators.ScmView.changeLabel);
-        return label.getText();
+        return await label.getText();
     }
 
     /**
@@ -193,7 +193,7 @@ export class ScmChange extends ElementWithContexMenu {
         if (desc.length < 1) {
             return '';
         }
-        return desc[0].getText();
+        return await desc[0].getText();
     }
 
     /**
@@ -243,7 +243,7 @@ export class ScmChange extends ElementWithContexMenu {
     async takeAction(title: string): Promise<boolean> {
         await this.getDriver().actions().move({origin: this}).perform();
         const actions = await this.findElements(ScmChange.locators.ScmView.action);
-        const names = await Promise.all(actions.map(async action => action.getAttribute('title')));
+        const names = await Promise.all(actions.map(async action => await action.getAttribute('title')));
         const index = names.findIndex(item => item === title);
 
         if (index > -1) {
@@ -286,6 +286,6 @@ export class MoreAction extends ElementWithContexMenu {
             const workbench = await this.getDriver().findElement(ElementWithContexMenu.locators.Workbench.constructor);
             return new ContextMenu(workbench).wait();
         }
-        return super.openContextMenu();
+        return await super.openContextMenu();
     }
 }

@@ -40,6 +40,6 @@ export class CustomEditor extends Editor {
     async saveAs(): Promise<InputBox> {
         const tab = await this.getTab();
         await tab.sendKeys(Key.chord(CustomEditor.ctlKey, Key.SHIFT, 's'));
-        return InputBox.create();
+        return await InputBox.create();
     }
 }

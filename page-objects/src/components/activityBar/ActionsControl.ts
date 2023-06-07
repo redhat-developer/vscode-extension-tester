@@ -15,13 +15,13 @@ export class ActionsControl extends ElementWithContexMenu {
      * @returns Promise resolving to ContextMenu object representing the action's menu
      */
     async openActionMenu(): Promise<ContextMenu> {
-        return this.openContextMenu();
+        return await this.openContextMenu();
     }
 
     /**
      * Returns the title of the associated action
      */
     async getTitle(): Promise<string> {
-        return this.getAttribute('aria-label');
+        return await this.getAttribute('aria-label');
     }
 }

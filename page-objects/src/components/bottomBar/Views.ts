@@ -168,11 +168,11 @@ export class TerminalView extends ChannelView {
     async getCurrentChannel(): Promise<string> {
         const combo = await this.enclosingItem.findElements(ChannelView.locators.BottomBarViews.channelCombo);
         if (combo.length > 0) {
-            return super.getCurrentChannel();
+            return await super.getCurrentChannel();
         }
         const singleTerm = await this.enclosingItem.findElements(TerminalView.locators.TerminalView.singleTab);
         if (singleTerm.length > 0) {
-            return singleTerm[0].getText();
+            return await singleTerm[0].getText();
         }
         const list = await this.findElement(TerminalView.locators.TerminalView.tabList);
         const row = await list.findElement(TerminalView.locators.TerminalView.selectedRow);
@@ -185,7 +185,7 @@ export class TerminalView extends ChannelView {
     async selectChannel(name: string): Promise<void> {
         const combo = await this.enclosingItem.findElements(ChannelView.locators.BottomBarViews.channelCombo);
         if (combo.length > 0) {
-            return super.selectChannel(name);
+            return await super.selectChannel(name);
         }
         const singleTerm = await this.enclosingItem.findElements(TerminalView.locators.TerminalView.singleTab);
         if (singleTerm.length > 0) {

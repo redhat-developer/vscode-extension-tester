@@ -26,7 +26,7 @@ export class DriverUtil {
      */
     async downloadChromeDriverForChromiumVersion(chromiumVersion: string): Promise<string> {
         const version = await this.getChromeDriverVersion(chromiumVersion);
-        return this.downloadChromeDriver(version);
+        return await this.downloadChromeDriver(version);
     }
 
     /**

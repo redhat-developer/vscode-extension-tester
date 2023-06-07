@@ -45,6 +45,7 @@ export class VSBrowser {
             "workbench.editor.enablePreview": false,
             "workbench.startupEditor": "none",
             "window.titleBarStyle": "custom",
+            "window.commandCenter": false,
             "window.dialogStyle": "custom",
             "window.restoreFullscreen": true,
             "window.newWindowDimensions": "maximized",
@@ -118,10 +119,10 @@ export class VSBrowser {
     /**
      * Waits until parts of the workbench are loaded
      */
-    async waitForWorkbench(): Promise<void> {
+    async waitForWorkbench(timeout = 30000): Promise<void> {
         // Workaround/patch for https://github.com/redhat-developer/vscode-extension-tester/issues/466
         try {
-            await this._driver.wait(until.elementLocated(By.className('monaco-workbench')));
+            await this._driver.wait(until.elementLocated(By.className('monaco-workbench')), timeout, `Workbench was not loaded properly after ${timeout} ms.`);
         } catch (err) {
             if((err as Error).name === 'WebDriverError') {
                 await new Promise(res => setTimeout(res, 3000));

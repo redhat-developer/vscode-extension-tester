@@ -11,15 +11,15 @@ export class CustomTreeItem extends TreeItem {
     }
 
     async getLabel(): Promise<string> {
-        return this.findElement(CustomTreeItem.locators.CustomTreeSection.itemLabel).getText();
+        return await this.findElement(CustomTreeItem.locators.CustomTreeSection.itemLabel).getText();
     }
 
     async getTooltip(): Promise<string> {
-        return this.getAttribute(CustomTreeItem.locators.CustomTreeItem.tooltipAttribute);
+        return await this.getAttribute(CustomTreeItem.locators.CustomTreeItem.tooltipAttribute);
     }
 
     async getDescription(): Promise<string> {
-        return this.findElement(CustomTreeItem.locators.CustomTreeItem.description).getText();
+        return await this.findElement(CustomTreeItem.locators.CustomTreeItem.description).getText();
     }
 
     async isExpanded(): Promise<boolean> {

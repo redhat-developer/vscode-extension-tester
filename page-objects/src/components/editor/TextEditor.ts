@@ -42,7 +42,7 @@ export class TextEditor extends Editor {
     async saveAs(): Promise<InputBox> {
         const tab = await this.getTab();
         await tab.sendKeys(Key.chord(TextEditor.ctlKey, Key.SHIFT, 's'));
-        return InputBox.create();
+        return await InputBox.create();
     }
 
     /**
@@ -51,7 +51,7 @@ export class TextEditor extends Editor {
      */
     async getFileUri(): Promise<string> {
         const ed = await this.findElement(TextEditor.locators.TextEditor.editorContainer);
-        return ed.getAttribute(TextEditor.locators.TextEditor.dataUri);
+        return await ed.getAttribute(TextEditor.locators.TextEditor.dataUri);
     }
 
     /**
@@ -329,7 +329,7 @@ export class TextEditor extends Editor {
         await this.getDriver().wait(async () => {
             const coor = await this.getCoordinates();
             return coor[0] === line && coor[1] === column;
-        });
+        }, 10000, `Unable to set cursor at position ${column}:${line}`);
     }
 
     /**
@@ -374,7 +374,7 @@ export class TextEditor extends Editor {
             }
             
         }
-        return super.openContextMenu();
+        return await super.openContextMenu();
     }
 
     /**
@@ -506,7 +506,7 @@ class Selection extends ElementWithContexMenu {
                 return new ContextMenu(shadowRoot).wait();
             }
         }
-        return super.openContextMenu();
+        return await super.openContextMenu();
     }
 }
 
@@ -523,7 +523,7 @@ export class CodeLens extends AbstractElement {
      * @returns tooltip as string
      */
     async getTooltip(): Promise<string> {
-        return this.getAttribute('title');
+        return await this.getAttribute('title');
     }
 }
 
@@ -570,7 +570,7 @@ export class FindWidget extends AbstractElement {
      */
     async getSearchText(): Promise<string> {
         const findPart = await this.findElement(FindWidget.locators.FindWidget.findPart);
-        return this.getInputText(findPart);
+        return await this.getInputText(findPart);
     }
 
     /**
@@ -590,7 +590,7 @@ export class FindWidget extends AbstractElement {
      */
      async getReplaceText(): Promise<string> {
         const replacePart = await this.findElement(FindWidget.locators.FindWidget.replacePart);
-        return this.getInputText(replacePart);
+        return await this.getInputText(replacePart);
     }
 
     /**
@@ -718,6 +718,6 @@ export class FindWidget extends AbstractElement {
 
     private async getInputText(composite: WebElement) {
         const input = await composite.findElement(FindWidget.locators.FindWidget.content);
-        return input.getAttribute('innerHTML');
+        return await input.getAttribute('innerHTML');
     }
 }

@@ -30,7 +30,7 @@ export class ActivityBar extends ElementWithContexMenu {
     async getViewControl(name: string): Promise<ViewControl | undefined> {
         const controls = await this.getViewControls();
         const names = await Promise.all(controls.map(async (item) => {
-            return item.getTitle();
+            return await item.getTitle();
         }));
         const index = names.findIndex((value) => value.indexOf(name) > -1);
         if (index > -1) {
@@ -60,7 +60,7 @@ export class ActivityBar extends ElementWithContexMenu {
     async getGlobalAction(name: string): Promise<ActionsControl | undefined> {
         const actions = await this.getGlobalActions();
         const names = await Promise.all(actions.map(async (item) => {
-            return item.getTitle();
+            return await item.getTitle();
         }));
         const index = names.findIndex((value) => value.indexOf(name) > -1);
         if (index > -1) {

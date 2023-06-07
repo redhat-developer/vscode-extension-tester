@@ -14,7 +14,6 @@ export class EditorTabNotFound extends Error {
     }
 }
 
-
 /**
  * View handling the open editors
  */
@@ -218,8 +217,6 @@ export class EditorGroup extends AbstractElement {
      */
     async closeEditor(title: string): Promise<void> {
         const tab = await this.getTabByTitle(title);
-        await EditorView.driver.actions().move({ origin: tab, x: 5, y: 5 }).click();
-
         const closeButton = await tab.findElement(EditorView.locators.EditorView.closeTab);
         await closeButton.click();
     }
@@ -358,14 +355,15 @@ export class EditorTab extends ElementWithContexMenu {
      */
     async getTitle(): Promise<string> {
         const label = await this.findElement(EditorTab.locators.Editor.title);
-        return label.getText();
+        return await label.getText();
     }
 
     /**
      * Select (click) the tab
      */
     async select(): Promise<void> {
-        await this.click();
+        const tabCoords = await this.getRect();
+        await this.getDriver().actions().move({ x: Math.ceil(tabCoords.x + 10), y: Math.ceil(tabCoords.y + 10) }).click().perform();
     }
 
     async isSelected(): Promise<boolean> {

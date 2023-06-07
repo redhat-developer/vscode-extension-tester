@@ -46,7 +46,7 @@ export class ExTester {
      * @param version version to download, default latest
      */
     async downloadCode(version: string = 'latest'): Promise<void> {
-        return this.code.downloadVSCode(loadCodeVersion(version));
+        return await this.code.downloadVSCode(loadCodeVersion(version));
     }
 
     /**
@@ -88,9 +88,9 @@ export class ExTester {
      * Download the matching chromedriver for a given VS Code version
      * @param vscodeVersion selected versio nof VSCode, default latest
      */
-    async downloadChromeDriver(vscodeVersion: string = 'latest'): Promise<void> {
+    async downloadChromeDriver(vscodeVersion: string = 'latest'): Promise<string> {
         const chromiumVersion = await this.code.getChromiumVersion(loadCodeVersion(vscodeVersion));
-        await this.chrome.downloadChromeDriverForChromiumVersion(chromiumVersion);
+        return await this.chrome.downloadChromeDriverForChromiumVersion(chromiumVersion);
     }
 
     /**
@@ -133,7 +133,7 @@ export class ExTester {
      */
     async setupAndRunTests(testFilesPattern: string | string[], vscodeVersion: string = 'latest', setupOptions: Omit<SetupOptions, "vscodeVersion"> = DEFAULT_SETUP_OPTIONS, runOptions: Omit<RunOptions, "vscodeVersion"> = DEFAULT_RUN_OPTIONS): Promise<number> {
         await this.setupRequirements({...setupOptions, vscodeVersion}, runOptions.offline);
-        return this.runTests(testFilesPattern, {...runOptions, vscodeVersion});
+        return await this.runTests(testFilesPattern, {...runOptions, vscodeVersion});
     }
 
     /**
@@ -146,7 +146,7 @@ export class ExTester {
     async runTests(testFilesPattern: string | string[], runOptions: RunOptions = DEFAULT_RUN_OPTIONS): Promise<number> {
         runOptions.vscodeVersion = loadCodeVersion(runOptions.vscodeVersion);
         const patterns = (typeof testFilesPattern === 'string') ? ([testFilesPattern]) : (testFilesPattern);
-        return this.code.runTests(patterns, runOptions);
+        return await this.code.runTests(patterns, runOptions);
     }
 }
 

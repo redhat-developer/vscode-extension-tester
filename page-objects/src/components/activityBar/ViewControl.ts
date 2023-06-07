@@ -50,6 +50,6 @@ export class ViewControl extends ElementWithContexMenu {
      */
     async getTitle(): Promise<string> {
         const badge = await this.findElement(ViewControl.locators.ViewControl.badge);
-        return badge.getAttribute('aria-label');
+        return await badge.getAttribute('aria-label');
     }
 }

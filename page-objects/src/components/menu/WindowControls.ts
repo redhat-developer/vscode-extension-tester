@@ -15,7 +15,7 @@ export class WindowControls extends AbstractElement {
      * @returns Promise resolving when minimize button is pressed
      */
     async minimize(): Promise<void> {
-        const minButton = this.findElement(WindowControls.locators.WindowControls.minimize);
+        const minButton = await this.findElement(WindowControls.locators.WindowControls.minimize);
         await minButton.click();
     }
 
@@ -52,7 +52,7 @@ export class WindowControls extends AbstractElement {
      * @returns Promise resolving when close button is pressed
      */
     async close(): Promise<void> {
-        const closeButton = this.findElement(WindowControls.locators.WindowControls.close);
+        const closeButton = await this.findElement(WindowControls.locators.WindowControls.close);
         await closeButton.click();
     }
 }

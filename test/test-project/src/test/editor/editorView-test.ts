@@ -129,21 +129,20 @@ describe('EditorView', function () {
 
     describe('Editor Groups', function () {
         const testFile = 'Untitled-4';
+
         before(async function () {
             view = new EditorView();
             await newUntitledFile(testFile);
         });
 
         it('getEditorGroups works', async function () {
+            this.timeout(30000);
             let driverActions = view.getDriver().actions();
-            driverActions.clear();
-            driverActions.keyDown(EditorView.ctlKey).sendKeys('\\').keyUp(EditorView.ctlKey).perform();
-            await view.getDriver()
-                .wait(
-                    async () => (await view.getEditorGroups()).length === 2,
-                    10000,
-                    'could not get 2 editor groups'
-                );
+            await driverActions.clear();
+            await driverActions.keyDown(EditorView.ctlKey).sendKeys('\\').keyUp(EditorView.ctlKey).perform();
+            await view.getDriver().wait(async function() {
+                return (await view.getEditorGroups()).length === 2;
+            }, 15000, 'could not get 2 editor groups');
 
             const groups = await view.getEditorGroups();
             const group1 = await view.getEditorGroup(0);

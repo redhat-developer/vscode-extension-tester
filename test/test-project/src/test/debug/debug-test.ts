@@ -87,7 +87,7 @@ describe('Debugging', () => {
         });
 
         it('TextEditor: getPausedBreakpoint works', async function() {
-            breakpoint = await driver.wait<Breakpoint>(() => editor.getPausedBreakpoint(), 10000, 'could not find paused breakpoint') as Breakpoint;
+            breakpoint = await driver.wait<Breakpoint>(async () => await editor.getPausedBreakpoint(), 10000, 'could not find paused breakpoint') as Breakpoint;
         });
 
         it('Breakpoint: getLineNumber works', async function() {
@@ -119,7 +119,7 @@ describe('Debugging', () => {
             try {
                 assist = await debugConsole.getContentAssist();
             } catch(err) {
-                VSBrowser.instance.driver.actions().keyDown(Key.CONTROL).sendKeys(Key.SPACE).perform();
+                await VSBrowser.instance.driver.actions().keyDown(Key.CONTROL).sendKeys(Key.SPACE).perform();
                 assist = await debugConsole.getContentAssist();
             }
             const list = await assist.getItems();

@@ -12,18 +12,16 @@ export class DefaultTreeItem extends TreeItem {
     }
 
     async getLabel(): Promise<string> {
-        const value = this.getAttribute(DefaultTreeItem.locators.DefaultTreeSection.itemLabel);
-
+        const value = await this.getAttribute(DefaultTreeItem.locators.DefaultTreeSection.itemLabel);
         if (value === null) {
             throw new NullAttributeError(`${this.constructor.name}.getLabel returned null`);
         }
-        
         return value;
     }
 
     async getTooltip(): Promise<string> {
         const tooltip = await this.findElement(DefaultTreeItem.locators.DefaultTreeItem.tooltip);
-        return tooltip.getAttribute('title');
+        return await tooltip.getAttribute('title');
     }
 
     async isExpanded(): Promise<boolean> {

@@ -41,7 +41,7 @@ describe('WebViews', function () {
         });
 
         before(async function () {
-            this.timeout(10000);
+            this.timeout(30000);
 
             const workbench = new Workbench();
 

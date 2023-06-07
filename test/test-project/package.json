@@ -13,18 +13,7 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onView:fileExplorer",
-		"onView:testView",
-		"onCommand:extension.helloWorld",
-		"onCommand:extension.openFile",
-		"onCommand:extension.openFolder",
-		"onCommand:extension.closeFolder",
-		"onCommand:extension.webview",
-		"onCommand:extension.test",
-		"onCommand:extension.notification",
-		"onCommand:extension.quickpick",
-		"onCommand:extension.enableCodeLens",
-		"onCustomEditor:catCustoms.catScratch"
+		"onView:fileExplorer"
 	],
 	"main": "./out/src/extension.js",
 	"contributes": {
@@ -142,8 +131,7 @@
 		"lint": "eslint src --ext .ts",
 		"watch": "tsc -watch -p ./",
 		"cb-init": "echo hello_ExTester | clipboard",
-		"ui-test": "npm run cb-init && extest setup-and-run './out/src/test/cli/order-3-test.js' './out/src/test/cli/order-2-test.js' './out/src/test/cli/order-1-test.js' './out/src/test/**/customView*-test.js' './out/src/test/**/views*-test.js' './out/src/test/system/clipboard.test.js' -u -i -r . -e ./test-extensions",
-		"ci-test": "npm run cb-init && extest setup-and-run './out/src/test/cli/order-3-test.js' './out/src/test/cli/order-2-test.js' './out/src/test/cli/order-1-test.js' './out/src/test/**/*-test.js' './out/src/test/system/clipboard.test.js' -u -i -r . -e ./test-extensions"
+		"ui-test": "npm run cb-init && extest setup-and-run './out/src/test/cli/order-3-test.js' './out/src/test/cli/order-2-test.js' './out/src/test/cli/order-1-test.js' './out/src/test/**/*-test.js' './out/src/test/system/clipboard.test.js' -u -i -r . -e ./test-extensions"
 	},
 	"devDependencies": {
 		"@types/chai": "^4.3.4",

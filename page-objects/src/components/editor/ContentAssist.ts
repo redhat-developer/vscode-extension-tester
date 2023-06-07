@@ -93,6 +93,6 @@ export class ContentAssistItem extends MenuItem {
 
     async getLabel(): Promise<string> {
         const labelDiv = await this.findElement(ContentAssist.locators.ContentAssist.itemLabel);
-        return labelDiv.getText();
+        return await labelDiv.getText();
     }
 }

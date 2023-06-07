@@ -17,7 +17,7 @@ export class WebView extends Editor {
      * @returns promise resolving to WebElement when found
      */
     async findWebElement(locator: Locator): Promise<WebElement> {
-        return this.getDriver().findElement(locator);
+        return await this.getDriver().findElement(locator);
     }
 
     /**
@@ -29,7 +29,7 @@ export class WebView extends Editor {
      * @returns promise resolving to a list of WebElement objects
      */
     async findWebElements(locator: Locator): Promise<WebElement[]> {
-        return this.getDriver().findElements(locator);
+        return await this.getDriver().findElements(locator);
     }
 
     /**
@@ -81,6 +81,6 @@ export class WebView extends Editor {
         if (!WebView.handle) {
             WebView.handle = await this.getDriver().getWindowHandle();
         }
-        return this.getDriver().switchTo().window(WebView.handle);
+        return await this.getDriver().switchTo().window(WebView.handle);
     }
 }

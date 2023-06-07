@@ -17,7 +17,7 @@ export class ExtensionsViewItem extends ViewItem {
      */
     async getTitle(): Promise<string> {
         const title = await this.findElement(ExtensionsViewItem.locators.ExtensionsViewSection.itemTitle);
-        return title.getText();
+        return await title.getText();
     }
 
     /**
@@ -27,7 +27,7 @@ export class ExtensionsViewItem extends ViewItem {
     async getVersion(): Promise<string> {
         const version = await this.findElements(ExtensionsViewItem.locators.ExtensionsViewItem.version);
         if (version.length > 0) {
-            return version[0].getText();
+            return await version[0].getText();
         }
         const label = await this.getAttribute('aria-label');
         const ver = label.split(',')[1].trim();
@@ -41,7 +41,7 @@ export class ExtensionsViewItem extends ViewItem {
      */
     async getAuthor(): Promise<string> {
         const author = await this.findElement(ExtensionsViewItem.locators.ExtensionsViewItem.author);
-        return author.getText();
+        return await author.getText();
     }
 
     /**
@@ -50,7 +50,7 @@ export class ExtensionsViewItem extends ViewItem {
      */
     async getDescription(): Promise<string> {
         const description = await this.findElement(ExtensionsViewItem.locators.ExtensionsViewItem.description);
-        return description.getText();
+        return await description.getText();
     }
     
     /**
@@ -75,7 +75,7 @@ export class ExtensionsViewItem extends ViewItem {
         if ((await button.getAttribute('class')).indexOf('disabled') > -1) {
             throw new Error(`Extension '${await this.getTitle()}' is not installed`);
         }
-        return this.openContextMenu();
+        return await this.openContextMenu();
     }
 
     /**

@@ -172,10 +172,10 @@ export abstract class ViewSection extends AbstractElement {
                         return new ContextMenu(shadowRoot).wait();
                     }
                 }
-                return super.openContextMenu();
+                return await super.openContextMenu();
             }
         }(more, this);
-        return btn.openContextMenu();
+        return await btn.openContextMenu();
     }
 
     private async isHeaderHidden(): Promise<boolean> {
@@ -196,7 +196,7 @@ export class ViewPanelAction extends AbstractElement {
      * Get label of the action button
      */
     async getLabel(): Promise<string> {
-        return this.getAttribute(ViewSection.locators.ViewSection.buttonLabel);
+        return await this.getAttribute(ViewSection.locators.ViewSection.buttonLabel);
     }
 
     async wait(timeout: number = 1000): Promise<this> {

@@ -5,6 +5,7 @@ import { Menu } from "./Menu";
  * Abstract element representing a menu item
  */
 export abstract class MenuItem extends AbstractElement {
+
     protected parent!: Menu;
     protected label!: string;
 
@@ -16,6 +17,7 @@ export abstract class MenuItem extends AbstractElement {
      */
     async select(): Promise<Menu | undefined> {
         await this.click();
+        await new Promise(res => setTimeout(res, 500));
         return undefined;
     }
 

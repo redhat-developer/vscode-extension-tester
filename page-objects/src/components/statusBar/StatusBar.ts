@@ -15,7 +15,7 @@ export class StatusBar extends AbstractElement {
      * @returns Promise resolving to an array of WebElement
      */
     async getItems(): Promise<WebElement[]> {
-        return this.findElements(StatusBar.locators.StatusBar.item);
+        return await this.findElements(StatusBar.locators.StatusBar.item);
     }
 
     /**
@@ -71,7 +71,7 @@ export class StatusBar extends AbstractElement {
      * @returns Promise resolving to string representation of current language
      */
     async getCurrentLanguage(): Promise<string> {
-        return this.getPartText(StatusBar.locators.StatusBar.language);
+        return await this.getPartText(StatusBar.locators.StatusBar.language);
     }
 
     /**
@@ -89,7 +89,7 @@ export class StatusBar extends AbstractElement {
      * @returns Promise resolving to string representation of current line ending
      */
     async getCurrentLineEnding(): Promise<string> {
-        return this.getPartText(StatusBar.locators.StatusBar.lines);
+        return await this.getPartText(StatusBar.locators.StatusBar.lines);
     }
 
     /**
@@ -107,7 +107,7 @@ export class StatusBar extends AbstractElement {
      * @returns Promise resolving to string representation of current encoding
      */
     async getCurrentEncoding(): Promise<string> {
-        return this.getPartText(StatusBar.locators.StatusBar.encoding);
+        return await this.getPartText(StatusBar.locators.StatusBar.encoding);
     }
 
     /**
@@ -125,7 +125,7 @@ export class StatusBar extends AbstractElement {
      * @returns Promise resolving to string representation of current indentation
      */
     async getCurrentIndentation(): Promise<string> {
-        return this.getPartText(StatusBar.locators.StatusBar.indent);
+        return await this.getPartText(StatusBar.locators.StatusBar.indent);
     }
 
     /**
@@ -143,7 +143,7 @@ export class StatusBar extends AbstractElement {
      * @returns Promise resolving to string representation of current position in the editor
      */
     async getCurrentPosition(): Promise<string> {
-        return this.getPartText(StatusBar.locators.StatusBar.selection);
+        return await this.getPartText(StatusBar.locators.StatusBar.selection);
     }
 
     /**
@@ -164,6 +164,6 @@ export class StatusBar extends AbstractElement {
     }
 
     private async getPartText(locator: Locator): Promise<string> {
-        return this.findElement(locator).findElement(By.css('a')).getAttribute('innerHTML');
+        return await this.findElement(locator).findElement(By.css('a')).getAttribute('innerHTML');
     }
 }

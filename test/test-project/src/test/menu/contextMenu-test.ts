@@ -1,32 +1,33 @@
+import { TitleBar, ContextMenu, before, beforeEach, VSBrowser } from 'vscode-extension-tester';
 import { expect } from 'chai';
-import { TitleBar, ContextMenu, VSBrowser } from 'vscode-extension-tester';
+import * as path from 'path';
 
-(process.platform === 'darwin' ? describe.skip : describe)('ContextMenu', () => {
+(process.platform === 'darwin' ? describe.skip : describe)('ContextMenu', function () {
     let bar: TitleBar;
     let menu: ContextMenu;
 
-    beforeEach(async () => {
+    before(async function () {
+        this.timeout(30000);
+        await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', '..', 'resources', 'test-folder'));
+        await VSBrowser.instance.driver.sleep(5000);
+    });
+
+    beforeEach(async function () {
         bar = new TitleBar();
         menu = await bar.select('File') as ContextMenu;
     });
 
-    afterEach(async () => {
-        await menu.close();
-    });
-
-    it('getItems finds all menu items', async function() {
-        this.timeout(4000);
+    it('getItems finds all menu items', async function () {
+        this.timeout(5000);
         const items = await menu.getItems();
+        await menu.close();
         expect(items).not.empty;
     });
 
-    it('getItem finds an item with the given name', async () => {
-        let item;
-        if (VSBrowser.instance.version >= '1.65.0') {
-            item = await menu.getItem('New File...');
-        } else {
-            item = await menu.getItem('New File');
-        }
+    it('getItem finds an item with the given name', async function () {
+        this.timeout(5000);
+        const item = await menu.getItem('New File...');
+        await menu.close();
         expect(item).not.undefined;
     });
 });

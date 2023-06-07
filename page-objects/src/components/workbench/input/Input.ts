@@ -15,7 +15,7 @@ export abstract class Input extends AbstractElement {
     async getText(): Promise<string> {
         const input = await this.findElement(Input.locators.Input.inputBox)
             .findElement(Input.locators.Input.input);
-        return input.getAttribute('value');
+        return await input.getAttribute('value');
     }
 
     /**
@@ -230,7 +230,7 @@ export class QuickPickItem extends AbstractElement {
      * Get the label of the quick pick item
      */
     async getLabel(): Promise<string> {
-        return this.findElement(Input.locators.Input.quickPickLabel).getText();
+        return await this.findElement(Input.locators.Input.quickPickLabel).getText();
     }
 
     /**
@@ -238,7 +238,7 @@ export class QuickPickItem extends AbstractElement {
      */
     async getDescription(): Promise<string | undefined> {
         try {
-            return this.findElement(Input.locators.Input.quickPickDescription).getText();
+            return await this.findElement(Input.locators.Input.quickPickDescription).getText();
         } catch (err) {
             return undefined;
         }

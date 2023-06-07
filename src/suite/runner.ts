@@ -64,19 +64,19 @@ export class VSRunner {
             });
     
             this.mocha.suite.beforeAll(async function () {
-                this.timeout(45000);
+                this.timeout(180000);
                 const start = Date.now();
                 const binPath = process.platform === 'darwin' ? await self.createShortcut(code.getCodeFolder(), self.tmpLink) : self.chromeBin;
                 await browser.start(binPath);
                 await browser.openResources(...resources);
                 await browser.waitForWorkbench();
-                await new Promise((res) => { setTimeout(res, 2000); });
+                await new Promise((res) => { setTimeout(res, 3000); });
                 console.log(`Browser ready in ${Date.now() - start} ms`);
                 console.log('Launching tests...');
             });
     
             this.mocha.suite.afterAll(async function() {
-                this.timeout(30000);
+                this.timeout(60000);
                 await browser.quit();
                 if (process.platform === 'darwin') {
                     if (await fs.pathExists(self.tmpLink)) {

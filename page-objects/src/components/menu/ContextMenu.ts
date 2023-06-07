@@ -92,6 +92,7 @@ export class ContextMenu extends Menu {
  * Object representing an item of a context menu
  */
 export class ContextMenuItem extends MenuItem {
+
     constructor(item: WebElement, parent: Menu) {
         super(item, parent);
         this.parent = parent;
@@ -108,7 +109,7 @@ export class ContextMenuItem extends MenuItem {
 
     async getLabel(): Promise<string> {
         const labelItem = await this.findElement(ContextMenu.locators.ContextMenu.itemLabel);
-        return labelItem.getAttribute(ContextMenu.locators.ContextMenu.itemText);
+        return await labelItem.getAttribute(ContextMenu.locators.ContextMenu.itemText);
     }
 
     private async isNesting(): Promise<boolean> {
