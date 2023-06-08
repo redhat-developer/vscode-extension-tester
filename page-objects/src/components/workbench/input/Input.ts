@@ -24,7 +24,13 @@ export abstract class Input extends AbstractElement {
      * @returns Promise resolving when the text is typed in
      */
     async setText(text: string): Promise<void> {
-        const originalClipboard = clipboard.readSync();
+        let originalClipboard = '';
+        try {
+            originalClipboard = clipboard.readSync();
+        } catch (error) {
+            // workaround issue https://github.com/redhat-developer/vscode-extension-tester/issues/835
+            // do not fail if clipboard is empty
+        }
         const input = await this.findElement(Input.locators.Input.inputBox)
             .findElement(Input.locators.Input.input);
         await this.clear();
@@ -39,7 +45,9 @@ export abstract class Input extends AbstractElement {
             await clipboard.write(text);
             await input.sendKeys(Key.END, Key.chord(Key.SHIFT, Key.HOME));
             await input.sendKeys(Key.chord(Input.ctlKey, 'v'));
-            await clipboard.write(originalClipboard);
+            if(originalClipboard.length > 0) {
+                clipboard.writeSync(originalClipboard);
+            }
         }
     }
 

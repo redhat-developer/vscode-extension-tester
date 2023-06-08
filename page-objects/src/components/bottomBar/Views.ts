@@ -127,7 +127,13 @@ export class TerminalView extends ChannelView {
      * @returns Promise resolving to all terminal text
      */
     async getText(): Promise<string> {
-        const originalClipboard = clipboard.readSync();
+        let originalClipboard = '';
+        try {
+            originalClipboard = clipboard.readSync();
+        } catch (error) {
+            // workaround issue https://github.com/redhat-developer/vscode-extension-tester/issues/835
+            // do not fail if clipboard is empty
+        }
         const workbench = new Workbench();
         await workbench.executeCommand('terminal select all');
         await workbench.getDriver().sleep(500);
@@ -138,7 +144,9 @@ export class TerminalView extends ChannelView {
             await workbench.getDriver().sleep(500);
         }
         const text = clipboard.readSync();
-        clipboard.writeSync(originalClipboard);
+        if(originalClipboard.length > 0) {
+            clipboard.writeSync(originalClipboard);
+        }
         return text;
     }
 
