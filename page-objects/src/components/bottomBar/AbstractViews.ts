@@ -92,14 +92,22 @@ export abstract class TextView extends ChannelView {
      * @returns Promise resolving to the view's text
      */
     async getText(): Promise<string> {
-        const originalClipboard = clipboard.readSync();
+        let originalClipboard = '';
+        try {
+            originalClipboard = clipboard.readSync();
+        } catch (error) {
+            // workaround issue https://github.com/redhat-developer/vscode-extension-tester/issues/835
+            // do not fail if clipboard is empty
+        }
         let textarea = await this.findElement(ChannelView.locators.BottomBarViews.textArea);
         await textarea.sendKeys(Key.chord(TextView.ctlKey, 'a'));
         await textarea.sendKeys(Key.chord(TextView.ctlKey, 'c'));
         const text = clipboard.readSync();
         // workaround as we are getting "element click intercepted" during the send keys actions.
         // await textarea.click();
-        clipboard.writeSync(originalClipboard);
+        if(originalClipboard.length > 0) {
+            clipboard.writeSync(originalClipboard);
+        }
         return text;
     }
 
