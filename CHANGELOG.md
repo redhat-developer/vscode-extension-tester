@@ -1,5 +1,11 @@
 # Change Log
 
+## 5.7.1
+
+> June 08 2023
+
+- [Bug] Could not paste from clipboard issue only on Windows
+
 ## 5.7.0
 
 > June 07 2023
