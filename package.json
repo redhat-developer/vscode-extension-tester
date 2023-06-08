@@ -65,7 +65,7 @@
     "js-yaml": "^4.1.0",
     "monaco-page-objects": "^3.7.0",
     "sanitize-filename": "^1.6.3",
-    "selenium-webdriver": "^4.9.2",
+    "selenium-webdriver": "^4.10.0",
     "targz": "^1.0.1",
     "unzipper": "^0.10.14",
     "vscode-extension-tester-locators": "^3.5.0"
