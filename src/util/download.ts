@@ -1,5 +1,4 @@
 import * as fs from 'fs-extra';
-import got, { OptionsOfTextResponseBody } from 'got';
 import { promisify } from 'util';
 import stream = require('stream');
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
@@ -12,7 +11,7 @@ const httpsProxyAgent = !process.env.HTTPS_PROXY ? undefined : new HttpsProxyAge
     proxy: process.env.HTTPS_PROXY
 });
 
-const options: OptionsOfTextResponseBody & { isStream?: undefined } = {
+const options = {
     headers: {
         'user-agent': 'nodejs'
     },
@@ -27,13 +26,16 @@ const options: OptionsOfTextResponseBody & { isStream?: undefined } = {
 }
 
 export class Download {
+
     static async getText(uri: string): Promise<string> {
+        const got = (await import('got')).default;
         const body = await got(uri, options).text();
         return JSON.parse(body as string)
     }
 
     static async getFile(uri: string, destination: string, progress = false): Promise<void> {
         let lastTick = 0;
+        const got = (await import('got')).default;
         const dlStream = got.stream(uri, options);
         if (progress) {
             dlStream.on('downloadProgress', ({ transferred, total, percent }) => {
