@@ -1,7 +1,6 @@
 import { AbstractElement } from "../../AbstractElement";
 import { Key } from "selenium-webdriver";
 import { QuickOpenBox } from "../../..";
-import * as clipboard from 'clipboardy';
 
 /**
  * Abstract page object for input fields
@@ -24,6 +23,7 @@ export abstract class Input extends AbstractElement {
      * @returns Promise resolving when the text is typed in
      */
     async setText(text: string): Promise<void> {
+        const clipboard = (await import('clipboardy')).default;
         let originalClipboard = '';
         try {
             originalClipboard = clipboard.readSync();
