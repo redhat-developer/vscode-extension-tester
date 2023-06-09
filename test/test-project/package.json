@@ -141,7 +141,7 @@
 		"@typescript-eslint/parser": "^5.43.0",
 		"chai": "^4.3.7",
 		"clipboard-cli": "^3.0.0",
-		"clipboardy": "^2.3.0",
+		"clipboardy": "^3.0.0",
 		"eslint": "^8.27.0",
 		"mocha": "^10.1.0",
 		"rimraf": "^3.0.2",

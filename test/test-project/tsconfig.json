@@ -1,8 +1,11 @@
 {
 	"compilerOptions": {
-		"module": "commonjs",
+		"module": "node16",
 		"target": "es6",
 		"outDir": "out",
+		"lib": [
+			"es6"
+		],
 		"sourceMap": true,
 		"rootDir": ".",
 		"resolveJsonModule": true,

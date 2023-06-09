@@ -1,7 +1,6 @@
 import { ContentAssist, ContextMenu, InputBox, Workbench } from "../..";
 import { By, ChromiumWebDriver, Key, until, WebElement } from "selenium-webdriver";
 import { fileURLToPath } from "url";
-import * as clipboard from 'clipboardy';
 import { StatusBar } from "../statusBar/StatusBar";
 import { Editor } from "./Editor";
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
@@ -100,6 +99,7 @@ export class TextEditor extends Editor {
      * @returns Promise resolving to editor text
      */
     async getText(): Promise<string> {
+        const clipboard = (await import('clipboardy')).default;
         let originalClipboard = '';
         try {
             originalClipboard = clipboard.readSync();
@@ -125,6 +125,7 @@ export class TextEditor extends Editor {
      * @returns Promise resolving once the new text is copied over
      */
     async setText(text: string, formatText: boolean = false): Promise<void> {
+        const clipboard = (await import('clipboardy')).default;
         let originalClipboard = '';
         try {
             originalClipboard = clipboard.readSync();
@@ -241,6 +242,7 @@ export class TextEditor extends Editor {
      * Get the text that is currently selected as string
      */
     async getSelectedText(): Promise<string> {
+        const clipboard = (await import('clipboardy')).default;
         let originalClipboard = '';
         try {
             originalClipboard = clipboard.readSync();

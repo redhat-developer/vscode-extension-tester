@@ -1,5 +1,4 @@
 import { Key, WebElement } from 'selenium-webdriver';
-import * as clipboard from 'clipboardy';
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
 
 /**
@@ -92,6 +91,7 @@ export abstract class TextView extends ChannelView {
      * @returns Promise resolving to the view's text
      */
     async getText(): Promise<string> {
+        const clipboard = (await import('clipboardy')).default;
         let originalClipboard = '';
         try {
             originalClipboard = clipboard.readSync();

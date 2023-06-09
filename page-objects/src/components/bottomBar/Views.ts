@@ -1,7 +1,6 @@
 import { Key, until } from "selenium-webdriver";
 import { BottomBarPanel, ContentAssist, InputBox, Workbench } from "../..";
 import { TextView, ChannelView } from "./AbstractViews";
-import * as clipboard from 'clipboardy';
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
 
 /**
@@ -127,6 +126,7 @@ export class TerminalView extends ChannelView {
      * @returns Promise resolving to all terminal text
      */
     async getText(): Promise<string> {
+        const clipboard = (await import('clipboardy')).default;
         let originalClipboard = '';
         try {
             originalClipboard = clipboard.readSync();
