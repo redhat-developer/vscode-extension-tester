@@ -20,7 +20,7 @@ const options = {
         https: httpsProxyAgent
     },
     timeout: {
-        request: 60 * 1000,
+        request: 300 * 1000,
         lookup: 500
     }
 }
