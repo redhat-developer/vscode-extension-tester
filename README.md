@@ -69,7 +69,7 @@ Something is not working properly? In that case, feel free to [open issues, add 
 
 ### Get Involved
 
-If you'd like to help us get better, we appriciate it! Check out our [Contribution Guide](CONTRIBUTING.md) on how to do that.
+If you'd like to help us get better, we appreciate it! Check out our [Contribution Guide](CONTRIBUTING.md) on how to do that.
 
 ### Known Issues
 
