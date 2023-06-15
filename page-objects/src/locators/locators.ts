@@ -86,6 +86,9 @@ export interface Locators {
         constructor: By
         actionsLabel: string
     }
+    WebviewView: {
+        iframe: By
+    }
 
     // Editors
     EditorView: {

@@ -1,12 +1,12 @@
-import { AbstractElement } from "../AbstractElement";
-import { TextEditor } from "../..";
 import { error, WebElement } from "selenium-webdriver";
+import { TextEditor } from "../..";
+import { AbstractElement } from "../AbstractElement";
+import { ElementWithContexMenu } from "../ElementWithContextMenu";
+import { DiffEditor } from './DiffEditor';
 import { Editor } from "./Editor";
+import { EditorAction } from "./EditorAction";
 import { SettingsEditor } from "./SettingsEditor";
 import { WebView } from "./WebView";
-import { DiffEditor } from './DiffEditor';
-import { ElementWithContexMenu } from "../ElementWithContextMenu";
-import { EditorAction } from "./EditorAction";
 
 export class EditorTabNotFound extends Error {
     constructor(title: string, group: number) {

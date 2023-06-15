@@ -4,7 +4,7 @@
 ```typescript
 import { EditorView, WebView } from 'vscode-extension-tester';
 ...
-// using EditorView 
+// using EditorView
 const webview = new EditorView().openEditor('webview-title');
 
 // using the constructor assuming the editor is opened
@@ -14,8 +14,8 @@ const webview1 = new WebView();
 #### Switching Context
 In order to access the elements inside the web view frame, it is necessary to switch webdriver context into the frame. Analogically, to stop working with the web view, switching back is necessary.
 ```typescript
-// to switch inside the web view frame
-await webview.switchToFrame();
+// to switch inside the web view frame, with optional customizable timeout
+await webview.switchToFrame(5_000);
 
 // to switch back to the default window
 await webview.switchBack();

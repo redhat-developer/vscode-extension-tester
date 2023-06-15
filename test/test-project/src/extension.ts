@@ -1,8 +1,8 @@
-import * as vscode from 'vscode';
 import * as path from 'path';
-import { TreeView } from './treeView';
+import * as vscode from 'vscode';
 import { CatScratchEditorProvider } from './catScratchEditor';
 import { CodelensProvider } from './codelensProvider';
+import { TreeView } from './treeView';
 
 export const ERROR_MESSAGE_COMMAND = 'extension.errorMsg';
 
@@ -60,7 +60,7 @@ export function activate(context: vscode.ExtensionContext) {
 		"extension.populateTestView",
 		() => { emptyViewNoContent = false; emitter.fire(undefined); }
 	));
-	
+
 	const codelensProvider = new CodelensProvider();
 	context.subscriptions.push(vscode.languages.registerCodeLensProvider("*", codelensProvider));
 	context.subscriptions.push(
@@ -75,6 +75,9 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand("extension.codelensAction", (args: any) => {
 			vscode.window.showInformationMessage(`CodeLens action clicked with args=${args}`);
 		}));
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider("myPanelView", new MyPanelView())
+	);
 }
 
 export function deactivate() {}
@@ -134,5 +137,11 @@ class TestView {
 			<h1>This is a web view</h1>
 		</body>
 		</html>`;
+	}
+}
+
+class MyPanelView implements vscode.WebviewViewProvider {
+	resolveWebviewView(webviewView: vscode.WebviewView, context: vscode.WebviewViewResolveContext<unknown>, token: vscode.CancellationToken): void | Thenable<void> {
+		webviewView.webview.html = "<!DOCTYPE html><html><head><title>My Panel View</title></head><body><div><h1>Shopping List</h1><ul><li>Apple</li><li>Banana</li></ul></div></body></html>";
 	}
 }
