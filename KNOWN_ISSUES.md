@@ -49,5 +49,5 @@ A few page objects have had slight changes to their API. Others have had their i
 - Action Bar & its items methods are now all asynchronous
   - `ActionBar` methods `getViewControl` and `getGlobalAction` are now async, make sure to await them
   - `ViewControl` and `ActionsItem` method `getTitle` is now async, make sure to await
-  - `ViewControl` and `ActionsItem` contructors were changed to take a `WebElement` directly, instead of a title
-    - hopefully, noone was using these directly, but if you do, use `ActionBar#getViewControl` or `getGlobalAction` instead to get the proper object
+  - `ViewControl` and `ActionsItem` constructors were changed to take a `WebElement` directly, instead of a title
+    - hopefully, no one was using these directly, but if you do, use `ActionBar#getViewControl` or `getGlobalAction` instead to get the proper object
