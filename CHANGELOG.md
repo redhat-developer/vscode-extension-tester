@@ -1,5 +1,13 @@
 # Change Log
 
+## 5.8.0
+
+> June 16 2023
+
+- [Request] Support for latest VS Code stable 1.79.2
+- [Bug] Lookup timeout when downloading VSCode
+- [Request] Upgrade got dependency
+
 ## 5.7.1
 
 > June 08 2023
