@@ -1,4 +1,5 @@
 import { SideBarView } from "../SideBarView";
+import { DebugVariableSection } from "../tree/debug/DebugVariablesSection";
 
 /**
  * Page object representing the Run/Debug view in the side bar
@@ -32,6 +33,11 @@ export class DebugView extends SideBarView {
         }
 
         return configs;
+    }
+
+    async getVariablesSection(): Promise<DebugVariableSection> {
+        const content = this.getContent();
+        return content.getSection(DebugVariableSection.locators.DebugVariableSection.predicate, DebugVariableSection);
     }
 
     /**

@@ -1,5 +1,13 @@
 import { ViewSection } from "../ViewSection";
 import { TreeItem } from "../ViewItem";
+import { error } from "selenium-webdriver";
+
+export class TreeItemNotFoundError extends error.NoSuchElementError {
+    constructor(msg?: string) {
+        super(msg);
+        this.name = 'TreeItemNotFoundError';
+    }
+}
 
 /**
  * Abstract representation of a view section containing a tree
@@ -25,7 +33,7 @@ export abstract class TreeSection extends ViewSection {
                 names = names.sort((a, b) => a > b ? 1 : (a < b ? -1 : 0));
                 const message = names.length < 1 ? `Current directory is empty.` : `Available items in current directory: [${names.toString()}]`;
 
-                throw new Error(`Item '${path[i]}' not found. ${message}`);
+                throw new TreeItemNotFoundError(`Item '${path[i]}' not found. ${message}`);
             }
             items = await currentItem.getChildren();
             if (items.length < 1) {

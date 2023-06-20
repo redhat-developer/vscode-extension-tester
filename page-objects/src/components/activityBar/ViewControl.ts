@@ -16,6 +16,7 @@ export class ViewControl extends ElementWithContexMenu {
      * @returns Promise resolving to SideBarView object representing the opened view
      */
     async openView(): Promise<SideBarView> {
+        // Check whether view is already open
         const klass = await this.getAttribute(ViewControl.locators.ViewControl.attribute);
         if (klass.indexOf(ViewControl.locators.ViewControl.klass) < 0) {
             await this.click();

@@ -43,6 +43,10 @@ export abstract class AbstractElement extends WebElement {
         return await super.isEnabled() && await AbstractElement.locators.AbstractElement.enabled(this);
     }
 
+    async isSelected(): Promise<boolean> {
+        return await super.isSelected() && await AbstractElement.locators.AbstractElement.selected(this);
+    }
+
     /**
      * Wait for the element to become visible
      * @param timeout custom timeout for the wait
