@@ -1,9 +1,10 @@
 import { By, WebElement } from "selenium-webdriver";
-import { Locators, hasClass, hasNotClass } from "monaco-page-objects";
+import { Locators, ViewSection, fromAttribute, fromText, hasAttribute, hasClass, hasElement, hasNotClass } from "monaco-page-objects";
 
 const abstractElement = {
     AbstractElement: {
-        enabled: hasNotClass("disabled")
+        enabled: hasNotClass("disabled"),
+        selected: hasAttribute('aria-selected', 'true')
     }
 }
 
@@ -219,8 +220,6 @@ const sideBar = {
         constructor: By.className('content'),
         progress: By.className('monaco-progress-container'),
         section: By.className('split-view-view'),
-        sectionTitle: By.className('title'),
-        sectionText: 'textContent',
         defaultView: By.className('explorer-folders-view'),
         extensionsView: By.className('extensions-list')
     },
@@ -248,7 +247,13 @@ const sideBar = {
         itemLabel: 'aria-label',
         rowContainer: By.className('monaco-list'),
         rowWithLabel: (label: string) => By.xpath(`.//div[@role='treeitem' and @aria-label='${label}']`),
-        lastRow: By.xpath(`.//div[@data-last-element='true']`)
+        lastRow: By.xpath(`.//div[@data-last-element='true']`),
+        type: {
+            default: hasElement((locators: Locators) => locators.ViewContent.defaultView),
+            marketplace: {
+                extension: hasElement((locators: Locators) => locators.ViewContent.extensionsView)
+            }
+        }
     },
     DefaultTreeItem: {
         ctor: (label: string) => By.xpath(`.//div[@role='treeitem' and @aria-label='${label}']`),
@@ -267,6 +272,22 @@ const sideBar = {
         expandedAttr: 'aria-expanded',
         expandedValue: 'true',
         description: By.className('label-description'),
+    },
+    DebugVariableSection: {
+        predicate: async (section: ViewSection) => (await section.getTitle()).toLowerCase() === 'variables'
+    },
+    VariableSectionItem: {
+        label: fromText(By.className('monaco-highlighted-label')),
+        name: {
+            constructor: By.className('name'),
+            value: fromText(),
+            tooltip: fromAttribute('title', By.className('monaco-highlighted-label'))
+        },
+        value: {
+            constructor: By.className('value'),
+            value: fromText(),
+            tooltip: fromAttribute('title')
+        }
     },
     ExtensionsViewSection: {
         items: By.className('monaco-list-rows'),

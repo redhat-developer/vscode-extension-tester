@@ -24,10 +24,13 @@ export * from './components/sidebar/ViewSection';
 export * from './components/sidebar/ViewItem';
 export * from './components/sidebar/WelcomeContent';
 
+export * from './components/sidebar/tree/TreeSection';
 export * from './components/sidebar/tree/default/DefaultTreeSection';
 export * from './components/sidebar/tree/default/DefaultTreeItem';
 export * from './components/sidebar/tree/custom/CustomTreeSection';
 export * from './components/sidebar/tree/custom/CustomTreeItem';
+export * from './components/sidebar/tree/debug/DebugVariablesSection';
+export * from './components/sidebar/tree/debug/VariableSectionItem';
 export * from './components/sidebar/extensions/ExtensionsViewSection';
 export * from './components/sidebar/extensions/ExtensionsViewItem';
 export { ScmView, ScmProvider, ScmChange } from './components/sidebar/scm/ScmView';

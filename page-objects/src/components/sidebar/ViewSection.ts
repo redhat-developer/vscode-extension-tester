@@ -3,6 +3,8 @@ import { ContextMenu, ViewContent, ViewItem, waitForAttributeValue, WelcomeConte
 import { AbstractElement } from "../AbstractElement";
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
 
+export type ViewSectionConstructor<T extends ViewSection> = { new(rootElement: WebElement, tree: ViewContent): T ;};
+
 /**
  * Page object representing a collapsible content section of the side bar view
  */
@@ -11,7 +13,7 @@ export abstract class ViewSection extends AbstractElement {
     constructor(panel: WebElement, content: ViewContent) {
         super(panel, content);
     }
-
+    
     /**
      * Get the title of the section as string
      * @returns Promise resolving to section title

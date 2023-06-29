@@ -1,50 +1,68 @@
 import { TreeSection } from "../TreeSection";
 import { TreeItem } from "../../ViewItem";
-import { CustomTreeItem } from "./CustomTreeItem";
 import { Key, until, WebElement } from "selenium-webdriver";
+import { CustomTreeItem, ViewContent } from "../../../..";
+
+export type GenericCustomTreeItemConstructor<T extends TreeItem> = { new(rootElement: WebElement, tree: TreeSection): T ;};
 
 /**
- * Custom tree view, e.g. contributed by an extension
+ * Generic custom tree view, e.g. contributed by an extension
  */
-export class CustomTreeSection extends TreeSection {
+export class GenericCustomTreeSection<T extends TreeItem> extends TreeSection {
+    private _itemConstructor: GenericCustomTreeItemConstructor<T>;
 
-    async getVisibleItems(): Promise<TreeItem[]> {
-        const items: TreeItem[] = [];
-        let elements: WebElement[] = [];
-        await this.getDriver().wait(async () => {
-            try {
-                elements = await (await this.getContainer()).findElements(CustomTreeSection.locators.CustomTreeSection.itemRow);
-            } catch (error) {
-                return false;
-            }
-            return elements.length > 0;
-        }, 10000);
+    constructor(panel: WebElement, private _viewContent: ViewContent, itemConstructor: GenericCustomTreeItemConstructor<T>) {
+        super(panel, _viewContent);
+        this._itemConstructor = itemConstructor;
+    }
+
+    private get viewContent() : ViewContent {
+        return this._viewContent;
+    }
+
+    private get itemConstructor() : GenericCustomTreeItemConstructor<T> {
+        return this._itemConstructor;
+    }
+    
+    async getVisibleItems(): Promise<T[]> {
+        const items: T[] = [];
+        const container = await this.getContainer();
+        const elements = await container.findElements(CustomTreeSection.locators.CustomTreeSection.itemRow);
         for (const element of elements) {
-            items.push(await new CustomTreeItem(element, this).wait());
+            if (await element.isDisplayed()) {
+                items.push(new this.itemConstructor(element, this))
+            }
         }
         return items;
     }
 
-    async findItem(label: string, maxLevel: number = 0): Promise<TreeItem | undefined> {
-        let item: TreeItem | undefined = undefined;
-        const elements = await (await this.getContainer()).findElements(CustomTreeSection.locators.CustomTreeSection.itemRow);
+    async findItem(label: string, maxLevel: number = 0): Promise<T | undefined> {
+        const elements = await this.getVisibleItems();
         for (const element of elements) {
-            const temp = await element.findElements(CustomTreeSection.locators.CustomTreeSection.rowWithLabel(label));
-            if (temp.length > 0) {
-                const level = +await temp[0].getAttribute(CustomTreeSection.locators.ViewSection.level);
+            if (await element.getLabel() === label) {
+                const level = +await element.getAttribute(CustomTreeSection.locators.ViewSection.level);
                 if (maxLevel < 1 || level <= maxLevel) {
-                    item = await new CustomTreeItem(element, this).wait();
+                    return element;
                 } 
             }
-        }            
-        return item;
+        }
+        return undefined;
     }
 
-    private async getContainer(): Promise<CustomTreeSection> {
+    private async getContainer(): Promise<GenericCustomTreeSection<T>> {
         await this.expand();
         await this.getDriver().wait(until.elementLocated(CustomTreeSection.locators.CustomTreeSection.rowContainer), 5000);
         const container = await this.findElement(CustomTreeSection.locators.CustomTreeSection.rowContainer);
         await container.sendKeys(Key.HOME);
-        return container as CustomTreeSection;
+        return new GenericCustomTreeSection(container, this.viewContent, this.itemConstructor);
+    }
+}
+
+/**
+ * Custom tree view, e.g. contributed by an extension
+ */
+export class CustomTreeSection extends GenericCustomTreeSection<CustomTreeItem> {
+    constructor(panel: WebElement, viewContent: ViewContent) {
+        super(panel, viewContent, CustomTreeItem);
     }
 }

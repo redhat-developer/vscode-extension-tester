@@ -1,7 +1,9 @@
 import { By, WebElement } from "selenium-webdriver";
 import { DeepPartial } from 'ts-essentials';
+import { ViewSection } from "../components/sidebar/ViewSection";
 
-type WebElementFunction<T> = (element: WebElement) => T | PromiseLike<T>;
+type WebElementFunction<E extends WebElement, T> = (element: E) => T | PromiseLike<T>;
+type LocatorAwareWebElementFunction<T> = (element: WebElement, locator: Locators) => T | PromiseLike<T>;
 
 /**
  * Type definitions for all used locators
@@ -9,7 +11,8 @@ type WebElementFunction<T> = (element: WebElement) => T | PromiseLike<T>;
 export interface Locators {
     // AbstractElement properties
     AbstractElement: {
-        enabled: WebElementFunction<boolean>
+        enabled: WebElementFunction<WebElement, boolean>
+        selected: WebElementFunction<WebElement, boolean>
     }
 
     // Activity Bar
@@ -111,12 +114,12 @@ export interface Locators {
             pauseSelector: By
             generalSelector: By
             properties: {
-                enabled: WebElementFunction<boolean>
+                enabled: WebElementFunction<WebElement, boolean>
                 line: {
                     selector: By
-                    number: WebElementFunction<number>
+                    number: WebElementFunction<WebElement, number>
                 }
-                paused: WebElementFunction<boolean>
+                paused: WebElementFunction<WebElement, boolean>
             }
         }
         editorContainer: By
@@ -220,8 +223,6 @@ export interface Locators {
         constructor: By
         progress: By
         section: By
-        sectionTitle: By
-        sectionText: string
         defaultView: By
         extensionsView: By
     }
@@ -250,6 +251,12 @@ export interface Locators {
         rowContainer: By
         rowWithLabel: (label: string) => By
         lastRow: By
+        type: {
+            default: LocatorAwareWebElementFunction<boolean>
+            marketplace: {
+                extension: LocatorAwareWebElementFunction<boolean>
+            }
+        }
     }
     DefaultTreeItem: {
         ctor: (label: string) => By
@@ -268,6 +275,22 @@ export interface Locators {
         expandedValue: string
         tooltipAttribute: string
         description: By
+    }
+    DebugVariableSection: {
+        predicate: WebElementFunction<ViewSection, boolean>
+    }
+    VariableSectionItem: {
+        label: WebElementFunction<WebElement, string>
+        name: {
+            constructor: By
+            value: WebElementFunction<WebElement, string>
+            tooltip: WebElementFunction<WebElement, string>
+        }
+        value: {
+            constructor: By
+            value: WebElementFunction<WebElement, string>
+            tooltip: WebElementFunction<WebElement, string>
+        }
     }
     ExtensionsViewSection: {
         items: By
@@ -417,16 +440,49 @@ export interface LocatorDiff {
     extras?: Object
 }
 
-export function hasClass(klass: string): ((el: WebElement) => Promise<boolean>) {
+export function hasAttribute(attr: string, value?: string, locator?: By): ((el: WebElement) => Promise<boolean>) {
     return async (el: WebElement) => {
+        el = locator ? el.findElement(locator) : el;
+        const attrValue = await el.getAttribute(attr);
+        if (value === undefined) {
+            return attrValue !== null;
+        }
+        return attrValue === value;
+    }
+}
+
+export function hasClass(klass: string, locator?: By): ((el: WebElement) => Promise<boolean>) {
+    return async (el: WebElement) => {
+        el = locator ? el.findElement(locator) : el;
         const klasses = await el.getAttribute('class');
         const segments = klasses?.split(/\s+/g);
         return segments.includes(klass);
     }
 }
 
-export function hasNotClass(klass: string): ((el: WebElement) => Promise<boolean>) {
+export function hasNotClass(klass: string, locator?: By): ((el: WebElement) => Promise<boolean>) {
     return async (el: WebElement) => {
+        el = locator ? el.findElement(locator) : el;
         return !(await hasClass(klass).call(undefined, el));
     };
+}
+
+export function hasElement(locatorSelector: ((l: Locators) => By)): ((el: WebElement, locators: Locators) => Promise<boolean>) {
+    return async (el: WebElement, locators: Locators) => {
+        return (await el.findElements(locatorSelector(locators))).length > 0;
+    }
+}
+
+export function fromAttribute(attribute: string, locator?: By): ((el: WebElement) => Promise<string>) {
+    return async (el: WebElement) => {
+        el = locator ? el.findElement(locator) : el;
+        return el.getAttribute(attribute);
+    }
+}
+
+export function fromText(locator?: By): ((el: WebElement) => Promise<string>) {
+    return async (el: WebElement) => {
+        el = locator ? el.findElement(locator) : el;
+        return el.getText();
+    }
 }

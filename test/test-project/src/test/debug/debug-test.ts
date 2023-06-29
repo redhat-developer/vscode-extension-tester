@@ -1,4 +1,4 @@
-import { ActivityBar, BottomBarPanel, Breakpoint, DebugConsoleView, DebugToolbar, DebugView, DefaultTreeSection, EditorView, InputBox, Key, TextEditor, TitleBar, until, VSBrowser, WebDriver, Workbench } from "vscode-extension-tester";
+import { ActivityBar, BottomBarPanel, Breakpoint, DebugConsoleView, DebugToolbar, DebugView, EditorView, error, Key, TextEditor, TitleBar, TreeItemNotFoundError, until, VSBrowser, WebDriver, Workbench } from "vscode-extension-tester";
 import * as path from 'path';
 import { expect } from "chai";
 
@@ -7,20 +7,13 @@ describe('Debugging', () => {
     const folder = path.resolve(__dirname, '..', '..', '..', '..', '..', 'debug-project');
     let view: DebugView;
 
-    before(async function() {
-        this.timeout(20000);
-        await new Workbench().executeCommand('File: Open Folder...');
-        const input = await InputBox.create();
-        await input.setText(folder);
-        await input.confirm();
-        await new Promise(res => setTimeout(res, 5000));
-
-        const explorer = await (await new ActivityBar().getViewControl('Explorer')).openView();
-        const tree = (await explorer.getContent().getSection('debug-project')) as DefaultTreeSection;
-        
-        await new Promise(res => setTimeout(res, 1000));
-        await (await tree.findItem('test.js')).select();
-
+    before(async function () {
+        this.timeout(30000);
+        const browser = VSBrowser.instance;
+        await browser.openResources(folder);
+        await browser.driver.sleep(5000);
+        await browser.openResources(path.join(folder, 'test.js'));
+        await browser.driver.sleep(5000);
         view = (await (await new ActivityBar().getViewControl('Run')).openView()) as DebugView;
 
         // clear notifications center which causes flaky tests from VSCode version 1.75.x
@@ -39,13 +32,13 @@ describe('Debugging', () => {
             const config = await view.getLaunchConfiguration();
             expect(config).equals('Test Launch');
         });
-    
+
         it('getLaunchConfigurations works', async () => {
             const configs = await view.getLaunchConfigurations();
             expect(configs).contains('Test Launch');
             expect(configs).contains('Test Launch2');
         });
-    
+
         it('selectLaunchConfiguration works', async () => {
             await view.selectLaunchConfiguration('Test Launch2');
             const config = await view.getLaunchConfiguration();
@@ -58,14 +51,14 @@ describe('Debugging', () => {
         let debugBar: DebugToolbar;
         let driver: WebDriver;
         let breakpoint!: Breakpoint;
-        const line = 6;
+        const line = 7;
 
         before(async () => {
             editor = (await new EditorView().openEditor('test.js')) as TextEditor;
             driver = editor.getDriver();
         });
 
-        after(async function() {
+        after(async function () {
             this.timeout(15000);
             await editor.toggleBreakpoint(5);
             if (await debugBar.isDisplayed()) {
@@ -86,16 +79,43 @@ describe('Debugging', () => {
             await debugBar.waitForBreakPoint();
         });
 
-        it('TextEditor: getPausedBreakpoint works', async function() {
+        it('TextEditor: getPausedBreakpoint works', async function () {
             breakpoint = await driver.wait<Breakpoint>(async () => await editor.getPausedBreakpoint(), 10000, 'could not find paused breakpoint') as Breakpoint;
         });
 
-        it('Breakpoint: getLineNumber works', async function() {
+        it('Breakpoint: getLineNumber works', async function () {
             expect(await breakpoint.getLineNumber()).equals(line);
         });
 
-        it('Breakpoint: isPaused works', async function() {
+        it('Breakpoint: isPaused works', async function () {
             expect(await breakpoint.isPaused()).to.be.true;
+        });
+
+        it('VariableSectionItem.getVariableName', async function () {
+            const item = await getNumVariable(view, this.timeout() - 2000);
+            expect(await item.getVariableName()).equals('num:');
+        });
+
+        it('VariableSectionItem.getVariableValue', async function () {
+            const item = await getNumVariable(view, this.timeout() - 2000);
+            expect(await item.getVariableValue()).equals('5');
+        });
+
+        it('VariableSectionItem.getVariableNameTooltip', async function () {
+            const item = await getNumVariable(view, this.timeout() - 2000);
+            expect(await item.getVariableNameTooltip()).equals('number');
+        });
+
+        it('VariableSectionItem.getVariableValueTooltip', async function () {
+            const item = await getNumVariable(view, this.timeout() - 2000);
+            expect(await item.getVariableValueTooltip()).equals('5');
+        });
+
+        it('Variable view: setVariableValue', async function () {
+            const item = await getNumVariable(view, this.timeout() - 2000);
+            expect(await item.getVariableValue()).equals('5');
+            await item.setVariableValue('42');
+            expect(await item.getVariableValue()).equals('42');
         });
 
         it('evaluate an expression', async () => {
@@ -118,7 +138,7 @@ describe('Debugging', () => {
             let assist;
             try {
                 assist = await debugConsole.getContentAssist();
-            } catch(err) {
+            } catch (err) {
                 await VSBrowser.instance.driver.actions().keyDown(Key.CONTROL).sendKeys(Key.SPACE).perform();
                 assist = await debugConsole.getContentAssist();
             }
@@ -133,8 +153,39 @@ describe('Debugging', () => {
         });
 
         it('remove the breakpoint', async () => {
-            const result = await editor.toggleBreakpoint(6);
+            const result = await editor.toggleBreakpoint(line);
             expect(result).to.be.false;
         });
     });
 });
+
+async function getNumVariable(view: DebugView, timeout: number) {
+    try {
+        return await view.getDriver().wait(async () => {
+            try {
+                const variablesSection = await view.getVariablesSection();
+                await variablesSection?.openItem('Local');
+                return await variablesSection.findItem('num:');
+            }
+            catch (e) {
+                if (e instanceof error.StaleElementReferenceError ||
+                    e instanceof error.NoSuchElementError ||
+                    e instanceof error.ElementNotInteractableError) {
+                    return undefined;
+                }
+                throw e;
+            }
+        }, timeout, 'could not find num variable');
+    }
+    catch (e) {
+        if (e instanceof error.TimeoutError) {
+            console.log('items');
+            const variablesSection = await view.getVariablesSection();
+            const items = await variablesSection.getVisibleItems();
+            for (const item of items) {
+                console.log(`Item: ${await item.getLabel().catch(() => '___error')}`);
+            }
+        }
+        throw e;
+    }
+}

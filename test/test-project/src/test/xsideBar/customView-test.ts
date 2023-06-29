@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { ActivityBar, CustomTreeItem, CustomTreeSection, NotificationType, TreeItem, ViewContent, ViewItem, WelcomeContentButton, Workbench } from 'vscode-extension-tester';
+import { ActivityBar, CustomTreeItem, CustomTreeSection, NotificationType, TreeItem, VSBrowser, ViewContent, ViewItem, WelcomeContentButton, Workbench } from 'vscode-extension-tester';
 
 describe('CustomTreeSection', () => {
     let section: CustomTreeSection;
@@ -11,8 +11,8 @@ describe('CustomTreeSection', () => {
         const view = await (await new ActivityBar().getViewControl('Explorer')).openView();
         await new Promise((res) => { setTimeout(res, 1000); });
         content = view.getContent();
-        section = await content.getSection('Test View') as CustomTreeSection;
-        emptyViewSection = await content.getSection('Empty View') as CustomTreeSection;
+        section = await content.getSection('Test View');
+        emptyViewSection = await content.getSection('Empty View');
         await emptyViewSection.expand();
     });
 
@@ -37,8 +37,10 @@ describe('CustomTreeSection', () => {
 
     it('getVisibleItems works', async function() {
         this.timeout(10000);
-        const items = await section.getVisibleItems();
-        expect(items.length).equals(4);
+        await VSBrowser.instance.driver.wait(async () => {
+            const items = await section.getVisibleItems();
+            return items.length === 4;
+        }, this.timeout() - 1000, `expected: 4; got: ${(await section.getVisibleItems().catch(() => [])).length}`);
     });
 
     it('findItem works', async () => {
@@ -50,7 +52,7 @@ describe('CustomTreeSection', () => {
     });
 
     it('openItem returns subitems', async () => {
-        const items = await section.openItem('a') as CustomTreeItem[];
+        const items = await section.openItem('a');
         expect(items.length).equals(2);
     });
 
@@ -117,7 +119,7 @@ describe('CustomTreeSection', () => {
 
         before(async () => {
             await emptyViewSection.collapse();
-            item = await section.findItem('a') as CustomTreeItem;
+            item = await section.findItem('a');
         });
 
         it('getLabel works', async () => {
