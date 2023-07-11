@@ -273,6 +273,30 @@ const sideBar = {
         expandedValue: 'true',
         description: By.className('label-description'),
     },
+    DebugBreakpointSection: {
+        predicate: async (section: ViewSection) => (await section.getTitle()).toLowerCase() === 'breakpoints'
+    },
+    BreakpointSectionItem: {
+        breakpoint: {
+            constructor: By.className('codicon')
+        },
+        breakpointCheckbox: {
+            constructor: By.css('input[type=checkbox'),
+            value: (el: WebElement) => el.isSelected()
+        },
+        label: {
+            constructor: By.className('name'),
+            value: fromText()
+        },
+        filePath: {
+            constructor: By.className('file-path'),
+            value: fromText()
+        },
+        lineNumber: {
+            constructor: By.className('line-number'),
+            value: fromText()
+        }
+    },
     DebugVariableSection: {
         predicate: async (section: ViewSection) => (await section.getTitle()).toLowerCase() === 'variables'
     },

@@ -276,6 +276,30 @@ export interface Locators {
         tooltipAttribute: string
         description: By
     }
+    DebugBreakpointSection: {
+        predicate: WebElementFunction<ViewSection, boolean>
+    }
+    BreakpointSectionItem: {
+        breakpoint: {
+            constructor: By
+        }
+        breakpointCheckbox: {
+            constructor: By
+            value: WebElementFunction<WebElement, boolean>
+        }
+        label: {
+            constructor: By
+            value: WebElementFunction<WebElement, string>
+        }
+        filePath: {
+            constructor: By
+            value: WebElementFunction<WebElement, string>
+        }
+        lineNumber: {
+            constructor: By
+            value: WebElementFunction<WebElement, string>
+        }
+    }
     DebugVariableSection: {
         predicate: WebElementFunction<ViewSection, boolean>
     }
@@ -451,12 +475,13 @@ export function hasAttribute(attr: string, value?: string, locator?: By): ((el: 
     }
 }
 
-export function hasClass(klass: string, locator?: By): ((el: WebElement) => Promise<boolean>) {
+export function hasClass(classOrPredicate: string | ((klass: string) => boolean), locator?: By): ((el: WebElement) => Promise<boolean>) {
     return async (el: WebElement) => {
         el = locator ? el.findElement(locator) : el;
         const klasses = await el.getAttribute('class');
         const segments = klasses?.split(/\s+/g);
-        return segments.includes(klass);
+        const predicate = typeof classOrPredicate === 'string' ? ((klass: string) => klass === classOrPredicate) : (classOrPredicate);
+        return segments.find(predicate) !== undefined;
     }
 }
 

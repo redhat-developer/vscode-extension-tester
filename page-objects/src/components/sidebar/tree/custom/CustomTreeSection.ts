@@ -36,10 +36,11 @@ export class GenericCustomTreeSection<T extends TreeItem> extends TreeSection {
         return items;
     }
 
-    async findItem(label: string, maxLevel: number = 0): Promise<T | undefined> {
+    async findItem(labelOrPredicate: string | ((el: T) => (PromiseLike<boolean> | boolean)), maxLevel: number = 0): Promise<T | undefined> {
+        const predicate = typeof labelOrPredicate === 'string' ? (async (el: T) => await el.getLabel() === labelOrPredicate) : (labelOrPredicate);
         const elements = await this.getVisibleItems();
         for (const element of elements) {
-            if (await element.getLabel() === label) {
+            if (await predicate(element)) {
                 const level = +await element.getAttribute(CustomTreeSection.locators.ViewSection.level);
                 if (maxLevel < 1 || level <= maxLevel) {
                     return element;

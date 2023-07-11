@@ -1,4 +1,5 @@
 import { SideBarView } from "../SideBarView";
+import { DebugBreakpointSection } from "../tree/debug/DebugBreakpointSection";
 import { DebugVariableSection } from "../tree/debug/DebugVariablesSection";
 
 /**
@@ -38,6 +39,15 @@ export class DebugView extends SideBarView {
     async getVariablesSection(): Promise<DebugVariableSection> {
         const content = this.getContent();
         return content.getSection(DebugVariableSection.locators.DebugVariableSection.predicate, DebugVariableSection);
+    }
+
+    /**
+     * Get section which holds information about breakpoints.
+     * @returns DebugBreakpointSection page object
+     */
+    async getBreakpointSection(): Promise<DebugBreakpointSection> {
+        const content = this.getContent();
+        return content.getSection(DebugBreakpointSection.locators.DebugBreakpointSection.predicate, DebugBreakpointSection);
     }
 
     /**
