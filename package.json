@@ -57,7 +57,7 @@
     "@types/selenium-webdriver": "^4.1.12",
     "@vscode/vsce": "^2.19.0",
     "commander": "^11.0.0",
-    "compare-versions": "^5.0.1",
+    "compare-versions": "^6.0.0",
     "fs-extra": "^11.1.0",
     "glob": "^8.1.0",
     "got": "^13.0.0",
