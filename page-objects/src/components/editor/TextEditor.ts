@@ -422,7 +422,7 @@ export class TextEditor extends Editor {
      * Toggle breakpoint on a given line
      * 
      * @param line target line number
-     * @returns promise resolving to true when a breakpoint was added, false when removed or
+     * @returns promise resolving to True when a breakpoint was added, False when removed
      */
     async toggleBreakpoint(line: number): Promise<boolean> {
         const margin = await this.findElement(TextEditor.locators.TextEditor.marginArea);
@@ -430,19 +430,20 @@ export class TextEditor extends Editor {
         await this.getDriver().actions().move({origin: lineNum}).perform();
 
         const lineOverlay = await margin.findElement(TextEditor.locators.TextEditor.lineOverlay(line));
-        const breakPoint = await lineOverlay.findElements(TextEditor.locators.TextEditor.breakpoint.generalSelector);
+        const breakpointContainer = TextEditor.versionInfo.version >= '1.80.0' ? await this.findElement(By.className('glyph-margin-widgets')) : lineOverlay;
+        const breakPoint = await breakpointContainer.findElements(TextEditor.locators.TextEditor.breakpoint.generalSelector);
         if (breakPoint.length > 0) {
             await breakPoint[0].click();
             await new Promise(res => setTimeout(res, 200));
             return false;
         }
 
-        const noBreak = await lineOverlay.findElements(TextEditor.locators.TextEditor.debugHint);
+        const noBreak = await breakpointContainer.findElements(TextEditor.locators.TextEditor.debugHint);
         if (noBreak.length > 0) {
             await noBreak[0].click();
             await new Promise(res => setTimeout(res, 200));
             return true;
-        } 
+        }
         return false;
     }
 
@@ -452,7 +453,8 @@ export class TextEditor extends Editor {
      */
     async getPausedBreakpoint(): Promise<Breakpoint | undefined> {
         const breakpointLocators = Breakpoint.locators.TextEditor.breakpoint;
-        const breakpoints = await this.findElements(breakpointLocators.pauseSelector);
+        const breakpointContainer = TextEditor.versionInfo.version >= '1.80.0' ? await this.findElement(By.className('glyph-margin-widgets')) : this;
+        const breakpoints = await breakpointContainer.findElements(breakpointLocators.pauseSelector);
         
         if (breakpoints.length === 0) {
             return undefined;
@@ -463,7 +465,13 @@ export class TextEditor extends Editor {
         }
 
         // get parent
-        const lineElement = breakpoints[0].findElement(By.xpath('./..'));
+        let lineElement: WebElement;
+        if(TextEditor.versionInfo.version >= '1.80.0') {
+            const styleTopAttr = await breakpoints[0].getCssValue('top');
+            lineElement = await this.findElement(TextEditor.locators.TextEditor.marginArea).findElement(By.xpath(`.//div[contains(@style, "${styleTopAttr}")]`))
+        } else {
+            lineElement = await breakpoints[0].findElement(By.xpath('./..'));
+        }
         return new Breakpoint(breakpoints[0], lineElement);
     }
 
@@ -654,7 +662,8 @@ export class FindWidget extends AbstractElement {
      * Close the widget.
      */
     async close(): Promise<void> {
-        await this.clickButton('Close', 'find');
+        const part = TextEditor.versionInfo.version >= '1,80.0' ? 'close' : 'find';
+        await this.clickButton('Close', part);
     }
 
     /**
@@ -721,7 +730,7 @@ export class FindWidget extends AbstractElement {
         }
     }
 
-    private async clickButton(title: string, part: 'find'|'replace') {
+    private async clickButton(title: string, part: 'find'|'replace'|'close') {
         let element!: WebElement;
         if (part === 'find') {
             element = await this.findElement(FindWidget.locators.FindWidget.findPart);
@@ -729,6 +738,9 @@ export class FindWidget extends AbstractElement {
         if (part === 'replace') {
             element = await this.findElement(FindWidget.locators.FindWidget.replacePart);
             await this.toggleReplace(true);
+        }
+        if (part === 'close') {
+            element = this;
         }
 
         const btn = await element.findElement(FindWidget.locators.FindWidget.button(title));
