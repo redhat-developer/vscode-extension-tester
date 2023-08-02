@@ -1,6 +1,9 @@
-import { ActivityBar, BottomBarPanel, Breakpoint, DebugConsoleView, DebugToolbar, DebugView, EditorView, error, Key, TextEditor, TitleBar, TreeItemNotFoundError, until, VSBrowser, WebDriver, Workbench } from "vscode-extension-tester";
+import { ActivityBar, BottomBarPanel, Breakpoint, BreakpointSectionItem, DebugBreakpointSection, DebugConsoleView, DebugToolbar, DebugView, EditorView, error, Key, TextEditor, TitleBar, TreeItemNotFoundError, until, VSBrowser, WebDriver, Workbench } from "vscode-extension-tester";
 import * as path from 'path';
 import { expect } from "chai";
+import { stat } from "fs";
+
+const line = 7;
 
 describe('Debugging', () => {
     process.env.NODE = process.execPath;
@@ -51,7 +54,6 @@ describe('Debugging', () => {
         let debugBar: DebugToolbar;
         let driver: WebDriver;
         let breakpoint!: Breakpoint;
-        const line = 7;
 
         before(async () => {
             editor = (await new EditorView().openEditor('test.js')) as TextEditor;
@@ -89,6 +91,75 @@ describe('Debugging', () => {
 
         it('Breakpoint: isPaused works', async function () {
             expect(await breakpoint.isPaused()).to.be.true;
+        });
+
+        it('BreakpointSectionItem.getBreakpoint', async function () {
+            const item = await getBreakpointItem(view, this.timeout() - 2000);
+            const breakpoint = await item.getBreakpoint();
+            expect(breakpoint).not.undefined;
+        });
+
+        it('BreakpointSectionItem.isBreakpointEnabled', async function () {
+            const item = await getBreakpointItem(view, this.timeout() - 2000);
+            expect(await item.isBreakpointEnabled()).to.be.true;
+        });
+
+        it('BreakpointSectionItem.setBreakpointEnabled', async function () {
+            const item = await getBreakpointItem(view, this.timeout() - 2000);
+            const driver = item.getDriver();
+            let status = await item.isBreakpointEnabled();
+
+            await item.setBreakpointEnabled(status);
+            await driver.wait(
+                async () => await item.isBreakpointEnabled() === status,
+                this.timeout() - 2000,
+                `could not set status from ${status} to ${status}`
+            );
+
+            await item.setBreakpointEnabled(!status);
+            await driver.wait(
+                async () => await item.isBreakpointEnabled() === !status,
+                this.timeout() - 2000,
+                `could not set status from ${status} to ${!status}`
+            );
+
+            await item.setBreakpointEnabled(status);
+            await driver.wait(
+                async () => await item.isBreakpointEnabled() === status,
+                this.timeout() - 2000,
+                `could not set status from ${!status} to ${status}`
+            );
+        });
+
+        it('BreakpointSectionItem.getLabel', async function () {
+            const item = await getBreakpointItem(view, this.timeout() - 2000);
+            expect(await item.getLabel()).equals('test.js');
+        });
+
+        // Currently not supported
+        it.skip('BreakpointSectionItem.getBreakpointFilePath', async function () {
+            const item = await getBreakpointItem(view, this.timeout() - 2000);
+            expect(await item.getBreakpointFilePath()).equals('test.js');
+        });
+
+        it('BreakpointSectionItem.getBreakpointLine', async function () {
+            const item = await getBreakpointItem(view, this.timeout() - 2000);
+            expect(await item.getBreakpointLine()).equals(line);
+        });
+
+        it('BreakpointSectionItem.getActionButtons', async function () {
+            await VSBrowser.instance.driver.wait(async () => {
+                try {
+                    const item = await getBreakpointItem(view, this.timeout() - 2000);
+                    return (await item.getActionButtons()).length > 0;
+                }
+                catch (e) {
+                    if (e instanceof error.StaleElementReferenceError) {
+                        return false;
+                    }
+                    throw e;
+                }
+            }, this.timeout() - 2000, 'actions are empty');
         });
 
         it('VariableSectionItem.getVariableName', async function () {
@@ -181,6 +252,36 @@ async function getNumVariable(view: DebugView, timeout: number) {
         if (e instanceof error.TimeoutError) {
             console.log('items');
             const variablesSection = await view.getVariablesSection();
+            const items = await variablesSection.getVisibleItems();
+            for (const item of items) {
+                console.log(`Item: ${await item.getLabel().catch(() => '___error')}`);
+            }
+        }
+        throw e;
+    }
+}
+
+async function getBreakpointItem(view: DebugView, timeout: number) {
+    try {
+        return await view.getDriver().wait(async () => {
+            try {
+                const breakpointSection = await view.getBreakpointSection();
+                return await breakpointSection.findItem(async (item: BreakpointSectionItem) => await item.getBreakpointLine() === line);
+            }
+            catch (e) {
+                if (e instanceof error.StaleElementReferenceError ||
+                    e instanceof error.NoSuchElementError ||
+                    e instanceof error.ElementNotInteractableError) {
+                    return undefined;
+                }
+                throw e;
+            }
+        }, timeout, 'could not find breakpoint item');
+    }
+    catch (e) {
+        if (e instanceof error.TimeoutError) {
+            console.log('items');
+            const variablesSection = await view.getBreakpointSection();
             const items = await variablesSection.getVisibleItems();
             for (const item of items) {
                 console.log(`Item: ${await item.getLabel().catch(() => '___error')}`);

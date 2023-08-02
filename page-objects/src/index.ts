@@ -29,6 +29,8 @@ export * from './components/sidebar/tree/default/DefaultTreeSection';
 export * from './components/sidebar/tree/default/DefaultTreeItem';
 export * from './components/sidebar/tree/custom/CustomTreeSection';
 export * from './components/sidebar/tree/custom/CustomTreeItem';
+export * from './components/sidebar/tree/debug/DebugBreakpointSection';
+export * from './components/sidebar/tree/debug/BreakpointSectionItem';
 export * from './components/sidebar/tree/debug/DebugVariablesSection';
 export * from './components/sidebar/tree/debug/VariableSectionItem';
 export * from './components/sidebar/extensions/ExtensionsViewSection';
