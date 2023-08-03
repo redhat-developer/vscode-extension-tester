@@ -7,7 +7,7 @@ import * as glob from 'glob';
 import { CodeUtil, ReleaseQuality } from '../util/codeUtil';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
-import sanitize = require('sanitize-filename');
+import sanitize from 'sanitize-filename';
 import { logging } from 'selenium-webdriver';
 import * as os from 'os';
 
@@ -50,7 +50,7 @@ export class VSRunner {
                 glob.sync(universalPattern)
                     .forEach((val) => testFiles.add(val));
             }
-    
+
             testFiles.forEach((file) => this.mocha.addFile(file));
             this.mocha.suite.afterEach(async function () {
                 if (this.currentTest && this.currentTest.state !== 'passed') {
@@ -62,7 +62,7 @@ export class VSRunner {
                     }
                 }
             });
-    
+
             this.mocha.suite.beforeAll(async function () {
                 this.timeout(180000);
                 const start = Date.now();
@@ -74,8 +74,8 @@ export class VSRunner {
                 console.log(`Browser ready in ${Date.now() - start} ms`);
                 console.log('Launching tests...');
             });
-    
-            this.mocha.suite.afterAll(async function() {
+
+            this.mocha.suite.afterAll(async function () {
                 this.timeout(60000);
                 await browser.quit();
                 if (process.platform === 'darwin') {
@@ -87,10 +87,10 @@ export class VSRunner {
                         }
                     }
                 }
-    
+
                 code.uninstallExtension(self.cleanup);
             });
-    
+
             this.mocha.run((failures) => {
                 process.exitCode = failures ? 1 : 0;
                 resolve(process.exitCode);
@@ -104,11 +104,11 @@ export class VSRunner {
         } catch (err) {
             return this.chromeBin;
         }
-        
+
         const dir = path.parse(src);
         const segments = this.chromeBin.split(path.sep);
         const newSegments = dest.split(path.sep);
-        
+
         let found = false;
         for (let i = 0; i < segments.length; i++) {
             if (!found) {

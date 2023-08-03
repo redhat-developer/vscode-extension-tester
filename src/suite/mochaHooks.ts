@@ -1,5 +1,6 @@
 import { Func } from 'mocha';
 import { VSBrowser } from '../extester';
+import sanitize from 'sanitize-filename';
 
 type HookType = 'before' | 'beforeEach' | 'after' | 'afterEach';
 
@@ -46,7 +47,7 @@ function createScreenshotCallbackFunction(name: string | undefined, hookType: Ho
             if (this === undefined) throw e;
             if (this.test === undefined) {
                 try {
-                    await VSBrowser.instance.takeScreenshot(alternativeFileName.replace(/"/g, "'"));
+                    await VSBrowser.instance.takeScreenshot(sanitize(alternativeFileName));
                 }
                 catch (screenshotError) {
                     console.error(`Could not take screenshot. this.test is undefined. Reason:\n${screenshotError}\n\n`);
@@ -56,7 +57,7 @@ function createScreenshotCallbackFunction(name: string | undefined, hookType: Ho
 
             try {
                 const titlePath = this.test.titlePath();
-                await VSBrowser.instance.takeScreenshot(titlePath.join('.').replace(/"/g, "'"));
+                await VSBrowser.instance.takeScreenshot(sanitize(titlePath.join('.')));
             }
             catch (screenshotError) {
                 console.error(`Could not take screenshot. Reason:\n${screenshotError}\n\n`);
