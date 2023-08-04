@@ -311,6 +311,7 @@ describe('TextEditor', function () {
         });
 
         it('clicking triggers the lens command', async function () {
+            this.timeout(20000);
             const lens = await editor.getCodeLens(2);
             await lens.click();
             await lens.getDriver().sleep(1000);
