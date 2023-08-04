@@ -1,5 +1,14 @@
 # Change Log
 
+## 5.9.0
+
+> August 04 2023
+
+- [Request] Support for VS Code 1.81.0
+- [Request] Support for VS Code 1.80.2
+- [Bug] GitHub actions Error during screenshots in after/before all/each step
+- [Request] How to access the variables view
+
 ## 5.8.0
 
 > June 16 2023
