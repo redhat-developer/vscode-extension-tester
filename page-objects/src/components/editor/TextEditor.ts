@@ -13,6 +13,7 @@ export class BreakpointError extends Error { }
  * Page object representing the active text editor
  */
 export class TextEditor extends Editor {
+    breakPoints: number[] = [];
 
     /**
      * Find whether the active editor has unsaved changes
@@ -433,15 +434,18 @@ export class TextEditor extends Editor {
         const breakpointContainer = TextEditor.versionInfo.version >= '1.80.0' ? await this.findElement(By.className('glyph-margin-widgets')) : lineOverlay;
         const breakPoint = await breakpointContainer.findElements(TextEditor.locators.TextEditor.breakpoint.generalSelector);
         if (breakPoint.length > 0) {
-            await breakPoint[0].click();
-            await new Promise(res => setTimeout(res, 200));
-            return false;
+            if (this.breakPoints.indexOf(line) != -1) {
+                await breakPoint[this.breakPoints.indexOf(line)].click();
+                await new Promise(res => setTimeout(res, 200));
+                this.breakPoints.splice(this.breakPoints.indexOf(line), 1);
+                return false;
+            }
         }
-
         const noBreak = await breakpointContainer.findElements(TextEditor.locators.TextEditor.debugHint);
         if (noBreak.length > 0) {
             await noBreak[0].click();
             await new Promise(res => setTimeout(res, 200));
+            this.breakPoints.push(line);
             return true;
         }
         return false;

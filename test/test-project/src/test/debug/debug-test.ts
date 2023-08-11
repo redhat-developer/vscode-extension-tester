@@ -68,7 +68,12 @@ describe('Debugging', function () {
             await new Promise(res => setTimeout(res, 5000));
         });
 
-        it('set a breakpoint', async function () {
+        it('set first breakpoint', async function () {
+            const result = await editor.toggleBreakpoint(line + 1);
+            expect(result).to.be.true;
+        });
+
+        it('set second breakpoint', async function () {
             const result = await editor.toggleBreakpoint(line);
             expect(result).to.be.true;
         });
@@ -221,7 +226,12 @@ describe('Debugging', function () {
             await editor.getDriver().wait(until.elementIsNotVisible(debugBar));
         });
 
-        it('remove the breakpoint', async function () {
+        it('remove the second breakpoint', async function () {
+            const result = await editor.toggleBreakpoint(line + 1);
+            expect(result).to.be.false;
+        });
+
+        it('remove the first breakpoint', async function () {
             const result = await editor.toggleBreakpoint(line);
             expect(result).to.be.false;
         });
