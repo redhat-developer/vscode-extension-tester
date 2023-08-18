@@ -31,7 +31,7 @@
   "devDependencies": {
     "@types/clone-deep": "^4.0.1",
     "@types/fs-extra": "^11.0.1",
-    "@types/node": "^16.18.39",
+    "@types/node": "^16.18.41",
     "@types/selenium-webdriver": "^4.1.15",
     "rimraf": "^5.0.1",
     "typescript": "*"
