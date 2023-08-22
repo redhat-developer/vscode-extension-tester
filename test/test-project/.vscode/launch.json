@@ -31,6 +31,18 @@
         ],
         "outputCapture": "std",
         "runtimeVersion": "16.14.0",
+      },
+      {
+        "name": "Run Extension",
+        "type": "extensionHost",
+        "request": "launch",
+        "args": [
+          "--extensionDevelopmentPath=${workspaceFolder}"
+        ],
+        "outFiles": [
+          "${workspaceFolder}/out/**/*.js"
+        ],
+        "preLaunchTask": "npm: watch"
       }
     ]
   }
