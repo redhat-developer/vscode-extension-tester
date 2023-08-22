@@ -1,5 +1,14 @@
 # Change Log
 
+## 5.9.1
+
+> August 22 2023
+
+- [Request] Support for VS Code 1.81.1
+- [Bug] getCodeLenses method ignores codelenses in span after first
+- [Bug] npm run ui-test starts a shared VSCode instance, not running test files
+- [Bug] Exception trying to discover chromedriver version: error sending request for url 
+
 ## 5.9.0
 
 > August 04 2023
