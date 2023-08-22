@@ -7,7 +7,7 @@ import { ElementWithContexMenu } from "../ElementWithContextMenu";
 import { AbstractElement } from "../AbstractElement";
 import { Breakpoint } from "./Breakpoint";
 
-export class BreakpointError extends Error {}
+export class BreakpointError extends Error { }
 
 /**
  * Page object representing the active text editor
@@ -112,7 +112,7 @@ export class TextEditor extends Editor {
         await new Promise(res => setTimeout(res, 500));
         const text = clipboard.readSync();
         await inputarea.sendKeys(Key.UP);
-        if(originalClipboard.length > 0) {
+        if (originalClipboard.length > 0) {
             clipboard.writeSync(originalClipboard);
         }
         return text;
@@ -136,7 +136,7 @@ export class TextEditor extends Editor {
         const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
         clipboard.writeSync(text);
         await inputarea.sendKeys(Key.chord(TextEditor.ctlKey, 'a'), Key.chord(TextEditor.ctlKey, 'v'));
-        if(originalClipboard.length > 0) {
+        if (originalClipboard.length > 0) {
             clipboard.writeSync(originalClipboard);
         }
         if (formatText) {
@@ -203,7 +203,7 @@ export class TextEditor extends Editor {
                 found++;
                 lineNum = i + 1;
                 if (found >= occurrence) {
-                    break; 
+                    break;
                 }
             }
         }
@@ -221,12 +221,12 @@ export class TextEditor extends Editor {
         if (lineNum < 1) {
             throw new Error(`Text '${text}' not found`);
         }
-    
+
         const line = await this.getTextAtLine(lineNum);
         const column = line.indexOf(text) + 1;
 
         await this.moveCursor(lineNum, column);
-        
+
         let actions = this.getDriver().actions();
         await actions.clear();
         actions.keyDown(Key.SHIFT);
@@ -250,7 +250,7 @@ export class TextEditor extends Editor {
             // workaround issue https://github.com/redhat-developer/vscode-extension-tester/issues/835
             // do not fail if clipboard is empty
         }
-        if(process.platform !== 'darwin') {
+        if (process.platform !== 'darwin') {
             const selection = await this.getSelection();
             if (!selection) {
                 return '';
@@ -265,7 +265,7 @@ export class TextEditor extends Editor {
         }
         await new Promise(res => setTimeout(res, 500));
         const text = clipboard.readSync();
-        if(originalClipboard.length > 0) {
+        if (originalClipboard.length > 0) {
             clipboard.writeSync(originalClipboard);
         }
         return text;
@@ -275,7 +275,7 @@ export class TextEditor extends Editor {
      * Get the selection block as a page object
      * @returns Selection page object
      */
-    async getSelection(): Promise<Selection|undefined> {
+    async getSelection(): Promise<Selection | undefined> {
         const selection = await this.findElements(TextEditor.locators.TextEditor.selection);
         if (selection.length < 1) {
             return undefined;
@@ -328,7 +328,7 @@ export class TextEditor extends Editor {
         if (column < 1) {
             throw new Error(`Column number ${column} does not exist`);
         }
-        if(process.platform === 'darwin') {
+        if (process.platform === 'darwin') {
             const input = await new Workbench().openCommandPrompt();
             await input.setText(`:${line},${column}`);
             await input.confirm();
@@ -386,7 +386,7 @@ export class TextEditor extends Editor {
     async openContextMenu(): Promise<ContextMenu> {
         await this.getDriver().actions().contextClick(this).perform();
         const shadowRootHost = await this.enclosingItem.findElements(By.className('shadow-root-host'));
-        
+
         if (shadowRootHost.length > 0) {
             let shadowRoot;
             const webdriverCapabilities = await (this.getDriver() as ChromiumWebDriver).getCapabilities();
@@ -398,7 +398,7 @@ export class TextEditor extends Editor {
                 shadowRoot = await this.getDriver().executeScript('return arguments[0].shadowRoot', shadowRootHost[0]) as WebElement;
                 return new ContextMenu(shadowRoot).wait();
             }
-            
+
         }
         return await super.openContextMenu();
     }
@@ -412,7 +412,7 @@ export class TextEditor extends Editor {
         const coords: number[] = [];
         const statusBar = new StatusBar();
         const coordinates = <RegExpMatchArray>(await statusBar.getCurrentPosition()).match(/\d+/g);
-        for(const c of coordinates) {
+        for (const c of coordinates) {
             coords.push(+c);
         }
         return [coords[0], coords[1]];
@@ -427,7 +427,7 @@ export class TextEditor extends Editor {
     async toggleBreakpoint(line: number): Promise<boolean> {
         const margin = await this.findElement(TextEditor.locators.TextEditor.marginArea);
         const lineNum = await margin.findElement(TextEditor.locators.TextEditor.lineNumber(line));
-        await this.getDriver().actions().move({origin: lineNum}).perform();
+        await this.getDriver().actions().move({ origin: lineNum }).perform();
 
         const lineOverlay = await margin.findElement(TextEditor.locators.TextEditor.lineOverlay(line));
         const breakpointContainer = TextEditor.versionInfo.version >= '1.80.0' ? await this.findElement(By.className('glyph-margin-widgets')) : lineOverlay;
@@ -455,7 +455,7 @@ export class TextEditor extends Editor {
         const breakpointLocators = Breakpoint.locators.TextEditor.breakpoint;
         const breakpointContainer = TextEditor.versionInfo.version >= '1.80.0' ? await this.findElement(By.className('glyph-margin-widgets')) : this;
         const breakpoints = await breakpointContainer.findElements(breakpointLocators.pauseSelector);
-        
+
         if (breakpoints.length === 0) {
             return undefined;
         }
@@ -466,7 +466,7 @@ export class TextEditor extends Editor {
 
         // get parent
         let lineElement: WebElement;
-        if(TextEditor.versionInfo.version >= '1.80.0') {
+        if (TextEditor.versionInfo.version >= '1.80.0') {
             const styleTopAttr = await breakpoints[0].getCssValue('top');
             lineElement = await this.findElement(TextEditor.locators.TextEditor.marginArea).findElement(By.xpath(`.//div[contains(@style, "${styleTopAttr}")]`))
         } else {
@@ -482,8 +482,7 @@ export class TextEditor extends Editor {
     async getCodeLenses(): Promise<CodeLens[]> {
         const lenses: CodeLens[] = [];
         const widgets = await this.findElement(By.className('contentWidgets'));
-        const items = await widgets.findElements(By.xpath(`.//span[contains(@widgetid, 'codelens.widget')]`));
-
+        const items = await widgets.findElements(By.xpath(`.//span[contains(@widgetid, 'codelens.widget')]/a[@id]`));
         for (const item of items) {
             lenses.push(await new CodeLens(item, this).wait());
         }
@@ -498,8 +497,8 @@ export class TextEditor extends Editor {
      */
     async getCodeLens(indexOrTitle: number | string): Promise<CodeLens | undefined> {
         const lenses = await this.getCodeLenses();
-        
-        if (typeof(indexOrTitle) === 'string') {
+
+        if (typeof (indexOrTitle) === 'string') {
             for (const lens of lenses) {
                 const title = await lens.getText();
                 const match = title.match(indexOrTitle);
@@ -527,7 +526,7 @@ class Selection extends ElementWithContexMenu {
         const ed = this.getEnclosingElement() as TextEditor;
         await this.getDriver().actions().contextClick(this).perform();
         const shadowRootHost = await ed.getEnclosingElement().findElements(By.className('shadow-root-host'));
-        
+
         if (shadowRootHost.length > 0) {
             let shadowRoot;
             const webdriverCapabilities = await (this.getDriver() as ChromiumWebDriver).getCapabilities();
@@ -548,9 +547,6 @@ class Selection extends ElementWithContexMenu {
  * Page object for Code Lens inside a text editor
  */
 export class CodeLens extends AbstractElement {
-    constructor(element: WebElement, editor: TextEditor) {
-        super(element.findElement(By.css('a')), editor);
-    }
 
     /**
      * Get tooltip of the code lens
@@ -577,7 +573,7 @@ export class FindWidget extends AbstractElement {
     async toggleReplace(replace: boolean): Promise<void> {
         const btn = await this.findElement(FindWidget.locators.FindWidget.toggleReplace);
         const klass = await btn.getAttribute('class');
-        
+
         if (replace && klass.includes('collapsed') || !replace && !klass.includes('collapsed')) {
             await btn.sendKeys(Key.SPACE);
             const repl = await this.getDriver().wait(until.elementLocated(FindWidget.locators.FindWidget.replacePart), 2000);
@@ -622,7 +618,7 @@ export class FindWidget extends AbstractElement {
      * Get text from Replace input box
      * @returns value of replace input as string
      */
-     async getReplaceText(): Promise<string> {
+    async getReplaceText(): Promise<string> {
         const replacePart = await this.findElement(FindWidget.locators.FindWidget.replacePart);
         return await this.getInputText(replacePart);
     }
@@ -675,7 +671,7 @@ export class FindWidget extends AbstractElement {
         const text = await count.getText();
 
         if (text.includes('No results')) {
-            return [0,0];
+            return [0, 0];
         }
         const numbers = text.split(' of ');
         return [+numbers[0], +numbers[1]];
@@ -713,7 +709,7 @@ export class FindWidget extends AbstractElement {
         await this.toggleControl('Preserve Case', 'replace', toggle);
     }
 
-    private async toggleControl(title: string, part: 'find'|'replace', toggle: boolean) {
+    private async toggleControl(title: string, part: 'find' | 'replace', toggle: boolean) {
         let element!: WebElement;
         if (part === 'find') {
             element = await this.findElement(FindWidget.locators.FindWidget.findPart);
@@ -730,7 +726,7 @@ export class FindWidget extends AbstractElement {
         }
     }
 
-    private async clickButton(title: string, part: 'find'|'replace'|'close') {
+    private async clickButton(title: string, part: 'find' | 'replace' | 'close') {
         let element!: WebElement;
         if (part === 'find') {
             element = await this.findElement(FindWidget.locators.FindWidget.findPart);

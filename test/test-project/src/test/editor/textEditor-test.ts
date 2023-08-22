@@ -20,7 +20,7 @@ describe('ContentAssist', async function () {
         editor = await ew.openEditor('test-file.ts') as TextEditor;
         await editor.getDriver().wait(async function () {
             const progress = await new StatusBar().getItem('Initializing JS/TS language features');
-            if(progress) {
+            if (progress) {
                 return false;
             } else {
                 return true;
@@ -146,7 +146,7 @@ describe('TextEditor', function () {
     describe('searching', function () {
 
         before(async function () {
-            await editor.setText('aline\nbline\ncline\ndline\nnope\neline');
+            await editor.setText('aline\nbline\ncline\ndline\nnope\neline1 eline2\n');
         });
 
         it('getLineOfText works', async function () {
@@ -181,7 +181,7 @@ describe('TextEditor', function () {
                 await editor.selectText(text);
             } catch (err) {
                 expect(err.message).has.string(`Text '${text}' not found`);
-            }             
+            }
         });
 
         (process.platform === 'darwin' ? it.skip : it)('getSelection works', async function () {
@@ -284,7 +284,7 @@ describe('TextEditor', function () {
 
         it('getCodeLenses works', async function () {
             const lenses = await editor.getCodeLenses();
-            expect(lenses).not.empty;
+            expect(lenses.length).is.equal(7);
         });
 
         it('getCodeLens works with index', async function () {
@@ -298,6 +298,13 @@ describe('TextEditor', function () {
 
         it('getCodeLens works with partial text', async function () {
             const lens = await editor.getCodeLens('Codelens provided');
+            expect(await lens.getText()).has.string('Codelens provided');
+            expect(await lens.getTooltip()).has.string('Tooltip provided');
+        });
+
+        it('getCodeLenses works with second in the span', async function () {
+            const lens = await editor.getCodeLens(6);
+            expect(lens).is.not.undefined;
             expect(await lens.getText()).has.string('Codelens provided');
             expect(await lens.getTooltip()).has.string('Tooltip provided');
         });
