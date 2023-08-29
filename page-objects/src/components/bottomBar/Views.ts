@@ -17,7 +17,7 @@ export class OutputView extends TextView {
      * @param name name of the channel to open
      */
     async selectChannel(name: string): Promise<void> {
-        if(process.platform === 'darwin') {
+        if (process.platform === 'darwin') {
             await new Workbench().executeCommand('Output: Show Output Channels...');
             const input = await InputBox.create();
             await input.selectQuickPick(name);
@@ -52,7 +52,7 @@ export class DebugConsoleView extends ElementWithContexMenu {
         const textarea = await this.findElement(DebugConsoleView.locators.BottomBarViews.textArea);
         await textarea.clear();
         await textarea.sendKeys(expression);
-    } 
+    }
 
     /**
      * Evaluate an expression:
@@ -68,7 +68,7 @@ export class DebugConsoleView extends ElementWithContexMenu {
         }
         await textarea.sendKeys(Key.ENTER);
     }
-    
+
     /**
      * Create a content assist page object
      * @returns promise resolving to ContentAssist object
@@ -103,7 +103,7 @@ export class TerminalView extends ChannelView {
             // try clearing, ignore if not available
         }
         await input.sendKeys(command, Key.ENTER);
-        
+
         let timer = 0;
         let style = await input.getCssValue('left');
         do {
@@ -113,15 +113,12 @@ export class TerminalView extends ChannelView {
             await new Promise(res => setTimeout(res, 500));
             timer += 500;
             style = await input.getCssValue('left');
-        } while(style === '0px')
+        } while (style === '0px')
     }
-    
+
     /**
      * Get all text from the internal terminal
      * Beware, no formatting.
-     *
-     * macOS - To allow getText on macOS, you need to add specific vscode settings:
-     *  "terminal.integrated.copyOnSelection": true
      *
      * @returns Promise resolving to all terminal text
      */
@@ -137,14 +134,8 @@ export class TerminalView extends ChannelView {
         const workbench = new Workbench();
         await workbench.executeCommand('terminal select all');
         await workbench.getDriver().sleep(500);
-        if(process.platform === 'linux') {
-            const menu = await this.openContextMenu();
-            await workbench.getDriver().sleep(500);
-            await menu.select('Copy');
-            await workbench.getDriver().sleep(500);
-        }
         const text = clipboard.readSync();
-        if(originalClipboard.length > 0) {
+        if (originalClipboard.length > 0) {
             clipboard.writeSync(originalClipboard);
         }
         return text;
@@ -204,7 +195,7 @@ export class TerminalView extends ChannelView {
         if (matches === null || !matches[1]) {
             throw new Error(`Channel ${name} not found`);
         }
-        const channelNumber = matches[1];        
+        const channelNumber = matches[1];
 
         const list = await this.findElement(TerminalView.locators.TerminalView.tabList);
         const rows = await list.findElements(TerminalView.locators.TerminalView.row);
