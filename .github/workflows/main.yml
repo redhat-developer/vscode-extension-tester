@@ -30,7 +30,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 18.15.0
+          node-version: 18.16.0
           cache: npm
 
       - name: Run Tests (macOS, windows)
