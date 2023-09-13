@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 import { compareVersions } from 'compare-versions';
 import { WebDriver, Builder, until, initPageObjects, logging, By } from 'monaco-page-objects';
-import { Options } from 'selenium-webdriver/chrome';
+import { Options, ServiceBuilder } from 'selenium-webdriver/chrome';
 import { getLocatorsPath } from 'vscode-extension-tester-locators';
 import { CodeUtil, ReleaseQuality } from './util/codeUtil';
 
@@ -86,6 +86,7 @@ export class VSBrowser {
 
         console.log('Launching browser...');
         this._driver = await new Builder()
+            .setChromeService(new ServiceBuilder(path.join(this.storagePath, process.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver')))
             .forBrowser('chrome')
             .setChromeOptions(options)
             .build();
