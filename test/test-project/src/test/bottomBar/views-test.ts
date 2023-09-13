@@ -26,6 +26,8 @@ describe('Output View/Text Views', function () {
     });
 
     after(async function () {
+        await panel.restore();
+        await new Promise(resolve => setTimeout(resolve, 500));
         await panel.toggle(false);
     });
 
