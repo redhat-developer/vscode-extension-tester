@@ -3,7 +3,7 @@
 import { VSBrowser } from '../browser';
 import * as fs from 'fs-extra';
 import Mocha = require('mocha');
-import * as glob from 'glob';
+import { globSync } from 'glob';
 import { CodeUtil, ReleaseQuality } from '../util/codeUtil';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
@@ -47,7 +47,7 @@ export class VSRunner {
             const testFiles = new Set<string>();
             for (const pattern of testFilesPattern) {
                 const universalPattern = pattern.replace(/'/g, '');
-                glob.sync(universalPattern)
+                globSync(universalPattern).reverse()
                     .forEach((val) => testFiles.add(val));
             }
 

@@ -6,7 +6,7 @@ import * as fs from 'fs-extra';
 (VSBrowser.instance.version >= '1.38.0' ? describe : describe.skip)('SCM View', () => {
     let view: ScmView;
 
-    before(async function context() {
+    before(async function () {
         this.timeout(15000);
         fs.writeFileSync(path.resolve('.', 'testfile'), 'content');
         await VSBrowser.instance.openResources(path.resolve('..', '..'));

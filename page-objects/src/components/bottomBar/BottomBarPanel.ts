@@ -25,6 +25,7 @@ export class BottomBarPanel extends AbstractElement {
         const height = (await this.getRect()).height;
         if ((open && height === 0) || !open && height > 0) {
             if (open) {
+                await this.getDriver().actions().clear();
                 await this.getDriver().actions().keyDown(BottomBarPanel.ctlKey).sendKeys('j').perform();
                 await this.wait();
             } else {
