@@ -44,7 +44,7 @@
   "homepage": "https://github.com/redhat-developer/vscode-extension-tester#readme",
   "devDependencies": {
     "@types/fs-extra": "^11.0.2",
-    "@types/js-yaml": "^4.0.5",
+    "@types/js-yaml": "^4.0.6",
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.17.15",
     "@types/unzipper": "^0.10.7",
