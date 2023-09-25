@@ -58,7 +58,7 @@
     "commander": "^11.0.0",
     "compare-versions": "^6.1.0",
     "fs-extra": "^11.1.0",
-    "glob": "^10.3.5",
+    "glob": "^10.3.7",
     "got": "^13.0.0",
     "hpagent": "^1.2.0",
     "js-yaml": "^4.1.0",
