@@ -32,7 +32,7 @@
     "@types/node": "^18.17.15",
     "@types/selenium-webdriver": "^4.1.16",
     "monaco-page-objects": "file:../page-objects",
-    "rimraf": "^5.0.1",
+    "rimraf": "^5.0.4",
     "typescript": "5.2.2"
   },
   "peerDependencies": {
