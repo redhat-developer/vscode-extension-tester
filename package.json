@@ -54,7 +54,7 @@
   },
   "dependencies": {
     "@types/selenium-webdriver": "^4.1.17",
-    "@vscode/vsce": "^2.21.0",
+    "@vscode/vsce": "^2.21.1",
     "commander": "^11.0.0",
     "compare-versions": "^6.1.0",
     "fs-extra": "^11.1.0",
