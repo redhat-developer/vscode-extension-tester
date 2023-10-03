@@ -31,6 +31,46 @@ export class SettingsEditor extends Editor {
         await searchBox.sendKeys(Key.chord(SettingsEditor.ctlKey, 'a'));
         await searchBox.sendKeys(`${category}: ${title}`);
 
+        let setting!: Setting;
+        const items = await this._getSettingItems();
+
+        for (const item of items) {
+            try {
+                return await (await this.createSetting(item, title, category)).wait();
+            } catch (err) {
+            }
+        }
+        return setting;
+    }
+
+    /**
+     * Search for a setting with a precise ID.
+     * Returns an appropriate Setting object if it exists,
+     * undefined otherwise.
+     *
+     * @param id of the setting
+     * @returns Promise resolving to a Setting object if found, undefined otherwise
+     */
+    async findSettingByID(id: string): Promise<Setting> {
+        const searchBox = await this.findElement(SettingsEditor.locators.Editor.inputArea);
+        await searchBox.sendKeys(Key.chord(SettingsEditor.ctlKey, 'a'));
+        await searchBox.sendKeys(id);
+
+        let setting!: Setting;
+        const items = await this._getSettingItems();
+
+        for (const item of items) {
+            try {
+                const category = (await (await item.findElement(SettingsEditor.locators.SettingsEditor.settingCategory)).getText()).replace(':', '');
+                const title = await (await item.findElement(SettingsEditor.locators.SettingsEditor.settingLabel)).getText();
+                return await (await this.createSetting(item, title, category)).wait();
+            } catch (err) {
+            }
+        }
+        return setting;
+    }
+
+    private async _getSettingItems(): Promise<WebElement[]> {
         const count = await this.findElement(SettingsEditor.locators.SettingsEditor.itemCount);
         let textCount = await count.getText();
 
@@ -44,18 +84,9 @@ export class SettingsEditor extends Editor {
             return true;
         });
 
-        let setting!: Setting;
-        const items = await this.findElements(SettingsEditor.locators.SettingsEditor.itemRow);
-
-        for (const item of items) {
-            try {
-                return (await this.createSetting(item, title, category)).wait();
-            } catch (err) {
-            }
-        }
-        return setting;
+        return await this.findElements(SettingsEditor.locators.SettingsEditor.itemRow);
     }
-    
+
     /**
      * Switch between settings perspectives
      * Works only if your vscode instance has both user and workspace settings available
