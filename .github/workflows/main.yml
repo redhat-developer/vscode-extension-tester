@@ -50,34 +50,6 @@ jobs:
           name: screenshots-${{ matrix.os }}-${{ matrix.version }}
           path: ${{ github.workspace }}/test/**/screenshots/*.png
 
-  publish-wiki:
-    runs-on: ubuntu-latest
-    name: Publish wiki
-    defaults:
-      run:
-        working-directory: ${{ github.workspace }}
-
-    env:
-      ORG: 'redhat-developer'
-      REPO_SOURCE: 'vscode-extension-tester'
-
-    steps:
-      - name: Checkout main repository
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ format('{0}/{1}', env.ORG, env.REPO_SOURCE) }}
-          path: ${{ format('{0}/{1}', github.workspace, env.REPO_SOURCE) }}
-
-      - name: Upload Release Notes to Wiki
-        uses: docker://decathlon/wiki-page-creator-action:latest
-        env:
-          ACTION_MAIL: action@github.com
-          ACTION_NAME: GitHub Action
-          GH_PAT: ${{ secrets.GH_PAT }}
-          MD_FOLDER: ${{ format('{0}/{1}/{2}', github.workspace, env.REPO_SOURCE, 'wiki') }}
-          OWNER: ${{ env.ORG }}
-          REPO_NAME: ${{ env.REPO_SOURCE}}
-
   check:
     if: always()
     runs-on: ubuntu-latest
