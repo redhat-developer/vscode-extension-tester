@@ -46,6 +46,21 @@ export class InputBox extends Input {
         return picks;
     }
 
+    async getCheckboxes(): Promise<QuickPickItem[]> {
+        const picks: QuickPickItem[] = [];
+        const elements = await this.findElement(InputBox.locators.InputBox.quickList)
+            .findElement(InputBox.locators.InputBox.rows)
+            .findElements(InputBox.locators.InputBox.row);
+
+        for (const element of elements) {
+            if (await element.isDisplayed()) {
+                picks.push(await new QuickPickItem(+await element.getAttribute('data-index'), this, true).wait());
+            }
+        }
+
+        return picks;
+    }
+
     /**
      * Find whether the input is showing an error
      * @returns Promise resolving to notification message

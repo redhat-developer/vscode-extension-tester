@@ -422,7 +422,8 @@ const input = {
         quickPickSelectAll: By.className('quick-input-check-all'),
         titleBar: By.className('quick-input-titlebar'),
         title: By.className('quick-input-title'),
-        backButton: By.className('codicon-quick-input-back')
+        backButton: By.className('codicon-quick-input-back'),
+        multiSelectIndex: (index: number) => By.xpath(`.//div[@role='treeitem' and @data-index='${index}']`)
     },
     InputBox: {
         constructor: By.className('quick-input-widget'),

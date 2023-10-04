@@ -422,7 +422,8 @@ export interface Locators {
         quickPickSelectAll: By,
         titleBar: By,
         title: By,
-        backButton: By
+        backButton: By,
+        multiSelectIndex: (index: number) => By
     }
     InputBox: {
         constructor: By
