@@ -35,9 +35,10 @@ program.command('install-vsix')
     .option('-f, --vsix_file <file>', 'path/URL to vsix file containing the extension')
     .option('-y, --yarn', 'Use yarn to build the extension via vsce instead of npm', false)
     .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
+    .option('-i, --install_dependencies', 'Automatically install extensions your extension depends on', false)
     .action(withErrors(async (cmd) => {
         const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
-        await extest.installVsix({vsixFile: cmd.vsix_file, useYarn: cmd.yarn});
+        await extest.installVsix({vsixFile: cmd.vsix_file, useYarn: cmd.yarn, installDependencies: cmd.install_dependencies});
     }));
 
 program.command('install-from-marketplace <id> [ids...]')
