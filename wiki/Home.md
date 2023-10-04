@@ -1,5 +1,5 @@
-# VSCode Extension Tester
-VSCode Extension Tester is a package designed to help you run UI tests for your VS Code extensions using selenium-webdriver.
+# VS Code Extension Tester
+VS Code Extension Tester is a package designed to help you run UI tests for your VS Code extensions using selenium-webdriver.
 Simply install it into your extension devDependencies to get started:
 
 ```npm install --save-dev vscode-extension-tester```
