@@ -21,7 +21,7 @@ describe('Settings Editor', function () {
 
     it('findSetting by ID works', async function () {
         this.timeout(15000);
-        const setting = await editor.findSettingByID('testProject.general.helloWorld');
+        const setting = await editor.findSettingByID('workbench.editor.enablePreview');
         expect(setting).not.undefined;
     });
 
