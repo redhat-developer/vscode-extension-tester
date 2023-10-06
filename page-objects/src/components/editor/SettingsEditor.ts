@@ -8,6 +8,8 @@ import { EditorView, EditorGroup } from "../..";
  * Page object representing the internal VSCode settings editor
  */
 export class SettingsEditor extends Editor {
+
+    private divider = SettingsEditor.versionInfo.version >= '1.83.0' ? '›' : ' › ';
     
     constructor(view: EditorView | EditorGroup = new EditorView()) {
         super(view);
@@ -26,21 +28,12 @@ export class SettingsEditor extends Editor {
      * @returns Promise resolving to a Setting object if found, undefined otherwise
      */
     async findSetting(title: string, ...categories: string[]): Promise<Setting> {
-        const category = categories.join(' › ');
+        const category = categories.join(this.divider);
         const searchBox = await this.findElement(SettingsEditor.locators.Editor.inputArea);
         await searchBox.sendKeys(Key.chord(SettingsEditor.ctlKey, 'a'));
-        await searchBox.sendKeys(`${category}: ${title}`);
+        await searchBox.sendKeys(`${category}${this.divider}${title}`);
 
-        let setting!: Setting;
-        const items = await this._getSettingItems();
-
-        for (const item of items) {
-            try {
-                return await (await this.createSetting(item, title, category)).wait();
-            } catch (err) {
-            }
-        }
-        return setting;
+        return await this._getSettingItem(title, category);
     }
 
     /**
@@ -56,25 +49,14 @@ export class SettingsEditor extends Editor {
         await searchBox.sendKeys(Key.chord(SettingsEditor.ctlKey, 'a'));
         await searchBox.sendKeys(id);
 
-        let setting!: Setting;
-        const items = await this._getSettingItems();
-
-        for (const item of items) {
-            try {
-                const category = (await (await item.findElement(SettingsEditor.locators.SettingsEditor.settingCategory)).getText()).replace(':', '');
-                const title = await (await item.findElement(SettingsEditor.locators.SettingsEditor.settingLabel)).getText();
-                return await (await this.createSetting(item, title, category)).wait();
-            } catch (err) {
-            }
-        }
-        return setting;
+        const title = id.split('.').pop();
+        return await this._getSettingItem(title);
     }
 
-    private async _getSettingItems(): Promise<WebElement[]> {
+    private async _getSettingItem(title: string = '', category: string = ''): Promise<Setting> {
         const count = await this.findElement(SettingsEditor.locators.SettingsEditor.itemCount);
         let textCount = await count.getText();
-
-        await this.getDriver().wait(async() => {
+        await this.getDriver().wait(async function() {
             await new Promise(res => setTimeout(res, 1500));
             const text = await count.getText();
             if (text !== textCount) {
@@ -84,7 +66,27 @@ export class SettingsEditor extends Editor {
             return true;
         });
 
-        return await this.findElements(SettingsEditor.locators.SettingsEditor.itemRow);
+        let setting!: Setting;
+        const items = await this.findElements(SettingsEditor.locators.SettingsEditor.itemRow);
+        for (const item of items) {
+            try {
+                const _category = (await (await item.findElement(SettingsEditor.locators.SettingsEditor.settingCategory)).getText()).replace(':', '');
+                const _title = await (await item.findElement(SettingsEditor.locators.SettingsEditor.settingLabel)).getText();
+                if(category !== '') {
+                    if(category.toLowerCase().replace(this.divider, '').replace(/\s/g, '').trim() !== _category.toLowerCase().replace(this.divider, '').replace(/\s/g, '').trim()) {
+                        continue;
+                    }
+                }
+                if(title !== '') {
+                    if(title.toLowerCase().replace(/\s/g, '').trim() !== _title.toLowerCase().replace(/\s/g, '').trim()) {
+                        continue;
+                    }
+                }
+                return await (await this.createSetting(item, _title, _category)).wait();
+            } catch (err) {
+            }
+        }
+        return setting;
     }
 
     /**
