@@ -41,7 +41,7 @@
     "clone-deep": "^4.0.1",
     "compare-versions": "^6.1.0",
     "fs-extra": "^11.1.1",
-    "ts-essentials": "^9.4.0"
+    "ts-essentials": "^9.4.1"
   },
   "peerDependencies": {
     "selenium-webdriver": "^4.6.1",
