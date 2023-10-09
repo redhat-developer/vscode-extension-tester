@@ -1,5 +1,18 @@
 # Change Log
 
+## 5.10.0
+
+> October 09 2023
+
+- [Request] Support for VS COde 1.82.3 and 1.83.0
+- [Request] Expose Wiki files to "docs" folder
+- [Bug] Workbench().openSettings().findSetting does not work on 1.83.0
+- [Request] Add support for installing dependencies in the extest install-vsix command
+- [Request] Support interacting with quickpicks using canSelectMany
+- [Bug] Not able to find setting extension-id.title.path
+- [Request] Add support for Node 18 LTS
+- [Bug] Failing UI tests in 'afterAll' 180s timeout for ubuntu-latest runners
+
 ## 5.9.1
 
 > August 22 2023
@@ -7,7 +20,7 @@
 - [Request] Support for VS Code 1.81.1
 - [Bug] getCodeLenses method ignores codelenses in span after first
 - [Bug] npm run ui-test starts a shared VSCode instance, not running test files
-- [Bug] Exception trying to discover chromedriver version: error sending request for url 
+- [Bug] Exception trying to discover chromedriver version: error sending request for url
 
 ## 5.9.0
 
