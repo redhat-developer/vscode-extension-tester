@@ -34,7 +34,7 @@ export class CustomEditor extends Editor {
 
     /**
      * Open the Save as prompt
-     * 
+     *
      * @returns InputBox serving as a simple file dialog
      */
     async saveAs(): Promise<InputBox> {

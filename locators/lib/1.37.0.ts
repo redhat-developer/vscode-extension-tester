@@ -1,5 +1,5 @@
-import { By, WebElement } from "selenium-webdriver";
 import { Locators, ViewSection, fromAttribute, fromText, hasAttribute, hasClass, hasElement, hasNotClass } from "monaco-page-objects";
+import { By, WebElement } from "selenium-webdriver";
 
 const abstractElement = {
     AbstractElement: {
@@ -79,6 +79,9 @@ const bottomBar = {
     OutputView: {
         constructor: By.id('workbench.panel.output'),
         actionsLabel: 'Output actions'
+    },
+    WebviewView: {
+        iframe: By.xpath(`//div[not(@class)]/iframe[@class='webview ready' and not(@data-parent-flow-to-element-id)]`)
     }
 }
 

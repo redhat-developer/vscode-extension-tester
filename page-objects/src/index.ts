@@ -41,6 +41,7 @@ export * from './components/sidebar/debug/DebugView';
 
 export * from './components/bottomBar/BottomBarPanel';
 export * from './components/bottomBar/ProblemsView';
+export * from './components/bottomBar/WebviewView';
 export * from './components/bottomBar/Views';
 export * from './components/statusBar/StatusBar';
 
@@ -69,7 +70,7 @@ export * from './conditions/WaitForAttribute';
 
 /**
  * Initialize the page objects for your tests
- * 
+ *
  * @param currentVersion version of the locators to load
  * @param baseVersion base version of the locators if you have multiple versions with diffs, otherwise leave the same as currentVersion
  * @param locatorFolder folder that contains locator files

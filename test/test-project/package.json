@@ -83,6 +83,15 @@
 				"title": "Disable Codelens"
 			}
 		],
+		"viewsContainers": {
+			"panel": [
+				{
+					"icon": "./media/paw-outline.svg",
+					"id": "myPanel",
+					"title": "My Panel"
+				}
+			]
+		},
 		"views": {
 			"explorer": [
 				{
@@ -92,6 +101,13 @@
 				{
 					"id": "emptyView",
 					"name": "Empty View"
+				}
+			],
+			"myPanel": [
+				{
+					"id": "myPanelView",
+					"name": "My Panel View",
+					"type": "webview"
 				}
 			]
 		},
