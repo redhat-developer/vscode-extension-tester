@@ -81,7 +81,7 @@ Now the changes are in a new branch in your fork, you can submit a new pull requ
 
 Lastly, a pull request check on Github Actions is going to kick in whenever a change is pushed. Please make sure it ends up green. Otherwise it might need a change on your part. Or maybe it also needs a change on our part - in that case opening an issue is the best way to go.
 
-## License
+## DCO
 
 **By contributing to this project you agree to the Developer Certificate of Origin (DCO)**. This document was created by the Linux Kernel community and is a simple statement that you, as a contributor, have the legal right to make the contribution.
 
