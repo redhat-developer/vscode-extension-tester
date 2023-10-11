@@ -1,0 +1,26 @@
+name: 🚀 Feature Request
+description: If something is missing or could be improved
+title: "[🚀 Request] "
+labels: [ enhancement, new-issue ]
+body:
+  - type: markdown
+    attributes:
+      value: Thank you for taking the time to fill out this request report!
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the request
+      description: What is the feature you are missing? or what would you like to improve?
+      placeholder: |
+        Please add as many details as possible.
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Usage
+      description: Could you provide some example of usage?
+      placeholder: |
+        Please describe how the request is useful for you and vscode-extension-tester community.
+    validations:
+      required: true

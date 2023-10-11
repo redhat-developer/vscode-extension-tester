@@ -1,0 +1,80 @@
+name: 🚫 Bug Report
+description: If something is not working properly
+title: "[🚫 Bug] "
+labels: [ bug, new-issue ]
+body:
+  - type: markdown
+    attributes:
+      value: Thank you for taking the time to fill out this bug report!
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: Describe clearly the bug.
+      placeholder: |
+        Please add as many details as possible.
+        How do you hit this bug? What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: reproducer
+    attributes:
+      label: Steps to reproduce
+      description: Describe the steps or share a code snippet or a GitHub repo to reproduce the issue.
+      placeholder: |
+        1.
+        2.
+        3.
+        or Please share the code snippet to reproduce the issue.
+        _Note: This will be automatically formatted into a code block.
+      render: Shell
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: |
+        Please copy and paste any relevant log outputs
+        _Note: This will be automatically formatted into a code block.
+      render: Shell
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      description: What OS are you spot the bug on?
+      placeholder: Windows 11? macOS 14.0? Ubuntu 22.10?
+    validations:
+      required: true
+  - type: input
+    id: vscode-version
+    attributes:
+      label: Visual Studio Code
+      description: What version of VS Code are you using for testing?
+      placeholder: 1.83.0
+    validations:
+      required: true
+  - type: input
+    id: extester-version
+    attributes:
+      label: vscode-extension-tester
+      description: What version of vscode-extension-tester are you using?
+      placeholder: 5.10.0
+    validations:
+      required: true
+  - type: input
+    id: node-version
+    attributes:
+      label: NodeJS
+      description: What NodeJS version are you using?
+      placeholder: 18.15.0
+    validations:
+      required: true
+  - type: input
+    id: npm-version
+    attributes:
+      label: npm
+      description: What npm version are you using?
+      placeholder: 9.5.0
