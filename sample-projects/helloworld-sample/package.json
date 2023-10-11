@@ -7,7 +7,7 @@
 	"license": "MIT",
 	"repository": "https://github.com/redhat-developer/vscode-extension-tester/examples/helloworld-sample",
 	"engines": {
-		"vscode": "^1.77.0"
+		"vscode": "^1.80.0"
 	},
 	"categories": [
 		"Other"
@@ -33,15 +33,15 @@
 		"ui-test": "extest setup-and-run './out/ui-test/*-test.js' --code_settings settings.json --extensions_dir .test-extensions"
 	},
 	"devDependencies": {
-		"@types/chai": "^4.3.5",
-		"@types/mocha": "^10.0.1",
-		"@types/node": "^18.17.15",
-		"@types/vscode": "^1.77.0",
-		"@typescript-eslint/eslint-plugin": "^6.5.0",
-		"chai": "^4.3.8",
-		"eslint": "^8.48.0",
+		"@types/chai": "^4.3.7",
+		"@types/mocha": "^10.0.2",
+		"@types/node": "^18.18.4",
+		"@types/vscode": "^1.80.0",
+		"@typescript-eslint/eslint-plugin": "^6.7.5",
+		"chai": "^4.3.10",
+		"eslint": "^8.51.0",
 		"mocha": "^10.2.0",
 		"typescript": "^5.2.2",
-		"vscode-extension-tester": "^5.9.1"
+		"vscode-extension-tester": "^5.10.0"
 	}
 }
