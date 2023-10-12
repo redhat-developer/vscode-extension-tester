@@ -70,6 +70,7 @@ Something is not working properly? In that case, feel free to [open issues, add 
 ### Get Involved
 
 ![Contribution Welcomed](https://img.shields.io/badge/welcomed-yellow.svg?style=for-the-badge&label=contribution)
+
 If you'd like to help us get better, we appreciate it! Check out our [Contribution Guide](CONTRIBUTING.md) on how to do that.
 
 ### Known Issues
