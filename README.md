@@ -38,7 +38,10 @@ Extension Tester is a package that is designed to help you run UI tests for your
 ### Requirements
 
 - **Visual Studio Code 1.37+**
-- **NodeJS <=18.15.x**
+- **NodeJS**
+  - 16.x.x
+  - 18.15.x
+  - 18.18.1
 - Supported Operating Systems
   - **Linux**
   - **Windows**
