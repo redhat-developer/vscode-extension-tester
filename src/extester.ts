@@ -30,6 +30,12 @@ export const VSCODE_VERSION_MIN = '1.81.1';
 export const VSCODE_VERSION_MAX = '1.83.1';
 
 /**
+ * The latest version of NodeJS which is properly working with selenium-webdriver
+ * (for more details, see https://www.npmjs.com/package/selenium-webdriver?activeTab=readme#node-support-policy)
+ */
+export const NODEJS_VERSION_MAX = '18.15.0';
+
+/**
  * VSCode Extension Tester
  */
 export class ExTester {
@@ -39,6 +45,14 @@ export class ExTester {
     constructor(storageFolder: string = 'test-resources', releaseType: ReleaseQuality = ReleaseQuality.Stable, extensionsDir?: string) {
         this.code = new CodeUtil(storageFolder, releaseType, extensionsDir);
         this.chrome = new DriverUtil(storageFolder);
+
+        if (process.versions.node > NODEJS_VERSION_MAX) {
+            console.log('\x1b[31m%s\x1b[0m', `
+                ERROR: You are using the unsupported NodeJS version '${process.versions.node}'. The latest supported version is '${NODEJS_VERSION_MAX}'.
+                       We recommend to use supported version to have vscode-extension-tester working properly.
+                       More info at https://github.com/redhat-developer/vscode-extension-tester/issues/975
+            `);
+        }
     }
 
     /**
