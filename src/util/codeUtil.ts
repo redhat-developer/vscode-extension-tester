@@ -96,7 +96,7 @@ export class CodeUtil {
 
         const literalVersion = version === 'latest' ? this.availableVersions[0] : version;
         if (this.releaseType == ReleaseQuality.Stable && literalVersion !== this.availableVersions[0]) {
-            console.log(`
+            console.log('\x1b[33m%s\x1b[0m', `
                 WARNING: You are using the outdated VSCode version '${literalVersion}'. The latest stable version is '${this.availableVersions[0]}'.
             `);
         }
