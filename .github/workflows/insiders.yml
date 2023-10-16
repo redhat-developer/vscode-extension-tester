@@ -21,6 +21,7 @@ jobs:
 
     env:
       CODE_TYPE: insider
+      TEST_RESOURCES: test-resources
 
     steps:
       - name: Checkout Repository

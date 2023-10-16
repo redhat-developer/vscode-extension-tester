@@ -22,6 +22,7 @@ jobs:
 
     env:
       CODE_VERSION: ${{ matrix.version }}
+      TEST_RESOURCES: test-resources
 
     steps:
       - name: Checkout Repository

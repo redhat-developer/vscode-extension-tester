@@ -8,6 +8,7 @@ import { VSRunner } from "../suite/runner";
 import { Unpack } from "./unpack";
 import { logging } from "selenium-webdriver";
 import { Download } from './download';
+import { DEFAULT_STORAGE_FOLDER } from '../extester';
 
 export enum ReleaseQuality {
     Stable = 'stable',
@@ -60,7 +61,7 @@ export class CodeUtil {
      * @param folder Path to folder where all the artifacts will be stored.
      * @param extensionsFolder Path to use as extensions directory by VSCode
      */
-    constructor(folder: string = 'test-resources', type: ReleaseQuality = ReleaseQuality.Stable, extensionsFolder?: string) {
+    constructor(folder: string = DEFAULT_STORAGE_FOLDER, type: ReleaseQuality = ReleaseQuality.Stable, extensionsFolder?: string) {
         this.availableVersions = [];
         this.downloadPlatform = this.getPlatform();
         this.downloadFolder = path.resolve(folder);

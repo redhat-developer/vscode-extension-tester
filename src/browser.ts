@@ -7,6 +7,7 @@ import { WebDriver, Builder, until, initPageObjects, logging, By } from 'monaco-
 import { Options, ServiceBuilder } from 'selenium-webdriver/chrome';
 import { getLocatorsPath } from 'vscode-extension-tester-locators';
 import { CodeUtil, ReleaseQuality } from './util/codeUtil';
+import { DEFAULT_STORAGE_FOLDER } from './extester';
 
 export class VSBrowser {
     static readonly baseVersion = '1.37.0';
@@ -21,7 +22,7 @@ export class VSBrowser {
     private static _instance: VSBrowser;
 
     constructor(codeVersion: string, releaseType: ReleaseQuality, customSettings: Object = {}, logLevel: logging.Level = logging.Level.INFO) {
-        this.storagePath = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.resolve('test-resources');
+        this.storagePath = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.resolve(DEFAULT_STORAGE_FOLDER);
         this.extensionsFolder = process.env.EXTENSIONS_FOLDER ? process.env.EXTENSIONS_FOLDER : undefined;
         this.customSettings = customSettings;
         this.codeVersion = codeVersion;
