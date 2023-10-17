@@ -4,6 +4,7 @@ import { CodeUtil, DEFAULT_RUN_OPTIONS, ReleaseQuality, RunOptions } from './uti
 import { DriverUtil } from './util/driverUtil';
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import * as os from 'os';
 import { URL } from 'url';
 
 export { ReleaseQuality }
@@ -26,6 +27,8 @@ export const DEFAULT_SETUP_OPTIONS = {
     installDependencies: false
 }
 
+export const DEFAULT_STORAGE_FOLDER = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.join(os.tmpdir(), 'test-resources');
+
 export const VSCODE_VERSION_MIN = '1.81.1';
 export const VSCODE_VERSION_MAX = '1.83.1';
 
@@ -42,7 +45,7 @@ export class ExTester {
     private code: CodeUtil;
     private chrome: DriverUtil;
 
-    constructor(storageFolder: string = 'test-resources', releaseType: ReleaseQuality = ReleaseQuality.Stable, extensionsDir?: string) {
+    constructor(storageFolder: string = DEFAULT_STORAGE_FOLDER, releaseType: ReleaseQuality = ReleaseQuality.Stable, extensionsDir?: string) {
         this.code = new CodeUtil(storageFolder, releaseType, extensionsDir);
         this.chrome = new DriverUtil(storageFolder);
 

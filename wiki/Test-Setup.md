@@ -1,7 +1,7 @@
 The Extension Tester offers both CLI and API to perform all the setup actions. That way you can simply integrate it into your npm scripts, or just call it from your code if that is more preferable.
 
 ## Using the CLI
-All the CLI actions are available with the command ```extest``` which is available to your npm scripts once the package is installed. The default storage folder for all test resources is ```test-resources``` in the extension's root. To avoid build problems, make sure to exclude it from your ```tsconfig``` and ```vsce```.
+All the CLI actions are available with the command ```extest``` which is available to your npm scripts once the package is installed. The default storage folder for all test resources is a ```$TMPDIR/test-resources```.
 
 #### Download VS Code
 If you wish to manually download VS Code of a given version

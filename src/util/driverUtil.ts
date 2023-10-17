@@ -5,6 +5,7 @@ import * as path from 'path';
 import * as child_process from 'child_process';
 import { Unpack } from './unpack';
 import { Download } from './download';
+import { DEFAULT_STORAGE_FOLDER } from '../extester';
 
 /**
  * Handles version checks and download of ChromeDriver
@@ -16,7 +17,7 @@ export class DriverUtil {
      * Create an instance of chrome driver handler
      * @param folder path to a folder to store all artifacts
      */
-    constructor(folder: string = 'test-resources') {
+    constructor(folder: string = DEFAULT_STORAGE_FOLDER) {
         this.downloadFolder = path.resolve(folder);
     }
 
