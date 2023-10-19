@@ -47,7 +47,7 @@
     "@types/js-yaml": "^4.0.8",
     "@types/mocha": "^10.0.3",
     "@types/node": "^18.17.15",
-    "@types/unzipper": "^0.10.7",
+    "@types/unzipper": "^0.10.8",
     "mocha": "^10.2.0",
     "rimraf": "^5.0.5",
     "typescript": "*"
