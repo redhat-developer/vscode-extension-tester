@@ -32,7 +32,7 @@
     "@types/clone-deep": "^4.0.3",
     "@types/fs-extra": "^11.0.3",
     "@types/node": "^18.17.15",
-    "@types/selenium-webdriver": "^4.1.18",
+    "@types/selenium-webdriver": "^4.1.19",
     "rimraf": "^5.0.5",
     "typescript": "*"
   },
