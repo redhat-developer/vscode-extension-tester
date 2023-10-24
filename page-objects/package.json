@@ -37,7 +37,7 @@
     "typescript": "*"
   },
   "dependencies": {
-    "clipboardy": "^3.0.0",
+    "clipboardy": "^4.0.0",
     "clone-deep": "^4.0.1",
     "compare-versions": "^6.1.0",
     "fs-extra": "^11.1.1",
