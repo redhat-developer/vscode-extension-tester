@@ -64,6 +64,7 @@ export interface Locators {
         collapseAll: By
         markerRow: By
         rowLabel: string
+        label: By
         markerTwistie: By
         changeCount: By
     }
