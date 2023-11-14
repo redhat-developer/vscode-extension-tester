@@ -57,6 +57,10 @@ describe('WebViews', function () {
             tabs = await new EditorView().getOpenEditorTitles();
         });
 
+        after(async function () {
+            await new EditorView().closeAllEditors();
+        });
+
         describe('First WebView', function () {
 
             before(async function () {
