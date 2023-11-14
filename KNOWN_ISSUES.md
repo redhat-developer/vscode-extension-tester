@@ -6,9 +6,9 @@ This is likely due to a missing dependency on ChromeDriver that runs underneath.
 
 ## VS Code Version Support & Backward Compatibility
 
-Extension Tester currently supports the latest 5 minor releases of VS Code (subject to change if VS Code 2.x ever comes out). Additionally, the oldest release of VS Code that can be successfully used with Extension Tester is `1.37.0`. Older versions of VS Code might not work at all.
+Extension Tester **currently supports the latest 3 minor releases** of VS Code (subject to change if VS Code 2.x ever comes out). Additionally, the oldest release of VS Code that can be successfully used with Extension Tester is `1.37.0`. Older versions of VS Code might not work at all.
 
-Versions older than the supported 5 latest releases, but still newer than `1.37.0` will most likely work just fine. However, if they stop working over time, there will be no more fixes to make them work. Unless you'd like to contribute these.
+Versions older than the supported 3 latest releases, but still newer than `1.37.0` will most likely work just fine. However, if they stop working over time, there will be no more fixes to make them work. Unless you'd like to contribute these.
 
 ## MacOS known limitations of native objects
 
