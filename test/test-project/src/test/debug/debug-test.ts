@@ -23,10 +23,13 @@ describe('Debugging', function () {
     });
 
     after('After cleanup', async function () {
-        this.timeout(10000);
+        this.timeout(15000);
         await new EditorView().closeAllEditors();
         await (await new ActivityBar().getViewControl('Run and Debug')).closeView();
         await new BottomBarPanel().toggle(false);
+
+        await new TitleBar().select('File', 'Close Folder');
+        await new Promise(res => setTimeout(res, 5000));
     });
 
     describe('Debug View', () => {
@@ -64,8 +67,6 @@ describe('Debugging', function () {
             if (await debugBar.isDisplayed()) {
                 await debugBar.stop();
             }
-            await new TitleBar().select('File', 'Close Folder');
-            await new Promise(res => setTimeout(res, 5000));
         });
 
         it('set first breakpoint', async function () {
@@ -236,6 +237,18 @@ describe('Debugging', function () {
             expect(result).to.be.false;
         });
     });
+
+    describe('Debug Console view', function () {
+
+        it('can get text', async function () {
+            const view = await new BottomBarPanel().openDebugConsoleView();
+            expect(await view.isDisplayed()).is.true;
+
+            const text = await view.getText();
+            expect(text).is.not.empty;
+        });
+    });
+
 });
 
 async function getNumVariable(view: DebugView, timeout: number) {
