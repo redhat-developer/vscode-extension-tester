@@ -101,6 +101,11 @@
 				{
 					"id": "emptyView",
 					"name": "Empty View"
+				},
+				{
+					"id": "mySidePanelView",
+					"name": "My Side Panel View",
+					"type": "webview"
 				}
 			],
 			"myPanel": [

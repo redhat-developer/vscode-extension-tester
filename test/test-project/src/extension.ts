@@ -78,6 +78,9 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider("myPanelView", new MyPanelView())
 	);
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider("mySidePanelView", new MyPanelView())
+	);
 }
 
 export function deactivate() {}
