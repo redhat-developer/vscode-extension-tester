@@ -58,6 +58,7 @@ const bottomBar = {
         collapseAll: By.className('collapse-all'),
         markerRow: By.className('monaco-list-row'),
         rowLabel: 'aria-label',
+        label: By.className('monaco-highlighted-label'),
         markerTwistie: By.className('monaco-tl-twistie'),
         changeCount: By.className('monaco-count-badge')
     },

@@ -82,16 +82,19 @@ export class ProblemsView extends AbstractElement {
 }
 
 /**
- * Page object for marker in problems view
+ * Page object for a Marker in Problems view
  */
 export class Marker extends ElementWithContexMenu {
+
     constructor(element: WebElement, view: ProblemsView) {
         super(element, view);
     }
 
     /**
-     * Get the type of the marker
-     * Possible types are: File, Error, Warning
+     * Get the type of the marker. Possible types are:
+     * - File
+     * - Error
+     * - Warning
      * @returns Promise resolving to a MarkerType
      */
     async getType(): Promise<MarkerType> {
@@ -108,16 +111,24 @@ export class Marker extends ElementWithContexMenu {
     }
 
     /**
-     * Get the full text of the marker
-     * @returns Promise resolving to marker text
+     * Get the full text of the Marker row
+     * @returns Promise resolving to a Marker row text
      */
     async getText(): Promise<string> {
         return await this.getAttribute(ProblemsView.locators.ProblemsView.rowLabel);
     }
 
     /**
-     * Expand/Collapse the marker if possible
-     * @param expand true to expand, false to collapse
+     * Get the Marker label text
+     * @returns Promise resolving to a Marker label
+     */
+    async getLabel(): Promise<string> {
+        return await (await this.findElement(ProblemsView.locators.ProblemsView.label)).getText();
+    }
+
+    /**
+     * Expand/Collapse the Marker if possible
+     * @param expand True to expand, False to collapse
      * @returns Promise resolving when the expand/collapse twistie is clicked
      */
     async toggleExpand(expand: boolean): Promise<void> {
