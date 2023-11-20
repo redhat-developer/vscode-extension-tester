@@ -51,10 +51,13 @@ describe('Workbench', () => {
     });
 
     it('executeCommand works', async () => {
-        await bench.executeCommand('hello world');
+        await bench.executeCommand('Hello World');
         await bench.getDriver().sleep(500);
         const notifications = await bench.getNotifications();
         expect(notifications).not.empty;
+
+        const message = await notifications[0].getMessage();
+        expect(message).is.equal('Hello World!');
     });
 
     it('openSettings opens the settings editor', async function() {

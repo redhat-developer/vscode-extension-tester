@@ -35,6 +35,11 @@
 				"icon": "$(rocket)"
 			},
 			{
+				"command": "extension.helloWorld2",
+				"title": "Hello a World",
+				"icon": "$(rocket)"
+			},
+			{
 				"command": "extension.warningMsg",
 				"title": "Warning Message"
 			},

@@ -133,6 +133,11 @@ export class Workbench extends AbstractElement {
     async executeCommand(command: string): Promise<void> {
         const prompt = await this.openCommandPrompt();
         await prompt.setText(`>${command}`);
-        await prompt.confirm();
+        const quickPicks = await Promise.all((await prompt.getQuickPicks()).map(item => item.getLabel()));
+        if(quickPicks.includes(command)) {
+            await prompt.selectQuickPick(command);
+        } else {
+            await prompt.confirm();
+        }
     }
 }
