@@ -7,9 +7,6 @@ import { TreeView } from './treeView';
 export const ERROR_MESSAGE_COMMAND = 'extension.errorMsg';
 
 export function activate(context: vscode.ExtensionContext) {
-	let disposable = vscode.commands.registerCommand('extension.helloWorld', () => {
-		vscode.window.showInformationMessage('Hello World!');
-	});
 	let openCommand = vscode.commands.registerCommand('extension.openFile', async () => {
 		const document = await vscode.workspace.openTextDocument(vscode.Uri.file(
 			path.resolve(__dirname, '..', '..', 'resources', 'test-file.ts')));
@@ -36,7 +33,16 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.showQuickPick(['test1', 'test2', 'test3'], { canPickMany: true, ignoreFocusOut: true });
 	});
 
-	context.subscriptions.push(disposable);
+	context.subscriptions.push(
+		vscode.commands.registerCommand('extension.helloWorld', () => {
+			vscode.window.showInformationMessage('Hello World!');
+		})
+	);
+	context.subscriptions.push(
+		vscode.commands.registerCommand('extension.helloWorld2', () => {
+			vscode.window.showInformationMessage('Hello World, Test Project!');
+		})
+	);
 	context.subscriptions.push(openCommand);
 	context.subscriptions.push(openFolder);
 	context.subscriptions.push(closeFolder);
