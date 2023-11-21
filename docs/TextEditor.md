@@ -37,8 +37,15 @@ await editor.typeText("I have the best text");
 await editor.typeTextAt(1, 3, " absolutely");
 // format the whole document with built-in tools
 await editor.formatDocument();
+// move the cursor to the given coordinates
+await editor.moveCursor(3, 6);
+// set cursor to given position using command prompt :Ln,Col
+await editor.setCursor(2, 5);
 // get the current cursor coordinates as number array [x,y]
 const coords = await editor.getCoordinates();
+// get the current indentation of opened editor
+const indent = await editor.getIndentation();
+console.log(`indentation label = ${indent.label} and value = ${indent.value}`);
 ```
 
 #### Save Changes

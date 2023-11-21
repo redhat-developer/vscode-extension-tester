@@ -234,7 +234,7 @@ export class TextEditor extends Editor {
 	 * Find and select a given text. Not usable for multi line selection.
 	 *
 	 * @param text text to select
-	 * @param occurrence specify which onccurrence of text to select if multiple are present in the document
+	 * @param occurrence specify which occurrence of text to select if multiple are present in the document
 	 */
 	async selectText(text: string, occurrence = 1): Promise<void> {
 		const lineNum = await this.getLineOfText(text, occurrence);
@@ -336,6 +336,30 @@ export class TextEditor extends Editor {
 	}
 
 	/**
+	 * Set cursor to given position using command prompt :Ln,Col
+	 * @param line line number to set to
+	 * @param column column number to set to
+	 * @returns Promise resolving when the cursor has reached the given coordinates
+	 */
+	async setCursor(line: number, column: number): Promise<void> {
+		const input = await new Workbench().openCommandPrompt();
+		await input.setText(`:${line},${column}`);
+		await input.confirm();
+		await this.waitForCursorPositionAt(line, column);
+	}
+
+	/**
+	 * Get indentation from the status bar for the currently opened text editor
+	 * @returns \{ string, number \} object which contains label and value of indentation
+	 */
+	async getIndentation(): Promise<{ label: string; value: number }> {
+		const indentation = await new StatusBar().getCurrentIndentation();
+		const value = Number(indentation.match(/\d+/g)?.at(0));
+		const label = indentation.match(/^[a-zA-Z\s]+/g)?.at(0) as string;
+		return { label, value };
+	}
+
+	/**
 	 * Move the cursor to the given coordinates
 	 * @param line line number to move to
 	 * @param column column number to move to
@@ -348,37 +372,186 @@ export class TextEditor extends Editor {
 		if (column < 1) {
 			throw new Error(`Column number ${column} does not exist`);
 		}
-		if (process.platform === 'darwin') {
-			const input = await new Workbench().openCommandPrompt();
-			await input.setText(`:${line},${column}`);
-			await input.confirm();
-		} else {
-			const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
-			let coordinates = await this.getCoordinates();
-			const lineGap = coordinates[0] - line;
-			const lineKey = lineGap >= 0 ? Key.UP : Key.DOWN;
-			for (let i = 0; i < Math.abs(lineGap); i++) {
-				await inputarea.sendKeys(lineKey);
+		const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
+		await this.moveCursorToLine(inputarea, line);
+		await this.moveCursorToColumn(inputarea, column);
+	}
+
+	/**
+	 * (private) Move the cursor to the given line coordinate
+	 * @param inputArea WebElement of an editor input area
+	 * @param line line number to move to
+	 * @returns Promise resolving when the cursor has reached the given line coordinate
+	 */
+	private async moveCursorToLine(inputArea: WebElement, line: number): Promise<void> {
+		const coordinates = await this.getCoordinates();
+		const lineGap = coordinates[0] - line;
+		const lineKey = lineGap >= 0 ? Key.UP : Key.DOWN;
+		let nextLine = coordinates[0];
+
+		for (let i = 0; i < Math.abs(lineGap); i++) {
+			if (await this.isLine(line)) {
+				break;
+			}
+			await inputArea.sendKeys(lineKey);
+			await inputArea.getDriver().sleep(250);
+			if (await this.isLine(line)) {
+				break;
 			}
 
-			coordinates = await this.getCoordinates();
-			const columnGap = coordinates[1] - column;
-			const columnKey = columnGap >= 0 ? Key.LEFT : Key.RIGHT;
-			for (let i = 0; i < Math.abs(columnGap); i++) {
-				await inputarea.sendKeys(columnKey);
-				const actualCoordinates = (await this.getCoordinates())[0];
-				if (actualCoordinates !== coordinates[0]) {
-					throw new Error(`Column number ${column} is not accessible on line ${line}`);
+			switch (lineKey) {
+				case Key.UP:
+					nextLine = nextLine - 1;
+					break;
+				case Key.DOWN:
+					nextLine = nextLine + 1;
+					break;
+			}
+
+			try {
+				await this.waitForCursorPositionAtLine(nextLine);
+			} catch (error) {
+				if (await this.isLine(line)) {
+					break;
+				}
+				await inputArea.getDriver().actions().clear();
+				await inputArea.sendKeys(lineKey);
+				await inputArea.getDriver().sleep(250);
+				if (await this.isLine(line)) {
+					break;
+				}
+
+				if (lineKey === Key.DOWN && nextLine < line) {
+					await this.waitForCursorPositionAtLine(nextLine);
+				} else {
+					await this.waitForCursorPositionAtLine(line);
 				}
 			}
 		}
-		await this.getDriver().wait(
+	}
+
+	/**
+	 * (private) Move the cursor to the given column coordinate
+	 * @param inputArea WebElement of an editor input area
+	 * @param column column number to move to
+	 * @returns Promise resolving when the cursor has reached the given column coordinate
+	 */
+	private async moveCursorToColumn(inputArea: WebElement, column: number): Promise<void> {
+		const coordinates = await this.getCoordinates();
+		const columnGap = coordinates[1] - column;
+		const columnKey = columnGap >= 0 ? Key.LEFT : Key.RIGHT;
+		let nextCol = coordinates[1];
+
+		for (let i = 0; i < Math.abs(columnGap); i++) {
+			if (await this.isColumn(column)) {
+				break;
+			}
+			await inputArea.sendKeys(columnKey);
+			await inputArea.getDriver().sleep(250);
+			if (await this.isColumn(column)) {
+				break;
+			}
+			if ((await this.getCoordinates())[0] !== coordinates[0]) {
+				throw new Error(`Column number ${column} is not accessible on line ${coordinates[0]}`);
+			}
+
+			switch (columnKey) {
+				case Key.LEFT:
+					nextCol = nextCol - 1;
+					break;
+				case Key.RIGHT:
+					nextCol = nextCol + 1;
+					break;
+			}
+
+			try {
+				await this.waitForCursorPositionAtColumn(nextCol);
+			} catch (error) {
+				if (await this.isColumn(column)) {
+					break;
+				}
+				await inputArea.getDriver().actions().clear();
+				await inputArea.sendKeys(columnKey);
+				await inputArea.getDriver().sleep(250);
+				if (await this.isColumn(column)) {
+					break;
+				}
+				if ((await this.getCoordinates())[0] !== coordinates[0]) {
+					throw new Error(`Column number ${column} is not accessible on line ${coordinates[0]}`);
+				}
+
+				if (columnKey === Key.RIGHT && nextCol < column) {
+					await this.waitForCursorPositionAtColumn(nextCol);
+				} else {
+					await this.waitForCursorPositionAtColumn(column);
+				}
+			}
+		}
+	}
+
+	/**
+	 * (private) Check if the cursor is already on requested line
+	 * @param line line number to check against current cursor position
+	 * @returns true / false
+	 */
+	private async isLine(line: number): Promise<boolean> {
+		const actualCoordinates = await this.getCoordinates();
+		if (actualCoordinates[0] === line) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * (private) Check if the cursor is already on requested column
+	 * @param column column number to check against current cursor position
+	 * @returns true / false
+	 */
+	private async isColumn(column: number): Promise<boolean> {
+		const actualCoordinates = await this.getCoordinates();
+		if (actualCoordinates[1] === column) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * (private) Dynamic waiting for cursor position movements
+	 * @param line line number to wait
+	 * @param column column number to wait
+	 * @param timeout default timeout
+	 */
+	private async waitForCursorPositionAt(line: number, column: number): Promise<void> {
+		(await this.waitForCursorPositionAtLine(line)) && (await this.waitForCursorPositionAtColumn(column));
+	}
+
+	/**
+	 * (private) Dynamic waiting for cursor position movements at line
+	 * @param line line number to wait
+	 * @param timeout default timeout is wait for 1.5s
+	 */
+	private async waitForCursorPositionAtLine(line: number, timeout: number = 1_500): Promise<boolean> {
+		return await this.getDriver().wait(
 			async () => {
-				const coor = await this.getCoordinates();
-				return coor[0] === line && coor[1] === column;
+				return await this.isLine(line);
 			},
-			10000,
-			`Unable to set cursor at position ${column}:${line}`,
+			timeout,
+			`Unable to set cursor at line ${line}`,
+		);
+	}
+
+	/**
+	 * (private) Dynamic waiting for cursor position movements at column
+	 * @param column column number to wait
+	 * @param timeout default timeout is wait for 1.5s
+	 */
+	private async waitForCursorPositionAtColumn(column: number, timeout: number = 1_500): Promise<boolean> {
+		return await this.getDriver().wait(
+			async () => {
+				return await this.isColumn(column);
+			},
+			timeout,
+			`Unable to set cursor at column ${column}`,
 		);
 	}
 
