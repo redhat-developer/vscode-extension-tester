@@ -1,6 +1,7 @@
 ![editor](https://user-images.githubusercontent.com/4181232/56643754-81b9ee00-667a-11e9-9c7a-de39f342d676.png)
 
 #### Lookup
+
 ```typescript
 import { TextEditor, EditorView } from 'vscode-extension-tester';
 ...
@@ -11,7 +12,9 @@ const editor1 = await new EditorView().openEditor('package.json');
 ```
 
 #### Text Retrieval
+
 Note: Most text retrieval and editing actions will make use of the clipboard.
+
 ```typescript
 // get all text
 const text = await editor.getText();
@@ -22,6 +25,7 @@ const numberOfLines = await editor.getNumberOfLines();
 ```
 
 #### Editing Text
+
 ```typescript
 // replace all text with a string
 await editor.setText('my fabulous text');
@@ -33,11 +37,19 @@ await editor.typeText('I have the best text');
 await editor.typeTextAt(1, 3, ' absolutely');
 // format the whole document with built-in tools
 await editor.formatDocument();
+// move the cursor to the given coordinates
+await editor.moveCursor(3, 6);
+// set cursor to given position using command prompt :Ln,Col
+await editor.setCursor(2, 5);
 // get the current cursor coordinates as number array [x,y]
 const coords = await editor.getCoordinates();
+// get the current indentation of opened editor
+const indent = await editor.getIndentation();
+console.log(`indentation label = ${indent.label} and value = ${indent.value}`);
 ```
 
 #### Save Changes
+
 ```typescript
 // find if the editor has changes
 const hasChanges = await editor.isDirty();
@@ -48,11 +60,13 @@ const prompt = await editor.saveAs();
 ```
 
 #### Get Document File Path
+
 ```typescript
 const path = await editor.getFilePath();
 ```
 
 #### Content Assist
+
 ```typescript
 // open content assist at current position
 const contentAssist = await editor.toggleContentAssist(true);
@@ -61,6 +75,7 @@ await editor.toggleContentAssist(false);
 ```
 
 #### Search for Text
+
 ```typescript
 // get line number that contains some text
 const lineNum = await editor.getLineOfText('some text');
@@ -75,12 +90,14 @@ const find = await editor.openFindWidget();
 ```
 
 #### Breakpoints
+
 ```typescript
 // toggle breakpoint on a line with given number
 await editor.toggleBreakpoint(1);
 ```
 
 #### CodeLenses
+
 ```typescript
 // get a code lens by (partial) text
 const lens = await editor.getCodeLens('my code lens text');
