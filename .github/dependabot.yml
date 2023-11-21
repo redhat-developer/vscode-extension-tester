@@ -9,11 +9,11 @@ updates:
     labels:
       - "skip-changelog"
     reviewers:
-      redhat-developer/extester-maintainers
+      - redhat-developer/extester-maintainers
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
       interval: 'daily'
     versioning-strategy: increase
     reviewers:
-      redhat-developer/extester-maintainers
+      - redhat-developer/extester-maintainers
