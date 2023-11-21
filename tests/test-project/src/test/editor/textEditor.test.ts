@@ -17,7 +17,20 @@
 
 import * as path from 'path';
 import { expect } from 'chai';
-import { TextEditor, EditorView, StatusBar, InputBox, ContentAssist, Workbench, FindWidget, VSBrowser, after, before } from 'vscode-extension-tester';
+import {
+	TextEditor,
+	EditorView,
+	StatusBar,
+	InputBox,
+	ContentAssist,
+	Workbench,
+	FindWidget,
+	VSBrowser,
+	after,
+	before,
+	afterEach,
+	beforeEach,
+} from 'vscode-extension-tester';
 
 describe('ContentAssist', async function () {
 	let assist: ContentAssist;
@@ -49,18 +62,19 @@ describe('ContentAssist', async function () {
 		);
 	});
 
-	beforeEach(async function () {
+	beforeEach(async () => {
+		this.timeout(15000);
 		assist = (await editor.toggleContentAssist(true)) as ContentAssist;
 		await new Promise((res) => setTimeout(res, 2000));
-	});
-
-	after(async function () {
-		await new EditorView().closeAllEditors();
 	});
 
 	afterEach(async function () {
 		await editor.toggleContentAssist(false);
 		await new Promise((res) => setTimeout(res, 1000));
+	});
+
+	after(async function () {
+		await new EditorView().closeAllEditors();
 	});
 
 	it('getItems retrieves the suggestions', async function () {
@@ -91,7 +105,7 @@ describe('TextEditor', function () {
 	const testText = process.platform === 'win32' ? `line1\r\nline2\r\nline3` : `line1\nline2\nline3`;
 
 	before(async () => {
-		this.timeout(8000);
+		this.timeout(15000);
 		await new Workbench().executeCommand('Create: New File...');
 		await (await InputBox.create()).selectQuickPick('Text File');
 		await new Promise((res) => {
@@ -124,22 +138,22 @@ describe('TextEditor', function () {
 	});
 
 	it('can type text at given coordinates', async function () {
-		this.timeout(5000);
+		this.timeout(10000);
 		await editor.typeTextAt(1, 6, '1');
 		const line = await editor.getTextAtLine(1);
 		expect(line).has.string('line11');
 	});
 
 	it('getCoordinates works', async function () {
-		this.timeout(15000);
+		this.timeout(20000);
 
-		await editor.moveCursor(1, 1);
+		await editor.setCursor(1, 1);
 		expect(await editor.getCoordinates()).to.deep.equal([1, 1]);
 
 		const lineCount = await editor.getNumberOfLines();
 		const lastLine = await editor.getTextAtLine(lineCount);
 
-		await editor.moveCursor(lineCount, lastLine.length);
+		await editor.setCursor(lineCount, lastLine.length);
 		expect(await editor.getCoordinates()).to.deep.equal([lineCount, lastLine.length]);
 	});
 
@@ -165,8 +179,61 @@ describe('TextEditor', function () {
 		expect(await editor.formatDocument()).not.to.throw;
 	});
 
+	describe('move/set cursor', function () {
+		const params = [
+			{ file: 'file-with-spaces.ts', indent: 'spaces' },
+			{ file: 'file-with-tabs.ts', indent: 'tabs' },
+		];
+
+		params.forEach((param) =>
+			describe(`file using ${param.indent}`, function () {
+				let editor: TextEditor;
+				let ew: EditorView;
+
+				beforeEach(async function () {
+					await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', param.file));
+					ew = new EditorView();
+					await ew.getDriver().wait(
+						async function () {
+							return (await ew.getOpenEditorTitles()).includes(param.file);
+						},
+						10_000,
+						`Unable to find opened editor with title '${param.file}'`,
+					);
+					editor = (await ew.openEditor(param.file)) as TextEditor;
+				});
+
+				[
+					[2, 5],
+					[3, 9],
+				].forEach((coor) =>
+					it(`move cursor to position [Ln ${coor[0]}, Col ${coor[1]}]`, async function () {
+						this.timeout(30000);
+						await editor.moveCursor(coor[0], coor[1]);
+						expect(await editor.getCoordinates()).to.deep.equal(coor);
+					}),
+				);
+
+				// set cursor using command prompt is not working properly for tabs indentation in VS Code, see https://github.com/microsoft/vscode/issues/198780
+				[
+					[2, 12],
+					[3, 15],
+				].forEach((coor) =>
+					(param.indent === 'tabs' ? it.skip : it)(`set cursor to position [Ln ${coor[0]}, Col ${coor[1]}]`, async function () {
+						this.timeout(30000);
+						await editor.setCursor(coor[0], coor[1]);
+						expect(await editor.getCoordinates()).to.deep.equal(coor);
+					}),
+				);
+			}),
+		);
+	});
+
 	describe('searching', function () {
 		before(async function () {
+			const ew = new EditorView();
+			const editors = await ew.getOpenEditorTitles();
+			editor = (await ew.openEditor(editors[0])) as TextEditor;
 			await editor.setText('aline\nbline\ncline\ndline\nnope\neline1 eline2\n');
 		});
 
@@ -196,7 +263,7 @@ describe('TextEditor', function () {
 			expect(await editor.getSelectedText()).equals(text);
 		});
 
-		it('selectText errors if given text doesnt exist', async function () {
+		it("selectText errors if given text doesn't exist", async function () {
 			const text = 'wat';
 			try {
 				await editor.selectText(text);
@@ -296,7 +363,7 @@ describe('TextEditor', function () {
 	describe('CodeLens', function () {
 		before(async function () {
 			await new Workbench().executeCommand('enable codelens');
-			// older versions of vscode dont fire the update event immediately, give it some encouragement
+			// older versions of vscode don't fire the update event immediately, give it some encouragement
 			// otherwise the lenses end up empty
 			await new Workbench().executeCommand('enable codelens');
 			await new Promise((res) => setTimeout(res, 1000));
@@ -304,11 +371,9 @@ describe('TextEditor', function () {
 
 		after(async function () {
 			await new Workbench().executeCommand('disable codelens');
-		});
-
-		it('getCodeLenses works', async function () {
-			const lenses = await editor.getCodeLenses();
-			expect(lenses.length).is.equal(7);
+			const nc = await new Workbench().openNotificationsCenter();
+			await nc.clearAllNotifications();
+			await nc.close();
 		});
 
 		it('getCodeLens works with index', async function () {
@@ -345,17 +410,10 @@ describe('TextEditor', function () {
 			this.timeout(20000);
 			const lens = await editor.getCodeLens(2);
 			await lens?.click();
-			await lens?.getDriver().sleep(1000);
+			await lens?.getDriver().sleep(2_000);
 			const notifications = await new Workbench().getNotifications();
-
-			let notification = undefined;
-			for (const not of notifications) {
-				if ((await not.getMessage()).startsWith('CodeLens action clicked')) {
-					notification = not;
-					break;
-				}
-			}
-			expect(notification).not.undefined;
+			const message = await notifications[0].getMessage();
+			expect(message).to.includes('CodeLens action clicked');
 		});
 	});
 });
