@@ -45,7 +45,7 @@
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "@types/js-yaml": "^4.0.9",
-    "@types/mocha": "^10.0.5",
+    "@types/mocha": "^10.0.6",
     "@types/node": "^18.17.15",
     "@types/unzipper": "^0.10.9",
     "mocha": "^10.2.0",
