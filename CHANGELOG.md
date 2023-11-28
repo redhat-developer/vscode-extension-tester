@@ -1,5 +1,22 @@
 # Change Log
 
+## NEXT
+
+> Month DD YYYY
+
+- [🚫 Bug] Running order is wrong when running multiple test in multiple files
+- [🚫 Bug] Workbench().executeCommand executes always the first command from quickPicks
+- [🚫 Bug] Failed when call debugView.getText(), only on macOS
+- [🚫 Bug] Tests hang after loading mocha configurations
+- [🚫 Bug] Clicks not being intercepted in SideBarView and BottomBarPanel
+- [🚫 Bug] BottomBarPanel().openOutputView() no such element: Unable to locate element
+- [🚫 Bug] "WebDriverError: unknown error: Chrome failed to start: exited abnormally" issue
+- [🚀 Request] Unable to access webview present in Sidebar
+- [🚀 Request] Support for VS Code 1.74.x
+- [🚀 Request] Provide colors for warning messages in console log
+- [🚀 Request] Provide warning for supported version of NodeJS in console log
+- [🚀 Request] Access WebView in BottomBar
+
 ## 5.10.0
 
 > October 09 2023
