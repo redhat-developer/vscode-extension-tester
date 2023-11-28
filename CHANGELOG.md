@@ -1,5 +1,9 @@
 # Change Log
 
+## NEXT
+
+> Month DD YYYY
+
 ## 6.0.0
 
 > November 28 2023
