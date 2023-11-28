@@ -1,8 +1,8 @@
 # Change Log
 
-## NEXT
+## 6.0.0
 
-> Month DD YYYY
+> November 28 2023
 
 - [🚫 Bug] Running order is wrong when running multiple test in multiple files
 - [🚫 Bug] Workbench().executeCommand executes always the first command from quickPicks
