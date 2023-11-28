@@ -160,7 +160,7 @@
 		"ui-test": "npm run cb-init && extest setup-and-run './out/src/test/cli/order-3-test.js' './out/src/test/cli/order-2-test.js' './out/src/test/cli/order-1-test.js' './out/src/test/**/*-test.js' './out/src/test/system/clipboard.test.js' -u -i -r . -e ./test-extensions"
 	},
 	"devDependencies": {
-		"@types/chai": "^4.3.4",
+		"@types/chai": "^4.3.11",
 		"@types/node": "^18.17.15",
 		"@types/vscode": "^1.34.0",
 		"@typescript-eslint/eslint-plugin": "^5.43.0",
