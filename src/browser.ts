@@ -162,6 +162,14 @@ export class VSBrowser {
     }
 
     /**
+     * Get a screenshots folder path
+     * @returns string path to the screenshots folder
+     */
+    getScreenshotsDir(): string {
+        return path.join(this.storagePath, 'screenshots');
+    }
+
+    /**
      * Open folder(s) or file(s) in the current instance of vscode.
      * 
      * @param paths path(s) of folder(s)/files(s) to open as varargs
