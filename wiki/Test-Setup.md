@@ -1,135 +1,159 @@
 The Extension Tester offers both CLI and API to perform all the setup actions. That way you can simply integrate it into your npm scripts, or just call it from your code if that is more preferable.
 
+## Useful ENV variables
+
+- `CODE_VERSION` - can be used to set version of VS Code you want to run with the appropriate ChromeDriver version
+
+    ```shell
+    export CODE_VERSION="1.84.2"
+    ```
+
+- `TEST_RESOURCES` - can be used to set folder used for all test resources, by default `$TMPDIR/test-resources` (value of `$TMPDIR` differs based on operating system)
+
+    ```shell
+    export TEST_RESOURCES="./test-folder"
+    ```
+
 ## Using the CLI
+
 All the CLI actions are available with the command ```extest``` which is available to your npm scripts once the package is installed. The default storage folder for all test resources is a ```$TMPDIR/test-resources```.
 
-#### Download VS Code
+### Download VS Code
+
 If you wish to manually download VS Code of a given version
-```
+
+```shell
 Usage: extest get-vscode [options]
 
 Download VSCode for testing
 
 Options:
-  -s, --storage <storage>       Use this folder for all test resources
-  -c, --code_version <version>  Version of VSCode to download
-  -t, --type <type>             Type of VSCode release (stable/insider)
-  -h, --help                    output usage information
+  -s, --storage <storage>       # Use this folder for all test resources
+  -c, --code_version <version>  # Version of VSCode to download
+  -t, --type <type>             # Type of VSCode release (stable/insider)
+  -h, --help                    # output usage information
 ```
 
-#### Download ChromeDriver
+### Download ChromeDriver
+
 Download chrome driver for a given version of VS Code
-```
+
+```shell
 Usage: extest get-chromedriver [options]
 
 Download ChromeDriver binary
 
 Options:
-  -s, --storage <storage>       Use this folder for all test resources
-  -c, --code_version <version>  Version of VSCode you want to run with the ChromeDriver
-  -t, --type <type>             Type of VSCode release (stable/insider)
-  -h, --help                    display help for command
+  -s, --storage <storage>       # Use this folder for all test resources
+  -c, --code_version <version>  # Version of VSCode you want to run with the ChromeDriver
+  -t, --type <type>             # Type of VSCode release (stable/insider)
+  -h, --help                    # display help for command
 ```
 
-#### Build and Install Extension from vsix
+### Build and Install Extension from vsix
+
 To manually build and install your extension. This step is not necessary to run the tests, since the framework will run the extension directly from source.
 
-```
+```shell
 Usage: extest install-vsix [options]
 
 Install extension from vsix file into test instance of VSCode
 
 Options:
-  -s, --storage <storage>                      Use this folder for all test resources
-  -e, --extensions_dir <extensions_directory>  VSCode will use this directory for managing extensions
-  -f, --vsix_file <file>                       path/URL to vsix file containing the extension
-  -y, --yarn                                   Use yarn to build the extension via vsce instead of npm (default: false)
-  -t, --type <type>                            Type of VSCode release (stable/insider)
-  -h, --help                                   display help for command
+  -s, --storage <storage>                      # Use this folder for all test resources
+  -e, --extensions_dir <extensions_directory>  # VSCode will use this directory for managing extensions
+  -f, --vsix_file <file>                       # path/URL to vsix file containing the extension
+  -y, --yarn                                   # Use yarn to build the extension via vsce instead of npm (default: false)
+  -t, --type <type>                            # Type of VSCode release (stable/insider)
+  -h, --help                                   # display help for command
 
 ```
 
-#### Install Extensions from Marketplace
+### Install Extensions from Marketplace
+
 To also install arbitrary extensions by ID into your test instance.
-```
+
+```shell
 Usage: extest install-from-marketplace [options] <id> [ids...]
 
 Install extension from marketplace with given <id> into test instance of VSCode
 
 Options:
-  -s, --storage <storage>                      Use this folder for all test resources
-  -e, --extensions_dir <extensions_directory>  VSCode will use this directory for managing extensions
-  -t, --type <type>                            Type of VSCode release (stable/insider)
-  -h, --help                                   display help for command
-
+  -s, --storage <storage>                      # Use this folder for all test resources
+  -e, --extensions_dir <extensions_directory>  # VSCode will use this directory for managing extensions
+  -t, --type <type>                            # Type of VSCode release (stable/insider)
+  -h, --help                                   # display help for command
 ```
 
+### Perform All Test Setup
 
-#### Perform All Test Setup
 To perform all test setup steps in one command
-```
+
+```shell
 Usage: extest setup-tests [options]
 
 Set up all necessary requirements for tests to run
 
 Options:
-  -s, --storage <storage>                      Use this folder for all test resources
-  -e, --extensions_dir <extensions_directory>  VSCode will use this directory for managing extensions
-  -c, --code_version <version>                 Version of VSCode to download
-  -t, --type <type>                            Type of VSCode release (stable/insider)
-  -y, --yarn                                   Use yarn to build the extension via vsce instead of npm (default: false)
-  -i, --install_dependencies                   Automatically install extensions your extension depends on (default: false)
-  -h, --help                                   display help for command
-
+  -s, --storage <storage>                      # Use this folder for all test resources
+  -e, --extensions_dir <extensions_directory>  # VSCode will use this directory for managing extensions
+  -c, --code_version <version>                 # Version of VSCode to download
+  -t, --type <type>                            # Type of VSCode release (stable/insider)
+  -y, --yarn                                   # Use yarn to build the extension via vsce instead of npm (default: false)
+  -i, --install_dependencies                   # Automatically install extensions your extension depends on (default: false)
+  -h, --help                                   # display help for command
 ```
 
-#### Run Tests
+### Run Tests
+
 To run test files
-```
+
+```shell
 Usage: extest run-tests [options] <testFiles>
 
-Run the test files specified by a glob pattern
+Run the tests files specified by a glob pattern
 
 Options:
-  -s, --storage <storage>                      Use this folder for all test resources
-  -e, --extensions_dir <extensions_directory>  VSCode will use this directory for managing extensions
-  -c, --code_version <version>                 Version of VSCode to be used
-  -t, --type <type>                            Type of VSCode release (stable/insider)
-  -o, --code_settings <settings.json>          Path to custom settings for VS Code json file
-  -u, --uninstall_extension                    Uninstall the extension after the test run (default: false)
-  -m, --mocha_config <mocharc.js>              Path to Mocha configuration file
-  -l, --log_level <level>                      Log messages from webdriver with a given level (default: "Info")
-  -f, --offline                                Attempt to run without internet connection, make sure to have all requirements downloaded (default: false)
-  -h, --help                                   display help for command
-
+  -s, --storage <storage>                      # Use this folder for all test resources
+  -e, --extensions_dir <extensions_directory>  # VSCode will use this directory for managing extensions
+  -c, --code_version <version>                 # Version of VSCode to be used
+  -t, --type <type>                            # Type of VSCode release (stable/insider)
+  -o, --code_settings <settings.json>          # Path to custom settings for VS Code json file
+  -u, --uninstall_extension                    # Uninstall the extension after the test run (default: false)
+  -m, --mocha_config <mocharc.js>              # Path to Mocha configuration file
+  -l, --log_level <level>                      # Log messages from webdriver with a given level (default: "Info")
+  -f, --offline                                # Attempt to run without internet connection, make sure to have all requirements downloaded (default: false)
+  -h, --help                                   # display help for command
 ```
 
-#### Set up and Run Tests
+### Set up and Run Tests
+
 Perform all test setup and run tests in a single command
-```
+
+```shell
 Usage: extest setup-and-run [options] <testFiles>
 
 Perform all setup and run tests specified by glob pattern
 
 Options:
-  -s, --storage <storage>                      Use this folder for all test resources
-  -e, --extensions_dir <extensions_directory>  VSCode will use this directory for managing extensions
-  -c, --code_version <version>                 Version of VSCode to download
-  -t, --type <type>                            Type of VSCode release (stable/insider)
-  -o, --code_settings <settings.json>          Path to custom settings for VS Code json file
-  -y, --yarn                                   Use yarn to build the extension via vsce instead of npm (default: false)
-  -u, --uninstall_extension                    Uninstall the extension after the test run (default: false)
-  -m, --mocha_config <mocharc.js>              Path to Mocha configuration file
-  -i, --install_dependencies                   Automatically install extensions your extension depends on (default: false)
-  -l, --log_level <level>                      Log messages from webdriver with a given level (default: "Info")
-  -f, --offline                                Attempt to run without internet connection, make sure to have all requirements downloaded (default: false)
-  -h, --help                                   display help for command
-
+  -s, --storage <storage>                      # Use this folder for all test resources
+  -e, --extensions_dir <extensions_directory>  # VSCode will use this directory for managing extensions
+  -c, --code_version <version>                 # Version of VSCode to download
+  -t, --type <type>                            # Type of VSCode release (stable/insider)
+  -o, --code_settings <settings.json>          # Path to custom settings for VS Code json file
+  -y, --yarn                                   # Use yarn to build the extension via vsce instead of npm (default: false)
+  -u, --uninstall_extension                    # Uninstall the extension after the test run (default: false)
+  -m, --mocha_config <mocharc.js>              # Path to Mocha configuration file
+  -i, --install_dependencies                   # Automatically install extensions your extension depends on (default: false)
+  -l, --log_level <level>                      # Log messages from webdriver with a given level (default: "Info")
+  -f, --offline                                # Attempt to run without internet connection, make sure to have all requirements downloaded (default: false)
+  -h, --help                                   # display help for command
 ```
 
-
 ## Using the API
+
 The same actions are available in the ```ExTester``` class as API:
+
 ```typescript
 export interface SetupOptions {
     /** version of VSCode to test against, defaults to latest */
