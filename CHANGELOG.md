@@ -11,6 +11,7 @@
 - [🚫 Bug] Clicks not being intercepted in SideBarView and BottomBarPanel
 - [🚫 Bug] BottomBarPanel().openOutputView() no such element: Unable to locate element
 - [🚫 Bug] "WebDriverError: unknown error: Chrome failed to start: exited abnormally" issue
+- [🚀 Request] Print path to screenshots folder into console after failed run
 - [🚀 Request] Unable to access webview present in Sidebar
 - [🚀 Request] Support for VS Code 1.74.x
 - [🚀 Request] Provide colors for warning messages in console log
