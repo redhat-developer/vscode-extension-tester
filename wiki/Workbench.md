@@ -43,7 +43,7 @@ await workbench.executeCommand('close workspace');
 ```
 
 #### Settings
-Opening the VSCode Settings editor is also available.
+Opening the VS Code Settings editor is also available.
 ```typescript
 const settingsEditor = await workbench.openSettings();
 ```

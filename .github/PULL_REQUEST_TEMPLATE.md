@@ -7,7 +7,8 @@ Before submitting your PR, please review the following checklist:
 - [ ] **DO** make sure not to introduce any compiler warnings.
 
 Before merging the PR:
-- [ ] **CHECK** continous integration of main branch is green.
+
+- [ ] **CHECK** continuous integration of `main` branch is green.
 - [ ] **CHECK** pull request check job is green.
 - [ ] **CHECK** all pull request questions/requests are resolved.
 - [ ] **WAIT** till PR is approved by at least 1 committer.

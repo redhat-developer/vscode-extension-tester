@@ -1,9 +1,11 @@
 {
 	"name": "helloworld-sample",
-	"displayName": "helloworld-sample",
-	"description": "HelloWorld example for VS Code Extension Tester",
-	"version": "0.0.2",
-	"publisher": "extest-samples",
+	"displayName": "HelloWorld Sample",
+	"description": "HelloWorld example extension for ExTester",
+	"icon": "icons/logo.png",
+	"preview": true,
+	"version": "0.1.0",
+	"publisher": "ExTester",
 	"license": "MIT",
 	"repository": "https://github.com/redhat-developer/vscode-extension-tester/examples/helloworld-sample",
 	"engines": {

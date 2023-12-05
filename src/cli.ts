@@ -6,13 +6,13 @@ import { ReleaseQuality } from './util/codeUtil';
 const pjson = require('../package.json');
 
 program.version(pjson.version)
-    .description('VSCode Extension UI Test Runner');
+    .description('UI Test Runner for VS Code Extension');
 
 program.command('get-vscode')
-    .description('Download VSCode for testing')
+    .description('Download VS Code for testing')
     .option('-s, --storage <storage>', 'Use this folder for all test resources')
-    .option('-c, --code_version <version>', 'Version of VSCode to download, use `min`/`max` to download the oldest/latest VSCode supported by extester')
-    .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
+    .option('-c, --code_version <version>', 'Version of VS Code to download, use `min`/`max` to download the oldest/latest VS Code supported by ExTester')
+    .option('-t, --type <type>', 'Type of VS Code release (stable/insider)')
     .action(withErrors(async (cmd) => {
         const extest = new ExTester(cmd.storage, codeStream(cmd.type));
         await extest.downloadCode(cmd.code_version);
@@ -21,20 +21,20 @@ program.command('get-vscode')
 program.command('get-chromedriver')
     .description('Download ChromeDriver binary')
     .option('-s, --storage <storage>', 'Use this folder for all test resources')
-    .option('-c, --code_version <version>', 'Version of VSCode you want to run with the ChromeDriver, use `min`/`max` to download the oldest/latest VSCode supported by extester')
-    .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
+    .option('-c, --code_version <version>', 'Version of VS Code you want to run with the ChromeDriver, use `min`/`max` to download the oldest/latest VS Code supported by ExTester')
+    .option('-t, --type <type>', 'Type of VS Code release (stable/insider)')
     .action(withErrors(async (cmd) => {
         const extest = new ExTester(cmd.storage, codeStream(cmd.type));
         await extest.downloadChromeDriver(cmd.code_version);
     }));
 
 program.command('install-vsix')
-    .description('Install extension from vsix file into test instance of VSCode')
+    .description('Install extension from vsix file into test instance of VS Code')
     .option('-s, --storage <storage>', 'Use this folder for all test resources')
-    .option('-e, --extensions_dir <extensions_directory>', 'VSCode will use this directory for managing extensions')
+    .option('-e, --extensions_dir <extensions_directory>', 'VS Code will use this directory for managing extensions')
     .option('-f, --vsix_file <file>', 'path/URL to vsix file containing the extension')
     .option('-y, --yarn', 'Use yarn to build the extension via vsce instead of npm', false)
-    .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
+    .option('-t, --type <type>', 'Type of VS Code release (stable/insider)')
     .option('-i, --install_dependencies', 'Automatically install extensions your extension depends on', false)
     .action(withErrors(async (cmd) => {
         const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
@@ -42,10 +42,10 @@ program.command('install-vsix')
     }));
 
 program.command('install-from-marketplace <id> [ids...]')
-    .description('Install extension from marketplace with given <id> into test instance of VSCode')
+    .description('Install extension from marketplace with given <id> into test instance of VS Code')
     .option('-s, --storage <storage>', 'Use this folder for all test resources')
-    .option('-e, --extensions_dir <extensions_directory>', 'VSCode will use this directory for managing extensions')
-    .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
+    .option('-e, --extensions_dir <extensions_directory>', 'VS Code will use this directory for managing extensions')
+    .option('-t, --type <type>', 'Type of VS Code release (stable/insider)')
     .action(withErrors(async (id, ids, cmd) => {
         const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
         await extest.installFromMarketplace(id);
@@ -59,9 +59,9 @@ program.command('install-from-marketplace <id> [ids...]')
 program.command('setup-tests')
     .description('Set up all necessary requirements for tests to run')
     .option('-s, --storage <storage>', 'Use this folder for all test resources')
-    .option('-e, --extensions_dir <extensions_directory>', 'VSCode will use this directory for managing extensions')
-    .option('-c, --code_version <version>', 'Version of VSCode to download, use `min`/`max` to download the oldest/latest VSCode supported by extester')
-    .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
+    .option('-e, --extensions_dir <extensions_directory>', 'VS Code will use this directory for managing extensions')
+    .option('-c, --code_version <version>', 'Version of VS Code to download, use `min`/`max` to download the oldest/latest VS Code supported by ExTester')
+    .option('-t, --type <type>', 'Type of VS Code release (stable/insider)')
     .option('-y, --yarn', 'Use yarn to build the extension via vsce instead of npm', false)
     .option('-i, --install_dependencies', 'Automatically install extensions your extension depends on', false)
     .action(withErrors(async (cmd) => {
@@ -72,9 +72,9 @@ program.command('setup-tests')
 program.command('run-tests <testFiles...>')
     .description('Run the test files specified by glob pattern(s)')
     .option('-s, --storage <storage>', 'Use this folder for all test resources')
-    .option('-e, --extensions_dir <extensions_directory>', 'VSCode will use this directory for managing extensions')
-    .option('-c, --code_version <version>', 'Version of VSCode to be used, use `min`/`max` to download the oldest/latest VSCode supported by extester')
-    .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
+    .option('-e, --extensions_dir <extensions_directory>', 'VS Code will use this directory for managing extensions')
+    .option('-c, --code_version <version>', 'Version of VS Code to be used, use `min`/`max` to download the oldest/latest VS Code supported by ExTester')
+    .option('-t, --type <type>', 'Type of VS Code release (stable/insider)')
     .option('-o, --code_settings <settings.json>', 'Path to custom settings for VS Code json file')
     .option('-u, --uninstall_extension', 'Uninstall the extension after the test run', false)
     .option('-m, --mocha_config <mocharc.js>', 'Path to Mocha configuration file')
@@ -89,9 +89,9 @@ program.command('run-tests <testFiles...>')
 program.command('setup-and-run <testFiles...>')
     .description('Perform all setup and run tests specified by glob pattern(s)')
     .option('-s, --storage <storage>', 'Use this folder for all test resources')
-    .option('-e, --extensions_dir <extensions_directory>', 'VSCode will use this directory for managing extensions')
-    .option('-c, --code_version <version>', 'Version of VSCode to download, use `min`/`max` to download the oldest/latest VSCode supported by extester')
-    .option('-t, --type <type>', 'Type of VSCode release (stable/insider)')
+    .option('-e, --extensions_dir <extensions_directory>', 'VS Code will use this directory for managing extensions')
+    .option('-c, --code_version <version>', 'Version of VS Code to download, use `min`/`max` to download the oldest/latest VS Code supported by ExTester')
+    .option('-t, --type <type>', 'Type of VS Code release (stable/insider)')
     .option('-o, --code_settings <settings.json>', 'Path to custom settings for VS Code json file')
     .option('-y, --yarn', 'Use yarn to build the extension via vsce instead of npm', false)
     .option('-u, --uninstall_extension', 'Uninstall the extension after the test run', false)

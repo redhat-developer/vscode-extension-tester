@@ -14,7 +14,7 @@ export * from './suite/mochaHooks';
 export * from 'monaco-page-objects';
 
 export interface SetupOptions {
-    /** version of VSCode to test against, defaults to latest */
+    /** version of VS Code to test against, defaults to latest */
     vscodeVersion?: string;
     /** when true run `vsce package` with the `--yarn` flag */
     useYarn?: boolean;
@@ -39,7 +39,7 @@ export const VSCODE_VERSION_MAX = '1.85.1';
 export const NODEJS_VERSION_MAX = '18.15.0';
 
 /**
- * VSCode Extension Tester
+ * ExTester
  */
 export class ExTester {
     private code: CodeUtil;
@@ -52,7 +52,7 @@ export class ExTester {
         if (process.versions.node > NODEJS_VERSION_MAX) {
             console.log(
                 '\x1b[31m%s\x1b[0m',
-                `\nERROR:\tYou are using the unsupported NodeJS version '${process.versions.node}'. The latest supported version is '${NODEJS_VERSION_MAX}'.\n\tWe recommend to use supported version to have vscode-extension-tester working properly.\n\tMore info at https://github.com/redhat-developer/vscode-extension-tester/issues/975\n\n`
+                `\nERROR:\tYou are using the unsupported NodeJS version '${process.versions.node}'. The latest supported version is '${NODEJS_VERSION_MAX}'.\n\tWe recommend to use supported version to have ExTester working properly.\n\tMore info at https://github.com/redhat-developer/vscode-extension-tester/issues/975\n\n`
             );
         }
     }
@@ -144,7 +144,7 @@ export class ExTester {
      * Performs requirements setup and runs extension tests
      * 
      * @param testFilesPattern glob pattern(s) for test files to run
-     * @param vscodeVersion version of VSCode to test against, defaults to latest
+     * @param vscodeVersion version of VS Code to test against, defaults to latest
      * @param setupOptions Additional options for setting up the tests
      * @param runOptions Additional options for running the tests
      * 

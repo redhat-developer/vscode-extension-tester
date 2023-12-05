@@ -16,7 +16,7 @@ export enum ReleaseQuality {
 }
 
 export interface RunOptions {
-    /** version of VSCode to test against, defaults to latest */
+    /** version of VS Code to test against, defaults to latest */
     vscodeVersion?: string;
     /** path to custom settings json file */
     settings?: string;
@@ -59,7 +59,7 @@ export class CodeUtil {
     /**
      * Create an instance of code handler 
      * @param folder Path to folder where all the artifacts will be stored.
-     * @param extensionsFolder Path to use as extensions directory by VSCode
+     * @param extensionsFolder Path to use as extensions directory by VS Code
      */
     constructor(folder: string = DEFAULT_STORAGE_FOLDER, type: ReleaseQuality = ReleaseQuality.Stable, extensionsFolder?: string) {
         this.availableVersions = [];

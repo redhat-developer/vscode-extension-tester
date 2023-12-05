@@ -1,10 +1,11 @@
 <h1 align="center">
+  <img alt="" width="125" height="125" src="./icons/logo.png">
   <br>
-  Visual Studio Code Extension Tester
+  ExTester
 </h1>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/vscode-extension-tester"><img src="https://img.shields.io/npm/v/vscode-extension-tester?label=extester&color=orange&style=for-the-badge" alt="VSCode ExTester"/></a>
+  <a href="https://www.npmjs.com/package/vscode-extension-tester"><img src="https://img.shields.io/npm/v/vscode-extension-tester?label=extester&color=orange&style=for-the-badge" alt="ExTester"/></a>
   <a href="https://www.npmjs.com/package/vscode-extension-tester-locators"><img src="https://img.shields.io/npm/v/vscode-extension-tester-locators?color=orange&label=locators&style=for-the-badge" alt="ExTester Locators"/></a>
   <a href="https://www.npmjs.com/package/monaco-page-objects"><img src="https://img.shields.io/npm/v/monaco-page-objects?color=orange&label=page%20objects&style=for-the-badge" alt="ExTester Page Objects"/></a>
   <a href="https://github.com/redhat-developer/vscode-extension-tester/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache%202-blue.svg?style=for-the-badge&logo=appveyor" alt="License"/></a>
@@ -24,55 +25,52 @@
 </p>
 
 <p align="center">
-Extension Tester is a package that is designed to help you run UI tests for your <a href="https://code.visualstudio.com/">Visual Studio Code</a> extensions using <a href="https://www.npmjs.com/package/selenium-webdriver">selenium-webdriver</a>.
+<b>ExTester</b>: Your Essential UI Testing Companion for <a href="https://code.visualstudio.com/">Visual Studio Code</a> Extensions!<br>Seamlessly execute UI tests with <a href="https://www.npmjs.com/package/selenium-webdriver">Selenium WebDriver</a>, ensuring robustness and reliability in your extension development journey. Simplify UI testing for your VS Code extensions and elevate the quality of your user interface effortlessly. Dive into efficient testing with ExTester today!
 </p><br/>
 
 ### Features
 
-- Download a test instance of Visual Studio Code
-- Download the appropriate version of ChromeDriver
-- Package and Install your extension into downloaded VS Code instance
-- Launch the VS Code instance using Selenium Webdriver
-- Run your tests
+- ⭐ Download a test instance of Visual Studio Code.
+- ⭐ Download the appropriate version of ChromeDriver.
+- ⭐ Pack and Install your extension into downloaded VS Code instance.
+- ⭐ Launch the VS Code instance using Selenium WebDriver.
+- ⭐ Run your tests.
 
 ### Requirements
 
-- **Visual Studio Code 1.37+**
-- **NodeJS <=18.15.x**
-- Supported Operating Systems
-  - **Linux**
-  - **Windows**
-  - **macOS** (platform specific limitations, more in [Known Issues](KNOWN_ISSUES.md#macos-known-limitations-of-native-objects))
+|NodeJS|Visual Studio Code|Operating System|
+|--|--|--|
+|<table style="text-align:center;"> <tr><th>16.x.x</th><th>18.x.x</th></tr><tr><td>✅</td><td>⚠️ <=18.15.x</td></tr> </table>| <table style="text-align:center;"> <tr><th>min</th><th>-</th><th>max</th></tr><tr><td>1.83.1</td><td>1.84.2</td><td>1.85.1</td></tr> </table>| <table style="text-align:center;"> <tr><th>Linux</th><th>Windows</th><th>macOS</th></tr><tr><td>✅</td><td>✅</td><td>⚠️ [Known Issues](KNOWN_ISSUES.md#macos-known-limitations-of-native-objects)</td></tr> </table>|
 
 ### Usage
 
-Simply install our package into your extension devDependencies to get started:
+Simply install our package into your extension `devDependencies` to get started:
 
 ```npm
 npm install --save-dev vscode-extension-tester@latest
 ```
 
-Make sure to check out the [documentation](#documentation) for detailed instructions.
+Make sure to check out the [Documentation](#documentation) for detailed instructions.
 
-- [How to set up the tests](../../wiki/Test-Setup)
-- [Configuring Mocha](../../wiki/Mocha-Configuration)
-- [An example simple test case](../../wiki/Writing-Simple-Tests)
-- [Page object API quick guide](../../wiki/Page-Object-APIs)
+- 📄 [How to set up the tests](../../wiki/Test-Setup)
+- 📄 [Configuring Mocha](../../wiki/Mocha-Configuration)
+- 📄 [An example simple test case](../../wiki/Writing-Simple-Tests)
+- 📄 [Page objects API quick guide](../../wiki/Page-Object-APIs)
 
 ### Documentation
 
-Our full documentation is located in [GitHub Wiki](https://github.com/redhat-developer/vscode-extension-tester/wiki). Included are details about Page Object API and how to setup Mocha tests information.
+Our full documentation is located in 🔗 [GitHub Wiki](https://github.com/redhat-developer/vscode-extension-tester/wiki). Included are details about Page Objects API and how to setup Mocha tests information.
 
 ### Issues
 
-Something is not working properly? In that case, feel free to [open issues, add feature requests, report bugs, etc.](https://github.com/redhat-developer/vscode-extension-tester/issues)
+Something is not working properly? In that case, feel free to 🔗 [open feature requests, report bugs, etc.](https://github.com/redhat-developer/vscode-extension-tester/issues)
 
 ### Get Involved
 
 ![Contribution Welcomed](https://img.shields.io/badge/welcomed-yellow.svg?style=for-the-badge&label=contribution)
 
-If you'd like to help us get better, we appreciate it! Check out our [Contribution Guide](CONTRIBUTING.md) on how to do that.
+If you'd like to help us get better, we appreciate it! Check out our 🔗 [Contribution Guide](CONTRIBUTING.md) on how to do that.
 
 ### Known Issues
 
-We have prepared few answers for most common problems community reported. See [Known Issues](KNOWN_ISSUES.md)
+We have prepared few answers for most common problems community reported. See 🔗 [Known Issues](KNOWN_ISSUES.md)
