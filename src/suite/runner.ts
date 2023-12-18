@@ -94,7 +94,10 @@ export class VSRunner {
             this.mocha.run((failures) => {
                 process.exitCode = failures ? 1 : 0;
                 if(process.exitCode) {
-                    console.log('\x1b[33m%s\x1b[0m', `INFO: Screenshots of failures can be found in: ${browser.getScreenshotsDir()}\n`);
+                    console.log(
+                        '\x1b[33m%s\x1b[0m',
+                        `INFO: Screenshots of failures can be found in: ${browser.getScreenshotsDir()}\n`
+                    );
                 }
                 resolve(process.exitCode);
             });

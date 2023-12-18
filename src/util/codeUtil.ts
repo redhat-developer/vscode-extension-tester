@@ -97,12 +97,13 @@ export class CodeUtil {
 
         const literalVersion = version === 'latest' ? this.availableVersions[0] : version;
         if (this.releaseType == ReleaseQuality.Stable && literalVersion !== this.availableVersions[0]) {
-            console.log('\x1b[33m%s\x1b[0m', `
-                WARNING: You are using the outdated VSCode version '${literalVersion}'. The latest stable version is '${this.availableVersions[0]}'.
-            `);
+            console.log(
+                '\x1b[33m%s\x1b[0m',
+                `\n\nWARNING: You are using the outdated VS Code version '${literalVersion}'. The latest stable version is '${this.availableVersions[0]}'.\n\n`
+            );
         }
 
-        console.log(`Downloading VSCode: ${literalVersion} / ${this.releaseType}`);
+        console.log(`Downloading VS Code: ${literalVersion} / ${this.releaseType}`);
         if (!fs.existsSync(this.executablePath) || await this.getExistingCodeVersion() !== literalVersion) {
             fs.mkdirpSync(this.downloadFolder);
 

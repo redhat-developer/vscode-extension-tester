@@ -50,11 +50,10 @@ export class ExTester {
         this.chrome = new DriverUtil(storageFolder);
 
         if (process.versions.node > NODEJS_VERSION_MAX) {
-            console.log('\x1b[31m%s\x1b[0m', `
-                ERROR: You are using the unsupported NodeJS version '${process.versions.node}'. The latest supported version is '${NODEJS_VERSION_MAX}'.
-                       We recommend to use supported version to have vscode-extension-tester working properly.
-                       More info at https://github.com/redhat-developer/vscode-extension-tester/issues/975
-            `);
+            console.log(
+                '\x1b[31m%s\x1b[0m',
+                `\nERROR:\tYou are using the unsupported NodeJS version '${process.versions.node}'. The latest supported version is '${NODEJS_VERSION_MAX}'.\n\tWe recommend to use supported version to have vscode-extension-tester working properly.\n\tMore info at https://github.com/redhat-developer/vscode-extension-tester/issues/975\n\n`
+            );
         }
     }
 
