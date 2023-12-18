@@ -53,7 +53,7 @@
     "typescript": "*"
   },
   "dependencies": {
-    "@types/selenium-webdriver": "^4.1.20",
+    "@types/selenium-webdriver": "^4.1.21",
     "@vscode/vsce": "^2.22.0",
     "commander": "^11.1.0",
     "compare-versions": "^6.1.0",
@@ -64,7 +64,7 @@
     "js-yaml": "^4.1.0",
     "monaco-page-objects": "^3.11.0",
     "sanitize-filename": "^1.6.3",
-    "selenium-webdriver": "^4.15.0",
+    "selenium-webdriver": "^4.16.0",
     "targz": "^1.0.1",
     "unzipper": "^0.10.14",
     "vscode-extension-tester-locators": "^3.9.0"
