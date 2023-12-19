@@ -1,3 +1,4 @@
+import { Key } from "selenium-webdriver";
 import { AbstractElement } from "../AbstractElement";
 import { Notification, CenterNotification, NotificationType } from "./Notification";
 
@@ -15,7 +16,12 @@ export class NotificationsCenter extends AbstractElement {
      */
     async close(): Promise<void> {
         if (await this.isDisplayed()) {
-            await this.findElement(NotificationsCenter.locators.NotificationsCenter.close).click();
+            try {
+                await this.findElement(NotificationsCenter.locators.NotificationsCenter.close).click();
+            } catch (error) {
+                await this.click();
+                this.getDriver().actions().sendKeys(Key.ESCAPE).perform();
+            }
         }
     }
 
