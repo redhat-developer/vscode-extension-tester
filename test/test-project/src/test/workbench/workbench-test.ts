@@ -40,7 +40,9 @@ describe('Workbench', () => {
 
     it('openNotificationsCenter works', async () => {
         const center = await bench.openNotificationsCenter();
-        expect(await center.isDisplayed()).is.true;
+        await center.getDriver().wait(async () => {
+            return await center.isDisplayed();
+        }, 5000, 'Notifications center was not displayed properly!');
         await center.close();
     });
 
