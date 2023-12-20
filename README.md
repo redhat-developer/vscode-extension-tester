@@ -50,7 +50,7 @@ Simply install our package into your extension `devDependencies` to get started:
 npm install --save-dev vscode-extension-tester@latest
 ```
 
-Make sure to check out the [Documentation](#documentation) for detailed instructions.
+Make sure to check out the 🔗 [Documentation](#documentation) for detailed instructions.
 
 - 📄 [How to set up the tests](../../wiki/Test-Setup)
 - 📄 [Configuring Mocha](../../wiki/Mocha-Configuration)

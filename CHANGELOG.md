@@ -1,8 +1,14 @@
 # Change Log
 
-## NEXT
+## 7.0.0
 
-> Month DD YYYY
+> December 20, 2023
+
+- [🚫 Bug] Wrong indentation of warning/error messages in console logs
+- [🚫 Bug] Failed to write a test for a user webview
+- [🚀 Request] Remove deprecated content from Wiki pages
+- [🚀 Request] Rename package to comply with VS Code policy
+- [🚀 Request] Support VS Code 1.85.x
 
 ## 6.0.0
 
