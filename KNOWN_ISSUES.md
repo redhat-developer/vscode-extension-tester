@@ -6,7 +6,7 @@ This is likely due to a missing dependency on ChromeDriver that runs underneath.
 
 ## VS Code Version Support & Backward Compatibility
 
-Extension Tester **currently supports the latest 3 minor releases** of VS Code (subject to change if VS Code 2.x ever comes out). Additionally, the oldest release of VS Code that can be successfully used with Extension Tester is `1.37.0`. Older versions of VS Code might not work at all.
+ExTester **currently supports the latest 3 minor releases** of VS Code (subject to change if VS Code 2.x ever comes out). Additionally, the oldest release of VS Code that can be successfully used with ExTester is `1.37.0`. Older versions of VS Code might not work at all.
 
 Versions older than the supported 3 latest releases, but still newer than `1.37.0` will most likely work just fine. However, if they stop working over time, there will be no more fixes to make them work. Unless you'd like to contribute these.
 
@@ -15,13 +15,13 @@ Versions older than the supported 3 latest releases, but still newer than `1.37.
 The macOS has limitations due to its platform specific native components used also by Visual Studio Code. These components are not at this moment supported on side of vscode-extension-tester / page-objects library. The mentioned not supported components are:
 
 - **native modal dialogs** (e.g. file/folder dialogs)
-- **native context menus** (e.g. click on vscode Manage button)
+- **native context menus** (e.g. click on Manage button)
 - **native menu title bar** (e.g. navigation in menu as File > New File...)
 
 We are trying to bring some solution or workarounds, because currently there is no other option.
 
-1. in case you need to use **dialogs**, please use simple dialogs in vscode (see [wiki using dialogs](https://github.com/redhat-developer/vscode-extension-tester/wiki#using-dialogs))
-2. for **context menus** and **title bar**, please use command equivalents from vscode command palette
+1. in case you need to use **dialogs**, please use simple dialogs in VS Code (see [wiki using dialogs](https://github.com/redhat-developer/vscode-extension-tester/wiki#using-dialogs))
+2. for **context menus** and **title bar**, please use command equivalents from VS Code command palette
 
 ## Migrating to ExTester 4.0.0+
 

@@ -1,6 +1,6 @@
 # Hello World Sample
 
-This is a Hello World sample extension that shows you how to set up and run simple UI tests for VS Code extensions using the extension tester.
+This is a Hello World sample extension that shows you how to set up and run simple UI tests for VS Code extensions using the ExTester.
 
 ## Motivation
 
@@ -10,10 +10,10 @@ Our sample extension gives us the ability to call the `Hello World` command, one
 
 ## Dependencies and Requirements
 
-In order to run the extension tester, the extension needs 2 packages as (dev)Dependencies:
+In order to run the ExTester, the extension needs 2 packages as (dev)Dependencies:
 
 - `vscode-extension-tester` - the extension testing framework itself
-- `mocha` - Mocha test framework is required, as the extension tester uses it for writing and running its tests
+- `mocha` - Mocha test framework is required, as the ExTester uses it for writing and running its tests
 
 This sample also uses `chai` as the assertion framework of choice, but feel free to use any assertion package you like.
 
@@ -25,9 +25,9 @@ Also note that the folder `test-resources` (which stores all the required binari
 - Run `npm install` in terminal to install dependencies
 - Run `npm run ui-test` in terminal. This will:
   - Compile the code
-  - Download the latest version of VSCode
-  - Download the adequate version of chromedriver
-  - Run the downloaded VSCode binary using chromedriver
+  - Download the latest version of VS Code
+  - Download the adequate version of ChromeDriver
+  - Run the downloaded VS Code binary using ChromeDriver
   - Run the tests located in `src/ui-test`
 
 To check the `ui-test` script, see the `script` section inside `package.json`.

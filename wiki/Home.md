@@ -1,5 +1,5 @@
-# VS Code Extension Tester
-VS Code Extension Tester is a package designed to help you run UI tests for your VS Code extensions using selenium-webdriver.
+# ExTester
+ExTester is a package designed to help you run UI tests for your VS Code extensions using selenium-webdriver.
 Simply install it into your extension devDependencies to get started:
 
 ```npm install --save-dev vscode-extension-tester```
@@ -46,7 +46,7 @@ await VSBrowser.openResources(`${path/to/folder1}`, ${path/to/file1}, ${path/to/
 
 ### Using Dialogs
 As of vscode 1.50 files/folders can be opened using the Simple Dialog, which uses an input box to select paths. 
-If you are running extension tester 4.2.0 or newer, the Simple Dialog is enabled by default. On older versions, make sure to use the following settings.
+If you are running ExTester 4.2.0 or newer, the Simple Dialog is enabled by default. On older versions, make sure to use the following settings.
 ```
 Files > Simple Dialog > Enable: True
 Window > Dialog Style: Custom

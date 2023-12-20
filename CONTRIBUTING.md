@@ -1,4 +1,4 @@
-# Contributing to VS Code Extension Tester
+# Contributing
 
 First of all, **welcome!** Thank you for your interest in contributing to our testing framework.
 
@@ -48,7 +48,7 @@ After these steps, you should be able to run the project and make your changes. 
 
 ### Test It
 
-**When you make a change, make sure the tests are passing**. In the ```test/test-project``` directory there is a dummy vscode extension we use to test the framework itself.
+**When you make a change, make sure the tests are passing**. In the ```test/test-project``` directory there is a dummy VS Code extension we use to test the framework itself.
 
 First we need to install the dependencies of this project. For that, you can use the following script
 

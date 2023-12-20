@@ -1,9 +1,11 @@
 {
 	"name": "test-project",
 	"displayName": "Test Project",
-	"description": "Test Project for VS Code Extension Tester",
-	"version": "0.0.1",
-	"publisher": "vscode-extension-tester",
+	"description": "Extension dedicated to self-testing the ExTester package",
+	"icon": "icons/logo.png",
+	"version": "0.1.0",
+	"preview": true,
+	"publisher": "ExTester",
 	"license": "MIT",
 	"repository": "https://github.com/redhat-developer/vscode-extension-tester/test/test-project/",
 	"engines": {

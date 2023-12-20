@@ -62,7 +62,7 @@ See the individual page object pages below for quick usage guide. For complete A
 ***
 
 ##### Native Dialogs
-There is also a limited support for handling native dialogs done via virtual key presses. This requires installing the module `vscode-extension-tester-native` alongside the main extension tester package.
+There is also a limited support for handling native dialogs done via virtual key presses. This requires installing the module `vscode-extension-tester-native` alongside the main ExTester package.
 
 If you venture into this territory, make sure the application does not lose focus and you are not touching the keyboard while a native dialog is being handled.
  - [[OpenDialog]]
