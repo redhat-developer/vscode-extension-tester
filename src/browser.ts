@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 import { compareVersions } from 'compare-versions';
 import { WebDriver, Builder, until, initPageObjects, logging, By } from 'monaco-page-objects';
+import { Browser } from 'selenium-webdriver';
 import { Options, ServiceBuilder } from 'selenium-webdriver/chrome';
 import { getLocatorsPath } from 'vscode-extension-tester-locators';
 import { CodeUtil, ReleaseQuality } from './util/codeUtil';
@@ -21,7 +22,7 @@ export class VSBrowser {
     private logLevel: logging.Level;
     private static _instance: VSBrowser;
 
-    constructor(codeVersion: string, releaseType: ReleaseQuality, customSettings: Object = {}, logLevel: logging.Level = logging.Level.INFO) {
+    constructor(codeVersion: string, releaseType: ReleaseQuality, customSettings: Object = {}, logLevel: logging.Level = logging.Level.DEBUG) {
         this.storagePath = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.resolve(DEFAULT_STORAGE_FOLDER);
         this.extensionsFolder = process.env.EXTENSIONS_FOLDER ? process.env.EXTENSIONS_FOLDER : undefined;
         this.customSettings = customSettings;
@@ -77,20 +78,32 @@ export class VSBrowser {
             args.push(`--extensionDevelopmentPath=${process.cwd()}`);
         }
 
+        console.log(`Chrome binary path provided: ${codePath}`);
         let options = new Options().setChromeBinaryPath(codePath).addArguments(...args) as any;
         options['options_'].windowTypes = ['webview'];
         options = options as Options;
 
         const prefs = new logging.Preferences();
         prefs.setLevel(logging.Type.DRIVER, this.logLevel);
-        options.setLoggingPrefs(prefs);
+        // options.setLoggingPrefs(prefs);
 
+        const prefAll = new logging.Preferences();
+        prefAll.setLevel(logging.Type.DRIVER, logging.Level.FINEST);
+        prefAll.setLevel(logging.Type.BROWSER, logging.Level.FINEST);
+        prefAll.setLevel(logging.Type.CLIENT, logging.Level.FINEST);
+        prefAll.setLevel(logging.Type.SERVER, logging.Level.FINEST);
+        prefAll.setLevel(logging.Type.PERFORMANCE, logging.Level.FINEST);
+
+        const pathToChromeDriverExecutable = path.join(this.storagePath, process.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver');
+        console.log(`Chrome Driver path: ${pathToChromeDriverExecutable}`);
         console.log('Launching browser...');
         this._driver = await new Builder()
-            .setChromeService(new ServiceBuilder(path.join(this.storagePath, process.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver')))
-            .forBrowser('chrome')
+            .setChromeService(new ServiceBuilder(pathToChromeDriverExecutable))
+            .forBrowser(Browser.CHROME)
             .setChromeOptions(options)
+            .setLoggingPrefs(prefAll)
             .build();
+        console.log(`WebDriver built`);
         VSBrowser._instance = this;
         
         initPageObjects(this.codeVersion, VSBrowser.baseVersion, getLocatorsPath(), this._driver, VSBrowser.browserName);
