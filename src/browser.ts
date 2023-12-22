@@ -2,6 +2,7 @@
 
 import * as path from 'path';
 import * as fs from 'fs-extra';
+const dns = require('node:dns');
 import { compareVersions } from 'compare-versions';
 import { WebDriver, Builder, until, initPageObjects, logging, By } from 'monaco-page-objects';
 import { Browser } from 'selenium-webdriver';
@@ -93,6 +94,8 @@ export class VSBrowser {
         prefAll.setLevel(logging.Type.CLIENT, logging.Level.ALL);
         prefAll.setLevel(logging.Type.SERVER, logging.Level.ALL);
         prefAll.setLevel(logging.Type.PERFORMANCE, logging.Level.ALL);
+
+        dns.setDefaultResultOrder('ipv4first');
 
         const pathToChromeDriverExecutable = path.join(this.storagePath, process.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver');
         console.log(`Chrome Driver path: ${pathToChromeDriverExecutable}`);
