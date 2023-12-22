@@ -106,7 +106,7 @@ export class VSBrowser {
         const pathToChromeDriverExecutable = path.join(this.storagePath, process.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver');
         console.log(`Chrome Driver path: ${pathToChromeDriverExecutable}`);
         console.log('Launching browser...');
-        execSync(`${pathToChromeDriverExecutable} --verbose --log-path=chromedriver.log`);
+        //execSync(`${pathToChromeDriverExecutable} --verbose --log-path=chromedriver.log`);
         this._driver = await new Builder()
             .setChromeService(new ServiceBuilder(pathToChromeDriverExecutable))
             .forBrowser(Browser.CHROME)
