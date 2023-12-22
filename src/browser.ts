@@ -12,6 +12,7 @@ import { Options, ServiceBuilder } from 'selenium-webdriver/chrome';
 import { getLocatorsPath } from 'vscode-extension-tester-locators';
 import { CodeUtil, ReleaseQuality } from './util/codeUtil';
 import { DEFAULT_STORAGE_FOLDER } from './extester';
+import { execSync } from 'child_process';
 
 export class VSBrowser {
     static readonly baseVersion = '1.37.0';
@@ -105,6 +106,7 @@ export class VSBrowser {
         const pathToChromeDriverExecutable = path.join(this.storagePath, process.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver');
         console.log(`Chrome Driver path: ${pathToChromeDriverExecutable}`);
         console.log('Launching browser...');
+        execSync(`.${pathToChromeDriverExecutable} --verbose --log-path=chromedriver.log`);
         this._driver = await new Builder()
             .setChromeService(new ServiceBuilder(pathToChromeDriverExecutable))
             .forBrowser(Browser.CHROME)
