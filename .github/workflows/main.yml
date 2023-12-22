@@ -52,6 +52,12 @@ jobs:
           name: screenshots-${{ matrix.os }}-${{ matrix.version }}
           path: ${{ github.workspace }}/test/**/screenshots/*.png
 
+      - name: Upload logs
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          path: ${{ github.workspace }}/**/*.log
+
   check:
     if: always()
     runs-on: ubuntu-latest
