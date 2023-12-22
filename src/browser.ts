@@ -88,11 +88,11 @@ export class VSBrowser {
         // options.setLoggingPrefs(prefs);
 
         const prefAll = new logging.Preferences();
-        prefAll.setLevel(logging.Type.DRIVER, logging.Level.DEBUG);
-        prefAll.setLevel(logging.Type.BROWSER, logging.Level.DEBUG);
-        prefAll.setLevel(logging.Type.CLIENT, logging.Level.DEBUG);
-        prefAll.setLevel(logging.Type.SERVER, logging.Level.DEBUG);
-        prefAll.setLevel(logging.Type.PERFORMANCE, logging.Level.DEBUG);
+        prefAll.setLevel(logging.Type.DRIVER, logging.Level.ALL);
+        prefAll.setLevel(logging.Type.BROWSER, logging.Level.ALL);
+        prefAll.setLevel(logging.Type.CLIENT, logging.Level.ALL);
+        prefAll.setLevel(logging.Type.SERVER, logging.Level.ALL);
+        prefAll.setLevel(logging.Type.PERFORMANCE, logging.Level.ALL);
 
         const pathToChromeDriverExecutable = path.join(this.storagePath, process.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver');
         console.log(`Chrome Driver path: ${pathToChromeDriverExecutable}`);
