@@ -66,6 +66,7 @@
     "monaco-page-objects": "^3.12.0",
     "sanitize-filename": "^1.6.3",
     "selenium-webdriver": "^4.16.0",
+    "tar": "^6.2.0",
     "targz": "^1.0.1",
     "unzipper": "^0.10.14",
     "vscode-extension-tester-locators": "^3.10.0"

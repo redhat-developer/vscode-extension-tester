@@ -1,17 +1,16 @@
 import * as fs from 'fs-extra';
 import { exec } from 'child_process';
-const targz = require('targz');
+const targz = require('tar');
 import * as unzipper from 'unzipper';
 
 export class Unpack {
     static unpack(input: fs.PathLike, target: fs.PathLike): Promise<void> {
         return new Promise((resolve, reject) => {
             if (input.toString().endsWith('.tar.gz')) {
-                targz.decompress({
-                    src: input,
-                    dest: target
-                }, (err: Error) => {
-                    err ? reject(err) : resolve();
+                targz.extract({
+                    file: input,
+                    sync: true,
+                    cwd: target
                 });
             }
             else if (input.toString().endsWith('.zip')) {
