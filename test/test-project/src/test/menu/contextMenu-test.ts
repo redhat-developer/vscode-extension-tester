@@ -1,5 +1,4 @@
 import { TitleBar, ContextMenu, before, beforeEach, VSBrowser } from 'vscode-extension-tester';
-import { expect } from 'chai';
 import * as path from 'path';
 
 (process.platform === 'darwin' ? describe.skip : describe)('ContextMenu', function () {
@@ -21,13 +20,13 @@ import * as path from 'path';
         this.timeout(5000);
         const items = await menu.getItems();
         await menu.close();
-        expect(items).not.empty;
+        chai.expect(items).not.empty;
     });
 
     it('getItem finds an item with the given name', async function () {
         this.timeout(5000);
         const item = await menu.getItem('New File...');
         await menu.close();
-        expect(item).not.undefined;
+        chai.expect(item).not.undefined;
     });
 });

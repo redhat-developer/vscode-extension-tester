@@ -1,5 +1,4 @@
 import * as path from 'path';
-import { expect } from 'chai';
 import { EditorView, Workbench, DiffEditor, QuickOpenBox, InputBox, VSBrowser } from "vscode-extension-tester";
 
 describe('DiffEditor', async () => {
@@ -33,7 +32,7 @@ describe('DiffEditor', async () => {
         const originalEditor = await editor.getOriginalEditor();
         const modifiedEditor = await editor.getModifiedEditor();
 
-        expect(await originalEditor.getText()).equals('b');
-        expect(await modifiedEditor.getText()).equals('a');
+        chai.expect(await originalEditor.getText()).equals('b');
+        chai.expect(await modifiedEditor.getText()).equals('a');
     });
 });

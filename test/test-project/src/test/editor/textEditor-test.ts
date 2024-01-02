@@ -1,5 +1,4 @@
 import * as path from 'path';
-import { expect } from 'chai';
 import { TextEditor, EditorView, StatusBar, InputBox, ContentAssist, Workbench, FindWidget, VSBrowser, Notification, after, before } from "vscode-extension-tester";
 
 describe('ContentAssist', async function () {
@@ -45,22 +44,22 @@ describe('ContentAssist', async function () {
 
     it('getItems retrieves the suggestions', async function () {
         const items = await assist.getItems();
-        expect(items).not.empty;
+        chai.expect(items).not.empty;
     });
 
     it('getItem retrieves suggestion by text', async function () {
         const item = await assist.getItem('AbortController');
-        expect(await item.getLabel()).equals('AbortController');
+        chai.expect(await item.getLabel()).equals('AbortController');
     });
 
     it('getItem can find an item beyond visible range', async function () {
         const item = await assist.getItem('Buffer');
-        expect(item).not.undefined;
+        chai.expect(item).not.undefined;
     }).timeout(15000);
 
     it('hasItem finds items beyond visible range', async function () {
         const exists = await assist.hasItem('CSSRule');
-        expect(exists).is.true;
+        chai.expect(exists).is.true;
     }).timeout(15000);
 });
 
@@ -92,55 +91,55 @@ describe('TextEditor', function () {
     it('can get and set text', async function () {
         await editor.setText(testText);
         const text = await editor.getText();
-        expect(text).equals(testText);
+        chai.expect(text).equals(testText);
     });
 
     it('can get and set text at line', async function () {
         await editor.setTextAtLine(2, 'line5');
         const line = await editor.getTextAtLine(2);
-        expect(line).has.string('line5');
+        chai.expect(line).has.string('line5');
     });
 
     it('can type text at given coordinates', async function () {
         this.timeout(5000);
         await editor.typeTextAt(1, 6, '1');
         const line = await editor.getTextAtLine(1);
-        expect(line).has.string('line11');
+        chai.expect(line).has.string('line11');
     });
 
     it('getCoordinates works', async function () {
         this.timeout(15000);
 
         await editor.moveCursor(1, 1);
-        expect(await editor.getCoordinates()).to.deep.equal([1, 1]);
+        chai.expect(await editor.getCoordinates()).to.deep.equal([1, 1]);
 
         const lineCount = await editor.getNumberOfLines();
         const lastLine = await editor.getTextAtLine(lineCount);
 
         await editor.moveCursor(lineCount, lastLine.length);
-        expect(await editor.getCoordinates()).to.deep.equal([lineCount, lastLine.length]);
+        chai.expect(await editor.getCoordinates()).to.deep.equal([lineCount, lastLine.length]);
     });
 
     it('getNumberOfLines works', async function () {
         const lines = await editor.getNumberOfLines();
-        expect(lines).equals(3);
+        chai.expect(lines).equals(3);
     });
 
     it('toggleContentAssist works', async function () {
         this.timeout(15000);
         const assist = await editor.toggleContentAssist(true) as ContentAssist;
-        expect(await assist.isDisplayed()).is.true;
+        chai.expect(await assist.isDisplayed()).is.true;
 
         await editor.toggleContentAssist(false);
     });
 
     it('getTab works', async function () {
         const tab = await editor.getTab();
-        expect(await tab.getTitle()).equals(await editor.getTitle());
+        chai.expect(await tab.getTitle()).equals(await editor.getTitle());
     });
 
     (process.platform === 'darwin' ? it.skip : it)('formatDocument works', async function () {
-        expect(await editor.formatDocument()).not.to.throw;
+        chai.expect(await editor.formatDocument()).not.to.throw;
     });
 
     describe('searching', function () {
@@ -151,28 +150,28 @@ describe('TextEditor', function () {
 
         it('getLineOfText works', async function () {
             const line = await editor.getLineOfText('line');
-            expect(line).equals(1);
+            chai.expect(line).equals(1);
         });
 
         it('getLineOfText finds multiple occurrences', async function () {
             const line = await editor.getLineOfText('line', 5);
-            expect(line).equals(6);
+            chai.expect(line).equals(6);
         });
 
         it('getLineOfText returns -1 on no line found', async function () {
             const line = await editor.getLineOfText('wat');
-            expect(line).equals(-1);
+            chai.expect(line).equals(-1);
         });
 
         it('getLineOfText returns last known occurrence if there are fewer than specified', async function () {
             const line = await editor.getLineOfText('line', 15);
-            expect(line).equals(6);
+            chai.expect(line).equals(6);
         });
 
         it('selected text can be get', async function () {
             const text = 'bline';
             await editor.selectText(text);
-            expect(await editor.getSelectedText()).equals(text);
+            chai.expect(await editor.getSelectedText()).equals(text);
         });
 
         it('selectText errors if given text doesnt exist', async function () {
@@ -180,7 +179,7 @@ describe('TextEditor', function () {
             try {
                 await editor.selectText(text);
             } catch (err) {
-                expect(err.message).has.string(`Text '${text}' not found`);
+                chai.expect(err.message).has.string(`Text '${text}' not found`);
             }
         });
 
@@ -188,7 +187,7 @@ describe('TextEditor', function () {
             await editor.selectText('cline');
             const selection = await editor.getSelection();
 
-            expect(selection).not.undefined;
+            chai.expect(selection).not.undefined;
 
             const menu = await selection.openContextMenu();
             await menu.close();
@@ -209,46 +208,46 @@ describe('TextEditor', function () {
         it('toggleReplace works', async function () {
             const height = (await widget.getRect()).height;
             await widget.toggleReplace(true);
-            expect((await widget.getRect()).height).to.be.gt(height);
+            chai.expect((await widget.getRect()).height).to.be.gt(height);
         });
 
         it('setSearchText works', async function () {
             await widget.setSearchText('line');
-            expect(await widget.getSearchText()).equals('line');
+            chai.expect(await widget.getSearchText()).equals('line');
         });
 
         it('setReplaceText works', async function () {
             await widget.setReplaceText('line1');
-            expect(await widget.getReplaceText()).equals('line1');
+            chai.expect(await widget.getReplaceText()).equals('line1');
         });
 
         it('getResultCount works', async function () {
             const count = await widget.getResultCount();
-            expect(count[0]).gte(1);
-            expect(count[1]).gt(1);
+            chai.expect(count[0]).gte(1);
+            chai.expect(count[1]).gt(1);
         });
 
         it('nextMatch works', async function () {
             const count = (await widget.getResultCount())[0];
             await widget.nextMatch();
-            expect((await widget.getResultCount())[0]).equals(count + 1);
+            chai.expect((await widget.getResultCount())[0]).equals(count + 1);
         });
 
         it('previousMatch works', async function () {
             const count = (await widget.getResultCount())[0];
             await widget.previousMatch();
-            expect((await widget.getResultCount())[0]).equals(count - 1);
+            chai.expect((await widget.getResultCount())[0]).equals(count - 1);
         });
 
         it('replace works', async function () {
             await widget.replace();
-            expect(await editor.getLineOfText('line1')).gt(0);
+            chai.expect(await editor.getLineOfText('line1')).gt(0);
         });
 
         it('replace all works', async function () {
             const original = await editor.getText();
             await widget.replaceAll();
-            expect(await editor.getText()).not.equals(original);
+            chai.expect(await editor.getText()).not.equals(original);
         });
 
         it('toggleMatchCase works', async function () {
@@ -284,7 +283,7 @@ describe('TextEditor', function () {
 
         it('getCodeLenses works', async function () {
             const lenses = await editor.getCodeLenses();
-            expect(lenses.length).is.equal(7);
+            chai.expect(lenses.length).is.equal(7);
         });
 
         it('getCodeLens works with index', async function () {
@@ -292,29 +291,29 @@ describe('TextEditor', function () {
             const lens0Duplicate = await editor.getCodeLens(0);
             const lens1 = await editor.getCodeLens(1);
 
-            expect(await lens0.getId()).not.equal(await lens1.getId());
-            expect(await lens0.getId()).equal(await lens0Duplicate.getId());
+            chai.expect(await lens0.getId()).not.equal(await lens1.getId());
+            chai.expect(await lens0.getId()).equal(await lens0Duplicate.getId());
         });
 
         it('getCodeLens works with partial text', async function () {
             const lens = await editor.getCodeLens('Codelens provided');
-            expect(await lens.getText()).has.string('Codelens provided');
-            expect(await lens.getTooltip()).has.string('Tooltip provided');
+            chai.expect(await lens.getText()).has.string('Codelens provided');
+            chai.expect(await lens.getTooltip()).has.string('Tooltip provided');
         });
 
         it('getCodeLenses works with second in the span', async function () {
             const lens = await editor.getCodeLens(6);
-            expect(lens).is.not.undefined;
-            expect(await lens.getText()).has.string('Codelens provided');
-            expect(await lens.getTooltip()).has.string('Tooltip provided');
+            chai.expect(lens).is.not.undefined;
+            chai.expect(await lens.getText()).has.string('Codelens provided');
+            chai.expect(await lens.getTooltip()).has.string('Tooltip provided');
         });
 
         it('getCodeLens returns undefined when nothing is found', async function () {
             const lens1 = await editor.getCodeLens('This does not exist');
-            expect(lens1).is.undefined;
+            chai.expect(lens1).is.undefined;
 
             const lens2 = await editor.getCodeLens(666);
-            expect(lens2).is.undefined;
+            chai.expect(lens2).is.undefined;
         });
 
         it('clicking triggers the lens command', async function () {
@@ -331,7 +330,7 @@ describe('TextEditor', function () {
                     break;
                 }
             }
-            expect(notification).not.undefined;
+            chai.expect(notification).not.undefined;
         });
     });
 });

@@ -1,6 +1,5 @@
 import * as path from 'path';
 import { TextEditor, EditorView, ProblemsView, BottomBarPanel, MarkerType, VSBrowser } from "vscode-extension-tester";
-import { expect } from 'chai';
 
  describe('ProblemsView', function () {
     let editor: TextEditor;
@@ -32,51 +31,51 @@ import { expect } from 'chai';
 
     it('get all markers works', async function () {
         const markers = await view.getAllVisibleMarkers(MarkerType.Any);
-        expect(markers.length).greaterThan(1);
+        chai.expect(markers.length).greaterThan(1);
     });
 
     it('get warnings works', async function () {
         const markers = await view.getAllVisibleMarkers(MarkerType.Warning);
-        expect(markers).empty;
+        chai.expect(markers).empty;
     });
 
     it('get errors works', async function () {
         const markers = await view.getAllVisibleMarkers(MarkerType.Error);
-        expect(markers.length).equals(1);
+        chai.expect(markers.length).equals(1);
     });
 
     it('get files works', async function () {
         const markers = await view.getAllVisibleMarkers(MarkerType.File);
-        expect(markers.length).equals(1);
+        chai.expect(markers.length).equals(1);
     });
 
     it('filtering works', async function () {
         await view.setFilter('aaaa');
         await view.getDriver().sleep(500);
         const markers = await view.getAllVisibleMarkers(MarkerType.Any);
-        expect(markers.length).equals(2);
+        chai.expect(markers.length).equals(2);
     });
 
     describe('Marker', function () {
         it('getType works', async function () {
             const markers = await view.getAllVisibleMarkers(MarkerType.Error);
-            expect(await markers[0].getType()).equals(MarkerType.Error);
+            chai.expect(await markers[0].getType()).equals(MarkerType.Error);
         });
 
         it('getText works', async function () {
             const markers = await view.getAllVisibleMarkers(MarkerType.File);
-            expect(await markers[0].getText()).has.string('test-file.ts');
+            chai.expect(await markers[0].getText()).has.string('test-file.ts');
         });
 
         it('toggleExpand works', async function () {
             const marker = (await view.getAllVisibleMarkers(MarkerType.File))[0];
             await marker.toggleExpand(false);
             let markers = await view.getAllVisibleMarkers(MarkerType.Any);
-            expect(markers.length).equals(1);
+            chai.expect(markers.length).equals(1);
 
             await marker.toggleExpand(true);
             markers = await view.getAllVisibleMarkers(MarkerType.Any);
-            expect(markers.length).equals(2);
+            chai.expect(markers.length).equals(2);
         });
 
         it('click works', async function () {
@@ -87,7 +86,7 @@ import { expect } from 'chai';
                 }
             }
             const anyMarkers = await view.getAllVisibleMarkers(MarkerType.Any);
-            expect(anyMarkers.length).equals(1);
+            chai.expect(anyMarkers.length).equals(1);
         });
     });
 });

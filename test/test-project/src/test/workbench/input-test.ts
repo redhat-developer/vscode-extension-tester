@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import { QuickOpenBox, Workbench, QuickPickItem, InputBox, StatusBar, EditorView, VSBrowser, By } from "vscode-extension-tester";
 
 describe('QuickOpenBox', () => {
@@ -16,7 +15,7 @@ describe('QuickOpenBox', () => {
         this.timeout(5000);
         await input.setText('>hello world');
         await input.selectQuickPick('Hello World');
-        expect(await input.isDisplayed()).is.false;
+        chai.expect(await input.isDisplayed()).is.false;
         input = await new Workbench().openCommandPrompt();
     });
 
@@ -25,7 +24,7 @@ describe('QuickOpenBox', () => {
         const testText = 'test-text';
         await input.setText(testText);
         const text = await input.getText();
-        expect(testText).has.string(text);
+        chai.expect(testText).has.string(text);
     });
 
     it('getPlaceholder returns placeholder text', async function() {
@@ -37,25 +36,25 @@ describe('QuickOpenBox', () => {
         if (VSBrowser.instance.version >= '1.44.0') {
             searchString = 'Search files by name';
         }
-        expect(holder).has.string(searchString);
+        chai.expect(holder).has.string(searchString);
     });
 
     it('hasProgress checks for progress bar', async () => {
         const prog = await input.hasProgress();
-        expect(prog).is.false;
+        chai.expect(prog).is.false;
     });
 
     it('getQuickPicks finds quick pick options', async () => {
         await input.setText('>hello world');
         const picks = await input.getQuickPicks();
-        expect(picks).not.empty;
+        chai.expect(picks).not.empty;
     });
 
     it('findQuickPick works when item exists', async function() {
         this.timeout(150000);
         await input.setText('>');
         const pick = await input.findQuickPick('Workspaces: Add Folder to Workspace...');
-        expect(pick).not.undefined;
+        chai.expect(pick).not.undefined;
     });
 
 
@@ -63,7 +62,7 @@ describe('QuickOpenBox', () => {
         this.timeout(150000);
         await input.setText('>');
         const pick = await input.findQuickPick('thisdoesnot exits definitely');
-        expect(pick).undefined;
+        chai.expect(pick).undefined;
     });
 });
 
@@ -81,7 +80,7 @@ describe('QuickPickItem', () => {
 
     it('getLabel returns label', async () => {
         const text = await item.getLabel();
-        expect(text).not.empty;
+        chai.expect(text).not.empty;
     });
 
     it('getIndex returns the index of the item', () => {
@@ -90,12 +89,12 @@ describe('QuickPickItem', () => {
         if (VSBrowser.instance.version < '1.44.0') {
             expected = 1;
         }
-        expect(index).equals(expected);
+        chai.expect(index).equals(expected);
     });
 
     it('select works', async () => {
         await item.select();
-        expect(await input.isDisplayed()).is.false;
+        chai.expect(await input.isDisplayed()).is.false;
     });
 
     it('getDescription works', async function() {
@@ -104,7 +103,7 @@ describe('QuickPickItem', () => {
         const inputbox = await InputBox.create();
         const pick = (await inputbox.getQuickPicks())[0];
         const desc = await pick.getDescription();
-        expect(desc).has.string('Test Description');
+        chai.expect(desc).has.string('Test Description');
     });
 });
 
@@ -129,36 +128,36 @@ describe('InputBox', () => {
         this.timeout(5000);
         const text = 'text';
         await input.setText(text);
-        expect(await input.getText()).equals(text);
+        chai.expect(await input.getText()).equals(text);
 
         await input.clear();
-        expect(await input.getText()).empty;
+        chai.expect(await input.getText()).empty;
     });
 
     it('getMessage works', async () => {
         const message = await input.getMessage();
-        expect(message).empty;
+        chai.expect(message).empty;
     });
 
     it('hasProgress works', async () => {
         const prog = await input.hasProgress();
-        expect(prog).is.false;
+        chai.expect(prog).is.false;
     });
 
     it('getQuickPicks works', async function() {
         this.timeout(4000);
         const picks = await input.getQuickPicks();
-        expect(picks).not.empty;
+        chai.expect(picks).not.empty;
     });
 
     it('hasError works', async () => {
         const err = await input.hasError();
-        expect(err).is.false;
+        chai.expect(err).is.false;
     });
 
     it('isPassword works', async () => {
         const pass = await input.isPassword();
-        expect(pass).is.false;
+        chai.expect(pass).is.false;
     });
 });
 
@@ -178,20 +177,20 @@ describe('Multiple selection input', () => {
     it('Select all works', async () => {
         await input.toggleAllQuickPicks(true);
         const checkbox = await input.findElement(By.css('input'));
-        expect(await checkbox.isSelected()).is.true;
+        chai.expect(await checkbox.isSelected()).is.true;
     });
 
     it('Deselect all works', async () => {
         await input.toggleAllQuickPicks(false);
         const checkbox = await input.findElement(By.css('input'));
-        expect(await checkbox.isSelected()).is.false;
+        chai.expect(await checkbox.isSelected()).is.false;
     });
 
     it('allows retrieving quickpicks', async () => {
         const [first] = await input.getCheckboxes();
-        expect(await first.getText()).equals('test1');
+        chai.expect(await first.getText()).equals('test1');
         await first.select();
         const checkbox = await first.findElement(By.css('input'));
-        expect(await checkbox.isSelected()).is.true;
+        chai.expect(await checkbox.isSelected()).is.true;
     });
 });

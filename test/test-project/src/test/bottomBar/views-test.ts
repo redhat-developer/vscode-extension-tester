@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import * as path from 'path';
 import { BottomBarPanel, OutputView, TerminalView, VSBrowser, Workbench, after, before } from 'vscode-extension-tester';
 
@@ -33,26 +32,26 @@ describe('Output View/Text Views', function () {
 
     it('getChannelNames returns list of channels', async function () {
         const channels = await view.getChannelNames();
-        expect(channels).not.empty;
+        chai.expect(channels).not.empty;
     });
 
     it('getCurrentChannel returns the selected channel name', async function () {
         const channel = await view.getCurrentChannel();
-        expect(channel).not.empty;
+        chai.expect(channel).not.empty;
     });
 
     it('selectChannel works', async function () {
         this.timeout(10000);
         await view.selectChannel('Tasks');
         const final = await view.getCurrentChannel();
-        expect('Tasks').equals(final);
+        chai.expect('Tasks').equals(final);
     });
 
     it('getText returns all current text', async function () {
         await view.selectChannel(channelName);
         await new Promise(resolve => setTimeout(resolve, 2000));
         const text = await view.getText();
-        expect(text).not.empty;
+        chai.expect(text).not.empty;
     });
 
     it('clearText clears the text view', async function () {
@@ -60,7 +59,7 @@ describe('Output View/Text Views', function () {
         const text = await view.getText();
         await view.clearText();
         const cleared = await view.getText();
-        expect(cleared).not.has.string(text);
+        chai.expect(cleared).not.has.string(text);
     });
 
     describe('Terminal View', function () {
@@ -80,19 +79,19 @@ describe('Output View/Text Views', function () {
                 await terminal.selectChannel(`1: ${terminalName}`);
             }
             const text = await terminal.getText();
-            expect(text).not.empty;
+            chai.expect(text).not.empty;
         });
 
         it('executeCommand works', async function () {
             const command = `${process.platform === 'win32' ? 'start-sleep -s' : 'sleep'} 2`;
             await terminal.executeCommand(command, 5000);
-            expect(await terminal.getText()).to.have.string("sleep");
+            chai.expect(await terminal.getText()).to.have.string("sleep");
         });
 
         it('newTerminal opens a new term channel', async function () {
             await terminal.newTerminal();
             const channel = await terminal.getCurrentChannel();
-            expect(channel).equals(`2: ${terminalName}`);
+            chai.expect(channel).equals(`2: ${terminalName}`);
         });
     });
 });

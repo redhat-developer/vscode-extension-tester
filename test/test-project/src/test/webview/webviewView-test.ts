@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import { BottomBarPanel, By, CustomTreeSection, SideBarView, WebviewView, Workbench } from 'vscode-extension-tester';
 
 describe('WebviewViews', function () {
@@ -35,12 +34,12 @@ describe('WebviewViews', function () {
 
             it('findWebElement works', async function () {
                 const element = await webviewView.findWebElement(By.css('h1'));
-                expect(await element.getText()).has.string('Shopping List');
+                chai.expect(await element.getText()).has.string('Shopping List');
             });
 
             it('findWebElements works', async function () {
                 const elements = await webviewView.findWebElements(By.css('li'));
-                expect(elements.length).equals(2);
+                chai.expect(elements.length).equals(2);
             });
 
             it('contains Apple and Banana', async function () {
@@ -49,9 +48,9 @@ describe('WebviewViews', function () {
                 await Promise.all(elts.map(async elt => {
                     listContent.push(await elt.getText());
                 }));
-                expect(listContent).to.have.length(2);
-                expect(listContent).to.contain('Apple');
-                expect(listContent).to.contain('Banana');
+                chai.expect(listContent).to.have.length(2);
+                chai.expect(listContent).to.contain('Apple');
+                chai.expect(listContent).to.contain('Banana');
             });
         });
     });

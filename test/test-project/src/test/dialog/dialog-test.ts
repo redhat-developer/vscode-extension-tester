@@ -1,4 +1,3 @@
-import { expect } from "chai";
 import { By, EditorView, InputBox, ModalDialog, TextEditor, until, VSBrowser, after, before, Workbench } from 'vscode-extension-tester';
 
 (VSBrowser.instance.version >= '1.50.0' && process.platform !== 'darwin' ? describe : describe.skip)('Modal Dialog', () => {
@@ -25,19 +24,19 @@ import { By, EditorView, InputBox, ModalDialog, TextEditor, until, VSBrowser, af
     it('getMessage works', async function () {
         this.timeout(10000);
         const message = await dialog.getMessage();
-        expect(message).has.string('Do you want to save the changes');
+        chai.expect(message).has.string('Do you want to save the changes');
     });
 
     it('getDetails works', async function () {
         this.timeout(10000);
         const details = await dialog.getDetails();
-        expect(details).has.string('Your changes will be lost');
+        chai.expect(details).has.string('Your changes will be lost');
     });
 
     it('getButtons works', async function () {
         this.timeout(10000);
         const buttons = await dialog.getButtons();
-        expect(buttons.length).equals(3);
+        chai.expect(buttons.length).equals(3);
     });
 
     it('pushButton works', async function () {

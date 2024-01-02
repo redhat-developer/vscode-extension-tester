@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import { NotificationsCenter, Workbench, NotificationType, Notification, until } from 'vscode-extension-tester';
 
 describe('NotificationsCenter', () => {
@@ -19,7 +18,7 @@ describe('NotificationsCenter', () => {
         center = await new Workbench().openNotificationsCenter();
         await center.getDriver().sleep(500);
         const notifications = await center.getNotifications(NotificationType.Any);
-        expect(notifications).not.empty;
+        chai.expect(notifications).not.empty;
     });
 
     it('clearAllNotifications works', async function () {
@@ -29,11 +28,11 @@ describe('NotificationsCenter', () => {
         center = await new Workbench().openNotificationsCenter();
         await center.getDriver().sleep(500);
         const notifications = await center.getNotifications(NotificationType.Any);
-        expect(notifications).not.empty;
+        chai.expect(notifications).not.empty;
 
         await center.clearAllNotifications();
         await center.getDriver().sleep(1000);
-        expect(await center.isDisplayed()).is.false;
+        chai.expect(await center.isDisplayed()).is.false;
     });
 
     describe('Notification', () => {
@@ -48,29 +47,29 @@ describe('NotificationsCenter', () => {
 
         it('getMessage gets the text', async () => {
             const message = await notification.getMessage();
-            expect(message).has.string('This is a notification');
+            chai.expect(message).has.string('This is a notification');
         });
 
         it('getType returns notificationType', async () => {
             const type = await notification.getType();
-            expect(type).equals(NotificationType.Info);
+            chai.expect(type).equals(NotificationType.Info);
         });
 
         it('hasProgress works', async () => {
             const prog = await notification.hasProgress();
-            expect(prog).is.false;
+            chai.expect(prog).is.false;
         });
 
         it('getActions looks for action buttons', async () => {
             const actions = await notification.getActions();
-            expect(await Promise.all(actions.map(async (item) => {
+            chai.expect(await Promise.all(actions.map(async (item) => {
                 return await item.getTitle();
             }))).deep.equals(['Yes', 'No']);
         });
 
         it('getSource returns title of origin', async () => {
             const source = await notification.getSource();
-            expect(source).has.string('Test Project');
+            chai.expect(source).has.string('Test Project');
         });
 
         it('expand works', async () => {
@@ -101,8 +100,8 @@ describe('NotificationsCenter', () => {
             center = await new Workbench().openNotificationsCenter();
             notification = (await center.getNotifications(NotificationType.Warning))[0];
 
-            expect(await notification.getMessage()).to.equal("This is a warning!");
-            expect(await notification.getType()).to.equal(NotificationType.Warning);
+            chai.expect(await notification.getMessage()).to.equal("This is a warning!");
+            chai.expect(await notification.getType()).to.equal(NotificationType.Warning);
             await notification.dismiss();
             await center.getDriver().wait(until.stalenessOf(notification));
         });
@@ -113,8 +112,8 @@ describe('NotificationsCenter', () => {
             center = await new Workbench().openNotificationsCenter();
             notification = (await center.getNotifications(NotificationType.Error))[0];
 
-            expect(await notification.getMessage()).to.equal("This is an error!");
-            expect(await notification.getType()).to.equal(NotificationType.Error);
+            chai.expect(await notification.getMessage()).to.equal("This is an error!");
+            chai.expect(await notification.getType()).to.equal(NotificationType.Error);
             await notification.dismiss();
             await center.getDriver().wait(until.stalenessOf(notification));
         });

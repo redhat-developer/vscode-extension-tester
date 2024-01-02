@@ -1,5 +1,4 @@
 import { Workbench, EditorView, WebView, By } from 'vscode-extension-tester';
-import { expect } from 'chai';
 
 describe('WebViews', function () {
 
@@ -22,12 +21,12 @@ describe('WebViews', function () {
 
         it('findWebElement works', async function () {
             const element = await view.findWebElement(By.css('h1'));
-            expect(await element.getText()).has.string('This is a web view');
+            chai.expect(await element.getText()).has.string('This is a web view');
         });
 
         it('findWebElements works', async function () {
             const elements = await view.findWebElements(By.css('h1'));
-            expect(elements.length).equals(1);
+            chai.expect(elements.length).equals(1);
         });
     });
 
@@ -104,12 +103,12 @@ describe('WebViews', function () {
         async function runTests() {
             it('findWebElement works', async function () {
                 const element = await view.findWebElement(By.css('h1'));
-                expect(await element.getText()).has.string('This is a web view');
+                chai.expect(await element.getText()).has.string('This is a web view');
             });
 
             it('findWebElements works', async function () {
                 const elements = await view.findWebElements(By.css('h1'));
-                expect(elements.length).equals(1);
+                chai.expect(elements.length).equals(1);
             });
         }
 

@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import path from 'path';
 import { CustomEditor, EditorView, VSBrowser, By } from 'vscode-extension-tester';
 
@@ -30,7 +29,7 @@ describe('CustomEditor', () => {
             await note.findElement(By.className('delete-button')).click();
         } catch(err) {
             // if (!(err instanceof error.StaleElementReferenceError)) {
-                expect.fail(err);
+                chai.expect.fail(err);
             // }
         } finally {
             await webview.switchBack();
@@ -40,7 +39,7 @@ describe('CustomEditor', () => {
     it('isDirty works', async () => {
         await new EditorView().openEditor(CUSTOM_TITLE);
         await new Promise(res => setTimeout(res, 500));
-        expect(await editor.isDirty()).is.true;
+        chai.expect(await editor.isDirty()).is.true;
     });
 
     it('save works', async () => {
@@ -48,7 +47,7 @@ describe('CustomEditor', () => {
         await new Promise(res => setTimeout(res, 500));
         await editor.save();
         await new Promise(res => setTimeout(res, 500));
-        expect(await editor.isDirty()).is.false;
+        chai.expect(await editor.isDirty()).is.false;
     });
 
     it('save as works', async () => {
@@ -56,12 +55,12 @@ describe('CustomEditor', () => {
         await new Promise(res => setTimeout(res, 500));
         try {
             const input = await editor.saveAs();
-            expect(await input.isDisplayed()).is.true;
+            chai.expect(await input.isDisplayed()).is.true;
             if (input && await input.isDisplayed()) {
                 await input.cancel();
             }
         } catch (err) {
-            expect.fail(err);
+            chai.expect.fail(err);
         }
     });
 });

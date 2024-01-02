@@ -1,6 +1,5 @@
 import { ActivityBar, BottomBarPanel, Breakpoint, BreakpointSectionItem, DebugConsoleView, DebugToolbar, DebugView, EditorView, error, Key, TextEditor, TitleBar, until, VSBrowser, WebDriver, Workbench } from "vscode-extension-tester";
 import * as path from 'path';
-import { expect } from "chai";
 
 const line = 7;
 
@@ -35,19 +34,19 @@ describe('Debugging', function () {
     describe('Debug View', () => {
         it('getLaunchConfiguration works', async function () {
             const config = await view.getLaunchConfiguration();
-            expect(config).equals('Test Launch');
+            chai.expect(config).equals('Test Launch');
         });
 
         it('getLaunchConfigurations works', async function () {
             const configs = await view.getLaunchConfigurations();
-            expect(configs).contains('Test Launch');
-            expect(configs).contains('Test Launch2');
+            chai.expect(configs).contains('Test Launch');
+            chai.expect(configs).contains('Test Launch2');
         });
 
         it('selectLaunchConfiguration works', async function () {
             await view.selectLaunchConfiguration('Test Launch2');
             const config = await view.getLaunchConfiguration();
-            expect(config).equals('Test Launch2');
+            chai.expect(config).equals('Test Launch2');
         });
     });
 
@@ -71,12 +70,12 @@ describe('Debugging', function () {
 
         it('set first breakpoint', async function () {
             const result = await editor.toggleBreakpoint(line + 1);
-            expect(result).to.be.true;
+            chai.expect(result).to.be.true;
         });
 
         it('set second breakpoint', async function () {
             const result = await editor.toggleBreakpoint(line);
-            expect(result).to.be.true;
+            chai.expect(result).to.be.true;
         });
 
         it('start the debug session', async function () {
@@ -90,22 +89,22 @@ describe('Debugging', function () {
         });
 
         it('Breakpoint: getLineNumber works', async function () {
-            expect(await breakpoint.getLineNumber()).equals(line);
+            chai.expect(await breakpoint.getLineNumber()).equals(line);
         });
 
         it('Breakpoint: isPaused works', async function () {
-            expect(await breakpoint.isPaused()).to.be.true;
+            chai.expect(await breakpoint.isPaused()).to.be.true;
         });
 
         it('BreakpointSectionItem.getBreakpoint', async function () {
             const item = await getBreakpointItem(view, this.timeout() - 2000);
             const breakpoint = await item.getBreakpoint();
-            expect(breakpoint).not.undefined;
+            chai.expect(breakpoint).not.undefined;
         });
 
         it('BreakpointSectionItem.isBreakpointEnabled', async function () {
             const item = await getBreakpointItem(view, this.timeout() - 2000);
-            expect(await item.isBreakpointEnabled()).to.be.true;
+            chai.expect(await item.isBreakpointEnabled()).to.be.true;
         });
 
         it('BreakpointSectionItem.setBreakpointEnabled', async function () {
@@ -137,18 +136,18 @@ describe('Debugging', function () {
 
         it('BreakpointSectionItem.getLabel', async function () {
             const item = await getBreakpointItem(view, this.timeout() - 2000);
-            expect(await item.getLabel()).equals('test.js');
+            chai.expect(await item.getLabel()).equals('test.js');
         });
 
         // Currently not supported
         it.skip('BreakpointSectionItem.getBreakpointFilePath', async function () {
             const item = await getBreakpointItem(view, this.timeout() - 2000);
-            expect(await item.getBreakpointFilePath()).equals('test.js');
+            chai.expect(await item.getBreakpointFilePath()).equals('test.js');
         });
 
         it('BreakpointSectionItem.getBreakpointLine', async function () {
             const item = await getBreakpointItem(view, this.timeout() - 2000);
-            expect(await item.getBreakpointLine()).equals(line);
+            chai.expect(await item.getBreakpointLine()).equals(line);
         });
 
         it('BreakpointSectionItem.getActionButtons', async function () {
@@ -168,29 +167,29 @@ describe('Debugging', function () {
 
         it('VariableSectionItem.getVariableName', async function () {
             const item = await getNumVariable(view, this.timeout() - 2000);
-            expect(await item.getVariableName()).equals('num:');
+            chai.expect(await item.getVariableName()).equals('num:');
         });
 
         it('VariableSectionItem.getVariableValue', async function () {
             const item = await getNumVariable(view, this.timeout() - 2000);
-            expect(await item.getVariableValue()).equals('5');
+            chai.expect(await item.getVariableValue()).equals('5');
         });
 
         it('VariableSectionItem.getVariableNameTooltip', async function () {
             const item = await getNumVariable(view, this.timeout() - 2000);
-            expect(await item.getVariableNameTooltip()).equals('number');
+            chai.expect(await item.getVariableNameTooltip()).equals('number');
         });
 
         it('VariableSectionItem.getVariableValueTooltip', async function () {
             const item = await getNumVariable(view, this.timeout() - 2000);
-            expect(await item.getVariableValueTooltip()).equals('5');
+            chai.expect(await item.getVariableValueTooltip()).equals('5');
         });
 
         it('Variable view: setVariableValue', async function () {
             const item = await getNumVariable(view, this.timeout() - 2000);
-            expect(await item.getVariableValue()).equals('5');
+            chai.expect(await item.getVariableValue()).equals('5');
             await item.setVariableValue('42');
-            expect(await item.getVariableValue()).equals('42');
+            chai.expect(await item.getVariableValue()).equals('42');
         });
 
         it('evaluate an expression', async function () {
@@ -202,8 +201,8 @@ describe('Debugging', function () {
             await new Promise(res => setTimeout(res, 1000));
 
             const text = await debugConsole.getText();
-            expect(text).to.have.string('foo');
-            expect(text).to.have.string('bar');
+            chai.expect(text).to.have.string('foo');
+            chai.expect(text).to.have.string('bar');
         });
 
         it('check content assist', async function () {
@@ -219,7 +218,7 @@ describe('Debugging', function () {
             }
             const list = await assist.getItems();
 
-            expect(list).not.to.be.empty;
+            chai.expect(list).not.to.be.empty;
         });
 
         it('stop the debug session', async function () {
@@ -229,12 +228,12 @@ describe('Debugging', function () {
 
         it('remove the second breakpoint', async function () {
             const result = await editor.toggleBreakpoint(line + 1);
-            expect(result).to.be.false;
+            chai.expect(result).to.be.false;
         });
 
         it('remove the first breakpoint', async function () {
             const result = await editor.toggleBreakpoint(line);
-            expect(result).to.be.false;
+            chai.expect(result).to.be.false;
         });
     });
 
@@ -242,10 +241,10 @@ describe('Debugging', function () {
 
         it('can get text', async function () {
             const view = await new BottomBarPanel().openDebugConsoleView();
-            expect(await view.isDisplayed()).is.true;
+            chai.expect(await view.isDisplayed()).is.true;
 
             const text = await view.getText();
-            expect(text).is.not.empty;
+            chai.expect(text).is.not.empty;
         });
     });
 

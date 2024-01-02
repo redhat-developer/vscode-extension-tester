@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import { ActivityBar, ActionsControl } from 'vscode-extension-tester';
 
 (process.platform === 'darwin' ? describe.skip : describe)('ActionsControl', () => {
@@ -12,12 +11,12 @@ import { ActivityBar, ActionsControl } from 'vscode-extension-tester';
 
     it('openActionsMenu displays context menu', async () => {
         const menu = await control.openActionMenu();
-        expect(await menu.isDisplayed()).is.true;
+        chai.expect(await menu.isDisplayed()).is.true;
         await menu.close();
     });
 
     it('getTitle returns the action container label', async () => {
         const title = await control.getTitle();
-        expect(title).equals('Manage');
+        chai.expect(title).equals('Manage');
     });
 });

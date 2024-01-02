@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import { error, TitleBar, VSBrowser } from 'vscode-extension-tester';
 import * as os from 'os';
 import * as path from 'path';
@@ -37,7 +36,7 @@ describe('Open resource test', function () {
                     openFolderPath = path.join(os.homedir(), openFolderPath.slice(2));
                 }
 
-                expect(openFolderPath.split(' ')[0]).equals(process.cwd());
+                chai.expect(openFolderPath.split(' ')[0]).equals(process.cwd());
                 return true;
             }
 

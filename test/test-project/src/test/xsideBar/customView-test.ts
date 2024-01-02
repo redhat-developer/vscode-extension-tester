@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import { ActivityBar, CustomTreeItem, CustomTreeSection, NotificationType, TreeItem, VSBrowser, ViewContent, ViewItem, WelcomeContentButton, Workbench } from 'vscode-extension-tester';
 
 describe('CustomTreeSection', () => {
@@ -23,16 +22,16 @@ describe('CustomTreeSection', () => {
 
     it('getTitle works', async () => {
         const title = await section.getTitle();
-        expect(title).equals('Test View');
+        chai.expect(title).equals('Test View');
     });
 
     it('collapse/expand works', async () => {
         await section.collapse();
-        expect(await section.isExpanded()).is.false;
+        chai.expect(await section.isExpanded()).is.false;
 
         await new Promise(res => setTimeout(res, 500));
         await section.expand();
-        expect(await section.isExpanded()).is.true;
+        chai.expect(await section.isExpanded()).is.true;
     });
 
     it('getVisibleItems works', async function() {
@@ -45,35 +44,35 @@ describe('CustomTreeSection', () => {
 
     it('findItem works', async () => {
         const item = await section.findItem('b');
-        expect(item).not.undefined;
+        chai.expect(item).not.undefined;
 
         const item1 = await section.findItem('e');
-        expect(item1).undefined;
+        chai.expect(item1).undefined;
     });
 
     it('openItem returns subitems', async () => {
         const items = await section.openItem('a');
-        expect(items.length).equals(2);
+        chai.expect(items.length).equals(2);
     });
 
     it('openItem returns empty array for leaves', async () => {
         const items = await section.openItem('b', 'ba') as ViewItem[];
-        expect(items).empty;
+        chai.expect(items).empty;
     });
 
     it('getActions works', async () => {
         const actions = await section.getActions();
-        expect(actions).not.empty;
+        chai.expect(actions).not.empty;
     });
 
     it('getAction works', async () => {
         const action = await section.getAction('Collapse All');
-        expect(await action.getLabel()).equals('Collapse All');
+        chai.expect(await action.getLabel()).equals('Collapse All');
     });
 
     it('findWelcomeContent returns undefined if no WelcomeContent is present', async () => {
-        expect(await section.findWelcomeContent()).to.equal(undefined);
-        expect(await emptyViewSection.findWelcomeContent()).to.not.equal(undefined);
+        chai.expect(await section.findWelcomeContent()).to.equal(undefined);
+        chai.expect(await emptyViewSection.findWelcomeContent()).to.not.equal(undefined);
     });
 
     it('findWelcomeContent returns the section', async () => {
@@ -81,26 +80,26 @@ describe('CustomTreeSection', () => {
         const buttons = await welcomeContent.getButtons();
         const textSections = await welcomeContent.getTextSections();
 
-        expect(buttons).to.be.an("array").and.have.length(1);
-        expect(textSections).to.be.an("array").and.have.length(3);
+        chai.expect(buttons).to.be.an("array").and.have.length(1);
+        chai.expect(textSections).to.be.an("array").and.have.length(3);
 
-        expect(textSections[0]).to.deep.equal("This is the first line");
-        expect(textSections[1]).to.deep.equal("This is the second line");
-        expect(textSections[2]).to.deep.equal("And yet another line.");
+        chai.expect(textSections[0]).to.deep.equal("This is the first line");
+        chai.expect(textSections[1]).to.deep.equal("This is the second line");
+        chai.expect(textSections[2]).to.deep.equal("And yet another line.");
 
-        expect(await buttons[0].getTitle()).to.deep.equal("Add stuff into this View");
+        chai.expect(await buttons[0].getTitle()).to.deep.equal("Add stuff into this View");
     });
 
     it('getContent returns the buttons and strings in an ordered array', async () => {
         const welcomeContentEntries = await (await emptyViewSection.findWelcomeContent()).getContents();
 
-        expect(welcomeContentEntries).to.be.an("array").and.have.length(4);
+        chai.expect(welcomeContentEntries).to.be.an("array").and.have.length(4);
 
-        expect(welcomeContentEntries[0]).to.deep.equal("This is the first line");
-        expect(welcomeContentEntries[1]).to.not.be.a("string");
-        expect(await (welcomeContentEntries[1] as WelcomeContentButton).getText()).to.deep.equal("Add stuff into this View");
-        expect(welcomeContentEntries[2]).to.deep.equal("This is the second line");
-        expect(welcomeContentEntries[3]).to.deep.equal("And yet another line.");
+        chai.expect(welcomeContentEntries[0]).to.deep.equal("This is the first line");
+        chai.expect(welcomeContentEntries[1]).to.not.be.a("string");
+        chai.expect(await (welcomeContentEntries[1] as WelcomeContentButton).getText()).to.deep.equal("Add stuff into this View");
+        chai.expect(welcomeContentEntries[2]).to.deep.equal("This is the second line");
+        chai.expect(welcomeContentEntries[3]).to.deep.equal("And yet another line.");
     });
 
     describe('WelcomeContentButton', () => {
@@ -110,7 +109,7 @@ describe('CustomTreeSection', () => {
             await buttons[0].click();
 
             await new Promise(res => setTimeout(res, 500));
-            expect(await emptyViewSection.findWelcomeContent()).to.equal(undefined);
+            chai.expect(await emptyViewSection.findWelcomeContent()).to.equal(undefined);
         });
     });
 
@@ -124,63 +123,63 @@ describe('CustomTreeSection', () => {
 
         it('getLabel works', async () => {
             const label = await item.getLabel();
-            expect(label).equals('a');
+            chai.expect(label).equals('a');
         });
 
         it('getTooltip works', async () => {
             const tooltip = await item.getTooltip();
-            expect(tooltip).equals('Tooltip for a');
+            chai.expect(tooltip).equals('Tooltip for a');
         });
 
         it('getDescription works', async () => {
             const description = await item.getDescription();
-            expect(description).equals('Description for a');
+            chai.expect(description).equals('Description for a');
         });
 
         it('collapse works', async () => {
             await item.collapse();
-            expect(await item.isExpanded()).is.false;
+            chai.expect(await item.isExpanded()).is.false;
         });
 
         it('selecting toggles expand state', async () => {
             await item.select();
-            expect(await item.isExpanded()).is.true;
+            chai.expect(await item.isExpanded()).is.true;
             await item.collapse();
-            expect(await item.isExpanded()).is.false;
+            chai.expect(await item.isExpanded()).is.false;
         });
 
         it('hasChildren works', async () => {
             const children = await item.hasChildren();
-            expect(children).is.true;
+            chai.expect(children).is.true;
         });
 
         it('hasChildren works for expandable elements without children', async () => {
             const cItem = await section.findItem('c');
-            expect(await cItem.hasChildren()).is.false;
+            chai.expect(await cItem.hasChildren()).is.false;
         });
 
         it('getChildren works', async () => {
             const children = await item.getChildren();
-            expect(children.length).equals(2);
+            chai.expect(children.length).equals(2);
         });
 
         it('findChildItem works', async () => {
             const child = await item.findChildItem('ab');
-            expect(child).not.undefined;
+            chai.expect(child).not.undefined;
         });
 
         it('expand works', async () => {
             item = await section.findItem('a');
             await item.collapse();
-            expect(await item.isExpanded()).to.equal(false);
+            chai.expect(await item.isExpanded()).to.equal(false);
             await item.expand();
-            expect(await item.isExpanded()).to.equal(true);
+            chai.expect(await item.isExpanded()).to.equal(true);
         });
 
         it('expand is idempotent', async () => {
             for (const _i of [1, 2]) {
                 await item.expand();
-                expect(await item.isExpanded()).to.equal(true);
+                chai.expect(await item.isExpanded()).to.equal(true);
             }
         });
 
@@ -199,28 +198,28 @@ describe('CustomTreeSection', () => {
 
             afterEach(async () => {
                 const notifications = await (await bench.openNotificationsCenter()).getNotifications(NotificationType.Error);
-                expect(notifications).to.have.length(0);
+                chai.expect(notifications).to.have.length(0);
             });
 
             it('getChildren does not click on the tree item', async () => {
-                expect(await (dItem as CustomTreeItem).getChildren()).to.have.length(2);
+                chai.expect(await (dItem as CustomTreeItem).getChildren()).to.have.length(2);
                 await dItem.collapse();
             });
 
             it('findChildItem does not click on the tree item', async () => {
-                expect(await (dItem as CustomTreeItem).findChildItem("da")).to.not.equal(undefined);
+                chai.expect(await (dItem as CustomTreeItem).findChildItem("da")).to.not.equal(undefined);
                 await dItem.collapse();
             });
 
             it('findItem does not click on the tree item', async () => {
-                expect(await section.openItem('d', 'da')).to.not.equal(undefined);
+                chai.expect(await section.openItem('d', 'da')).to.not.equal(undefined);
             });
 
             it('clicking on the tree item with a command assigned, triggers the command', async () => {
                 await dItem.click();
                 const errorNotification = await (await bench.openNotificationsCenter()).getNotifications(NotificationType.Error);
-                expect(errorNotification).to.have.length(1);
-                expect(await errorNotification[0].getMessage()).to.equal("This is an error!");
+                chai.expect(errorNotification).to.have.length(1);
+                chai.expect(await errorNotification[0].getMessage()).to.equal("This is an error!");
                 await errorNotification[0].dismiss();
             });
         });

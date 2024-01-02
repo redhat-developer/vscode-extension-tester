@@ -1,6 +1,5 @@
 import { ScmView, ActivityBar, ScmProvider, ScmChange, EditorView, VSBrowser } from 'vscode-extension-tester';
 import * as path from 'path';
-import { expect } from 'chai';
 import * as fs from 'fs-extra';
 
 (VSBrowser.instance.version >= '1.38.0' ? describe : describe.skip)('SCM View', () => {
@@ -21,12 +20,12 @@ import * as fs from 'fs-extra';
 
     it('getProviders works', async () => {
         const providers = await view.getProviders();
-        expect(providers).not.empty;
+        chai.expect(providers).not.empty;
     });
 
     it('getProvider works', async () => {
         const provider = await view.getProvider('vscode-extension-tester');
-        expect(provider).not.undefined;
+        chai.expect(provider).not.undefined;
     });
 
     describe('ScmProvider', () => {
@@ -39,42 +38,42 @@ import * as fs from 'fs-extra';
         it('getTitle works', async () => {
             const title = await provider.getTitle();
             if (VSBrowser.instance.version >= '1.47.0') {
-                expect(title).equals('');
+                chai.expect(title).equals('');
             } else {
-                expect(title).equals('vscode-extension-tester');
+                chai.expect(title).equals('vscode-extension-tester');
             }
         });
 
         it('getType works', async () => {
             const type = await provider.getType();
             if (VSBrowser.instance.version >= '1.47.0') {
-                expect(type).equals('');
+                chai.expect(type).equals('');
             } else {
-                expect(type).equals('Git');
+                chai.expect(type).equals('Git');
             }
         });
 
         it('getChangeCount works', async () => {
             const unCount = await provider.getChangeCount(false);
-            expect(unCount).gt(0);
+            chai.expect(unCount).gt(0);
             const stCount = await provider.getChangeCount(true);
-            expect(stCount).gte(0);
+            chai.expect(stCount).gte(0);
         });
 
         it('takeAction works', async () => {
             const action = await provider.takeAction('Refresh');
-            expect(action).to.be.true;
+            chai.expect(action).to.be.true;
         });
 
         (process.platform === 'darwin' ? it.skip : it)('openMoreActions works', async () => {
             const menu = await provider.openMoreActions();
-            expect(menu).not.undefined;
+            chai.expect(menu).not.undefined;
             await menu.close();
         });
 
         it('getChanges works', async () => {
             const changes = await provider.getChanges(false);
-            expect(changes).not.empty;
+            chai.expect(changes).not.empty;
         });
 
         describe('ScmChange', () => {
@@ -93,27 +92,27 @@ import * as fs from 'fs-extra';
 
             it('getLabel works', async () => {
                 const label = await change.getLabel();
-                expect(label).has.string('testfile');
+                chai.expect(label).has.string('testfile');
             });
 
             it('getDescritption works', async () => {
                 const desc = await change.getDescription();
-                expect(desc).has.string('');
+                chai.expect(desc).has.string('');
             });
 
             it('getStatus works', async () => {
-                expect(await change.getStatus()).has.string('Untracked');
+                chai.expect(await change.getStatus()).has.string('Untracked');
             });
 
             it('isExpanded works', async () => {
-                expect(await change.isExpanded()).to.be.true;
+                chai.expect(await change.isExpanded()).to.be.true;
             });
 
             it('takeAction works', async () => {
                 const act = await change.takeAction('Open File');
-                expect(act).to.be.true;
+                chai.expect(act).to.be.true;
 
-                expect(await new EditorView().getOpenEditorTitles()).contains('testfile');
+                chai.expect(await new EditorView().getOpenEditorTitles()).contains('testfile');
             });
         });
     });
