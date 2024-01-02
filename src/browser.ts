@@ -12,7 +12,7 @@ import { Options, ServiceBuilder } from 'selenium-webdriver/chrome';
 import { getLocatorsPath } from 'vscode-extension-tester-locators';
 import { CodeUtil, ReleaseQuality } from './util/codeUtil';
 import { DEFAULT_STORAGE_FOLDER } from './extester';
-import { execSync } from 'child_process';
+// import { execSync } from 'child_process';
 
 export class VSBrowser {
     static readonly baseVersion = '1.37.0';
