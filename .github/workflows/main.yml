@@ -56,6 +56,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: failure()
         with:
+          name: logs-driver-${{ matrix.os }}-${{ matrix.version }}
           path: ${{ github.workspace }}/test/**/webdriver.log
 
   check:
