@@ -167,7 +167,7 @@
 		"@types/vscode": "^1.82.0",
 		"@typescript-eslint/eslint-plugin": "^6.17.0",
 		"@typescript-eslint/parser": "^6.17.0",
-		"chai": "^4.3.10",
+		"chai": "^5.0.0",
 		"clipboard-cli": "^4.0.0",
 		"clipboardy": "^4.0.0",
 		"eslint": "^8.56.0",
