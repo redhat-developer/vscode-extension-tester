@@ -46,7 +46,7 @@ export class VSBrowser {
         if (fs.existsSync(userSettings)) {
             fs.removeSync(path.join(this.storagePath, 'settings'));
         }
-        let defaultSettings = { 
+        let defaultSettings = {
             "workbench.editor.enablePreview": false,
             "workbench.startupEditor": "none",
             "window.titleBarStyle": "custom",
@@ -67,7 +67,7 @@ export class VSBrowser {
         await fs.remove(path.join(this.storagePath, 'screenshots'));
         fs.writeJSONSync(path.join(userSettings, 'settings.json'), defaultSettings);
         console.log(`Writing code settings to ${path.join(userSettings, 'settings.json')}`);
-        
+
         const args = ['--no-sandbox', '--disable-dev-shm-usage', `--user-data-dir=${path.join(this.storagePath, 'settings')}`];
 
         if (this.extensionsFolder) {
@@ -95,15 +95,26 @@ export class VSBrowser {
         console.log(`Chrome Driver path: ${pathToChromeDriverExecutable}`);
         console.log('Launching browser...');
         //execSync(`${pathToChromeDriverExecutable} --verbose --log-path=chromedriver.log`);
-        this._driver = await new Builder()
-            .setChromeService(new ServiceBuilder(pathToChromeDriverExecutable))
-            .forBrowser(Browser.CHROME)
-            .setChromeOptions(options)
-            .setLoggingPrefs(prefs)
-            .build();
-        console.log(`WebDriver built`);
+        try {
+            this._driver = await new Builder()
+                .setChromeService(new ServiceBuilder(pathToChromeDriverExecutable))
+                .forBrowser(Browser.CHROME)
+                .setChromeOptions(options)
+                .setLoggingPrefs(prefs)
+                .build();
+            console.log(`WebDriver built`);
+        } catch (error) {
+            const entries = await this._driver.manage().logs().get(logging.Type.DRIVER);
+            const logFile = path.join(this.storagePath, 'webdriver.log');
+            const stream = fs.createWriteStream(logFile, { flags: 'w' });
+            entries.forEach((entry: { timestamp: string | number | Date; level: { name: any; }; message: any; }) => {
+                stream.write(`[${new Date(entry.timestamp).toLocaleTimeString()}][${entry.level.name}] ${entry.message}`);
+            });
+            stream.end();
+            console.log('\x1b[33m%s\x1b[0m', `Logs from the session stored in ${logFile}\n`);
+        }
         VSBrowser._instance = this;
-        
+
         initPageObjects(this.codeVersion, VSBrowser.baseVersion, getLocatorsPath(), this._driver, VSBrowser.browserName);
         return this;
     }
@@ -137,7 +148,7 @@ export class VSBrowser {
         try {
             await this._driver.wait(until.elementLocated(By.className('monaco-workbench')), timeout, `Workbench was not loaded properly after ${timeout} ms.`);
         } catch (err) {
-            if((err as Error).name === 'WebDriverError') {
+            if ((err as Error).name === 'WebDriverError') {
                 await new Promise(res => setTimeout(res, 3000));
             } else {
                 throw err;
