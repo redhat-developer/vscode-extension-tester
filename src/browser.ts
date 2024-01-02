@@ -2,8 +2,7 @@
 
 import * as path from 'path';
 import * as fs from 'fs-extra';
-const dns = require('node:dns');
-const loggingSeleniumWebdriver = require('selenium-webdriver/lib/logging')
+import * as dns from 'node:dns';
 
 import { compareVersions } from 'compare-versions';
 import { WebDriver, Builder, until, initPageObjects, logging, By } from 'monaco-page-objects';
@@ -26,7 +25,7 @@ export class VSBrowser {
     private logLevel: logging.Level;
     private static _instance: VSBrowser;
 
-    constructor(codeVersion: string, releaseType: ReleaseQuality, customSettings: Object = {}, logLevel: logging.Level = logging.Level.DEBUG) {
+    constructor(codeVersion: string, releaseType: ReleaseQuality, customSettings: Object = {}, logLevel: logging.Level = logging.Level.INFO) {
         this.storagePath = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.resolve(DEFAULT_STORAGE_FOLDER);
         this.extensionsFolder = process.env.EXTENSIONS_FOLDER ? process.env.EXTENSIONS_FOLDER : undefined;
         this.customSettings = customSettings;
@@ -89,19 +88,8 @@ export class VSBrowser {
 
         const prefs = new logging.Preferences();
         prefs.setLevel(logging.Type.DRIVER, this.logLevel);
-        // options.setLoggingPrefs(prefs);
-
-        const prefAll = new logging.Preferences();
-        prefAll.setLevel(logging.Type.DRIVER, logging.Level.ALL);
-        prefAll.setLevel(logging.Type.BROWSER, logging.Level.ALL);
-        prefAll.setLevel(logging.Type.CLIENT, logging.Level.ALL);
-        prefAll.setLevel(logging.Type.SERVER, logging.Level.ALL);
-        prefAll.setLevel(logging.Type.PERFORMANCE, logging.Level.ALL);
 
         dns.setDefaultResultOrder('ipv4first');
-        const loggerWebdriver = loggingSeleniumWebdriver.getLogger('webdriver');
-        loggerWebdriver.setLevel(logging.Level.ALL);
-        loggingSeleniumWebdriver.addConsoleHandler(loggerWebdriver);
 
         const pathToChromeDriverExecutable = path.join(this.storagePath, process.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver');
         console.log(`Chrome Driver path: ${pathToChromeDriverExecutable}`);
@@ -111,7 +99,7 @@ export class VSBrowser {
             .setChromeService(new ServiceBuilder(pathToChromeDriverExecutable))
             .forBrowser(Browser.CHROME)
             .setChromeOptions(options)
-            .setLoggingPrefs(prefAll)
+            .setLoggingPrefs(prefs)
             .build();
         console.log(`WebDriver built`);
         VSBrowser._instance = this;
@@ -162,13 +150,14 @@ export class VSBrowser {
      */
     async quit(): Promise<void> {
         const entries = await this._driver.manage().logs().get(logging.Type.DRIVER);
-        const logFile = path.join(this.storagePath, 'test.log');
+        const logFile = path.join(this.storagePath, 'webdriver.log');
         const stream = fs.createWriteStream(logFile, { flags: 'w' });
-        entries.forEach(entry => {
+        entries.forEach((entry: { timestamp: string | number | Date; level: { name: any; }; message: any; }) => {
             stream.write(`[${new Date(entry.timestamp).toLocaleTimeString()}][${entry.level.name}] ${entry.message}`);
         });
         stream.end();
 
+        console.log('\x1b[33m%s\x1b[0m', `Logs from the session stored in ${logFile}\n`);
         console.log('Shutting down the browser');
         await this._driver.quit();
     }

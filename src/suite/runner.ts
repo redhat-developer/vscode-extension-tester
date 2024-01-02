@@ -39,7 +39,7 @@ export class VSRunner {
      * @param logLevel The logging level for the Webdriver
      * @return The exit code of the mocha process
      */
-    runTests(testFilesPattern: string[], code: CodeUtil, logLevel: logging.Level = logging.Level.DEBUG, resources: string[]): Promise<number> {
+    runTests(testFilesPattern: string[], code: CodeUtil, logLevel: logging.Level = logging.Level.INFO, resources: string[]): Promise<number> {
         return new Promise(resolve => {
             let self = this;
             let browser: VSBrowser = new VSBrowser(this.codeVersion, this.releaseType, this.customSettings, logLevel);

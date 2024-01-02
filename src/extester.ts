@@ -6,16 +6,11 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as os from 'os';
 import { URL } from 'url';
-const logging = require('selenium-webdriver/lib/logging')
-
-
-
 export { ReleaseQuality }
 export { MochaOptions } from 'mocha';
 export * from './browser';
 export * from './suite/mochaHooks';
 export * from 'monaco-page-objects';
-
 
 export interface SetupOptions {
     /** version of VS Code to test against, defaults to latest */
@@ -52,8 +47,6 @@ export class ExTester {
     constructor(storageFolder: string = DEFAULT_STORAGE_FOLDER, releaseType: ReleaseQuality = ReleaseQuality.Stable, extensionsDir?: string) {
         this.code = new CodeUtil(storageFolder, releaseType, extensionsDir);
         this.chrome = new DriverUtil(storageFolder);
-        const logger = logging.getLogger('webdriver');
-        logger.setLevel(logging.Level.DEBUG);
 
         if (process.versions.node > NODEJS_VERSION_MAX) {
             console.log(

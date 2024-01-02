@@ -36,7 +36,7 @@ export interface RunOptions {
 export const DEFAULT_RUN_OPTIONS = {
     vscodeVersion: 'latest',
     settings: '',
-    logLevel: logging.Level.FINEST,
+    logLevel: logging.Level.INFO,
     offline: false,
     resources: []
 }
