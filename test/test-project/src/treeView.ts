@@ -85,7 +85,8 @@ function getTreeItem(key: string): vscode.TreeItem {
 		label: key,
 		tooltip: `Tooltip for ${key}`,
 		description: `Description for ${key}`,
-		collapsibleState
+		collapsibleState,
+		contextValue: "ExtensionTreeItem"
 	};
 }
 

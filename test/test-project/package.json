@@ -88,6 +88,10 @@
 			{
 				"command": "extension.disableCodeLens",
 				"title": "Disable Codelens"
+			},
+			{
+				"command": "extension.treeItemAction",
+				"title": "Tree Item Action"
 			}
 		],
 		"viewsContainers": {
@@ -149,6 +153,13 @@
 					"command": "extension.helloWorld",
 					"group": "navigation",
 					"when": "resourceFilename =~ /Untitled.*$/"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "extension.treeItemAction",
+					"when": "viewItem =~ /ExtensionTreeItem/",
+					"group": "inline"
 				}
 			]
 		}
