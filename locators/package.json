@@ -9,8 +9,8 @@
     "out/**/*.d.ts"
   ],
   "scripts": {
-    "prepack": "npm run build",
-    "build": "rimraf out/ && tsc"
+    "build": "rimraf out/ && tsc",
+    "install-and-build": "npm install && npm run build"
   },
   "repository": {
     "type": "git",

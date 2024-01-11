@@ -16,11 +16,11 @@
   "scripts": {
     "prepare": "npm run build",
     "prepare-deps": "npm run build-page-objects && npm run build-locators",
-    "build-page-objects": "cd page-objects && npm i && npm run build",
-    "build-locators": "cd locators && npm i && npm run build",
+    "build-page-objects": "cd page-objects && npm run build",
+    "build-locators": "cd locators && npm run build",
     "prebuild": "npm run prepare-deps",
     "build": "npm link ./page-objects ./locators && rimraf out/ && tsc && chmod a+x ./out/cli.js",
-    "prepare-test": "cd test/test-project && npm install && rimraf package-lock.json",
+    "prepare-test": "cd test/test-project && rimraf package-lock.json",
     "test": "npm run build && npm run prepare-test && cd test/test-project && npm run ui-test"
   },
   "repository": {
