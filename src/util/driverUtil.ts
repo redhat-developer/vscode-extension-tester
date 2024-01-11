@@ -35,6 +35,7 @@ export class DriverUtil {
      * @param version version to download
      */
     async downloadChromeDriver(version: string): Promise<string> {
+        const majorVersion = version.split('.')[0];
         const file = path.join(this.downloadFolder, process.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver');
         if (fs.existsSync(file)) {
             let localVersion = '';
@@ -49,8 +50,13 @@ export class DriverUtil {
             }
         }
         fs.mkdirpSync(this.downloadFolder);
-        const driverPlatform = (process.platform === 'darwin') ? 'mac64' : process.platform === 'win32' ? 'win32' : 'linux64';
-        const url = `https://chromedriver.storage.googleapis.com/${version}/chromedriver_${driverPlatform}.zip`;
+        let driverPlatform = (process.platform === 'darwin') ? 'mac64' : process.platform === 'win32' ? 'win32' : 'linux64';
+        let url = `https://chromedriver.storage.googleapis.com/${version}/chromedriver_${driverPlatform}.zip`;
+        if (+majorVersion > 114) {
+            // See formatting at https://googlechromelabs.github.io/chrome-for-testing/latest-versions-per-milestone-with-downloads.json
+            driverPlatform = (process.platform === 'darwin') ? `mac-${process.arch}` : process.platform === 'win32' ? 'win32' : 'linux64';
+            url = `https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${version}/${driverPlatform}/chromedriver-${driverPlatform}.zip`
+        }
         const fileName = path.join(this.downloadFolder, path.basename(url));
         console.log(`Downloading ChromeDriver ${version} from: ${url}`);
         await Download.getFile(url, fileName, true);
@@ -102,8 +108,10 @@ export class DriverUtil {
                 throw new Error(`Chromium version ${chromiumVersion} not supported`);
             }
         }
-
-        const url = `https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${majorVersion}`;
+        let url = `https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${majorVersion}`;
+        if (+majorVersion > 114) {
+            url = `https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_${majorVersion}`;
+        }
         const fileName = 'driverVersion';
         await Download.getFile(url, path.join(this.downloadFolder, fileName));
         return fs.readFileSync(path.join(this.downloadFolder, fileName)).toString();
