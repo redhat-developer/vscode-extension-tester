@@ -371,7 +371,7 @@ export class CodeUtil {
         this.cliEnv = 'ELECTRON_RUN_AS_NODE=1';
 
         if (platform === 'linux') {
-            platform += arch === 'x64' ? `-${arch}` : `-ia32`;
+            platform += arch === 'ia32' ? '-ia32' : `-${arch}`;
         } else if (platform === 'win32') {
             platform += arch === 'x64' ? `-${arch}` : '';
             platform += '-archive';
