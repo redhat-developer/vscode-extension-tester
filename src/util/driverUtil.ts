@@ -50,7 +50,11 @@ export class DriverUtil {
         }
         fs.mkdirpSync(this.downloadFolder);
         const driverPlatform = (process.platform === 'darwin') ? 'mac64' : process.platform === 'win32' ? 'win32' : 'linux64';
-        const url = `https://chromedriver.storage.googleapis.com/${version}/chromedriver_${driverPlatform}.zip`;
+        let url = `https://chromedriver.storage.googleapis.com/${version}/chromedriver_${driverPlatform}.zip`;
+        if (process.platform === 'linux' && process.arch === 'arm64') {
+            //TODO: Would need to set the version dynamic with regard version of vscode
+            url = "https://github.com/electron/electron/releases/download/v25.3.1/chromedriver-v25.3.1-linux-arm64.zip"
+        }
         const fileName = path.join(this.downloadFolder, path.basename(url));
         console.log(`Downloading ChromeDriver ${version} from: ${url}`);
         await Download.getFile(url, fileName, true);
