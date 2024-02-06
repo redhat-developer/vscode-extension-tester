@@ -122,6 +122,11 @@ describe('CustomTreeSection', () => {
             item = await section.findItem('a');
         });
 
+        it('getAction works', async() => {
+            const action = await item.getActionButton("Tree Item Action");
+            expect(action).not.undefined;
+        });
+
         it('getLabel works', async () => {
             const label = await item.getLabel();
             expect(label).equals('a');

@@ -87,6 +87,9 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider("mySidePanelView", new MyPanelView())
 	);
+
+	vscode.commands.registerCommand('extension.treeItemAction', async() => {
+	});
 }
 
 export function deactivate() {}
