@@ -218,7 +218,7 @@ const sideBar = {
         title: By.css('h2'),
         action: By.className(`action-label`),
         actionLabel: 'title',
-        actionContstructor: (title: string) => By.xpath(`.//a[@title='${title}']`)
+        actionConstructor: (title: string) => By.xpath(`.//a[@title='${title}']`)
     },
     ViewContent: {
         constructor: By.className('content'),
