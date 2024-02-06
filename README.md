@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img alt="ExTester for Visual Studio Code" width="" height="125" src="./icons/logo-text-side.png">
+  <img alt="ExTester for Visual Studio Code" width="75%" height="75%" src="./icons/logo-text-side.png">
 </h1>
 
 <p align="center">
