@@ -10,7 +10,7 @@ export const diff: LocatorDiff = {
         },
         ViewTitlePart: {
             action: By.className(`action-label`),
-            actionContstructor: (title: string) => By.xpath(`.//a[@title='${title}']`)
+            actionConstructor: (title: string) => By.xpath(`.//a[@title='${title}']`)
         },
         ScmView: {
             action: By.className('action-item menu-entry'),

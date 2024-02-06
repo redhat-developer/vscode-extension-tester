@@ -221,7 +221,7 @@ export interface Locators {
         title: By
         action: By
         actionLabel: string
-        actionContstructor: (title: string) => By
+        actionConstructor: (title: string) => By
     }
     ViewContent: {
         constructor: By

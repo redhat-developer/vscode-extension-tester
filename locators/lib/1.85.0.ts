@@ -5,7 +5,7 @@ export const diff: LocatorDiff = {
             notificationContainer: By.className('notifications-list-container')
         },
         ViewTitlePart: {
-            actionContstructor: (title: string) => By.xpath(`.//a[@aria-label='${title}']`)
+            actionConstructor: (title: string) => By.xpath(`.//a[@aria-label='${title}']`)
         },
     }
 }
