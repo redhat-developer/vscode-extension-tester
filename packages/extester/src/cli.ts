@@ -65,7 +65,6 @@ program.command('setup-tests')
     .option('-y, --yarn', 'Use yarn to build the extension via vsce instead of npm', false)
     .option('-i, --install_dependencies', 'Automatically install extensions your extension depends on', false)
     .option('-d, --extension_development_path <extension development directory>', 'VSCode will use the unpackaged extension source from this directory')
-    .option('-C, --coverage', 'Enable code coverage using c8')
     .action(withErrors(async (cmd) => {
         const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir, cmd.extension_development_path);
         await extest.setupRequirements({vscodeVersion: cmd.code_version, useYarn: cmd.yarn, installDependencies: cmd.install_dependencies});
@@ -107,7 +106,7 @@ program.command('setup-and-run <testFiles...>')
     .option('-C, --coverage', 'Enable code coverage using c8')
     .option('-r, --open_resource <resources...>', 'Open resources in VS Code. Multiple files and folders can be specified.')
     .action(withErrors(async (testFiles, cmd) => {
-        const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir, cmd.extension_development_path, cmd.coverage);
+        const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
         await extest.setupAndRunTests(testFiles, cmd.code_version, {useYarn: cmd.yarn, installDependencies: cmd.install_dependencies}, {settings: cmd.code_settings, cleanup: cmd.uninstall_extension, config: cmd.mocha_config, logLevel: cmd.log_level, resources: cmd.open_resource ?? []});
     }));
 
