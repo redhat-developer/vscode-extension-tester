@@ -35,11 +35,12 @@ export class DriverUtil {
      * @param version version to download
      */
     async downloadChromeDriver(version: string): Promise<string> {
-        const file = path.join(this.downloadFolder, process.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver');
-        if (fs.existsSync(file)) {
+        const url = this.getChromeDriverURL(version);
+        const driverBinary = this.getChromeDriverBinaryPath(version);
+        if (fs.existsSync(driverBinary)) {
             let localVersion = '';
             try {
-                localVersion = await this.getLocalDriverVersion();
+                localVersion = await this.getLocalDriverVersion(version);
             } catch (err) {
                 // ignore and download
             }
@@ -49,8 +50,7 @@ export class DriverUtil {
             }
         }
         fs.mkdirpSync(this.downloadFolder);
-        const driverPlatform = (process.platform === 'darwin') ? 'mac64' : process.platform === 'win32' ? 'win32' : 'linux64';
-        const url = `https://chromedriver.storage.googleapis.com/${version}/chromedriver_${driverPlatform}.zip`;
+
         const fileName = path.join(this.downloadFolder, path.basename(url));
         console.log(`Downloading ChromeDriver ${version} from: ${url}`);
         await Download.getFile(url, fileName, true);
@@ -58,15 +58,64 @@ export class DriverUtil {
         console.log(`Unpacking ChromeDriver ${version} into ${this.downloadFolder}`);
         await Unpack.unpack(fileName, this.downloadFolder);
         if (process.platform !== 'win32') {
-            fs.chmodSync(file, 0o755);
+            fs.chmodSync(driverBinary, 0o755);
         }
         console.log('Success!');
-        return file;
+        return driverBinary;
     }
 
-    async checkDriverVersionOffline(): Promise<string> {
+    private getChromeDriverBinaryPath(version: string): string {
+        const majorVersion = this.getMajorVersion(version);
+        const binary = process.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver';
+        let driverBinaryPath = path.join(this.downloadFolder, binary);
+        if (+majorVersion > 114) {
+            driverBinaryPath = path.join(this.downloadFolder, `chromedriver-${DriverUtil.getChromeDriverPlatform()}`, binary);
+        }
+        return driverBinaryPath;
+    }
+
+    static getChromeDriverPlatform(): string | undefined {
+        switch (process.platform) {
+            case 'darwin':
+                return `mac-${process.arch}`;
+            case 'win32':
+                return process.arch === 'x64' ? 'win64' : 'win32';
+            case 'linux':
+                return 'linux64';
+            default:
+                break;
+        }
+        return undefined;
+    }
+
+    private static getChromeDriverPlatformOLD(): string | undefined {
+        switch (process.platform) {
+            case 'darwin':
+                return process.arch === 'arm64' ? 'mac_arm64' : 'mac64';
+            case 'win32':
+                return 'win32';
+            case 'linux':
+                return 'linux64';
+            default:
+                break;
+        }
+        return undefined;
+    }
+
+    private getChromeDriverURL(version: string): string {
+        const majorVersion = this.getMajorVersion(version);
+        let driverPlatform = DriverUtil.getChromeDriverPlatformOLD();
+        let url = `https://chromedriver.storage.googleapis.com/${version}/chromedriver_${driverPlatform}.zip`;
+        if (+majorVersion > 114) {
+            driverPlatform = DriverUtil.getChromeDriverPlatform();
+            url = `https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${version}/${driverPlatform}/chromedriver-${driverPlatform}.zip`
+        }
+        return url;
+    }
+
+    async checkDriverVersionOffline(version: string): Promise<string> {
         try {
-            return await this.getLocalDriverVersion();
+            return await this.getLocalDriverVersion(version);
         } catch (err) {
             console.log('ERROR: Cannot find a copy of ChromeDriver in local cache in offline mode, exiting.')
             throw err;
@@ -76,8 +125,8 @@ export class DriverUtil {
     /**
      * Check local chrome driver version
      */
-    private async getLocalDriverVersion(): Promise<string> {
-        const command = `${path.join(this.downloadFolder, 'chromedriver')} -v`;
+    private async getLocalDriverVersion(version: string): Promise<string> {
+        const command = `${this.getChromeDriverBinaryPath(version)} -v`;
         return new Promise<string>((resolve, reject) => {
             child_process.exec(command, (err, stdout) => {
                 if (err) return reject(err);
@@ -92,7 +141,7 @@ export class DriverUtil {
      * @param chromiumVersion Chromium version to check against
      */
     private async getChromeDriverVersion(chromiumVersion: string): Promise<string> {
-        const majorVersion = chromiumVersion.split('.')[0];
+        const majorVersion = this.getMajorVersion(chromiumVersion);
 
         // chrome driver versioning has changed for chrome 70+
         if (+majorVersion < 70) {
@@ -102,11 +151,17 @@ export class DriverUtil {
                 throw new Error(`Chromium version ${chromiumVersion} not supported`);
             }
         }
-
-        const url = `https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${majorVersion}`;
+        let url = `https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${majorVersion}`;
+        if (+majorVersion > 114) {
+            url = `https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_${majorVersion}`;
+        }
         const fileName = 'driverVersion';
         await Download.getFile(url, path.join(this.downloadFolder, fileName));
         return fs.readFileSync(path.join(this.downloadFolder, fileName)).toString();
+    }
+
+    private getMajorVersion(version: string): string {
+        return version.split('.')[0];
     }
 
     // older chromedriver versions do not match chrome versions

@@ -3,11 +3,12 @@
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import { compareVersions } from 'compare-versions';
-import { WebDriver, Builder, until, initPageObjects, logging, By } from 'monaco-page-objects';
+import { WebDriver, Builder, until, initPageObjects, logging, By, Browser } from 'monaco-page-objects';
 import { Options, ServiceBuilder } from 'selenium-webdriver/chrome';
 import { getLocatorsPath } from 'vscode-extension-tester-locators';
 import { CodeUtil, ReleaseQuality } from './util/codeUtil';
 import { DEFAULT_STORAGE_FOLDER } from './extester';
+import { DriverUtil } from './util/driverUtil';
 
 export class VSBrowser {
     static readonly baseVersion = '1.37.0';
@@ -85,10 +86,16 @@ export class VSBrowser {
         prefs.setLevel(logging.Type.DRIVER, this.logLevel);
         options.setLoggingPrefs(prefs);
 
+        const driverBinary = process.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver';
+        let chromeDriverBinaryPath = path.join(this.storagePath, driverBinary);
+        if(this.codeVersion >= '1.86.0') {
+            chromeDriverBinaryPath = path.join(this.storagePath, `chromedriver-${DriverUtil.getChromeDriverPlatform()}`, driverBinary);
+        }
+
         console.log('Launching browser...');
         this._driver = await new Builder()
-            .setChromeService(new ServiceBuilder(path.join(this.storagePath, process.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver')))
-            .forBrowser('chrome')
+            .setChromeService(new ServiceBuilder(chromeDriverBinaryPath))
+            .forBrowser(Browser.CHROME)
             .setChromeOptions(options)
             .build();
         VSBrowser._instance = this;
