@@ -80,9 +80,10 @@ program.command('run-tests <testFiles...>')
     .option('-m, --mocha_config <mocharc.js>', 'Path to Mocha configuration file')
     .option('-l, --log_level <level>', 'Log messages from webdriver with a given level', 'Info')
     .option('-f, --offline', 'Attempt to run without internet connection, make sure to have all requirements downloaded', false)
+    .option('-d, --extension_development_path <extension development directory>', 'VSCode will use the unpackaged extension source from this directory')
     .option('-r, --open_resource <resources...>', 'Open resources in VS Code. Multiple files and folders can be specified.')
     .action(withErrors(async (testFiles, cmd) => {
-        const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
+        const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir, cmd.extension_development_path);
         await extest.runTests(testFiles, {vscodeVersion: cmd.code_version, settings: cmd.code_settings, cleanup: cmd.uninstall_extension, config: cmd.mocha_config, logLevel: cmd.log_level, offline: cmd.offline, resources: cmd.open_resource ?? []});
     }));
 
