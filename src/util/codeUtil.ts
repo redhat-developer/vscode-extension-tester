@@ -342,6 +342,13 @@ export class CodeUtil {
     }
 
     /**
+     * Getter for extension development path
+     */
+    get extensionDevPath() {
+        return this.extensionDevelopmentPath;
+    }
+
+    /**
      * Check if given version is available in the given stream
      */
     private async checkCodeVersion(vscodeVersion: string): Promise<void> {
