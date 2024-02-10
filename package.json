@@ -18,7 +18,8 @@
     "prebuild": "npm run build --workspaces",
     "build": "rimraf out/ && tsc && chmod a+x ./out/cli.js",
     "pretest": "npm run build && npm install --prefix test/test-project",
-    "test": "npm run ui-test --prefix test/test-project"
+    "test": "npm run ui-test --prefix test/test-project",
+    "coverage": "npm run build && npm run pretest && cd test/test-project && npm run ui-coverage"
   },
   "repository": {
     "type": "git",
