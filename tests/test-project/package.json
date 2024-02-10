@@ -178,11 +178,13 @@
 		"compile": "tsc -p ./ && npm run lint",
 		"lint": "eslint src --ext .ts",
 		"cb-init": "echo hello_ExTester | clipboard",
-		"ui-test": "npm run cb-init && extest setup-and-run './out/test/cli/order-3.test.js' './out/test/cli/order-2.test.js' './out/test/cli/order-1.test.js' './out/test/**/*.test.js' './out/test/system/clipboard.test.js' -u -i -r . -e ./test-extensions"
+		"ui-test": "npm run cb-init && extest setup-and-run './out/test/cli/order-3.test.js' './out/test/cli/order-2.test.js' './out/test/cli/order-1.test.js' './out/test/**/*.test.js' './out/test/system/clipboard.test.js' -u -i -r . -e ./test-extensions",
+		"ui-coverage": "npm run cb-init && npx c8 -r text -r html extest setup-and-run './out/src/test/cli/order-3-test.js' './out/src/test/cli/order-2-test.js' './out/src/test/cli/order-1-test.js' './out/src/test/**/*-test.js' './out/src/test/system/clipboard.test.js' -u -i -r . -e ./test-extensions -d ."
 	},
 	"devDependencies": {
 		"@types/chai": "^4.3.14",
 		"@types/vscode": "^1.85.0",
+        "c8": "^9.1.0",
 		"chai": "^4.4.1",
 		"clipboard-cli": "^4.0.0",
 		"clipboardy": "^4.0.0",

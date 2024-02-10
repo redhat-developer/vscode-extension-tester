@@ -16,6 +16,7 @@
     "build": "npx lerna run build",
     "build:changed": "npx lerna run build --since main",
     "test": "npm run ui-test --workspace=extester-test",
+    "coverage": "npm run build && npm run pretest && cd test/test-project && npm run ui-coverage",
     "test:build": "npm run build && npm install --workspace=extester-test && npm test"
   },
   "workspaces": [

@@ -1,3 +1,6 @@
 out/
 node_modules/
 .npmrc
+*.tgz
+test/test-project/package-lock.json
+test/test-project/coverage
