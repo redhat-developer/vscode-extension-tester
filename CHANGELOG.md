@@ -1,5 +1,16 @@
 # Change Log
 
+## 7.1.0
+
+> February 12, 2024
+
+- [🚀 Request] Use workflow templates for GH Action pipeline
+- [🚀 Request] Support for VS Code 1.86.x
+- [🚫 Bug] Broken logo in Readme when scaling down window size
+- [🚫 Bug] Wrong selector for Action for ViewSection
+- [🚫 Bug] Unable to download chromedriver for ReleaseQuality.Insider
+- [🚫 Bug] ExtensionsView take action function does not find proper action by its locator
+
 ## 7.0.0
 
 > December 20, 2023
