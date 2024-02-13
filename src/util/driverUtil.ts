@@ -1,6 +1,5 @@
 'use strict';
 
-import os from 'os';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as child_process from 'child_process';
@@ -134,7 +133,7 @@ export class DriverUtil {
                 resolve(stdout.split(' ')[1]);
             });
         });
-
+        
     }
 
     /**
