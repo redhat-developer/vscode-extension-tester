@@ -57,7 +57,7 @@ export class CodeUtil {
     private extensionsFolder: string | undefined;
 
     /**
-     * Create an instance of code handler 
+     * Create an instance of code handler
      * @param folder Path to folder where all the artifacts will be stored.
      * @param extensionsFolder Path to use as extensions directory by VS Code
      */
@@ -89,7 +89,7 @@ export class CodeUtil {
 
     /**
      * Download and unpack VS Code for testing purposes
-     * 
+     *
      * @param version VS Code version to get, default latest
      */
     async downloadVSCode(version: string = 'latest'): Promise<void> {
@@ -255,7 +255,7 @@ export class CodeUtil {
     /**
      * Finds the version of chromium used for given VS Code version.
      * Works only for versions 1.30+, older versions need to be checked manually
-     * 
+     *
      * @param codeVersion version of VS Code, default latest
      * @param quality release stream, default stable
      */
@@ -366,6 +366,8 @@ export class CodeUtil {
             platform += arch === 'x64' ? `-${arch}` : '';
             platform += '-archive';
             this.cliEnv = `set ${this.cliEnv} &&`;
+        } else if (platform === 'darwin') {
+            platform += '-universal';
         }
 
         return platform;
