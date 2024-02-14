@@ -69,7 +69,7 @@ export class DriverUtil {
         const binary = process.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver';
         let driverBinaryPath = path.join(this.downloadFolder, binary);
         if (+majorVersion > 114) {
-            driverBinaryPath = path.join(this.downloadFolder, `chromedriver-${DriverUtil.getChromeDriverPlatform()}`, binary);
+            driverBinaryPath = path.join(this.downloadFolder, `chromedriver-v27.2.3-${DriverUtil.getChromeDriverPlatform()}`, binary);
         }
         return driverBinaryPath;
     }
@@ -77,11 +77,11 @@ export class DriverUtil {
     static getChromeDriverPlatform(): string | undefined {
         switch (process.platform) {
             case 'darwin':
-                return `mac-${process.arch}`;
+                return `darwin-${process.arch}`;
             case 'win32':
-                return process.arch === 'x64' ? 'win64' : 'win32';
+                return process.arch === 'x64' ? 'win32-x64' : 'win32-ia32';
             case 'linux':
-                return 'linux64';
+                return 'linux-x64';
             default:
                 break;
         }
@@ -108,7 +108,8 @@ export class DriverUtil {
         let url = `https://chromedriver.storage.googleapis.com/${version}/chromedriver_${driverPlatform}.zip`;
         if (+majorVersion > 114) {
             driverPlatform = DriverUtil.getChromeDriverPlatform();
-            url = `https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${version}/${driverPlatform}/chromedriver-${driverPlatform}.zip`
+            url = `https://registry.npmmirror.com/-/binary/electron/27.2.3/chromedriver-v27.2.3-${driverPlatform}.zip`;
+            // url = `https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${version}/${driverPlatform}/chromedriver-${driverPlatform}.zip`
         }
         return url;
     }
