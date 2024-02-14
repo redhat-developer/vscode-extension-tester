@@ -65,12 +65,12 @@ export class DriverUtil {
     }
 
     private getChromeDriverBinaryPath(version: string): string {
-        const majorVersion = this.getMajorVersion(version);
+        // const majorVersion = this.getMajorVersion(version);
         const binary = process.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver';
         let driverBinaryPath = path.join(this.downloadFolder, binary);
-        if (+majorVersion > 114) {
-            driverBinaryPath = path.join(this.downloadFolder, `chromedriver-v27.2.3-${DriverUtil.getChromeDriverPlatform()}`, binary);
-        }
+        // if (+majorVersion > 114) {
+        //     driverBinaryPath = path.join(this.downloadFolder, `chromedriver-v27.2.3-${DriverUtil.getChromeDriverPlatform()}`, binary);
+        // }
         return driverBinaryPath;
     }
 

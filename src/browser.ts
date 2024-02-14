@@ -8,7 +8,7 @@ import { Options, ServiceBuilder } from 'selenium-webdriver/chrome';
 import { getLocatorsPath } from 'vscode-extension-tester-locators';
 import { CodeUtil, ReleaseQuality } from './util/codeUtil';
 import { DEFAULT_STORAGE_FOLDER } from './extester';
-import { DriverUtil } from './util/driverUtil';
+// import { DriverUtil } from './util/driverUtil';
 
 export class VSBrowser {
     static readonly baseVersion = '1.37.0';
@@ -88,9 +88,9 @@ export class VSBrowser {
 
         const driverBinary = process.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver';
         let chromeDriverBinaryPath = path.join(this.storagePath, driverBinary);
-        if(this.codeVersion >= '1.86.0') {
-            chromeDriverBinaryPath = path.join(this.storagePath, `chromedriver-v27.2.3-${DriverUtil.getChromeDriverPlatform()}`, driverBinary);
-        }
+        // if(this.codeVersion >= '1.86.0') {
+        //     chromeDriverBinaryPath = path.join(this.storagePath, `chromedriver-v27.2.3-${DriverUtil.getChromeDriverPlatform()}`, driverBinary);
+        // }
 
         console.log('Launching browser...');
         this._driver = await new Builder()
