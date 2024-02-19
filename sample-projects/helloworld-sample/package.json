@@ -9,7 +9,7 @@
 	"license": "MIT",
 	"repository": "https://github.com/redhat-developer/vscode-extension-tester/examples/helloworld-sample",
 	"engines": {
-		"vscode": "^1.80.0"
+		"vscode": "^1.82.0"
 	},
 	"categories": [
 		"Other"
@@ -40,7 +40,7 @@
 		"@types/node": "^18.19.15",
 		"@types/vscode": "^1.82.0",
 		"@typescript-eslint/eslint-plugin": "^6.21.0",
-		"chai": "^5.0.0",
+		"chai": "^4.4.1",
 		"eslint": "^8.56.0",
 		"mocha": "^10.3.0",
 		"typescript": "^5.3.3",
