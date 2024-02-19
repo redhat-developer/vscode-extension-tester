@@ -44,6 +44,6 @@
 		"eslint": "^8.56.0",
 		"mocha": "^10.3.0",
 		"typescript": "^5.3.3",
-		"vscode-extension-tester": "^7.0.0"
+		"vscode-extension-tester": "^7.1.0"
 	}
 }
