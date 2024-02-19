@@ -1,5 +1,13 @@
 # Change Log
 
+## 7.1.1
+
+> February 20, 2024
+
+- [🚀 Request] Support VS Code 1.86.2
+- [🚫 Bug] extest setup-and-run installs intel version of VSCode on mac arm
+- [🚫 Bug] Unable to run tests in sample-projects/helloworld-sample
+
 ## 7.1.0
 
 > February 12, 2024
