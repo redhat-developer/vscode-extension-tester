@@ -3,7 +3,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import { compareVersions } from 'compare-versions';
 import { Merge, DeepPartial, DeepRequired } from 'ts-essentials';
-import clone = require('clone-deep');
+import clone from 'clone-deep';
 
 /**
  * Utility for loading locators for a given vscode version

@@ -1,6 +1,6 @@
 import * as fs from 'fs-extra';
 import { promisify } from 'util';
-import stream = require('stream');
+import stream from 'stream';
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
 
 const httpProxyAgent = !process.env.HTTP_PROXY ? undefined : new HttpProxyAgent({

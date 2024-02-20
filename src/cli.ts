@@ -3,7 +3,7 @@
 import { program } from 'commander';
 import { ExTester } from './extester';
 import { ReleaseQuality } from './util/codeUtil';
-const pjson = require('../package.json');
+import pjson from '../package.json';
 
 program.version(pjson.version)
     .description('UI Test Runner for VS Code Extension');

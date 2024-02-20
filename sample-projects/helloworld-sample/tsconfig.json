@@ -1,11 +1,12 @@
 {
 	"compilerOptions": {
-		"module": "commonjs",
+		"module": "Node16",
 		"target": "es6",
 		"outDir": "out",
 		"sourceMap": true,
 		"strict": true,
-		"rootDir": "src"
+		"rootDir": "src",
+		"resolveJsonModule": true,
 	},
 	"exclude": [ "node_modules", ".vscode-test", "test-resources", "src/ui-test/resources/**", ".test-extensions" ]
 }

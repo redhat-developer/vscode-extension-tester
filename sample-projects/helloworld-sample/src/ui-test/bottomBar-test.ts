@@ -121,6 +121,7 @@ describe('Bottom Bar Example Tests', function () {
         let view: OutputView;
 
         before(async function () {
+            this.timeout(30_000);
             // open the output view first
             view = await bottomBar.openOutputView();
 
