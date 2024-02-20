@@ -1,6 +1,6 @@
 import * as fs from 'fs-extra';
 import { exec } from 'child_process';
-const targz = require('targz');
+import targz from 'targz';
 import * as unzipper from 'unzipper';
 
 export class Unpack {
@@ -8,9 +8,9 @@ export class Unpack {
         return new Promise((resolve, reject) => {
             if (input.toString().endsWith('.tar.gz')) {
                 targz.decompress({
-                    src: input,
-                    dest: target
-                }, (err: Error) => {
+                    src: input.toString(),
+                    dest: target.toString()
+                }, (err: string | Error | null) => {
                     err ? reject(err) : resolve();
                 });
             }

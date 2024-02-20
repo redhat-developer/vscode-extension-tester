@@ -2,7 +2,7 @@
 
 import { VSBrowser } from '../browser';
 import * as fs from 'fs-extra';
-import Mocha = require('mocha');
+import Mocha from 'mocha';
 import { globSync } from 'glob';
 import { CodeUtil, ReleaseQuality } from '../util/codeUtil';
 import * as path from 'path';
