@@ -8,5 +8,15 @@
 		"rootDir": "src",
 		"resolveJsonModule": true,
 	},
-	"exclude": [ "node_modules", ".vscode-test", "test-resources", "src/ui-test/resources/**", ".test-extensions" ]
+	"exclude": [
+		"node_modules",
+		".vscode-test",
+		"test-resources",
+		"src/ui-test/resources/**",
+		".test-extensions"
+	],
+	"include": [
+		"src",
+		".eslintrc.json"
+	]
 }
