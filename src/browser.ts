@@ -8,7 +8,7 @@ import { Options } from 'selenium-webdriver/chrome';
 import { getLocatorsPath } from 'vscode-extension-tester-locators';
 import { CodeUtil, ReleaseQuality } from './util/codeUtil';
 import { DEFAULT_STORAGE_FOLDER } from './extester';
-import { DriverUtil } from './util/driverUtil';
+// import { DriverUtil } from './util/driverUtil';
 import { spawn } from 'child_process';
 
 export class VSBrowser {
@@ -88,10 +88,12 @@ export class VSBrowser {
         options.setLoggingPrefs(prefs);
 
         const driverBinary = process.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver';
-        let chromeDriverBinaryPath = path.join(this.storagePath, driverBinary);
-        if(this.codeVersion >= '1.86.0') {
-            chromeDriverBinaryPath = path.join(this.storagePath, `chromedriver-${DriverUtil.getChromeDriverPlatform()}`, driverBinary);
-        }
+        // let chromeDriverBinaryPath = path.join(this.storagePath, driverBinary);
+        // if(this.codeVersion >= '1.86.0') {
+        //     chromeDriverBinaryPath = path.join(this.storagePath, `chromedriver-${DriverUtil.getChromeDriverPlatform()}`, driverBinary);
+        // }
+
+        let chromeDriverBinaryPath = path.resolve(__dirname, '..', '..', 'node_modules', 'electron-chromedriver', 'bin', driverBinary);
 
         const driverProcess = spawn(chromeDriverBinaryPath, ['--verbose', '--no-sandbox'], {shell: true});
 

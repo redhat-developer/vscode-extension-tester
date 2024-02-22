@@ -49,6 +49,7 @@
     "@types/mocha": "^10.0.6",
     "@types/node": "^18.17.15",
     "@types/unzipper": "^0.10.9",
+    "electron-chromedriver": "^28.2.4",
     "mocha": "^10.3.0",
     "rimraf": "^5.0.5",
     "typescript": "*"
