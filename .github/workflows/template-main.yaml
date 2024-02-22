@@ -41,12 +41,19 @@ jobs:
         run: |
           xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' npm test
 
-      - name: Store chromedriver downloaded
+      - name: Store chromedriver extracted
         uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: chromedriver-${{ matrix.node-version}}-${{ matrix.os }}-${{ inputs.version }}
           path: /home/runner/work/vscode-extension-tester/vscode-extension-tester/test/test-project/test-resources/chromedriver
+
+      - name: Store chromedriver compressed
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: chromedriver-compressed-${{ matrix.node-version}}-${{ matrix.os }}-${{ inputs.version }}
+          path: /home/runner/work/vscode-extension-tester/vscode-extension-tester/test/test-project/test-resources/chromedriver_linux64.zip
 
       - name: Upload Screenshots
         uses: actions/upload-artifact@v4
