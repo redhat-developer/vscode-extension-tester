@@ -93,7 +93,7 @@ export class VSBrowser {
             chromeDriverBinaryPath = path.join(this.storagePath, `chromedriver-${DriverUtil.getChromeDriverPlatform()}`, driverBinary);
         }
 
-        const driverProcess = spawn(chromeDriverBinaryPath, ['--verbose']);
+        const driverProcess = spawn(chromeDriverBinaryPath, ['--verbose', '--no-sandbox']);
 
         driverProcess.stdout.on('data', (data) => {
             console.log(`stdout: ${data}`);
