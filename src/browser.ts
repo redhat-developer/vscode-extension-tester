@@ -4,11 +4,12 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 import { compareVersions } from 'compare-versions';
 import { WebDriver, Builder, until, initPageObjects, logging, By, Browser } from 'monaco-page-objects';
-import { Options, ServiceBuilder } from 'selenium-webdriver/chrome';
+import { Options } from 'selenium-webdriver/chrome';
 import { getLocatorsPath } from 'vscode-extension-tester-locators';
 import { CodeUtil, ReleaseQuality } from './util/codeUtil';
 import { DEFAULT_STORAGE_FOLDER } from './extester';
 import { DriverUtil } from './util/driverUtil';
+import { spawn } from 'child_process';
 
 export class VSBrowser {
     static readonly baseVersion = '1.37.0';
@@ -92,9 +93,26 @@ export class VSBrowser {
             chromeDriverBinaryPath = path.join(this.storagePath, `chromedriver-${DriverUtil.getChromeDriverPlatform()}`, driverBinary);
         }
 
+        const driverProcess = spawn(chromeDriverBinaryPath, ['--verbose']);
+
+        driverProcess.stdout.on('data', (data) => {
+            console.log(`stdout: ${data}`);
+        });
+
+        driverProcess.stderr.on('data', (data) => {
+            console.error(`stderr: ${data}`);
+        });
+
+        driverProcess.on('close', (code) => {
+            console.log(`child process exited with code ${code}`);
+        });
+
+        await new Promise(f => setTimeout(f, 5000));
+
         console.log('Launching browser...');
         this._driver = await new Builder()
-            .setChromeService(new ServiceBuilder(chromeDriverBinaryPath))
+            //.setChromeService(new ServiceBuilder(chromeDriverBinaryPath))
+            .usingServer('http://localhost:9515')
             .forBrowser(Browser.CHROME)
             .setChromeOptions(options)
             .build();
