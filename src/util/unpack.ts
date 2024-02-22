@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra';
 import { exec } from 'child_process';
 import targz from 'targz';
-import * as unzipper from 'unzipper';
+// import * as unzipper from 'unzipper';
 
 export class Unpack {
     static unpack(input: fs.PathLike, target: fs.PathLike): Promise<void> {
@@ -25,10 +25,14 @@ export class Unpack {
                         }
                     });
                 } else {
-                    fs.createReadStream(input)
-                        .pipe(unzipper.Extract({ path: target.toString() }))
-                        .on('error', reject)
-                        .on('close', resolve);
+                    fs.mkdirpSync(target.toString());
+                    exec(`cd ${target} && tar -xvf ${input.toString()}`, (err) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve();
+                        }
+                    });
                 }
             }
             else {
