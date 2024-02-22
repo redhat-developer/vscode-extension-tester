@@ -15,7 +15,7 @@ export class Unpack {
                 });
             }
             else if (input.toString().endsWith('.zip')) {
-                if (process.platform === 'darwin') {
+                if (process.platform === 'darwin' || process.platform === 'linux') {
                     fs.mkdirpSync(target.toString());
                     exec(`cd ${target} && unzip -qo ${input.toString()}`, (err) => {
                         if (err) {
