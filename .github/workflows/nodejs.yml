@@ -1,10 +1,8 @@
-name: Insiders CI
+name: NodeJS CI
 
 on:
   schedule:
     - cron: "0 0 * * *"
-  push:
-    branches: [ insider ]
   workflow_dispatch:
 
 concurrency:
@@ -13,7 +11,12 @@ concurrency:
 
 jobs:
   test:
+    name: ${{ matrix.node }}
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [ lts/*, latest ]
     uses: ./.github/workflows/template-main.yaml
     with:
-      version: latest
-      code_type: insider
+      version: max
+      nodejs: ${{ matrix.node }}
