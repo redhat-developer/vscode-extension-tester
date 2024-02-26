@@ -39,7 +39,7 @@
 		"@types/mocha": "^10.0.6",
 		"@types/node": "^18.19.17",
 		"@types/vscode": "^1.82.0",
-		"@typescript-eslint/eslint-plugin": "^7.0.1",
+		"@typescript-eslint/eslint-plugin": "^7.0.2",
 		"chai": "^4.4.1",
 		"eslint": "^8.56.0",
 		"mocha": "^10.3.0",
