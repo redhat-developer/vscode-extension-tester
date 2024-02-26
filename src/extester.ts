@@ -33,10 +33,9 @@ export const VSCODE_VERSION_MIN = '1.84.2';
 export const VSCODE_VERSION_MAX = '1.86.2';
 
 /**
- * The latest version of NodeJS which is properly working with selenium-webdriver
- * (for more details, see https://www.npmjs.com/package/selenium-webdriver?activeTab=readme#node-support-policy)
+ * The latest version with automated tests
  */
-export const NODEJS_VERSION_MAX = '18.15.0';
+export const NODEJS_VERSION_MAX = '19.0.0';
 
 /**
  * ExTester
@@ -52,7 +51,7 @@ export class ExTester {
         if (process.versions.node > NODEJS_VERSION_MAX) {
             console.log(
                 '\x1b[31m%s\x1b[0m',
-                `\nERROR:\tYou are using the unsupported NodeJS version '${process.versions.node}'. The latest supported version is '${NODEJS_VERSION_MAX}'.\n\tWe recommend to use supported version to have ExTester working properly.\n\tMore info at https://github.com/redhat-developer/vscode-extension-tester/issues/975\n\n`
+                `\nWarning:\tYou are using the untested NodeJS version '${process.versions.node}'. The latest supported version is '${NODEJS_VERSION_MAX}'-.\n\tWe recommend to use tested version to have ExTester working properly.\n\n`
             );
         }
     }

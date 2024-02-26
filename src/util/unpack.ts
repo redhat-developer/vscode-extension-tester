@@ -1,7 +1,6 @@
 import * as fs from 'fs-extra';
 import { exec } from 'child_process';
 import targz from 'targz';
-import * as unzipper from 'unzipper';
 
 export class Unpack {
     static unpack(input: fs.PathLike, target: fs.PathLike): Promise<void> {
@@ -15,8 +14,8 @@ export class Unpack {
                 });
             }
             else if (input.toString().endsWith('.zip')) {
-                if (process.platform === 'darwin') {
-                    fs.mkdirpSync(target.toString());
+                fs.mkdirpSync(target.toString());
+                if(process.platform === 'darwin' || process.platform === 'linux') {
                     exec(`cd ${target} && unzip -qo ${input.toString()}`, (err) => {
                         if (err) {
                             reject(err);
@@ -24,11 +23,15 @@ export class Unpack {
                             resolve();
                         }
                     });
-                } else {
-                    fs.createReadStream(input)
-                        .pipe(unzipper.Extract({ path: target.toString() }))
-                        .on('error', reject)
-                        .on('close', resolve);
+                }
+                else {
+                    exec(`cd ${target} && tar -xvf ${input.toString()}`, (err) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve();
+                        }
+                    });
                 }
             }
             else {
