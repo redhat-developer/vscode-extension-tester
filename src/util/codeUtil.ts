@@ -104,7 +104,7 @@ export class CodeUtil {
         }
 
         console.log(`Downloading VS Code: ${literalVersion} / ${this.releaseType}`);
-        if (!fs.existsSync(this.executablePath) || await this.getExistingCodeVersion() !== literalVersion) {
+        if (!fs.existsSync(this.executablePath) || this.getExistingCodeVersion() !== literalVersion) {
             fs.mkdirpSync(this.downloadFolder);
 
             const url = ['https://update.code.visualstudio.com', version, this.downloadPlatform, this.releaseType].join('/');
@@ -159,8 +159,17 @@ export class CodeUtil {
         }
     }
 
+    private getCliInitCommand(): string {
+        let cli = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}"`;
+        if(this.getExistingCodeVersion() >= '1.86.0') {
+            return cli;
+        } else {
+            return `${cli} --ms-enable-electron-run-as-node`
+        }
+    }
+
     private installExt(pathOrID: string): void {
-        let command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --ms-enable-electron-run-as-node --force --install-extension "${pathOrID}"`;
+        let command = `${this.getCliInitCommand()} --force --install-extension "${pathOrID}"`;
         if (this.extensionsFolder) {
             command += ` --extensions-dir=${this.extensionsFolder}`;
         }
@@ -173,7 +182,7 @@ export class CodeUtil {
      */
     open(...paths: string[]): void {
         const segments = paths.map(f => `"${f}"`).join(' ');
-        let command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --ms-enable-electron-run-as-node -r ${segments} --user-data-dir="${path.join(this.downloadFolder, 'settings')}"`;
+        let command = `${this.getCliInitCommand()} -r ${segments} --user-data-dir="${path.join(this.downloadFolder, 'settings')}"`;
         child_process.execSync(command);
     }
 
@@ -215,7 +224,7 @@ export class CodeUtil {
         const extension = `${pjson.publisher}.${pjson.name}`;
 
         if (cleanup) {
-            let command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}" --ms-enable-electron-run-as-node --uninstall-extension "${extension}"`;
+            let command = `${this.getCliInitCommand()} --uninstall-extension "${extension}"`;
             if (this.extensionsFolder) {
                 command += ` --extensions-dir=${this.extensionsFolder}`;
             }
@@ -235,7 +244,7 @@ export class CodeUtil {
         if (!runOptions.offline) {
             await this.checkCodeVersion(runOptions.vscodeVersion ?? DEFAULT_RUN_OPTIONS.vscodeVersion);
         } else {
-            this.availableVersions = [await this.getExistingCodeVersion()];
+            this.availableVersions = [this.getExistingCodeVersion()];
         }
         const literalVersion = runOptions.vscodeVersion === undefined || runOptions.vscodeVersion === 'latest' ? this.availableVersions[0] : runOptions.vscodeVersion;
 
@@ -284,7 +293,7 @@ export class CodeUtil {
         } catch (err) {
             let version = '';
             if (await fs.pathExists(this.codeFolder)) {
-                version = await this.getChromiumVersionOffline();
+                version = this.getChromiumVersionOffline();
             }
             if (version === '') {
                 throw new Error('Unable to determine required ChromeDriver version');
@@ -297,9 +306,9 @@ export class CodeUtil {
      * Check if VS Code exists in local cache along with an appropriate version of chromedriver
      * without internet connection
      */
-    async checkOfflineRequirements(): Promise<string> {
+    checkOfflineRequirements(): string {
         try {
-            await this.getExistingCodeVersion();
+            this.getExistingCodeVersion();
         } catch (err) {
             console.log('ERROR: Cannot find a local copy of VS Code in offline mode, exiting.');
             throw (err);
@@ -310,9 +319,9 @@ export class CodeUtil {
     /**
      * Attempt to get chromium version from a downloaded copy of vs code
      */
-    async getChromiumVersionOffline(): Promise<string> {
+    getChromiumVersionOffline(): string {
         const manifestPath = path.join(this.codeFolder, 'resources', 'app', 'ThirdPartyNotices.txt');
-        const text = (await fs.readFile(manifestPath)).toString();
+        const text = (fs.readFileSync(manifestPath)).toString();
         const matches = text.match(/chromium\sversion\s(.*)\s\(/);
         if (matches && matches[1]) {
             return matches[1];
@@ -342,14 +351,15 @@ export class CodeUtil {
     /**
      * Check what VS Code version is present in the testing folder
      */
-    private getExistingCodeVersion(): Promise<string> {
-        const command = [this.cliEnv, `"${this.executablePath}"`, `"${this.cliPath}"`, '--ms-enable-electron-run-as-node', '-v'].join(' ');
-        return new Promise<string>((resolve, reject) => {
-            child_process.exec(command, (err, stdout) => {
-                if (err) return reject(err);
-                resolve(stdout.split('\n')[0]);
-            });
-        });
+    private getExistingCodeVersion(): string {
+        let command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}"`;
+        let out: Buffer;
+        try {
+            out = child_process.execSync(`${command} -v`);
+        } catch (error) {
+            out = child_process.execSync(`${command} --ms-enable-electron-run-as-node -v`);
+        }
+        return out.toString().split('\n')[0];
     }
 
     /**
