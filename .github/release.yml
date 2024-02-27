@@ -1,0 +1,23 @@
+changelog:
+  exclude:
+    labels:
+      - skip-changelog
+  categories:
+    - title: 🚫 Bugs
+      labels:
+        - 'bug'
+      exclude:
+        labels:
+          - dependencies
+    - title: 🚀 Features
+      labels:
+        - 'enhancement'
+      exclude:
+        labels:
+          - dependencies
+    - title: 📦 Dependencies
+      labels:
+        - dependencies
+    - title: Other Changes
+      labels:
+        - "*"
