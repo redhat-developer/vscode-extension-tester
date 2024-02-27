@@ -1,5 +1,14 @@
 # Change Log
 
+## 7.2.0
+
+> February 28, 2024
+
+- [🚀 Request] Support latest NodeJS LTS
+- [🚀 Request] Pipeline for testing with NodeJS LTS and Latest
+- [🚫 Bug] Download vscode and chromedriver on linux arm targets wrong version of both
+- [🚫 Bug] 'ms-enable-electron-run-as-node' is not in the list of known options
+
 ## 7.1.1
 
 > February 20, 2024
