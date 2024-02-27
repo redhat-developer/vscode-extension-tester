@@ -4,7 +4,8 @@ import { EditorView, InputBox, TextEditor, Workbench } from 'vscode-extension-te
 describe('Text Editor sample tests', () => {
     let editor: TextEditor;
 
-    before(async () => {
+    before(async function () {
+        this.timeout(10_000);
         // create a file to open in an editor
         await new Workbench().executeCommand('Create: New File...');
         await (await InputBox.create()).selectQuickPick('Text File');
@@ -14,7 +15,8 @@ describe('Text Editor sample tests', () => {
         // editor = new TextEditor();
     });
 
-    after(async () => {
+    after(async function () {
+        this.timeout(10_000);
         // cleanup, delete the file contents and close the editor
         await editor.clearText();
         await new EditorView().closeAllEditors();
