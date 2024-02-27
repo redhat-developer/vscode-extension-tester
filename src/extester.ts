@@ -35,7 +35,7 @@ export const VSCODE_VERSION_MAX = '1.86.2';
 /**
  * The latest version with automated tests
  */
-export const NODEJS_VERSION_MAX = '19.0.0';
+export const NODEJS_VERSION_MAX = '18';
 
 /**
  * ExTester
@@ -48,10 +48,10 @@ export class ExTester {
         this.code = new CodeUtil(storageFolder, releaseType, extensionsDir);
         this.chrome = new DriverUtil(storageFolder);
 
-        if (process.versions.node > NODEJS_VERSION_MAX) {
+        if (process.versions.node.slice(0, 2) > NODEJS_VERSION_MAX) {
             console.log(
-                '\x1b[31m%s\x1b[0m',
-                `\nWarning:\tYou are using the untested NodeJS version '${process.versions.node}'. The latest supported version is '${NODEJS_VERSION_MAX}'-.\n\tWe recommend to use tested version to have ExTester working properly.\n\n`
+                '\x1b[33m%s\x1b[0m',
+                `\nWarning: You are using the untested NodeJS version '${process.versions.node}'. The latest supported version is '${NODEJS_VERSION_MAX}.x.x'.\n\t We recommend to use tested version to have ExTester working properly.\n\n`
             );
         }
     }
