@@ -29,8 +29,8 @@ export const DEFAULT_SETUP_OPTIONS = {
 
 export const DEFAULT_STORAGE_FOLDER = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.join(os.tmpdir(), 'test-resources');
 
-export const VSCODE_VERSION_MIN = '1.84.2';
-export const VSCODE_VERSION_MAX = '1.86.2';
+export const VSCODE_VERSION_MIN = '1.85.2';
+export const VSCODE_VERSION_MAX = '1.87.2';
 
 /**
  * The latest version with automated tests
