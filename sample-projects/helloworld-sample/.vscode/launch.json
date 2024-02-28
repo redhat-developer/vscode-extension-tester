@@ -12,9 +12,11 @@
 		"program": "${workspaceFolder}/node_modules/.bin/extest",
 		"args": [
 			"setup-and-run",
-			"${workspaceFolder}/out/ui-test/*.js",
-			"-o",
+			"${workspaceFolder}/out/ui-test/*-test.js",
+			"--code_settings",
 			"settings.json",
+			"--extensions_dir",
+			".test-extensions",
 			"--mocha_config",
 			"${workspaceFolder}/src/ui-test/.mocharc-debug.js"
 		],
