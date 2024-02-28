@@ -38,7 +38,11 @@
 
 |NodeJS|Visual Studio Code|Operating System|
 |--|--|--|
-|<table style="text-align:center;"> <tr><th>18.x.x</th><th>LTS</th><th>Latest</th></tr><tr><td>✅</td><td>❓ 20.x.x</td><td>❓ 21.x.x</td></tr><tr><td colspan="3">❓ Best-effort</td></tr> </table>| <table style="text-align:center;"> <tr><th>min</th><th>-</th><th>max</th></tr><tr><td>1.84.x</td><td>1.85.x</td><td>1.86.x</td></tr> </table>| <table style="text-align:center;"> <tr><th>Linux</th><th>Windows</th><th>macOS</th></tr><tr><td>✅</td><td>✅</td><td>⚠️</td></tr><tr><td colspan="3">⚠️ [Known Issues](KNOWN_ISSUES.md#macos-known-limitations-of-native-objects)</td></tr> </table>|
+|<table style="text-align:center;"> <tr><th>18.x.x</th><th>LTS</th><th>Latest</th></tr><tr><td>✅</td><td>❓</td><td>❓</td></tr><tr><td colspan="3">❓ Best-effort</td></tr> </table>| <table style="text-align:center;"> <tr><th>min</th><th>-</th><th>max</th></tr><tr><td>1.84.x</td><td>1.85.x</td><td>1.86.x</td></tr> </table>| <table style="text-align:center;"> <tr><th>Linux</th><th>Windows</th><th>macOS</th></tr><tr><td>✅</td><td>✅</td><td>⚠️</td></tr><tr><td colspan="3">⚠️ [Known Issues](KNOWN_ISSUES.md#macos-known-limitations-of-native-objects)</td></tr> </table>|
+
+#### NodeJS Support Policy
+
+ExTester is aiming same support for [NodeJS releases](https://nodejs.org/en/about/previous-releases) as VS Code has. For more info see [Contributing to Visual Studio Code > Prerequisites](https://github.com/microsoft/vscode/wiki/How-to-Contribute#prerequisites).
 
 ### Usage
 
