@@ -38,6 +38,12 @@
     "locators"
   ],
   "author": "Red Hat",
+  "maintainers": [
+    {
+      "name": "Dominik Jelinek",
+      "email": "djelinek@redhat.com"
+    }
+  ],
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/redhat-developer/vscode-extension-tester/issues"
