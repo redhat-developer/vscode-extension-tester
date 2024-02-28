@@ -1,14 +1,16 @@
-# Contributing
+# Contributing Guide
 
-First of all, **welcome!** Thank you for your interest in contributing to our testing framework.
+First of all, **Welcome!** :wave: and thank you for your interest in contributing to our UI testing framework.
 
-## Feedback & Issues
+## Feedback
 
-Have you a question? Have you found a problem you would like to see fixed? Is there something you would like to see improved or features added?
+### Issues
 
-Then we'd like to hear from you. Hop on to the [issue tracker](../../issues) and create an issue. If you add a tag that best fits the problem, that would be absolutely awesome, checking if a similar issue already exists beforehand even more so.
+Have you a **question**? Have you found a **problem** 🚫 you would like to see fixed? Is there something you would like to see improved or **features** 🚀 added?
 
-If you happen to find an existing issue or a pull request that interests you, feel free to comment and upvote/downvote to give us your opinion (**we do prefer comments over votes**).
+Then we'd like to hear from you. Hop on to the [issue tracker](../../issues) and create an issue. If you would **check if a similar issue already exists** beforehand, it would be much appreciated :heart:.
+
+If you happen to find an **existing issue or a pull request** that interests you, feel free to **comment** or upvote :+1: / downvote :-1: to give us your opinion (**we do prefer comments over votes**).
 
 ## Code, Building, Testing and Pull Requests
 
@@ -16,7 +18,7 @@ If submitting issues just doesn't cut it for you, we are always happy to see cod
 
 ### Get the Code
 
-The first step is to Fork this repository and clone your new fork. We also recommend adding the upstream as a new remote so you can easily get updates.
+The first step is to fork this repository and clone your new fork. We also recommend adding the upstream as a new remote so you can easily get updates.
 
 ```shell
 git clone https://github.com/<your user name>/vscode-extension-tester
@@ -62,7 +64,7 @@ With test dependencies installed we can launch the tests
 npm test
 ```
 
-If you are adding a new feature, be sure to write new tests for it. If you navigate to the ```test/test-project/src/test``` folder, you will find a test file structure that mirrors the source files. Put your new test into the appropriate existing file, or create a new one that follows the same structure.
+If you are adding a new feature, be sure to **write new tests** for it. If you navigate to the ```test/test-project/src/test``` folder, you will find a test file structure that mirrors the source files. Put your new test into the appropriate existing file, or create a new one that follows the same structure.
 
 ### Pull Requests
 
@@ -71,15 +73,13 @@ Having made and tested your changes, we recommend committing them into a new bra
 ```shell
 git checkout -b <my-new-branch>
 git add <changed files>
-git commit -m <commit message>
+git commit -m <type>(optional scope): <description> # see https://www.conventionalcommits.org/en/v1.0.0/#summary
 git push origin <my-new-branch>
 ```
 
-Now the changes are in a new branch in your fork, you can submit a new pull request.
+Now the changes are in a new branch in your fork, you can submit a new pull request. **If your pull request is intended to fix an issue in the tracker, make sure to link the two together**.
 
-**If your pull request is intended to fix an issue in the tracker, make sure to link the two together**. You can do that by adding for example ```fix #<issue number>``` to the commit message, or to any comment on the pull request.
-
-Lastly, a pull request check on Github Actions is going to kick in whenever a change is pushed. Please make sure it ends up green. Otherwise it might need a change on your part. Or maybe it also needs a change on our part - in that case opening an issue is the best way to go.
+Lastly, a pull request check on [Github Actions](../../actions) is going to kick in whenever a change is pushed. **Please make sure it ends up green**. Otherwise it might need a change on your part. Or maybe it also needs a change on our part - in that case opening a [new issue](../../issues) is the best way to go.
 
 ## DCO
 
