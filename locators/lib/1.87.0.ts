@@ -5,6 +5,9 @@ export const diff: LocatorDiff = {
             close: 'Hide Panel',
             globalActions: By.className('global-actions'),
             action: (label: string) => By.xpath(`.//a[starts-with(@aria-label, '${label}')]`)
+        },
+        SettingsEditor: {
+            comboValue: 'value'
         }
     }
 }

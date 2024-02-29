@@ -164,6 +164,7 @@ const editor = {
         settingCategory: By.className('setting-item-category'),
         comboSetting: By.css('select'),
         comboOption: By.className('option-text'),
+        comboValue: 'title',
         textSetting: By.css('input'),
         checkboxSetting: By.className('setting-value-checkbox'),
         checkboxChecked: 'aria-checked',

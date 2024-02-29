@@ -195,7 +195,7 @@ export class ComboSetting extends Setting {
 
     async getValue(): Promise<string> {
         const combo = await this.findElement(SettingsEditor.locators.SettingsEditor.comboSetting);
-        return await combo.getAttribute('title');
+        return await combo.getAttribute(SettingsEditor.locators.SettingsEditor.comboValue);
     }
 
     async setValue(value: string): Promise<void> {
