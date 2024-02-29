@@ -169,6 +169,7 @@ export interface Locators {
         settingCategory: By
         comboSetting: By
         comboOption: By
+        comboValue: string
         textSetting: By
         checkboxSetting: By
         checkboxChecked: string
