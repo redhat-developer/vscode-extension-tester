@@ -8,6 +8,9 @@ export const diff: LocatorDiff = {
         },
         SettingsEditor: {
             comboValue: 'value'
+        },
+        FindWidget: {
+            checkbox: (title: string) => By.xpath(`.//div[@role='checkbox' and starts-with(@aria-label, "${title}")]`)
         }
     }
 }
