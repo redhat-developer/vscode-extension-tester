@@ -51,7 +51,7 @@ export class SingleScmProvider extends ScmProvider {
         const elements = await titlePart.findElements(ScmView.locators.ScmView.action);
         const buttons: TitleActionButton[] = [];
         for (const element of elements) {
-            const title = await element.getAttribute('title');
+            const title = await element.getAttribute(ScmView.locators.ScmView.actionLabel);
             buttons.push(await new TitleActionButton(ScmView.locators.ScmView.actionConstructor(title), titlePart).wait());
         }
         const names = await Promise.all(buttons.map(async button => button.getTitle()));

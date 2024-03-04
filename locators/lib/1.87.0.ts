@@ -17,6 +17,14 @@ export const diff: LocatorDiff = {
             actionLabel: {
                 value: fromText()
             }
+        },
+        ScmView: {
+            action: By.className('action-label'),
+            actionConstructor: (title: string) => By.xpath(`.//a[@aria-label='${title}']`),
+            actionLabel: 'aria-label'
+        },
+        ViewTitlePart: {
+            actionLabel: 'aria-label',
         }
     }
 }

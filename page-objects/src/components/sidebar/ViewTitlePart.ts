@@ -40,12 +40,12 @@ export class ViewTitlePart extends ElementWithContexMenu {
     async getAction(title: string): Promise<TitleActionButton> {
         return new TitleActionButton(TitleActionButton.locators.ViewTitlePart.actionConstructor(title), this);
     }
- }
+}
 
- /**
-  * Page object representing a button inside the view title part
-  */
- export class TitleActionButton extends AbstractElement {
+/**
+ * Page object representing a button inside the view title part
+ */
+export class TitleActionButton extends AbstractElement {
 
     constructor(actionConstructor: By, viewTitle: ViewTitlePart) {
         super(actionConstructor, viewTitle);
@@ -55,6 +55,6 @@ export class ViewTitlePart extends ElementWithContexMenu {
      * Get title of the button
      */
     async getTitle(): Promise<string> {
-        return await this.getAttribute('title');
+        return await this.getAttribute(TitleActionButton.locators.ViewTitlePart.actionLabel);
     }
- }
+}

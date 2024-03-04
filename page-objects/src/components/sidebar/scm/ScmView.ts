@@ -243,7 +243,7 @@ export class ScmChange extends ElementWithContexMenu {
     async takeAction(title: string): Promise<boolean> {
         await this.getDriver().actions().move({origin: this}).perform();
         const actions = await this.findElements(ScmChange.locators.ScmView.action);
-        const names = await Promise.all(actions.map(async action => await action.getAttribute('title')));
+        const names = await Promise.all(actions.map(async action => await action.getAttribute(ScmChange.locators.ScmView.actionLabel)));
         const index = names.findIndex(item => item === title);
 
         if (index > -1) {
