@@ -341,6 +341,7 @@ const sideBar = {
         providerType: By.className('type'),
         action: By.className('action-label'),
         actionConstructor: (title: string) => By.xpath(`.//a[@title='${title}']`),
+        actionLabel: 'title',
         inputField: By.css('textarea'),
         changeItem: By.xpath(`.//div[@role='treeitem']`),
         changeName: By.className('name'),
