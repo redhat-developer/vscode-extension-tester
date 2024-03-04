@@ -403,7 +403,9 @@ export interface Locators {
         expand: By
         actions: By
         action: By
-        actionLabel: string
+        actionLabel: {
+            value: WebElementFunction<WebElement, string>
+        }
         standalone: (id: string) => By
         standaloneContainer: By
         center: (index: number) => By

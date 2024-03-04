@@ -1,4 +1,4 @@
-import { By, LocatorDiff } from "monaco-page-objects";
+import { By, fromText, LocatorDiff } from "monaco-page-objects";
 export const diff: LocatorDiff = {
     locators: {
         BottomBarPanel: {
@@ -11,6 +11,12 @@ export const diff: LocatorDiff = {
         },
         FindWidget: {
             checkbox: (title: string) => By.xpath(`.//div[@role='checkbox' and starts-with(@aria-label, "${title}")]`)
+        },
+        Notification: {
+            buttonConstructor: (title: string) => By.xpath(`.//a[@role='button' and text()='${title}']`),
+            actionLabel: {
+                value: fromText()
+            }
         }
     }
 }

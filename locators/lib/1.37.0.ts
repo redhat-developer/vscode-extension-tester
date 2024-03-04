@@ -398,7 +398,9 @@ const workbench = {
         expand: By.className('codicon-notifications-expand'),
         actions: By.className('notification-list-item-buttons-container'),
         action: By.className('monaco-button'),
-        actionLabel: 'title',
+        actionLabel: {
+            value: fromAttribute('title')
+        },
         standalone: (id: string) => By.xpath(`.//div[contains(@class, 'monaco-list-row') and @id='${id}']`),
         standaloneContainer: By.className('notifications-toasts'),
         center: (index: number) => By.xpath(`.//div[contains(@class, 'monaco-list-row') and @data-index='${index}']`),
