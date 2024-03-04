@@ -267,6 +267,7 @@ export interface Locators {
         ctor: (label: string) => By
         twistie: By
         tooltip: By
+        labelAttribute: string
     }
     CustomTreeSection: {
         itemRow: By

@@ -21,7 +21,7 @@ export class DefaultTreeItem extends TreeItem {
 
     async getTooltip(): Promise<string> {
         const tooltip = await this.findElement(DefaultTreeItem.locators.DefaultTreeItem.tooltip);
-        return await tooltip.getAttribute('title');
+        return await tooltip.getAttribute(DefaultTreeItem.locators.DefaultTreeItem.labelAttribute);
     }
 
     async isExpanded(): Promise<boolean> {
