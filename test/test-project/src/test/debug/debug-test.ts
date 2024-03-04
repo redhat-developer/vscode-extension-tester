@@ -109,27 +109,36 @@ describe('Debugging', function () {
         });
 
         it('BreakpointSectionItem.setBreakpointEnabled', async function () {
-            const item = await getBreakpointItem(view, this.timeout() - 2000);
+            let item = await getBreakpointItem(view, this.timeout() - 2000);
             const driver = item.getDriver();
-            let status = await item.isBreakpointEnabled();
+            let status = await item.isBreakpointEnabled(); // true
 
-            await item.setBreakpointEnabled(status);
+            await item.setBreakpointEnabled(status); // true --> true
             await driver.wait(
-                async () => await item.isBreakpointEnabled() === status,
+                async () => {
+                    item = await getBreakpointItem(view, this.timeout() - 2000);
+                    return await item.isBreakpointEnabled() === status;
+                },
                 this.timeout() - 2000,
                 `could not set status from ${status} to ${status}`
             );
 
-            await item.setBreakpointEnabled(!status);
+            await item.setBreakpointEnabled(!status); // true --> false
             await driver.wait(
-                async () => await item.isBreakpointEnabled() === !status,
+                async () => {
+                    item = await getBreakpointItem(view, this.timeout() - 2000);
+                    return await item.isBreakpointEnabled() === !status;
+                },
                 this.timeout() - 2000,
                 `could not set status from ${status} to ${!status}`
             );
 
-            await item.setBreakpointEnabled(status);
+            await item.setBreakpointEnabled(status); // false --> true
             await driver.wait(
-                async () => await item.isBreakpointEnabled() === status,
+                async () => {
+                    item = await getBreakpointItem(view, this.timeout() - 2000);
+                    return await item.isBreakpointEnabled() === status;
+                },
                 this.timeout() - 2000,
                 `could not set status from ${!status} to ${status}`
             );
@@ -187,9 +196,10 @@ describe('Debugging', function () {
         });
 
         it('Variable view: setVariableValue', async function () {
-            const item = await getNumVariable(view, this.timeout() - 2000);
+            let item = await getNumVariable(view, this.timeout() - 2000);
             expect(await item.getVariableValue()).equals('5');
             await item.setVariableValue('42');
+            item = await getNumVariable(view, this.timeout() - 2000);
             expect(await item.getVariableValue()).equals('42');
         });
 

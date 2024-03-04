@@ -25,7 +25,7 @@ export class BreakpointSectionItem extends CustomTreeItem {
      */
     async isBreakpointEnabled(): Promise<boolean> {
         const locator = BreakpointSectionItem.locators.BreakpointSectionItem.breakpointCheckbox;
-        const el = this.findElement(locator.constructor);
+        const el = await this.findElement(locator.constructor);
         return await locator.value(el);
     }
 
@@ -38,13 +38,13 @@ export class BreakpointSectionItem extends CustomTreeItem {
             return;
         }
         const locator = BreakpointSectionItem.locators.BreakpointSectionItem.breakpointCheckbox;
-        const el = this.findElement(locator.constructor);
+        const el = await this.findElement(locator.constructor);
         await el.click();
     }
 
     async getLabel(): Promise<string> {
         const locator = BreakpointSectionItem.locators.BreakpointSectionItem.label;
-        const el = this.findElement(locator.constructor);
+        const el = await this.findElement(locator.constructor);
         return await locator.value(el);
     }
 
@@ -54,7 +54,7 @@ export class BreakpointSectionItem extends CustomTreeItem {
      */
     async getBreakpointFilePath(): Promise<string> {
         const locator = BreakpointSectionItem.locators.BreakpointSectionItem.filePath;
-        const el = this.findElement(locator.constructor);
+        const el = await this.findElement(locator.constructor);
         return await locator.value(el);
     }
 
@@ -64,7 +64,7 @@ export class BreakpointSectionItem extends CustomTreeItem {
      */
     async getBreakpointLine(): Promise<number> {
         const locator = BreakpointSectionItem.locators.BreakpointSectionItem.lineNumber;
-        const el = this.findElement(locator.constructor);
+        const el = await this.findElement(locator.constructor);
         return Number.parseInt(await locator.value(el));
     }
 }
