@@ -80,7 +80,7 @@ export abstract class Notification extends ElementWithContexMenu {
             .findElements(Notification.locators.Notification.action);
 
         for (const button of elements) {
-            const title = await button.getAttribute('title');
+            const title = await Notification.locators.Notification.actionLabel.value(button);
             buttons.push(await new NotificationButton(Notification.locators.Notification.buttonConstructor(title), this).wait());
         }
         return buttons;
@@ -135,6 +135,6 @@ class NotificationButton extends AbstractElement {
     }
 
     async getTitle(): Promise<string> {
-        return await this.getAttribute('title');
+        return await Notification.locators.Notification.actionLabel.value(this);
     }
 }
