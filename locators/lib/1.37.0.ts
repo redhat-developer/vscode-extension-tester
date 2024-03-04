@@ -263,7 +263,8 @@ const sideBar = {
     DefaultTreeItem: {
         ctor: (label: string) => By.xpath(`.//div[@role='treeitem' and @aria-label='${label}']`),
         twistie: By.className('monaco-tl-twistie'),
-        tooltip: By.className('explorer-item')
+        tooltip: By.className('explorer-item'),
+        labelAttribute: 'title'
     },
     CustomTreeSection: {
         itemRow: By.className('monaco-list-row'),

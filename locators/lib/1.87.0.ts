@@ -24,7 +24,10 @@ export const diff: LocatorDiff = {
             actionLabel: 'aria-label'
         },
         ViewTitlePart: {
-            actionLabel: 'aria-label',
+            actionLabel: 'aria-label'
+        },
+        DefaultTreeItem: {
+            labelAttribute: 'aria-label'
         }
     }
 }
