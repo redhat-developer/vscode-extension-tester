@@ -42,7 +42,7 @@ export class ModalDialog extends AbstractElement {
      */
     async pushButton(title: string): Promise<void> {
         const buttons = await this.getButtons();
-        const titles = await Promise.all(buttons.map(async btn => btn.getAttribute('title')));
+        const titles = await Promise.all(buttons.map(async btn => ModalDialog.locators.Dialog.buttonLabel.value(btn)));
         const index = titles.findIndex(value => value === title);
         if (index > -1) {
             await buttons[index].click();

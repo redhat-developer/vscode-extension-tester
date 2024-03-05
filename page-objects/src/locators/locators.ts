@@ -457,6 +457,9 @@ export interface Locators {
         buttonContainer: By
         button: By
         closeButton: By
+        buttonLabel: {
+            value: WebElementFunction<WebElement, string>
+        }
     }
 
     WelcomeContent: {
