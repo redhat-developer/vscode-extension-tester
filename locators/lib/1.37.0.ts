@@ -457,7 +457,10 @@ const dialog = {
         details: By.className('dialog-message-detail'),
         buttonContainer: By.className('dialog-buttons-row'),
         button: By.className('monaco-text-button'),
-        closeButton: By.className('codicon-dialog-close')
+        closeButton: By.className('codicon-dialog-close'),
+        buttonLabel: {
+            value: fromAttribute('title')
+        }
     }
 }
 

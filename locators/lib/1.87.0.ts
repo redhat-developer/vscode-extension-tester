@@ -28,6 +28,11 @@ export const diff: LocatorDiff = {
         },
         DefaultTreeItem: {
             labelAttribute: 'aria-label'
+        },
+        Dialog: {
+            buttonLabel: {
+                value: fromText()
+            }
         }
     }
 }
