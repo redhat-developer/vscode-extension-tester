@@ -5,3 +5,4 @@ docs
 resources/api-handler.vsix
 .npmrc
 *.tgz
+test/test-project/package-lock.json
