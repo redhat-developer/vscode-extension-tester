@@ -28,19 +28,13 @@ git remote add upstream https://github.com/redhat-developer/vscode-extension-tes
 
 ### Build It
 
-Now that you have the code, you will need to build the project. First, we need to get all the modules linked and built.
-
-```nodejs
-npm run prepare-deps
-```
-
-Second step is to install all main module dependencies.
+Now that you have the code, you will need to build the project. First, we need to install all modules dependencies:
 
 ```nodejs
 npm install
 ```
 
-Now you can compile the typescript project. We recommend using the predefined script for that.
+Now you can compile the typescript project. We recommend using the predefined script for that:
 
 ```nodejs
 npm run build
@@ -52,13 +46,7 @@ After these steps, you should be able to run the project and make your changes. 
 
 **When you make a change, make sure the tests are passing**. In the ```test/test-project``` directory there is a dummy VS Code extension we use to test the framework itself.
 
-First we need to install the dependencies of this project. For that, you can use the following script
-
-```nodejs
-npm run prepare-test
-```
-
-With test dependencies installed we can launch the tests
+For that, you can use the following script and launch the tests:
 
 ```nodejs
 npm test

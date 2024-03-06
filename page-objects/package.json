@@ -18,9 +18,13 @@
   },
   "keywords": [
     "webdriver",
+    "selenium-webdriver",
+    "selenium",
     "test",
     "vscode",
-    "extension"
+    "extension",
+    "extester",
+    "ui-test"
   ],
   "author": "Red Hat",
   "license": "Apache-2.0",
@@ -31,7 +35,7 @@
   "devDependencies": {
     "@types/clone-deep": "^4.0.4",
     "@types/fs-extra": "^11.0.4",
-    "@types/node": "^18.17.15",
+    "@types/node": "^18.19.21",
     "@types/selenium-webdriver": "^4.1.21",
     "rimraf": "^5.0.5",
     "typescript": "*"
@@ -44,7 +48,7 @@
     "ts-essentials": "^9.4.1"
   },
   "peerDependencies": {
-    "selenium-webdriver": "^4.6.1",
+    "selenium-webdriver": ">=4.6.1",
     "typescript": ">=4.6.2"
   }
 }

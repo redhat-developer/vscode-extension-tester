@@ -18,9 +18,13 @@
   },
   "keywords": [
     "webdriver",
+    "selenium-webdriver",
+    "selenium",
     "test",
     "vscode",
-    "extension"
+    "extension",
+    "extester",
+    "ui-test"
   ],
   "author": "Red Hat",
   "license": "Apache-2.0",
@@ -29,14 +33,14 @@
   },
   "homepage": "https://github.com/redhat-developer/vscode-extension-tester#readme",
   "devDependencies": {
-    "@types/node": "^18.17.15",
+    "@types/node": "^18.19.21",
     "@types/selenium-webdriver": "^4.1.21",
     "monaco-page-objects": "file:../page-objects",
     "rimraf": "^5.0.5",
     "typescript": "5.3.3"
   },
   "peerDependencies": {
-    "monaco-page-objects": "^3.13.0",
-    "selenium-webdriver": "^4.6.1"
+    "monaco-page-objects": "*",
+    "selenium-webdriver": ">=4.6.1"
   }
 }
