@@ -37,7 +37,7 @@
     "@types/selenium-webdriver": "^4.1.21",
     "monaco-page-objects": "file:../page-objects",
     "rimraf": "^5.0.5",
-    "typescript": "5.3.3"
+    "typescript": "5.4.2"
   },
   "peerDependencies": {
     "monaco-page-objects": "*",
