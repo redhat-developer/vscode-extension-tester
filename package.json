@@ -55,7 +55,7 @@
     "@types/js-yaml": "^4.0.9",
     "@types/mocha": "^10.0.6",
     "@types/node": "^18.19.21",
-    "@types/selenium-webdriver": "^4.1.21",
+    "@types/selenium-webdriver": "^4.1.22",
     "@types/targz": "^1.0.4",
     "mocha": "^10.3.0",
     "rimraf": "^5.0.5",
