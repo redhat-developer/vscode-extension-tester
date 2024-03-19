@@ -86,6 +86,7 @@ export interface Locators {
     OutputView: {
         constructor: By
         actionsLabel: string
+        optionByName: (name: string) => By
     }
     WebviewView: {
         iframe: By

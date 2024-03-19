@@ -1,5 +1,5 @@
 import { Key, until } from "selenium-webdriver";
-import { BottomBarPanel, ContentAssist, InputBox, Workbench } from "../..";
+import { BottomBarPanel, ContentAssist, Workbench } from "../..";
 import { TextView, ChannelView } from "./AbstractViews";
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
 
@@ -17,13 +17,7 @@ export class OutputView extends TextView {
      * @param name name of the channel to open
      */
     async selectChannel(name: string): Promise<void> {
-        if (process.platform === 'darwin') {
-            await new Workbench().executeCommand('Output: Show Output Channels...');
-            const input = await InputBox.create();
-            await input.selectQuickPick(name);
-        } else {
-            await super.selectChannel(name);
-        }
+        await super.selectChannel(name);
     }
 }
 

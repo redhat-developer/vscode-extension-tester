@@ -1,4 +1,4 @@
-import { Key, WebElement } from 'selenium-webdriver';
+import { Key } from 'selenium-webdriver';
 import { ElementWithContexMenu } from "../ElementWithContextMenu";
 
 /**
@@ -31,6 +31,9 @@ export abstract class ChannelView extends ElementWithContexMenu {
      * @returns Promise resolving to the current channel name
      */
     async getCurrentChannel(): Promise<string> {
+        if(ChannelView.versionInfo.version >= '1.87.0' && process.platform !== 'darwin') {
+            throw Error(`The 'ChannelView.getCurrentChannel' method is broken! Read more information in 'Known Issues > Limitations in testing with VS Code 1.87+' - https://github.com/microsoft/vscode/issues/206897.`);
+        }
         const combo = await this.enclosingItem.findElement(ChannelView.locators.BottomBarViews.channelCombo);
         return await combo.getAttribute('title');
     }
@@ -40,43 +43,9 @@ export abstract class ChannelView extends ElementWithContexMenu {
      * @param name name of the channel to open
      */
     async selectChannel(name: string): Promise<void> {
-        const rows = await this.getOptions();
-        for (let i = 0; i < rows.length; i++) {
-            if ((await rows[i].getAttribute('class')).indexOf('disabled') < 0) {
-                const text = await (await rows[i].findElement(ChannelView.locators.BottomBarViews.channelText)).getText();
-                if (name === text) {
-                    await rows[i].click();
-                    await new Promise(res => setTimeout(res, 500));
-                    return;
-                }
-            }
-        }
-        throw new Error(`Channel ${name} not found`);
-    }
-
-    private async getOptions(): Promise<WebElement[]> {
         const combo = await this.enclosingItem.findElement(ChannelView.locators.BottomBarViews.channelCombo);
-        const workbench = await this.getDriver().findElement(ChannelView.locators.Workbench.constructor);
-        const menus = await workbench.findElements(ChannelView.locators.ContextMenu.contextView);
-        let menu!: WebElement;
-
-        if (menus.length < 1) {
-            await combo.click();
-            await this.getDriver().sleep(500);
-            menu = await workbench.findElement(ChannelView.locators.ContextMenu.contextView);
-            return await menu.findElements(ChannelView.locators.BottomBarViews.channelRow);
-        } else if (await menus[0].isDisplayed()) {
-            await combo.click();
-            await this.getDriver().sleep(500);
-        }
-        await combo.click();
-        await this.getDriver().sleep(500);
-        menu = await workbench.findElement(ChannelView.locators.ContextMenu.contextView);
-        if (!await menu.isDisplayed()) {
-            await combo.click();
-            await this.getDriver().sleep(500);
-        }
-        return await menu.findElements(ChannelView.locators.BottomBarViews.channelRow);
+        const option = await combo.findElement(ChannelView.locators.OutputView.optionByName(name));
+        await option.click();
     }
 }
 
