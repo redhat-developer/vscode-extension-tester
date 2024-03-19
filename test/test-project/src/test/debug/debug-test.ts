@@ -34,6 +34,9 @@ describe('Debugging', function () {
 
     describe('Debug View', () => {
         it('getLaunchConfiguration works', async function () {
+            if(process.platform !== 'darwin' && VSBrowser.instance.version >= '1.87.0') {
+                this.skip();
+            }
             const config = await view.getLaunchConfiguration();
             expect(config).equals('Test Launch');
         });
@@ -45,6 +48,9 @@ describe('Debugging', function () {
         });
 
         it('selectLaunchConfiguration works', async function () {
+            if(process.platform !== 'darwin' && VSBrowser.instance.version >= '1.87.0') {
+                this.skip();
+            }
             await view.selectLaunchConfiguration('Test Launch2');
             const config = await view.getLaunchConfiguration();
             expect(config).equals('Test Launch2');

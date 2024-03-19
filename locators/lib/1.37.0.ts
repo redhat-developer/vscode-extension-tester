@@ -79,7 +79,8 @@ const bottomBar = {
     },
     OutputView: {
         constructor: By.id('workbench.panel.output'),
-        actionsLabel: 'Output actions'
+        actionsLabel: 'Output actions',
+        optionByName: (name: string) => By.xpath(`.//option[@value='${name}']`)
     },
     WebviewView: {
         iframe: By.xpath(`//div[not(@class)]/iframe[@class='webview ready' and not(@data-parent-flow-to-element-id)]`)

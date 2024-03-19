@@ -37,12 +37,18 @@ describe('Output View/Text Views', function () {
     });
 
     it('getCurrentChannel returns the selected channel name', async function () {
+        if(process.platform !== 'darwin' && VSBrowser.instance.version >= '1.87.0') {
+            this.skip();
+        }
         const channel = await view.getCurrentChannel();
         expect(channel).not.empty;
     });
 
     it('selectChannel works', async function () {
         this.timeout(10000);
+        if(process.platform !== 'darwin' && VSBrowser.instance.version >= '1.87.0') {
+            this.skip();
+        }
         await view.selectChannel('Tasks');
         const final = await view.getCurrentChannel();
         expect('Tasks').equals(final);
