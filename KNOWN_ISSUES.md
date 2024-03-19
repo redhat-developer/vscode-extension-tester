@@ -1,5 +1,14 @@
 # Known Issues
 
+## Limitations in testing with VS Code 1.87+
+
+The issue [#206897](https://github.com/microsoft/vscode/issues/206897) was spotted and reported in [Visual Studio Code](https://github.com/microsoft/vscode) project. The problem is currently affecting only Windows and Linux architectures. Unfortunately there is no identified workaround at the moment, which leads to some ExTester's components methods are not working properly.
+
+- Output views / Text views
+  - getCurrentChannel
+- Debug view
+  - getLaunchConfiguration
+
 ## Tests getting stuck on launch on Linux (CentOS based)
 
 This is likely due to a missing dependency on ChromeDriver that runs underneath. If such a scenario occurs, we recommend installing the Chrome browser rpm, since it depends on all the required libraries.
