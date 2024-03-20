@@ -69,6 +69,39 @@ Now the changes are in a new branch in your fork, you can submit a new pull requ
 
 Lastly, a pull request check on [Github Actions](../../actions) is going to kick in whenever a change is pushed. **Please make sure it ends up green**. Otherwise it might need a change on your part. Or maybe it also needs a change on our part - in that case opening a [new issue](../../issues) is the best way to go.
 
+## Release new ExTester version
+
+1. Check all related PR's were merged and the `Main CI`is green
+2. _(optional)_ Publish new version of `monaco-page-objects` package
+    - `cd page-objects`
+    - `npm version (major|minor|patch)`
+    - `npm publish`
+3. _(optional)_ Publish new version of `vscode-extension-tester-locators` package
+    - `cd locators`
+    - bump `monaco-page-objects` peerDependency to recently published
+    - `npm version (major|minor|patch)`
+    - `npm publish`
+4. Publish `vscode-extension-tester`
+    - `npm version (major|minor|patch) --no-git-tag-version`
+    - bump `page-objects`
+      - `npm install monaco-page-objects@latest`
+    - bump `locators`
+      - `npm install vscode-extension-tester-locators@latest`
+    - commit changes and open new PR
+    - wait for PR is approved and merged
+    - after merge, wait until `Main CI` is green
+    - create and push new `vX.X.X` tag
+    - `npm publish`
+    - create a new GitHub [release](https://github.com/redhat-developer/vscode-extension-tester/releases) from a new `vX.X.X` tag (with generated release notes)
+
+### Post publish tasks
+
+- Close published version [milestone](https://github.com/redhat-developer/vscode-extension-tester/milestones) and update ExTester [project board](https://github.com/orgs/redhat-developer/projects/41/views/3)
+- Update `sample-projects/helloworld-sample` project
+  - Bump `vscode-extension-tester` version to recently released one
+  - Run tests and check everything is working properly
+- _(optional)_ Spread a message about new release using IM tools, mailing lists and social media
+
 ## DCO
 
 **By contributing to this project you agree to the Developer Certificate of Origin (DCO)**. This document was created by the Linux Kernel community and is a simple statement that you, as a contributor, have the legal right to make the contribution.
