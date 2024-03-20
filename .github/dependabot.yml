@@ -24,10 +24,3 @@ updates:
     versioning-strategy: increase
     reviewers:
       - redhat-developer/extester-maintainers
-  - package-ecosystem: 'npm'
-    directory: '/sample-projects/helloworld-sample'
-    schedule:
-      interval: 'weekly'
-    versioning-strategy: increase
-    reviewers:
-      - redhat-developer/extester-maintainers
