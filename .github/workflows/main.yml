@@ -3,8 +3,34 @@ name: Main CI
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - wiki/**
+      - sample-projects/**
+      - README.md
+      - SECURITY.md
+      - KNOWN_ISSUES.md
+      - CODE_OF_CONDUCT.md
+      - CONTRIBUTING.md
+      - DCO
+      - LICENSE
+      - .github/workflows/**
+      - '!.github/workflows/main.yml'
+      - '!.github/workflows/template-main.yaml'
   pull_request:
     branches: [ main ]
+    paths-ignore:
+      - wiki/**
+      - sample-projects/**
+      - README.md
+      - SECURITY.md
+      - KNOWN_ISSUES.md
+      - CODE_OF_CONDUCT.md
+      - CONTRIBUTING.md
+      - DCO
+      - LICENSE
+      - .github/workflows/**
+      - '!.github/workflows/main.yml'
+      - '!.github/workflows/template-main.yaml'
   workflow_dispatch:
 
 concurrency:
