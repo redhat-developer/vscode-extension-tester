@@ -71,34 +71,35 @@ Lastly, a pull request check on [Github Actions](../../actions) is going to kick
 
 ## Release new ExTester version
 
-1. Check all related PR's were merged and the `Main CI`is green
-2. _(optional)_ Publish new version of `monaco-page-objects` package
+- [ ] Check all related PR's were merged and the `Main CI`is green
+
+1. _(optional)_ Publish `monaco-page-objects` package
     - `cd page-objects`
-    - `npm version (major|minor|patch)`
-    - `npm publish`
-3. _(optional)_ Publish new version of `vscode-extension-tester-locators` package
+    - [ ] `npm version (major|minor|patch)`
+    - [ ] `npm publish`
+2. _(optional)_ Publish `vscode-extension-tester-locators` package
     - `cd locators`
-    - `npm version (major|minor|patch)`
-    - `npm publish`
-4. Publish `vscode-extension-tester`
-    - `npm version (major|minor|patch) --no-git-tag-version`
-    - bump `page-objects`
+    - [ ] `npm version (major|minor|patch)`
+    - [ ] `npm publish`
+3. Publish `vscode-extension-tester` package
+    - [ ] `npm version (major|minor|patch) --no-git-tag-version`
+    - [ ] bump `page-objects` dependency
       - `npm install monaco-page-objects@latest`
-    - bump `locators`
+    - [ ] bump `locators` dependency
       - `npm install vscode-extension-tester-locators@latest`
-    - commit changes and open new PR
-    - wait for PR is approved and merged
-    - after merge, wait until `Main CI` is green
-    - create and push new `vX.X.X` tag
-    - `npm publish`
-    - create a new GitHub [release](https://github.com/redhat-developer/vscode-extension-tester/releases) from a new `vX.X.X` tag (with generated release notes)
+    - [ ] commit changes and open new PR
+    - [ ] wait for PR is approved and merged
+    - [ ] after merge, wait until `Main CI` is green
+    - [ ] create and push new `vX.X.X` tag
+    - [ ] `npm publish`
+    - [ ] create a new GitHub [release](https://github.com/redhat-developer/vscode-extension-tester/releases) from a new `vX.X.X` tag (with generated release notes)
 
 ### Post publish tasks
 
-- Close published version [milestone](https://github.com/redhat-developer/vscode-extension-tester/milestones) and update ExTester [project board](https://github.com/orgs/redhat-developer/projects/41/views/3)
+- [ ] Close published version [milestone](https://github.com/redhat-developer/vscode-extension-tester/milestones) and update ExTester [project board](https://github.com/orgs/redhat-developer/projects/41/views/3)
 - Update `sample-projects/helloworld-sample` project
-  - Bump `vscode-extension-tester` version to recently released one
-  - Run tests and check everything is working properly
+  - [ ] Bump `vscode-extension-tester` version to recently released one
+  - [ ] Run tests and check everything is working properly
 - _(optional)_ Spread a message about new release using IM tools, mailing lists and social media
 
 ## DCO
