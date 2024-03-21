@@ -126,7 +126,7 @@ describe('Bottom Bar Example Tests', function () {
             view = await bottomBar.openOutputView();
 
             // select a channel that actually has some text in it
-            await view.selectChannel('Log (Main)');
+            await view.selectChannel('Main');
         });
 
         // check if there is text in the output
