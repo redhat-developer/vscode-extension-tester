@@ -32,7 +32,7 @@
 		"compile": "tsc -p ./ && npm run lint",
 		"lint": "eslint src --ext .ts",
 		"watch": "tsc -watch -p ./",
-		"ui-test": "extest setup-and-run './out/ui-test/*-test.js' --code_settings settings.json --extensions_dir .test-extensions"
+		"ui-test": "extest setup-and-run './out/ui-test/*-test.js' --code_version max --code_settings settings.json --extensions_dir .test-extensions"
 	},
 	"devDependencies": {
 		"@types/chai": "^4.3.14",
@@ -44,6 +44,6 @@
 		"eslint": "^8.57.0",
 		"mocha": "^10.3.0",
 		"typescript": "^5.4.2",
-		"vscode-extension-tester": "^7.2.0"
+		"vscode-extension-tester": "^7.3.0"
 	}
 }
