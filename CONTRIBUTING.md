@@ -78,7 +78,6 @@ Lastly, a pull request check on [Github Actions](../../actions) is going to kick
     - `npm publish`
 3. _(optional)_ Publish new version of `vscode-extension-tester-locators` package
     - `cd locators`
-    - bump `monaco-page-objects` peerDependency to recently published
     - `npm version (major|minor|patch)`
     - `npm publish`
 4. Publish `vscode-extension-tester`
