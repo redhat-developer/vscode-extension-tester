@@ -40,7 +40,7 @@
     "typescript": "*"
   },
   "peerDependencies": {
-    "monaco-page-objects": "^3.13.1",
+    "monaco-page-objects": ">=3.0.0",
     "selenium-webdriver": ">=4.6.1"
   }
 }
