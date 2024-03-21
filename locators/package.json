@@ -1,6 +1,6 @@
 {
   "name": "vscode-extension-tester-locators",
-  "version": "3.11.0",
+  "version": "3.12.0",
   "description": "Pluggable Page Objects locators for ExTester",
   "main": "out/index.js",
   "types": "out/index.d.ts",
