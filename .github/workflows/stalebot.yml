@@ -1,5 +1,6 @@
 # https://github.com/actions/stale
-name: 'Close stale issues and PRs'
+name: 🗄️ Close Stale Issues and PRs
+
 on:
   schedule:
     - cron: '30 1 * * *'
@@ -8,6 +9,7 @@ jobs:
   stale:
     runs-on: ubuntu-latest
     steps:
+      - name: 🗄️ Close Inactive
       - uses: actions/stale@v9
         with:
           stale-issue-message: 'This issue is stale because it has been open 60 days with no activity. Remove stale label or comment or this will be closed in 7 days.'

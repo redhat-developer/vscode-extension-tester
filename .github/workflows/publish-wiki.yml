@@ -1,4 +1,5 @@
-name: Publish wiki
+name: 📖 Publish wiki
+
 on:
   push:
     branches: [ main ]
@@ -17,5 +18,7 @@ jobs:
   publish-wiki:
     runs-on: ubuntu-latest
     steps:
+      - name: 👷‍♀️ Checkout
       - uses: actions/checkout@v4
+      - name: 📖 Build Wiki
       - uses: Andrew-Chen-Wang/github-wiki-action@v4
