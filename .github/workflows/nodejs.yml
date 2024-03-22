@@ -1,4 +1,4 @@
-name: NodeJS CI
+name: 💎 NodeJS CI
 
 on:
   schedule:

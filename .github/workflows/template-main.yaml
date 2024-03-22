@@ -1,4 +1,4 @@
-name: Main CI - template
+name: 📄 Main CI - template
 
 on:
   workflow_call:
@@ -30,36 +30,36 @@ jobs:
       TEST_RESOURCES: test-resources
 
     steps:
-      - name: Checkout Repository
+      - name: 🔧 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: 🔧 Setup NodeJS
         uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.nodejs }}
           cache: npm
 
-      - name: Install
+      - name: 🔧 Install
         run: npm ci
 
-      - name: Run Tests (macOS, windows)
+      - name: 🔍 Run Tests (macOS, windows)
         if: matrix.os != 'ubuntu-latest'
         run: |
           npm test
 
-      - name: Run Tests (linux)
+      - name: 🔍 Run Tests (linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
           xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' npm test
 
-      - name: Upload Screenshots
+      - name: 💾 Upload Screenshots
         uses: actions/upload-artifact@v4
         if: failure() && inputs.nodejs != 'lts/*'
         with:
           name: screenshots-${{ matrix.os }}-${{ inputs.version }}-node_${{ inputs.nodejs }}
           path: ${{ github.workspace }}/test/**/screenshots/*.png
 
-      - name: Upload Screenshots
+      - name: 💾 Upload Screenshots
         uses: actions/upload-artifact@v4
         if: failure() && inputs.nodejs == 'lts/*'
         with:

@@ -1,4 +1,4 @@
-name: Main CI
+name: 🏗️ Main CI
 
 on:
   push:
@@ -25,18 +25,18 @@ jobs:
   check:
     if: always()
     runs-on: ubuntu-latest
-    name: Status Check
+    name: 🟢 Status Check
     needs: [ test ]
     steps:
-      - name: Test Matrix Result
+      - name: ℹ️ Test Matrix Result
         run: |
           echo result = ${{ needs.test.result }}
-      - name: Status Check - success
+      - name: ✅ Status Check - success
         if: ${{ needs.test.result == 'success' }}
         run: |
           echo "All tests successfully completed!"
           exit 0
-      - name: Status Check - failure
+      - name: ❌ Status Check - failure
         if: ${{ needs.test.result != 'success' }}
         run: |
           echo "Status Check failed!"
