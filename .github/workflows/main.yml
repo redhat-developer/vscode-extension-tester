@@ -25,7 +25,7 @@ jobs:
   check:
     if: always()
     runs-on: ubuntu-latest
-    name: 🟢 Status Check
+    name: 🚦 Status Check
     needs: [ test ]
     steps:
       - name: ℹ️ Test Matrix Result
