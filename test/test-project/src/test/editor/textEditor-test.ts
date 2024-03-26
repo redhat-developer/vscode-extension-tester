@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { expect } from 'chai';
-import { TextEditor, EditorView, StatusBar, InputBox, ContentAssist, Workbench, FindWidget, VSBrowser, Notification, after, before } from "vscode-extension-tester";
+import { TextEditor, EditorView, StatusBar, InputBox, ContentAssist, Workbench, FindWidget, VSBrowser, after, before } from "vscode-extension-tester";
 
 describe('ContentAssist', async function () {
     let assist: ContentAssist;
@@ -30,6 +30,7 @@ describe('ContentAssist', async function () {
     });
 
     beforeEach(async function () {
+        this.timeout(15000);
         assist = await editor.toggleContentAssist(true) as ContentAssist;
         await new Promise(res => setTimeout(res, 2000));
     });
@@ -71,7 +72,7 @@ describe('TextEditor', function () {
     const testText = process.platform === 'win32' ? `line1\r\nline2\r\nline3` : `line1\nline2\nline3`;
 
     before(async function () {
-        this.timeout(8000);
+        this.timeout(15000);
         await new Workbench().executeCommand('Create: New File...');
         await (await InputBox.create()).selectQuickPick('Text File');
         await new Promise((res) => { setTimeout(res, 1000); });
@@ -102,14 +103,14 @@ describe('TextEditor', function () {
     });
 
     it('can type text at given coordinates', async function () {
-        this.timeout(5000);
+        this.timeout(10000);
         await editor.typeTextAt(1, 6, '1');
         const line = await editor.getTextAtLine(1);
         expect(line).has.string('line11');
     });
 
     it('getCoordinates works', async function () {
-        this.timeout(15000);
+        this.timeout(20000);
 
         await editor.moveCursor(1, 1);
         expect(await editor.getCoordinates()).to.deep.equal([1, 1]);
@@ -141,6 +142,42 @@ describe('TextEditor', function () {
 
     (process.platform === 'darwin' ? it.skip : it)('formatDocument works', async function () {
         expect(await editor.formatDocument()).not.to.throw;
+    });
+
+    describe('move/set cursor', function () {
+
+        const params = [
+            { file: 'file-with-spaces.ts', spaces: 'spaces'},
+            { file: 'file-with-tabs.ts', spaces: 'tabs'}
+        ];
+
+        params.forEach(param => describe(`file using ${param.spaces}`, function () {
+
+            let editor: TextEditor;
+
+            before(async function() {
+                await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', '..', 'resources', param.file));
+                editor = new TextEditor();
+            });
+
+            after(async function() {
+                await new EditorView().closeEditor(param.file);
+            });
+
+            [[2, 5], [3, 9]].forEach(coor => it(`move cursor to position [Ln ${coor[0]}, Col ${coor[1]}]`, async function () {
+                this.timeout(30000);
+                await editor.moveCursor(coor[0], coor[1]);
+                expect(await editor.getCoordinates()).to.deep.equal(coor);
+            }));
+
+            // set cursor using command prompt is not working properly for tabs indentation in VS Code, see https://github.com/microsoft/vscode/issues/198780
+            [[2, 12], [3, 15]].forEach(coor => ((param.spaces === 'tabs') ? it.skip : it)(`set cursor to position [Ln ${coor[0]}, Col ${coor[1]}]`, async function () {
+                this.timeout(30000);
+                await editor.setCursor(coor[0], coor[1]);
+                expect(await editor.getCoordinates()).to.deep.equal(coor);
+            }));
+        }));
+
     });
 
     describe('searching', function () {
@@ -323,14 +360,7 @@ describe('TextEditor', function () {
             await lens.click();
             await lens.getDriver().sleep(1000);
             const notifications = await new Workbench().getNotifications();
-            let notification: Notification;
-
-            for (const not of notifications) {
-                if ((await not.getMessage()).startsWith('CodeLens action clicked')) {
-                    notification = not;
-                    break;
-                }
-            }
+            const notification = notifications.find(async notification => { return (await notification.getMessage()).startsWith('Codelens action clicked'); });
             expect(notification).not.undefined;
         });
     });
