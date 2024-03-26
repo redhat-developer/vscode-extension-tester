@@ -71,7 +71,7 @@ Lastly, a pull request check on [Github Actions](../../actions) is going to kick
 
 ## Release new ExTester version
 
-- [ ] Check all related PR's were merged and the `Main CI`is green
+- [ ] Check all related PR's were merged and the `Main CI` is green
 
 1. _(optional)_ Publish `monaco-page-objects` package
     - `cd page-objects`
