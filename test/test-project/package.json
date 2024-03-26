@@ -184,7 +184,7 @@
 		"eslint": "^8.57.0",
 		"mocha": "^10.3.0",
 		"rimraf": "^5.0.5",
-		"typescript": "^5.4.2",
+		"typescript": "^5.4.3",
 		"vscode-extension-tester": "file:../.."
 	}
 }

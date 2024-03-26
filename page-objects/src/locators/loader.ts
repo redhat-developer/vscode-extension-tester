@@ -2,7 +2,7 @@ import { Locators, LocatorDiff } from './locators';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { compareVersions } from 'compare-versions';
-import { Merge, DeepPartial, DeepRequired } from 'ts-essentials';
+import { Merge, PartialDeep, RequiredDeep } from 'type-fest';
 import clone from 'clone-deep';
 
 /**
@@ -57,8 +57,8 @@ export class LocatorLoader {
         for (let i = 0; i < versions.length; i++) {
             const diff = require(path.join(this.baseFolder, versions[i])).diff as LocatorDiff;
 
-            const newLocators: Merge<Locators, DeepPartial<Locators>> = mergeLocators(this.locators, diff);
-            this.locators = newLocators as DeepRequired<Merge<Locators, DeepPartial<Locators>>>;
+            const newLocators: Merge<Locators, PartialDeep<Locators>> = mergeLocators(this.locators, diff);
+            this.locators = newLocators as RequiredDeep<Merge<Locators, PartialDeep<Locators>>>;
         }
         return this.locators;
     }
