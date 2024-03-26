@@ -1,6 +1,6 @@
 {
   "name": "vscode-extension-tester",
-  "version": "7.3.1",
+  "version": "7.3.2",
   "description": "ExTester is a package that is designed to help you run UI tests for your Visual Studio Code extensions using selenium-webdriver.",
   "icon": "icons/logo.png",
   "main": "out/extester.js",
