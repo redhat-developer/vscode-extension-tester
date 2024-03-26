@@ -1,6 +1,6 @@
 {
   "name": "vscode-extension-tester-locators",
-  "version": "3.12.0",
+  "version": "3.12.2",
   "description": "Pluggable Page Objects locators for ExTester",
   "main": "out/index.js",
   "types": "out/index.d.ts",
@@ -40,7 +40,7 @@
     "typescript": "^5.4.3"
   },
   "peerDependencies": {
-    "monaco-page-objects": "^3.14.0",
+    "monaco-page-objects": "^3.14.1",
     "selenium-webdriver": ">=4.6.1"
   }
 }
