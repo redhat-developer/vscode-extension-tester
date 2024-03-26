@@ -1,5 +1,5 @@
 import { By, WebElement } from "selenium-webdriver";
-import { DeepPartial } from 'ts-essentials';
+import { PartialDeep } from 'type-fest';
 import { ViewSection } from "../components/sidebar/ViewSection";
 
 type WebElementFunction<E extends WebElement, T> = (element: E) => T | PromiseLike<T>;
@@ -474,7 +474,7 @@ export interface Locators {
  * Definition for locator diff object
  */
 export interface LocatorDiff {
-    locators: DeepPartial<Locators>
+    locators: PartialDeep<Locators>
     extras?: Object
 }
 

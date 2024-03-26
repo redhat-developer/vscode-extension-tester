@@ -59,7 +59,7 @@
     "@types/targz": "^1.0.4",
     "mocha": "^10.3.0",
     "rimraf": "^5.0.5",
-    "typescript": "*"
+    "typescript": "^5.4.3"
   },
   "dependencies": {
     "@vscode/vsce": "^2.24.0",
