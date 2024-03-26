@@ -43,7 +43,7 @@
 		"chai": "^4.4.1",
 		"eslint": "^8.57.0",
 		"mocha": "^10.3.0",
-		"typescript": "^5.4.2",
+		"typescript": "^5.4.3",
 		"vscode-extension-tester": "^7.3.2"
 	}
 }
