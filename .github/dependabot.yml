@@ -18,7 +18,7 @@ updates:
     reviewers:
       - redhat-developer/extester-maintainers
   - package-ecosystem: 'npm'
-    directory: '/test/test-project'
+    directory: '/tests/test-project'
     schedule:
       interval: 'daily'
     versioning-strategy: increase

@@ -2,20 +2,17 @@
   "compilerOptions": {
     "module": "Node16",
     "target": "ES2022",
-    "outDir": "out",
     "lib": [
         "ES2022"
     ],
     "sourceMap": true,
-    "rootDir": "src",
     "strict": true,
     "noUnusedLocals": true,
     "experimentalDecorators": true,
     "resolveJsonModule": true,
-    "declaration": true,
-    "skipLibCheck": true
+    "declaration": true
   },
-  "include": [
-    "src"
+  "exclude": [
+    "node_modules"
   ]
 }
