@@ -1,5 +1,0 @@
-{
-    "eslint.workingDirectories": [
-        "./test/test-project"
-    ]
-}
