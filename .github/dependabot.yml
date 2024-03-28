@@ -18,7 +18,30 @@ updates:
     reviewers:
       - redhat-developer/extester-maintainers
   - package-ecosystem: 'npm'
-    directory: '/test/test-project'
+    directory: '/tests/test-project'
+    schedule:
+      interval: 'daily'
+    labels:
+      - "skip-changelog"
+    versioning-strategy: increase
+    reviewers:
+      - redhat-developer/extester-maintainers
+  - package-ecosystem: 'npm'
+    directory: '/packages/extester'
+    schedule:
+      interval: 'daily'
+    versioning-strategy: increase
+    reviewers:
+      - redhat-developer/extester-maintainers
+  - package-ecosystem: 'npm'
+    directory: '/packages/locators'
+    schedule:
+      interval: 'daily'
+    versioning-strategy: increase
+    reviewers:
+      - redhat-developer/extester-maintainers
+  - package-ecosystem: 'npm'
+    directory: '/packages/page-objects'
     schedule:
       interval: 'daily'
     versioning-strategy: increase
