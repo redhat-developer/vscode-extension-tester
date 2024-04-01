@@ -58,19 +58,26 @@ export class CodeUtil {
     private availableVersions: string[];
     private extensionsFolder: string | undefined;
     private extensionDevelopmentPath: string | undefined;
+    private coverage: boolean | undefined;
 
     /**
      * Create an instance of code handler
      * @param folder Path to folder where all the artifacts will be stored.
      * @param extensionsFolder Path to use as extensions directory by VS Code
      */
-    constructor(folder: string = DEFAULT_STORAGE_FOLDER, type: ReleaseQuality = ReleaseQuality.Stable, extensionsFolder?: string, extensionDevelopmentPath?: string) {
+    constructor(folder: string = DEFAULT_STORAGE_FOLDER, type: ReleaseQuality = ReleaseQuality.Stable, extensionsFolder?: string, extensionDevelopmentPath?: string, coverage?: boolean) {
         this.availableVersions = [];
         this.downloadPlatform = this.getPlatform();
         this.downloadFolder = path.resolve(folder);
         this.extensionsFolder = extensionsFolder ? path.resolve(extensionsFolder) : undefined;
         this.extensionDevelopmentPath =  extensionDevelopmentPath ? path.resolve(extensionDevelopmentPath) : undefined;
+        this.coverage = coverage;
         this.releaseType = type;
+
+        // If code coverage is enabled, but extensionDevelopmentPath is not, assume that extensionDevelopmentPath is the current directory.
+        if (this.coverage && !this.extensionDevelopmentPath) {
+            this.extensionDevelopmentPath = path.resolve(".");
+        }
 
         if (type === ReleaseQuality.Stable) {
             this.codeFolder = path.join(this.downloadFolder, (process.platform === 'darwin')
@@ -232,6 +239,7 @@ export class CodeUtil {
             if (this.extensionsFolder) {
                 command += ` --extensions-dir=${this.extensionsFolder}`;
             }
+            console.log(`command:${command}`);
             child_process.execSync(command, { stdio: 'inherit' });
         }
     }
@@ -346,6 +354,13 @@ export class CodeUtil {
      */
     get extensionDevPath() {
         return this.extensionDevelopmentPath;
+    }
+
+    /**
+     * Getter for coverage enablement option
+     */
+    get coverageEnabled() {
+        return this.coverage;
     }
 
     /**
