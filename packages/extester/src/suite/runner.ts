@@ -10,6 +10,7 @@ import * as yaml from 'js-yaml';
 import sanitize from 'sanitize-filename';
 import { logging } from 'selenium-webdriver';
 import * as os from 'os';
+import { Coverage } from '../util/coverage';
 
 /**
  * Mocha runner wrapper
@@ -43,6 +44,7 @@ export class VSRunner {
         return new Promise(resolve => {
             let self = this;
             let browser: VSBrowser = new VSBrowser(this.codeVersion, this.releaseType, this.customSettings, logLevel);
+            let coverage: Coverage | undefined;
 
             const testFiles = new Set<string>();
             for (const pattern of testFilesPattern) {
@@ -65,6 +67,12 @@ export class VSRunner {
 
             this.mocha.suite.beforeAll(async function () {
                 this.timeout(180000);
+
+                if (code.coverageEnabled) {
+                    coverage = new Coverage();
+                    process.env.NODE_V8_COVERAGE = coverage?.targetDir;    
+                }
+    
                 const start = Date.now();
                 const binPath = process.platform === 'darwin' ? await self.createShortcut(code.getCodeFolder(), self.tmpLink) : self.chromeBin;
                 await browser.start(binPath);
@@ -88,7 +96,10 @@ export class VSRunner {
                     }
                 }
 
-                code.uninstallExtension(self.cleanup);
+                if (!code.extensionDevPath) {
+                    code.uninstallExtension(self.cleanup);
+                }
+                await coverage?.write();
             });
 
             this.mocha.run((failures) => {
