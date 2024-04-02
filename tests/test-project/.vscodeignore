@@ -1,0 +1,8 @@
+src/**
+test-resources/**
+test-extensions/**
+**/*.ts
+**/*.d.ts
+**/tsconfig.json
+resources/**
+../../**

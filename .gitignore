@@ -1,8 +1,3 @@
-out
-node_modules
-./.vscode
-docs
-resources/api-handler.vsix
+out/
+node_modules/
 .npmrc
-*.tgz
-test/test-project/package-lock.json

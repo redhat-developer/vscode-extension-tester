@@ -1,0 +1,193 @@
+{
+	"name": "extester-test",
+	"displayName": "Test Project",
+	"description": "Extension dedicated to self-testing the ExTester package",
+	"icon": "icons/logo.png",
+	"version": "0.1.0",
+	"preview": true,
+	"private": true,
+	"publisher": "ExTester",
+	"author": "Red Hat",
+	"license": "Apache-2.0",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/redhat-developer/vscode-extension-tester.git",
+		"directory": "tests/test-project"
+	},
+	"engines": {
+		"vscode": "^1.85.0"
+	},
+	"categories": [
+		"Other",
+		"Testing"
+	],
+	"activationEvents": [
+		"onView:fileExplorer"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"customEditors": [
+			{
+				"viewType": "catCustoms.catScratch",
+				"displayName": "Cat Scratch",
+				"selector": [
+					{
+						"filenamePattern": "*.cscratch"
+					}
+				]
+			}
+		],
+		"commands": [
+			{
+				"command": "extension.helloWorld",
+				"title": "Hello World",
+				"icon": "$(rocket)"
+			},
+			{
+				"command": "extension.helloWorld2",
+				"title": "Hello a World",
+				"icon": "$(rocket)"
+			},
+			{
+				"command": "extension.warningMsg",
+				"title": "Warning Message"
+			},
+			{
+				"command": "extension.errorMsg",
+				"title": "Error Message"
+			},
+			{
+				"command": "extension.openFile",
+				"title": "Open Test File"
+			},
+			{
+				"command": "extension.openFolder",
+				"title": "Open Test Folder"
+			},
+			{
+				"command": "extension.closeFolder",
+				"title": "Close Test Folder"
+			},
+			{
+				"command": "extension.test",
+				"title": "Extension Test Command"
+			},
+			{
+				"command": "extension.webview",
+				"title": "Webview Test"
+			},
+			{
+				"command": "extension.notification",
+				"title": "Test Notification"
+			},
+			{
+				"command": "extension.quickpick",
+				"title": "Test Quickpicks"
+			},
+			{
+				"command": "extension.populateTestView",
+				"title": "Populate Test View"
+			},
+			{
+				"command": "extension.enableCodeLens",
+				"title": "Enable CodeLens"
+			},
+			{
+				"command": "extension.disableCodeLens",
+				"title": "Disable Codelens"
+			},
+			{
+				"command": "extension.treeItemAction",
+				"title": "Tree Item Action"
+			}
+		],
+		"viewsContainers": {
+			"panel": [
+				{
+					"icon": "./media/paw-outline.svg",
+					"id": "myPanel",
+					"title": "My Panel"
+				}
+			]
+		},
+		"views": {
+			"explorer": [
+				{
+					"id": "testView",
+					"name": "Test View"
+				},
+				{
+					"id": "emptyView",
+					"name": "Empty View"
+				},
+				{
+					"id": "mySidePanelView",
+					"name": "My Side Panel View",
+					"type": "webview"
+				}
+			],
+			"myPanel": [
+				{
+					"id": "myPanelView",
+					"name": "My Panel View",
+					"type": "webview"
+				}
+			]
+		},
+		"viewsWelcome": [
+			{
+				"view": "emptyView",
+				"contents": "This is the first line\n[Add stuff into this View](command:extension.populateTestView)\nThis is the second line\nAnd yet another line."
+			}
+		],
+		"configuration": {
+			"title": "Test Project",
+			"properties": {
+				"testProject.general.helloWorld": {
+					"type": "boolean",
+					"default": false,
+					"description": "Hello World!"
+				},
+				"testProject.enableCodeLens": {
+					"type": "boolean",
+					"default": false
+				}
+			}
+		},
+		"menus": {
+			"editor/title": [
+				{
+					"command": "extension.helloWorld",
+					"group": "navigation",
+					"when": "resourceFilename =~ /Untitled.*$/"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "extension.treeItemAction",
+					"when": "viewItem =~ /ExtensionTreeItem/",
+					"group": "inline"
+				}
+			]
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run build",
+		"build": "npm run clean && npm run compile",
+		"clean": "rimraf out",
+		"compile": "tsc -p ./ && npm run lint",
+		"lint": "eslint src --ext .ts",
+		"cb-init": "echo hello_ExTester | clipboard",
+		"ui-test": "npm run cb-init && extest setup-and-run './out/test/cli/order-3.test.js' './out/test/cli/order-2.test.js' './out/test/cli/order-1.test.js' './out/test/**/*.test.js' './out/test/system/clipboard.test.js' -u -i -r . -e ./test-extensions"
+	},
+	"devDependencies": {
+		"@types/chai": "^4.3.14",
+		"@types/vscode": "^1.85.0",
+		"chai": "^4.4.1",
+		"clipboard-cli": "^4.0.0",
+		"clipboardy": "^4.0.0",
+		"eslint": "^8.57.0",
+		"mocha": "^10.4.0",
+		"vscode-extension-tester": "*"
+	}
+}
