@@ -22,3 +22,5 @@ jobs:
         uses: actions/checkout@v4
       - name: 📖 Build Wiki
         uses: Andrew-Chen-Wang/github-wiki-action@v4
+        with:
+          path: ./docs
