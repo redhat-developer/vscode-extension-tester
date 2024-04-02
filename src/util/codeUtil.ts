@@ -239,7 +239,6 @@ export class CodeUtil {
             if (this.extensionsFolder) {
                 command += ` --extensions-dir=${this.extensionsFolder}`;
             }
-            console.log(`command:${command}`);
             child_process.execSync(command, { stdio: 'inherit' });
         }
     }
