@@ -64,8 +64,9 @@ program.command('setup-tests')
     .option('-t, --type <type>', 'Type of VS Code release (stable/insider)')
     .option('-y, --yarn', 'Use yarn to build the extension via vsce instead of npm', false)
     .option('-i, --install_dependencies', 'Automatically install extensions your extension depends on', false)
+    .option('-d, --extension_development_path <extension development directory>', 'VSCode will use the unpackaged extension source from this directory')
     .action(withErrors(async (cmd) => {
-        const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
+        const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir, cmd.extension_development_path);
         await extest.setupRequirements({vscodeVersion: cmd.code_version, useYarn: cmd.yarn, installDependencies: cmd.install_dependencies});
     }));
 
@@ -80,9 +81,11 @@ program.command('run-tests <testFiles...>')
     .option('-m, --mocha_config <mocharc.js>', 'Path to Mocha configuration file')
     .option('-l, --log_level <level>', 'Log messages from webdriver with a given level', 'Info')
     .option('-f, --offline', 'Attempt to run without internet connection, make sure to have all requirements downloaded', false)
+    .option('-d, --extension_development_path <extension development directory>', 'VSCode will use the unpackaged extension source from this directory')
+    .option('-C, --coverage', 'Enable code coverage using c8')
     .option('-r, --open_resource <resources...>', 'Open resources in VS Code. Multiple files and folders can be specified.')
     .action(withErrors(async (testFiles, cmd) => {
-        const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
+        const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir, cmd.extension_development_path, cmd.coverage);
         await extest.runTests(testFiles, {vscodeVersion: cmd.code_version, settings: cmd.code_settings, cleanup: cmd.uninstall_extension, config: cmd.mocha_config, logLevel: cmd.log_level, offline: cmd.offline, resources: cmd.open_resource ?? []});
     }));
 
@@ -99,9 +102,11 @@ program.command('setup-and-run <testFiles...>')
     .option('-i, --install_dependencies', 'Automatically install extensions your extension depends on', false)
     .option('-l, --log_level <level>', 'Log messages from webdriver with a given level', 'Info')
     .option('-f, --offline', 'Attempt to run without internet connection, make sure to have all requirements downloaded', false)
+    .option('-d, --extension_development_path <extension development directory>', 'VSCode will use the unpackaged extension source from this directory')
+    .option('-C, --coverage', 'Enable code coverage using c8')
     .option('-r, --open_resource <resources...>', 'Open resources in VS Code. Multiple files and folders can be specified.')
     .action(withErrors(async (testFiles, cmd) => {
-        const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
+        const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir, cmd.extension_development_path, cmd.coverage);
         await extest.setupAndRunTests(testFiles, cmd.code_version, {useYarn: cmd.yarn, installDependencies: cmd.install_dependencies}, {settings: cmd.code_settings, cleanup: cmd.uninstall_extension, config: cmd.mocha_config, logLevel: cmd.log_level, resources: cmd.open_resource ?? []});
     }));
 

@@ -26,6 +26,8 @@ export interface RunOptions {
     logLevel?: logging.Level;
     /** try to perform all setup without internet connection, needs all requirements pre-downloaded manually */
     offline?: boolean;
+    /** path to unbundled extension sources */
+    extensionDevelopmentPath?: string;
     /** list of resources to be opened by VS Code */
     resources: string[];
 }
@@ -53,18 +55,27 @@ export class CodeUtil {
     private cliEnv!: string;
     private availableVersions: string[];
     private extensionsFolder: string | undefined;
+    private extensionDevelopmentPath: string | undefined;
+    private coverage: boolean | undefined;
 
     /**
      * Create an instance of code handler
      * @param folder Path to folder where all the artifacts will be stored.
      * @param extensionsFolder Path to use as extensions directory by VS Code
      */
-    constructor(folder: string = DEFAULT_STORAGE_FOLDER, type: ReleaseQuality = ReleaseQuality.Stable, extensionsFolder?: string) {
+    constructor(folder: string = DEFAULT_STORAGE_FOLDER, type: ReleaseQuality = ReleaseQuality.Stable, extensionsFolder?: string, extensionDevelopmentPath?: string, coverage?: boolean) {
         this.availableVersions = [];
         this.downloadPlatform = this.getPlatform();
         this.downloadFolder = path.resolve(folder);
         this.extensionsFolder = extensionsFolder ? path.resolve(extensionsFolder) : undefined;
+        this.extensionDevelopmentPath =  extensionDevelopmentPath ? path.resolve(extensionDevelopmentPath) : undefined;
+        this.coverage = coverage;
         this.releaseType = type;
+
+        // If code coverage is enabled, but extensionDevelopmentPath is not, assume that extensionDevelopmentPath is the current directory.
+        if (this.coverage && !this.extensionDevelopmentPath) {
+            this.extensionDevelopmentPath = path.resolve(".");
+        }
 
         if (type === ReleaseQuality.Stable) {
             this.codeFolder = path.join(this.downloadFolder, (process.platform === 'darwin')
@@ -255,6 +266,7 @@ export class CodeUtil {
         process.env = finalEnv;
         process.env.TEST_RESOURCES = this.downloadFolder;
         process.env.EXTENSIONS_FOLDER = this.extensionsFolder;
+        process.env.EXTENSION_DEV_PATH = this.extensionDevelopmentPath;
         const runner = new VSRunner(this.executablePath, literalVersion, this.parseSettings(runOptions.settings ?? DEFAULT_RUN_OPTIONS.settings), runOptions.cleanup, this.releaseType, runOptions.config);
         return await runner.runTests(testFilesPattern, this, runOptions.logLevel, runOptions.resources);
     }
@@ -332,6 +344,20 @@ export class CodeUtil {
      */
     getCodeFolder(): string {
         return this.codeFolder;
+    }
+
+    /**
+     * Getter for extension development path
+     */
+    get extensionDevPath() {
+        return this.extensionDevelopmentPath;
+    }
+
+    /**
+     * Getter for coverage enablement option
+     */
+    get coverageEnabled() {
+        return this.coverage;
     }
 
     /**
