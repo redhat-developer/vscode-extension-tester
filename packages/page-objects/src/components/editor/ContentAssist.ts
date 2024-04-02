@@ -33,7 +33,7 @@ export class ContentAssist extends Menu {
                 if (await item.getLabel() === name) {
                     return item;
                 }
-                lastItem = lastItem ? lastItem : (await item.getAttribute('data-last-element')) === 'true';
+                lastItem = lastItem || (await item.getAttribute('data-last-element')) === 'true';
             }
             if (!lastItem) {
                 await scrollable.sendKeys(Key.PAGE_DOWN);

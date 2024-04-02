@@ -129,7 +129,9 @@ export class DriverUtil {
         const command = `${this.getChromeDriverBinaryPath(version)} -v`;
         return new Promise<string>((resolve, reject) => {
             child_process.exec(command, (err, stdout) => {
-                if (err) return reject(err);
+                if (err) {
+                    return reject(new Error(err.message));
+                }
                 resolve(stdout.split(' ')[1]);
             });
         });

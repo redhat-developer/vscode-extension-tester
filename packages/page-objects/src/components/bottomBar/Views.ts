@@ -185,7 +185,7 @@ export class TerminalView extends ChannelView {
             return;
         }
 
-        const matches = name.match(/.*(\d+).?\s.*/);
+        const matches = /.*(\d+).?\s.*/.exec(name);
         if (matches === null || !matches[1]) {
             throw new Error(`Channel ${name} not found`);
         }

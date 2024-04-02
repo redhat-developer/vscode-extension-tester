@@ -200,11 +200,11 @@ export class ComboSetting extends Setting {
 
     async setValue(value: string): Promise<void> {
         const rows = await this.getOptions();
-        for (let i = 0; i < rows.length; i++) {
-            if ((await rows[i].getAttribute('class')).indexOf('disabled') < 0) {
-                const text = await (await rows[i].findElement(SettingsEditor.locators.SettingsEditor.comboOption)).getText();
+        for (let row of rows) {
+            if ((await row.getAttribute('class')).indexOf('disabled') < 0) {
+                const text = await (await row.findElement(SettingsEditor.locators.SettingsEditor.comboOption)).getText();
                 if (value === text) {
-                    return await rows[i].click();
+                    return await row.click();
                 }
             }
         }

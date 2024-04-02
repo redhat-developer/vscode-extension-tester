@@ -122,7 +122,7 @@ export abstract class Input extends AbstractElement {
      */
     async toggleAllQuickPicks(state: boolean): Promise<void> {
         const checkboxes = await this.findElements(Input.locators.Input.quickPickSelectAll);
-        if (checkboxes.length < 0) {
+        if (!checkboxes) {
             return;
         }
         if (!await checkboxes[0].isSelected()) {

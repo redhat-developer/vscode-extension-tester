@@ -6,7 +6,7 @@ import { Locators } from "../locators/locators";
  */
 export abstract class AbstractElement extends WebElement {
 
-    public static ctlKey = process.platform === 'darwin' ? Key.COMMAND : Key.CONTROL;
+    public static readonly ctlKey = process.platform === 'darwin' ? Key.COMMAND : Key.CONTROL;
     protected static driver: WebDriver;
     protected static locators: Locators;
     protected static versionInfo: { version: string, browser: string };

@@ -10,7 +10,12 @@ export class Unpack {
                     src: input.toString(),
                     dest: target.toString()
                 }, (err: string | Error | null) => {
-                    err ? reject(err) : resolve();
+                    if(err) {
+                        const errWho = err instanceof Error ? err : new Error(err);
+                        reject(errWho);
+                    } else {
+                        resolve()
+                    }
                 });
             }
             else if (input.toString().endsWith('.zip')) {
@@ -18,7 +23,7 @@ export class Unpack {
                 if(process.platform === 'darwin' || process.platform === 'linux') {
                     exec(`cd ${target} && unzip -qo ${input.toString()}`, (err) => {
                         if (err) {
-                            reject(err);
+                            reject(new Error(err.message));
                         } else {
                             resolve();
                         }
@@ -27,7 +32,7 @@ export class Unpack {
                 else {
                     exec(`cd ${target} && tar -xvf ${input.toString()}`, (err) => {
                         if (err) {
-                            reject(err);
+                            reject(new Error(err.message));
                         } else {
                             resolve();
                         }

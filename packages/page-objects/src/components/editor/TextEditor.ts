@@ -231,7 +231,7 @@ export class TextEditor extends Editor {
         let actions = this.getDriver().actions();
         await actions.clear();
         actions.keyDown(Key.SHIFT);
-        for (let i = 0; i < text.length; i++) {
+        for (const _i of text) {
             actions = actions.sendKeys(Key.RIGHT);
         }
         actions = actions.keyUp(Key.SHIFT);

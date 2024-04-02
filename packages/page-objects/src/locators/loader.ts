@@ -54,8 +54,8 @@ export class LocatorLoader {
             .sort(compareVersions).reverse();
         }
 
-        for (let i = 0; i < versions.length; i++) {
-            const diff = require(path.join(this.baseFolder, versions[i])).diff as LocatorDiff;
+        for (let version of versions) {
+            const diff = require(path.join(this.baseFolder, version)).diff as LocatorDiff;
 
             const newLocators: Merge<Locators, PartialDeep<Locators>> = mergeLocators(this.locators, diff);
             this.locators = newLocators as RequiredDeep<Merge<Locators, PartialDeep<Locators>>>;

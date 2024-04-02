@@ -116,11 +116,11 @@ export class VSRunner {
         const newSegments = dest.split(path.sep);
 
         let found = false;
-        for (let i = 0; i < segments.length; i++) {
+        for (let segment of segments) {
             if (!found) {
-                found = segments[i] === dir.base;
+                found = segment === dir.base;
             } else {
-                newSegments.push(segments[i]);
+                newSegments.push(segment);
             }
         }
         return path.join(dir.root, ...newSegments);
@@ -132,9 +132,9 @@ export class VSRunner {
         let file = config;
         if (!config) {
             file = path.resolve('.')
-            for (let i = 0; i < defaultFiles.length; i++) {
-                if (fs.existsSync(path.join(file, defaultFiles[i]))) {
-                    file = path.join(file, defaultFiles[i]);
+            for (let defFile of defaultFiles) {
+                if (fs.existsSync(path.join(file, defFile))) {
+                    file = path.join(file, defFile);
                     break;
                 }
             }
