@@ -1,6 +1,6 @@
 {
   "name": "vscode-extension-tester",
-  "version": "8.0.0",
+  "version": "8.0.1",
   "description": "ExTester is a package that is designed to help you run UI tests for your Visual Studio Code extensions using selenium-webdriver.",
   "icon": "icons/logo.png",
   "main": "out/extester.js",
@@ -50,9 +50,9 @@
     "ui-test"
   ],
   "dependencies": {
+    "@redhat-developer/locators": "^1.0.1",
+    "@redhat-developer/page-objects": "^1.0.1",
     "@types/selenium-webdriver": "^4.1.22",
-    "@redhat-developer/locators": "^1.0.0",
-    "@redhat-developer/page-objects": "^1.0.0",
     "@vscode/vsce": "^2.24.0",
     "commander": "^12.0.0",
     "compare-versions": "^6.1.0",
