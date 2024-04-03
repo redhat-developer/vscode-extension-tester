@@ -1,0 +1,62 @@
+<h1 align="center">
+  <img alt="ExTester for Visual Studio Code" width="75%" height="75%" src="../../icons/logo-text-side.png">
+</h1>
+
+<h2 align="center">UI Testing Framework for Visual Studio Code.</h2>
+
+<p align="center">
+  <a href="#features">Features</a> •
+  <a href="https://github.com/redhat-developer/vscode-extension-tester?tab=readme-ov-file#requirements">Requirements</a> •
+  <a href="#usage">Usage</a> •
+  <a href="https://github.com/redhat-developer/vscode-extension-tester/wiki/">Documentation</a> •
+  <a href="#known-issues">Known Issues</a>
+</p>
+
+<p align="center">
+<b>ExTester</b>: Your Essential UI Testing Companion for <a href="https://code.visualstudio.com/">Visual Studio Code</a> Extensions!<br>Seamlessly execute UI tests with <a href="https://www.npmjs.com/package/selenium-webdriver">Selenium WebDriver</a>, ensuring robustness and reliability in your extension development journey. Simplify UI testing for your VS Code extensions and elevate the quality of your user interface effortlessly. Dive into efficient testing with ExTester today!
+</p><br/>
+
+### Features
+
+- ⭐ Download a test instance of Visual Studio Code.
+- ⭐ Download the appropriate version of ChromeDriver.
+- ⭐ Pack and Install your extension into downloaded VS Code instance.
+- ⭐ Launch the VS Code instance using Selenium WebDriver.
+- ⭐ Run your tests.
+
+## Requirements
+
+For more information please visit our 🔗 [project repository](https://github.com/redhat-developer/vscode-extension-tester?tab=readme-ov-file#requirements)
+
+### Usage
+
+Simply install our package into your extension `devDependencies` to get started:
+
+```npm
+npm install --save-dev vscode-extension-tester@latest
+```
+
+Make sure to check out the 🔗 [Documentation](../../wiki) for detailed instructions.
+
+- 📄 [How to set up the tests](../../wiki/Test-Setup)
+- 📄 [Configuring Mocha](../../wiki/Mocha-Configuration)
+- 📄 [An example simple test case](../../wiki/Writing-Simple-Tests)
+- 📄 [Page objects API quick guide](../../wiki/Page-Object-APIs)
+
+### Documentation
+
+Our full documentation is located in 🔗 [GitHub Wiki](../../wiki). Included are details about Page Objects API and how to setup Mocha tests information.
+
+### Issues
+
+Something is not working properly? In that case, feel free to 🔗 [open feature requests, report bugs, etc.](https://github.com/redhat-developer/vscode-extension-tester/issues/new/choose)
+
+### Get Involved
+
+![Contribution Welcomed](https://img.shields.io/badge/welcomed-yellow.svg?style=for-the-badge&label=contribution)
+
+If you'd like to help us get better, we appreciate it! Check out our 🔗 [Contribution Guide](CONTRIBUTING.md) on how to do that.
+
+### Known Issues
+
+We have prepared few answers for most common problems community reported. See 🔗 [Known Issues](KNOWN_ISSUES.md)

@@ -1,5 +1,9 @@
-# ExTester - Page Objects
+<h1 align="center">
+  <img alt="ExTester for Visual Studio Code" width="75%" height="75%" src="../../icons/logo-text-side.png">
+</h1>
 
-Page Object API implementation for a VS Code editor.
+<h2 align="center">Page Objects</h2>
 
-- 📄 [Page objects API quick guide](../../docs/Page-Object-APIs)
+<p align="center">
+Page Object API implementation for a VS Code editor used by <a href="https://github.com/redhat-developer/vscode-extension-tester">ExTester</a> framework - 📄 <a href="https://github.com/redhat-developer/vscode-extension-tester/wiki/Page-Object-APIs">Documentation</a>.
+</p>

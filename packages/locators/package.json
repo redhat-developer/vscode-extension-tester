@@ -1,7 +1,7 @@
 {
-  "name": "@vscode-extension-tester/locators",
+  "name": "@redhat-developer/locators",
   "version": "1.0.0",
-  "description": "Pluggable Page Objects locators for an ExTester.",
+  "description": "Pluggable Page Objects locators for an ExTester framework.",
   "main": "out/index.js",
   "types": "out/index.d.ts",
   "files": [
@@ -11,8 +11,7 @@
   "author": "Red Hat",
   "license": "Apache-2.0",
   "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
+    "access": "public"
   },
   "repository": {
     "type": "git",
@@ -27,6 +26,7 @@
     "vscode",
     "extension",
     "extester",
+    "vscode-extension-tester",
     "ui-test"
   ],
   "scripts": {
@@ -35,7 +35,7 @@
     "clean": "rimraf out"
   },
   "peerDependencies": {
-    "@vscode-extension-tester/page-objects": ">=1.0.0",
+    "@redhat-developer/page-objects": ">=1.0.0",
     "selenium-webdriver": ">=4.6.1"
   }
 }

@@ -1,4 +1,4 @@
-import { By, LocatorDiff } from "@vscode-extension-tester/page-objects";
+import { By, LocatorDiff } from "@redhat-developer/page-objects";
 export const diff: LocatorDiff = {
     locators: {
         WebView: {
