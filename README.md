@@ -4,8 +4,8 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/vscode-extension-tester"><img src="https://img.shields.io/npm/v/vscode-extension-tester?label=extester&color=orange&style=for-the-badge" alt="ExTester"/></a>
-  <a href="https://www.npmjs.com/package/@vscode-extension-tester/locators"><img src="https://img.shields.io/npm/v/v@vscode-extension-tester/locators?color=orange&label=locators&style=for-the-badge" alt="ExTester Locators"/></a>
-  <a href="https://www.npmjs.com/package/@vscode-extension-tester/page-objects"><img src="https://img.shields.io/npm/v/@vscode-extension-tester/page-objects?color=orange&label=page%20objects&style=for-the-badge" alt="ExTester Page Objects"/></a>
+  <a href="https://www.npmjs.com/package/@redhat-developer/locators"><img src="https://img.shields.io/npm/v/v@redhat-developer/locators?color=orange&label=locators&style=for-the-badge" alt="ExTester Locators"/></a>
+  <a href="https://www.npmjs.com/package/@redhat-developer/page-objects"><img src="https://img.shields.io/npm/v/@redhat-developer/page-objects?color=orange&label=page%20objects&style=for-the-badge" alt="ExTester Page Objects"/></a>
   <a href="https://github.com/redhat-developer/vscode-extension-tester/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache%202-blue.svg?style=for-the-badge&logo=appveyor" alt="License"/></a>
   </br>
   <a href="https://github.com/redhat-developer/vscode-extension-tester/actions/workflows/main.yml"><img src="https://img.shields.io/github/actions/workflow/status/redhat-developer/vscode-extension-tester/main.yml?label=Main%20CI&style=for-the-badge" alt="Main CI"></a>

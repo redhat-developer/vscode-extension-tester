@@ -1,12 +1,8 @@
 {
-  "name": "@vscode-extension-tester/root",
+  "name": "@redhat-developer/root",
   "description": "Lerna root of an ExTester monorepo.",
   "license": "Apache-2.0",
   "private": true,
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/redhat-developer/vscode-extension-tester.git"

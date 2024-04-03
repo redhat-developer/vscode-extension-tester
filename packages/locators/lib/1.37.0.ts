@@ -1,4 +1,4 @@
-import { Locators, ViewSection, fromAttribute, fromText, hasAttribute, hasClass, hasElement, hasNotClass } from "@vscode-extension-tester/page-objects";
+import { Locators, ViewSection, fromAttribute, fromText, hasAttribute, hasClass, hasElement, hasNotClass } from "@redhat-developer/page-objects";
 import { By, WebElement } from "selenium-webdriver";
 
 const abstractElement = {

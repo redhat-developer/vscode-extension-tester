@@ -1,7 +1,7 @@
 {
-  "name": "@vscode-extension-tester/page-objects",
+  "name": "@redhat-developer/page-objects",
   "version": "1.0.0",
-  "description": "Page Object API implementation for a VS Code editor.",
+  "description": "Page Object API implementation for a VS Code editor used by ExTester framework.",
   "main": "out/index.js",
   "types": "out/index.d.ts",
   "files": [
@@ -16,14 +16,24 @@
   "author": "Red Hat",
   "license": "Apache-2.0",
   "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
+    "access": "public"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/redhat-developer/vscode-extension-tester.git",
     "directory": "packages/page-objects"
   },
+  "keywords": [
+    "webdriver",
+    "selenium-webdriver",
+    "selenium",
+    "test",
+    "vscode",
+    "extension",
+    "extester",
+    "vscode-extension-tester",
+    "ui-test"
+  ],
   "dependencies": {
     "clipboardy": "^4.0.0",
     "clone-deep": "^4.0.1",

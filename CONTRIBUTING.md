@@ -65,25 +65,12 @@ Lastly, a pull request check on [Github Actions](../../actions) is going to kick
 
 - [ ] Check all related PR's were merged and the `Main CI` is green
 
-1. _(optional)_ Publish `@vscode-extension-tester/page-objects` package
-    - `cd page-objects`
-    - [ ] `npm version (major|minor|patch)`
-    - [ ] `npm publish`
-2. _(optional)_ Publish `@vscode-extension-tester/locators` package
-    - `cd locators`
-    - [ ] `npm version (major|minor|patch)`
-    - [ ] `npm publish`
-3. Publish `vscode-extension-tester` package
-    - [ ] `npm version (major|minor|patch) --no-git-tag-version`
-    - [ ] bump `@vscode-extension-tester/page-objects` dependency
-      - `npm install @vscode-extension-tester/page-objects@latest`
-    - [ ] bump `@vscode-extension-tester/locators` dependency
-      - `npm install @vscode-extension-tester/locators@latest`
+1. Execute `npm run version`
     - [ ] commit changes and open new PR
     - [ ] wait for PR is approved and merged
     - [ ] after merge, wait until `Main CI` is green
+2. Execute `npm run publish`
     - [ ] create and push new `vX.X.X` tag
-    - [ ] `npm publish`
     - [ ] create a new GitHub [release](https://github.com/redhat-developer/vscode-extension-tester/releases) from a new `vX.X.X` tag (with generated release notes)
 
 ### Post publish tasks
