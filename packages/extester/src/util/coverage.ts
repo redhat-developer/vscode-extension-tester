@@ -8,9 +8,10 @@
 
 import { Report } from 'c8';
 import { randomUUID } from 'crypto';
-import { promises as fs, mkdirSync } from 'fs';
+import { promises as fs, mkdirSync, readFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
+import * as findUp from 'find-up';
 
 /**
  * Manages collecting coverage data from test runs. All runs, regardless of
@@ -20,46 +21,71 @@ import { join } from 'path';
  */
 export class Coverage {
   public readonly targetDir = join(tmpdir(), `vsc-coverage-${randomUUID()}`);
+  private userOptions: any;
 
   constructor() {
     mkdirSync(this.targetDir, { recursive: true });
+
+    // Read nyc/c8 JSON configuration file for reading user-defined coverage report options.
+    const config = findUp.sync(['.c8rc', '.c8rc.json', '.nycrc', '.nycrc.json'])
+    if (config) {
+      try {
+        const json = readFileSync(config).toString();
+        this.userOptions = JSON.parse(json);
+      } catch (err) {
+        console.error(`An error was found in reading coverage configuration from ${config}`);
+        throw err;
+      }
+    }
   }
 
   public async write() {
+    const reportOptions: any = {
+      "reporter": ["text", "html"],
+      "all": false,
+      "excludeNodeModules": true,
+      "include": [],
+      "exclude": [
+          "coverage/**",
+          "packages/*/test{,s}/**",
+          "**/*.d.ts",
+          "test{,s}/**",
+          "test{,-*}.{js,cjs,mjs,ts,tsx,jsx}",
+          "**/*{.,-}test.{js,cjs,mjs,ts,tsx,jsx}",
+          "**/__tests__/**",
+          "**/{ava,babel,nyc}.config.{js,cjs,mjs}",
+          "**/jest.config.{js,cjs,mjs,ts}",
+          "**/{karma,rollup,webpack}.config.js",
+          "**/.{eslint,mocha}rc.{js,cjs}"
+      ],
+      "extension": [
+          ".js",
+          ".cjs",
+          ".mjs",
+          ".ts",
+          ".tsx",
+          ".jsx"
+      ],
+      "excludeAfterRemap": false,
+      "skipFull": false,
+      "tempDirectory": this.targetDir,
+      "resolve": "",
+      "omitRelative": true,
+      "allowExternal": false,    
+    };
+
+    if (this.userOptions) {
+      Object.assign(reportOptions, this.userOptions);
+      // These two options require special treatments.
+      ["report-dir", "reports-dir"].forEach(key => {
+        if (this.userOptions[key]) {
+          reportOptions["reportsDirectory"] = this.userOptions[key];
+        }
+      })
+    }
+
     try {
-      const report = new Report({
-        "reporter": ["text", "html"],
-        "all": false,
-        "excludeNodeModules": true,
-        "include": [],
-        "exclude": [
-            "coverage/**",
-            "packages/*/test{,s}/**",
-            "**/*.d.ts",
-            "test{,s}/**",
-            "test{,-*}.{js,cjs,mjs,ts,tsx,jsx}",
-            "**/*{.,-}test.{js,cjs,mjs,ts,tsx,jsx}",
-            "**/__tests__/**",
-            "**/{ava,babel,nyc}.config.{js,cjs,mjs}",
-            "**/jest.config.{js,cjs,mjs,ts}",
-            "**/{karma,rollup,webpack}.config.js",
-            "**/.{eslint,mocha}rc.{js,cjs}"
-        ],
-        "extension": [
-            ".js",
-            ".cjs",
-            ".mjs",
-            ".ts",
-            ".tsx",
-            ".jsx"
-        ],
-        "excludeAfterRemap": false,
-        "skipFull": false,
-        "tempDirectory": this.targetDir,
-        "resolve": "",
-        "omitRelative": true,
-        "allowExternal": false,    
-      });
+      const report = new Report(reportOptions);
 
       // A hacky fix due to an outstanding bug in Istanbul's exclusion testing
       // code: its subdirectory checks are case-sensitive on Windows, but file

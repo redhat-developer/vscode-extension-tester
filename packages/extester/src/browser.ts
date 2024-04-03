@@ -77,7 +77,7 @@ export class VSBrowser {
             }
             args.push(`--extensionDevelopmentPath=${process.cwd()}`);
         } else if(this.extensionDevelopmentPath) {
-            args.push(`--extensionDevelopmentPath=${this.extensionDevelopmentPath}`);
+           args.push(`--extensionDevelopmentPath=${this.extensionDevelopmentPath}`);
         }
 
         let options = new Options().setChromeBinaryPath(codePath).addArguments(...args) as any;
@@ -189,7 +189,7 @@ export class VSBrowser {
             return;
         }
 
-        const code = new CodeUtil(this.storagePath, this.releaseType, this.extensionsFolder, this.extensionDevelopmentPath);
+        const code = new CodeUtil(this.storagePath, this.releaseType, this.extensionsFolder);
         code.open(...paths);
         await new Promise(res => setTimeout(res, 3000));
         await this.waitForWorkbench();

@@ -65,7 +65,6 @@ export class VSRunner {
 
             this.mocha.suite.beforeAll(async function () {
                 this.timeout(180000);
-
                 if (code.coverageEnabled) {
                     coverage = new Coverage();
                     process.env.NODE_V8_COVERAGE = coverage?.targetDir;
@@ -93,10 +92,11 @@ export class VSRunner {
                         }
                     }
                 }
-                if (!code.extensionDevPath) {
+                if (code.coverageEnabled) {
+                    await coverage?.write();
+                } else {
                     code.uninstallExtension(self.cleanup);
                 }
-                await coverage?.write();
             });
 
             this.mocha.run((failures) => {

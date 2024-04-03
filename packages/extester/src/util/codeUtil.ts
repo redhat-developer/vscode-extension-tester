@@ -63,17 +63,16 @@ export class CodeUtil {
      * @param folder Path to folder where all the artifacts will be stored.
      * @param extensionsFolder Path to use as extensions directory by VS Code
      */
-    constructor(folder: string = DEFAULT_STORAGE_FOLDER, type: ReleaseQuality = ReleaseQuality.Stable, extensionsFolder?: string, extensionDevelopmentPath?: string, coverage?: boolean) {
+    constructor(folder: string = DEFAULT_STORAGE_FOLDER, type: ReleaseQuality = ReleaseQuality.Stable, extensionsFolder?: string, coverage?: boolean) {
         this.availableVersions = [];
         this.downloadPlatform = this.getPlatform();
         this.downloadFolder = path.resolve(folder);
         this.extensionsFolder = extensionsFolder ? path.resolve(extensionsFolder) : undefined;
-        this.extensionDevelopmentPath =  extensionDevelopmentPath ? path.resolve(extensionDevelopmentPath) : undefined;
         this.coverage = coverage;
         this.releaseType = type;
 
-        // If code coverage is enabled, but extensionDevelopmentPath is not, assume that extensionDevelopmentPath is the current directory.
-        if (this.coverage && !this.extensionDevelopmentPath) {
+        // If code coverage is enabled, set extensionDevelopmentPath to the current directory.
+        if (this.coverage) {
             this.extensionDevelopmentPath = path.resolve(".");
         }
 
@@ -344,13 +343,6 @@ export class CodeUtil {
      */
     getCodeFolder(): string {
         return this.codeFolder;
-    }
-
-    /**
-     * Getter for extension development path
-     */
-    get extensionDevPath() {
-        return this.extensionDevelopmentPath;
     }
 
     /**
