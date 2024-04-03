@@ -71,11 +71,11 @@ Lastly, a pull request check on [Github Actions](../../actions) is going to kick
     - [ ] after merge, wait until `Main CI` is green
 2. Execute `npm run publish`
     - [ ] create and push new `vX.X.X` tag
-    - [ ] create a new GitHub [release](https://github.com/redhat-developer/vscode-extension-tester/releases) from a new `vX.X.X` tag (with generated release notes)
+    - [ ] create a new GitHub [release](../../releases) from a new `vX.X.X` tag (with generated release notes)
 
 ### Post publish tasks
 
-- [ ] Close published version [milestone](https://github.com/redhat-developer/vscode-extension-tester/milestones) and update ExTester [project board](https://github.com/orgs/redhat-developer/projects/41/views/3)
+- [ ] Close published version [milestone](../../milestones) and update ExTester [project board](../../projects/41/views/3)
 - Update `examples/helloworld-extester` project
   - [ ] Bump `vscode-extension-tester` version to recently released one
   - [ ] Run tests and check everything is working properly

@@ -36,27 +36,27 @@ Simply install our package into your extension `devDependencies` to get started:
 npm install --save-dev vscode-extension-tester@latest
 ```
 
-Make sure to check out the 🔗 [Documentation](../../wiki) for detailed instructions.
+Make sure to check out the 🔗 [Documentation](../../../../wiki) for detailed instructions.
 
-- 📄 [How to set up the tests](../../wiki/Test-Setup)
-- 📄 [Configuring Mocha](../../wiki/Mocha-Configuration)
-- 📄 [An example simple test case](../../wiki/Writing-Simple-Tests)
-- 📄 [Page objects API quick guide](../../wiki/Page-Object-APIs)
+- 📄 [How to set up the tests](../../../../wiki/Test-Setup)
+- 📄 [Configuring Mocha](../../../../wiki/Mocha-Configuration)
+- 📄 [An example simple test case](../../../../wiki/Writing-Simple-Tests)
+- 📄 [Page objects API quick guide](../../../../wiki/Page-Object-APIs)
 
 ### Documentation
 
-Our full documentation is located in 🔗 [GitHub Wiki](../../wiki). Included are details about Page Objects API and how to setup Mocha tests information.
+Our full documentation is located in 🔗 [GitHub Wiki](../../../../wiki). Included are details about Page Objects API and how to setup Mocha tests information.
 
 ### Issues
 
-Something is not working properly? In that case, feel free to 🔗 [open feature requests, report bugs, etc.](https://github.com/redhat-developer/vscode-extension-tester/issues/new/choose)
+Something is not working properly? In that case, feel free to 🔗 [open feature requests, report bugs, etc.](../../../../issues/new/choose)
 
 ### Get Involved
 
 ![Contribution Welcomed](https://img.shields.io/badge/welcomed-yellow.svg?style=for-the-badge&label=contribution)
 
-If you'd like to help us get better, we appreciate it! Check out our 🔗 [Contribution Guide](CONTRIBUTING.md) on how to do that.
+If you'd like to help us get better, we appreciate it! Check out our 🔗 [Contribution Guide](../../CONTRIBUTING.md) on how to do that.
 
 ### Known Issues
 
-We have prepared few answers for most common problems community reported. See 🔗 [Known Issues](KNOWN_ISSUES.md)
+We have prepared few answers for most common problems community reported. See 🔗 [Known Issues](../../KNOWN_ISSUES.md)

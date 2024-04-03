@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/vscode-extension-tester"><img src="https://img.shields.io/npm/v/vscode-extension-tester?label=extester&color=orange&style=for-the-badge" alt="ExTester"/></a>
-  <a href="https://www.npmjs.com/package/@redhat-developer/locators"><img src="https://img.shields.io/npm/v/v@redhat-developer/locators?color=orange&label=locators&style=for-the-badge" alt="ExTester Locators"/></a>
+  <a href="https://www.npmjs.com/package/@redhat-developer/locators"><img src="https://img.shields.io/npm/v/@redhat-developer/locators?color=orange&label=locators&style=for-the-badge" alt="ExTester Locators"/></a>
   <a href="https://www.npmjs.com/package/@redhat-developer/page-objects"><img src="https://img.shields.io/npm/v/@redhat-developer/page-objects?color=orange&label=page%20objects&style=for-the-badge" alt="ExTester Page Objects"/></a>
   <a href="https://github.com/redhat-developer/vscode-extension-tester/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache%202-blue.svg?style=for-the-badge&logo=appveyor" alt="License"/></a>
   </br>
@@ -52,20 +52,20 @@ Simply install our package into your extension `devDependencies` to get started:
 npm install --save-dev vscode-extension-tester@latest
 ```
 
-Make sure to check out the 🔗 [Documentation](#documentation) for detailed instructions.
+Make sure to check out the 🔗 [Documentation](../../wiki) for detailed instructions.
 
-- 📄 [How to set up the tests](./docs/Test-Setup)
-- 📄 [Configuring Mocha](./docs/Mocha-Configuration)
-- 📄 [An example simple test case](./docs/Writing-Simple-Tests)
-- 📄 [Page objects API quick guide](./docs/Page-Object-APIs)
+- 📄 [How to set up the tests](../../wiki/Test-Setup)
+- 📄 [Configuring Mocha](../../wiki/Mocha-Configuration)
+- 📄 [An example simple test case](../../wiki/Writing-Simple-Tests)
+- 📄 [Page objects API quick guide](../../wiki/Page-Object-APIs)
 
 ### Documentation
 
-Our full documentation is located in 🔗 [GitHub Wiki](https://github.com/redhat-developer/vscode-extension-tester/wiki). Included are details about Page Objects API and how to setup Mocha tests information.
+Our full documentation is located in 🔗 [GitHub Wiki](../../wiki). Included are details about Page Objects API and how to setup Mocha tests information.
 
 ### Issues
 
-Something is not working properly? In that case, feel free to 🔗 [open feature requests, report bugs, etc.](https://github.com/redhat-developer/vscode-extension-tester/issues)
+Something is not working properly? In that case, feel free to 🔗 [open feature requests, report bugs, etc.](../../issues/new/choose)
 
 ### Get Involved
 

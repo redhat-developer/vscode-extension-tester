@@ -5,5 +5,5 @@
 <h2 align="center">Page Objects</h2>
 
 <p align="center">
-Page Object API implementation for a VS Code editor used by <a href="https://github.com/redhat-developer/vscode-extension-tester">ExTester</a> framework - 📄 <a href="https://github.com/redhat-developer/vscode-extension-tester/wiki/Page-Object-APIs">Documentation</a>.
+Page Object API implementation for a VS Code editor used by <a href="https://github.com/redhat-developer/vscode-extension-tester">ExTester</a> framework.</br>📄 <a href="https://github.com/redhat-developer/vscode-extension-tester/wiki/Page-Object-APIs">Documentation</a>
 </p>
