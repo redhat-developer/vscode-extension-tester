@@ -67,6 +67,7 @@ export class VSRunner {
                 this.timeout(180000);
                 if (code.coverageEnabled) {
                     coverage = new Coverage();
+                    await coverage.loadConfig();
                     process.env.NODE_V8_COVERAGE = coverage?.targetDir;
                 }
 

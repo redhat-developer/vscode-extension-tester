@@ -11,8 +11,6 @@ import { randomUUID } from 'crypto';
 import { promises as fs, mkdirSync, readFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import * as findUp from 'find-up';
-
 /**
  * Manages collecting coverage data from test runs. All runs, regardless of
  * platform, expect coverage data given in the V8 coverage format. We then
@@ -25,9 +23,12 @@ export class Coverage {
 
   constructor() {
     mkdirSync(this.targetDir, { recursive: true });
+  }
 
+  public async loadConfig() {
     // Read nyc/c8 JSON configuration file for reading user-defined coverage report options.
-    const config = findUp.sync(['.c8rc', '.c8rc.json', '.nycrc', '.nycrc.json'])
+    const mod = await import("find-up");
+    const config = mod.findUpSync(['.c8rc', '.c8rc.json', '.nycrc', '.nycrc.json'])
     if (config) {
       try {
         const json = readFileSync(config).toString();
@@ -36,7 +37,7 @@ export class Coverage {
         console.error(`An error was found in reading coverage configuration from ${config}`);
         throw err;
       }
-    }
+    }  
   }
 
   public async write() {
