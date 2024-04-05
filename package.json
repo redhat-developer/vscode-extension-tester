@@ -32,6 +32,6 @@
     "lerna": "^8.1.2",
     "rimraf": "^5.0.5",
     "type-fest": "^4.14.0",
-    "typescript": "^5.4.3"
+    "typescript": "^5.4.4"
   }
 }
