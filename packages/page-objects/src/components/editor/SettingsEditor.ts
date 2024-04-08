@@ -177,7 +177,7 @@ export abstract class Setting extends AbstractElement {
      * @returns Promise resolving to setting description
      */
     async getDescription(): Promise<string> {
-        return await (await this.findElement(SettingsEditor.locators.SettingsEditor.settingDesctiption)).getText();
+        return await (await this.findElement(SettingsEditor.locators.SettingsEditor.settingDescription)).getText();
     }
 
     /**
@@ -202,7 +202,7 @@ export class ComboSetting extends Setting {
         const rows = await this.getOptions();
         for (let row of rows) {
             if ((await row.getAttribute('class')).indexOf('disabled') < 0) {
-                const text = await (await row.findElement(SettingsEditor.locators.SettingsEditor.comboOption)).getText();
+                const text = await row.getAttribute(SettingsEditor.locators.SettingsEditor.comboValue);
                 if (value === text) {
                     return await row.click();
                 }
@@ -217,35 +217,15 @@ export class ComboSetting extends Setting {
     async getValues(): Promise<string[]> {
         const values = [];
         const rows = await this.getOptions();
-
         for (const row of rows) {
-            values.push(await (await row.findElement(SettingsEditor.locators.SettingsEditor.comboOption)).getText())
+            values.push(await row.getAttribute(SettingsEditor.locators.SettingsEditor.comboValue));
         }
         return values;
     }
 
     private async getOptions(): Promise<WebElement[]> {
-        const menu = await this.openCombo();
-        return await menu.findElements(SettingsEditor.locators.SettingsEditor.itemRow);
-    }
-
-    private async openCombo(): Promise<WebElement> {
         const combo = await this.findElement(SettingsEditor.locators.SettingsEditor.comboSetting);
-        const workbench = await this.getDriver().findElement(SettingsEditor.locators.Workbench.constructor);
-        const menus = await workbench.findElements(SettingsEditor.locators.ContextMenu.contextView);
-        let menu!: WebElement;
-
-        if (menus.length < 1) {
-            await combo.click();
-            menu = await workbench.findElement(SettingsEditor.locators.ContextMenu.contextView);
-            return menu;
-        } else if (await menus[0].isDisplayed()) {
-            await combo.click();
-            await this.getDriver().sleep(200);
-        }
-        await combo.click();
-        menu = await workbench.findElement(SettingsEditor.locators.ContextMenu.contextView);
-        return menu;
+        return await combo.findElements(SettingsEditor.locators.SettingsEditor.comboOption);
     }
 }
 

@@ -59,6 +59,18 @@ describe('Settings Editor', function () {
             expect(values).contains.members(['native', 'custom']);
         });
 
+        it('setValue works', async function () {
+            const setting = await editor.findSetting('Custom Title Bar Visibility', 'Window') as ComboSetting;
+
+            await setting.setValue('windowed');
+            let value = await setting.getValue();
+            expect(value).equals('windowed');
+
+            await setting.setValue('auto');
+            value = await setting.getValue();
+            expect(value).equals('auto');
+        });
+
         it('getDescription works', async function () {
             const desc = await setting.getDescription();
             expect(desc).not.empty;
