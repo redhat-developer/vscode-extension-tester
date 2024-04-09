@@ -186,7 +186,6 @@
 		"chai": "^4.4.1",
 		"clipboard-cli": "^4.0.0",
 		"clipboardy": "^4.0.0",
-		"eslint": "^8.57.0",
 		"mocha": "^10.4.0",
 		"vscode-extension-tester": "*"
 	}
