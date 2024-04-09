@@ -192,6 +192,9 @@ describe('Debugging', function () {
         });
 
         it('VariableSectionItem.getVariableNameTooltip', async function () {
+            if(VSBrowser.instance.version >= '1.88.0') {
+                this.skip();
+            }
             const item = await getNumVariable(view, this.timeout() - 2000);
             expect(await item.getVariableNameTooltip()).equals('number');
         });

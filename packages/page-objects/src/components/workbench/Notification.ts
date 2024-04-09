@@ -43,8 +43,12 @@ export abstract class Notification extends ElementWithContexMenu {
     /**
      * Get the source of the notification as text
      * @returns Promise resolving to notification source
+     * @deprecated For VS Code 1.88+ this method won't be working any more
      */
     async getSource(): Promise<string> {
+        if(Notification.versionInfo.version >= '1.88.0') {
+            throw Error(`DEPRECATED METHOD! For VS Code 1.88+ this method won't be working any more.`);
+        }
         await this.expand();
         return await (await this.findElement(Notification.locators.Notification.source)).getAttribute('title');
     }

@@ -10,10 +10,11 @@ export class DebugView extends SideBarView {
     /**
      * Get the title of the selected launch configuration
      * @returns Promise resolving to the title
+     * @deprecated For VS Code 1.88+ this method won't be working any more
      */
     async getLaunchConfiguration(): Promise<string> {
         if(DebugView.versionInfo.version >= '1.87.0' && process.platform !== 'darwin') {
-            throw Error(`The 'DebugView.getLaunchConfiguration' method is broken! Read more information in 'Known Issues > Limitations in testing with VS Code 1.87+' - https://github.com/microsoft/vscode/issues/206897.`);
+            throw Error(`DEPRECATED METHOD! The 'DebugView.getLaunchConfiguration' method is broken! Read more information in 'Known Issues > Limitations in testing with VS Code 1.87+' - https://github.com/microsoft/vscode/issues/206897.`);
         }
         const action = await this.getTitlePart().findElement(DebugView.locators.DebugView.launchCombo);
         const combo = await action.findElement(DebugView.locators.DebugView.launchSelect);
