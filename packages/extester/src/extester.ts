@@ -6,6 +6,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as os from 'os';
 import { URL } from 'url';
+import pjson from '../package.json';
 
 export { ReleaseQuality }
 export { MochaOptions } from 'mocha';
@@ -29,13 +30,13 @@ export const DEFAULT_SETUP_OPTIONS = {
 
 export const DEFAULT_STORAGE_FOLDER = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.join(os.tmpdir(), 'test-resources');
 
-export const VSCODE_VERSION_MIN = '1.86.2';
-export const VSCODE_VERSION_MAX = '1.88.0';
+export const VSCODE_VERSION_MIN = pjson.supportedVersions['vscode-min'];
+export const VSCODE_VERSION_MAX = pjson.supportedVersions['vscode-max'];
 
 /**
  * The latest version with automated tests
  */
-export const NODEJS_VERSION_MAX = '18';
+export const NODEJS_VERSION_MAX = pjson.supportedVersions.nodejs;
 
 /**
  * ExTester
