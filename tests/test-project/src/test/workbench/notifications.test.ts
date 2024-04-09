@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { NotificationsCenter, Workbench, NotificationType, Notification, until } from 'vscode-extension-tester';
+import { NotificationsCenter, Workbench, NotificationType, Notification, until, VSBrowser } from 'vscode-extension-tester';
 
 describe('NotificationsCenter', () => {
     let center: NotificationsCenter;
@@ -68,7 +68,10 @@ describe('NotificationsCenter', () => {
             }))).deep.equals(['Yes', 'No']);
         });
 
-        it('getSource returns title of origin', async () => {
+        it('getSource returns title of origin', async function () {
+            if(VSBrowser.instance.version >= '1.88.0') {
+                this.skip();
+            }
             const source = await notification.getSource();
             expect(source).has.string('Test Project');
         });

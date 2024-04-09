@@ -29,10 +29,11 @@ export abstract class ChannelView extends ElementWithContexMenu {
     /**
      * Get name of the current channel
      * @returns Promise resolving to the current channel name
+     * @deprecated For VS Code 1.88+ this method won't be working any more
      */
     async getCurrentChannel(): Promise<string> {
         if(ChannelView.versionInfo.version >= '1.87.0' && process.platform !== 'darwin') {
-            throw Error(`The 'ChannelView.getCurrentChannel' method is broken! Read more information in 'Known Issues > Limitations in testing with VS Code 1.87+' - https://github.com/microsoft/vscode/issues/206897.`);
+            throw Error(`DEPRECATED METHOD! The 'ChannelView.getCurrentChannel' method is broken! Read more information in 'Known Issues > Limitations in testing with VS Code 1.87+' - https://github.com/microsoft/vscode/issues/206897.`);
         }
         const combo = await this.enclosingItem.findElement(ChannelView.locators.BottomBarViews.channelCombo);
         return await combo.getAttribute('title');

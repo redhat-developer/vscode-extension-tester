@@ -28,8 +28,12 @@ export class VariableSectionItem extends CustomTreeItem {
     /**
      * Get variable name tooltip.
      * @returns a promise resolving to variable name tooltip string
+     * @deprecated For VS Code 1.88+ this method won't be working any more
      */
     async getVariableNameTooltip(): Promise<string> {
+        if(VariableSectionItem.versionInfo.version >= '1.88.0') {
+            throw Error(`DEPRECATED METHOD! For VS Code 1.88+ this method won't be working any more.`);
+        }
         const name = await this.findElement(VariableSectionItem.locators.VariableSectionItem.name.constructor);
         return VariableSectionItem.locators.VariableSectionItem.name.tooltip(name);
     }
