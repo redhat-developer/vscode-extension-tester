@@ -12,7 +12,7 @@
     "build": "npx lerna run build",
     "build:changed": "npx lerna run build --since main",
     "test": "npm run ui-test --workspace=extester-test",
-    "test:build": "npm run build && npm install --workspace=extester-test && npm test"
+    "test:build": "npm run build:changed && npm install --workspace=extester-test && npm test"
   },
   "workspaces": [
     "packages/*",
