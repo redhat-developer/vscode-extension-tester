@@ -26,8 +26,6 @@ export interface RunOptions {
     logLevel?: logging.Level;
     /** try to perform all setup without internet connection, needs all requirements pre-downloaded manually */
     offline?: boolean;
-    /** path to unbundled extension sources */
-    extensionDevelopmentPath?: string;
     /** list of resources to be opened by VS Code */
     resources: string[];
 }
@@ -55,7 +53,6 @@ export class CodeUtil {
     private cliEnv!: string;
     private availableVersions: string[];
     private extensionsFolder: string | undefined;
-    private extensionDevelopmentPath: string | undefined;
     private coverage: boolean | undefined;
 
     /**
@@ -70,11 +67,6 @@ export class CodeUtil {
         this.extensionsFolder = extensionsFolder ? path.resolve(extensionsFolder) : undefined;
         this.coverage = coverage;
         this.releaseType = type;
-
-        // If code coverage is enabled, set extensionDevelopmentPath to the current directory.
-        if (this.coverage) {
-            this.extensionDevelopmentPath = path.resolve(".");
-        }
 
         if (type === ReleaseQuality.Stable) {
             this.codeFolder = path.join(this.downloadFolder, (process.platform === 'darwin')
@@ -265,7 +257,7 @@ export class CodeUtil {
         process.env = finalEnv;
         process.env.TEST_RESOURCES = this.downloadFolder;
         process.env.EXTENSIONS_FOLDER = this.extensionsFolder;
-        process.env.EXTENSION_DEV_PATH = this.extensionDevelopmentPath;
+        process.env.EXTENSION_DEV_PATH = this.coverage ? process.cwd() : undefined;
         const runner = new VSRunner(this.executablePath, literalVersion, this.parseSettings(runOptions.settings ?? DEFAULT_RUN_OPTIONS.settings), runOptions.cleanup, this.releaseType, runOptions.config);
         return await runner.runTests(testFilesPattern, this, runOptions.logLevel, runOptions.resources);
     }

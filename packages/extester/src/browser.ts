@@ -76,8 +76,8 @@ export class VSBrowser {
                 fs.copyFileSync(path.resolve(__dirname, '..', '..', 'resources', 'state.vscdb'), path.join(userSettings, 'globalStorage', 'state.vscdb'));
             }
             args.push(`--extensionDevelopmentPath=${process.cwd()}`);
-        } else if(this.extensionDevelopmentPath) {
-           args.push(`--extensionDevelopmentPath=${this.extensionDevelopmentPath}`);
+        } else if(process.env.EXTENSION_DEV_PATH) {
+           args.push(`--extensionDevelopmentPath=${process.env.EXTENSION_DEV_PATH}`);
         }
 
         let options = new Options().setChromeBinaryPath(codePath).addArguments(...args) as any;
