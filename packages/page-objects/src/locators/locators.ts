@@ -176,6 +176,16 @@ export interface Locators {
         checkboxChecked: string
         linkButton: By
         itemCount: By
+        arraySetting: By
+        arrayRoot: By
+        arrayRow: By
+        arrayRowValue: By
+        arrayNewRow: By
+        arrayEditRow: By
+        arrayBtnConstructor: (label: string) => By
+        arraySettingItem: {
+            btnConstructor: (label: string) => By
+        }
     }
     DiffEditor: {
         originalEditor: By

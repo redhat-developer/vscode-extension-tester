@@ -170,7 +170,17 @@ const editor = {
         checkboxSetting: By.className('setting-value-checkbox'),
         checkboxChecked: 'aria-checked',
         linkButton: By.className('edit-in-settings-button'),
-        itemCount: By.className('settings-count-widget')
+        itemCount: By.className('settings-count-widget'),
+        arraySetting: By.className('setting-item-control'),
+        arrayRoot: By.xpath(`.//div[@role='list' and contains(@class, 'setting-list-widget')]`),
+        arrayRow: By.className('setting-list-row'),
+        arrayRowValue: By.className('setting-list-value'),
+        arrayNewRow: By.className('setting-list-new-row'),
+        arrayEditRow: By.className('setting-list-edit-row'),
+        arrayBtnConstructor: (label: string) => By.xpath(`.//a[contains(@role, 'button') and @aria-label='${label}']`),
+        arraySettingItem: {
+            btnConstructor: (label: string) => By.xpath(`.//a[contains(@role, 'button') and text()='${label}']`)
+        }
     },
     DiffEditor: {
         originalEditor: By.className('original-in-monaco-diff-editor'),
