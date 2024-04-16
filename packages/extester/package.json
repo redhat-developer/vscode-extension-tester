@@ -49,6 +49,11 @@
     "vscode-extension-tester",
     "ui-test"
   ],
+  "supportedVersions": {
+    "vscode-min": "1.86.2",
+    "vscode-max": "1.88.0",
+    "nodejs": "18"
+  },
   "dependencies": {
     "@redhat-developer/locators": "^1.0.2",
     "@redhat-developer/page-objects": "^1.0.2",
