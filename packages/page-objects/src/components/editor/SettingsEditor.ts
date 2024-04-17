@@ -107,7 +107,7 @@ export class SettingsEditor extends Editor {
      * Context menu is disabled in this editor, throw an error
      */
     async openContextMenu(): Promise<ContextMenu> {
-        throw new Error('Operation not supported');
+        throw new Error('Operation not supported!');
     }
 
     private async createSetting(element: WebElement, title: string, category: string): Promise<Setting> {
@@ -132,7 +132,13 @@ export class SettingsEditor extends Editor {
                         await element.findElement(SettingsEditor.locators.SettingsEditor.linkButton);
                         return new LinkSetting(SettingsEditor.locators.SettingsEditor.settingConstructor(title, category), this);
                     } catch (err) {
-                        throw new Error('Setting type not supported');
+                        // try array setting
+                        try {
+                            await element.findElement(SettingsEditor.locators.SettingsEditor.arraySetting);
+                            return new ArraySetting(SettingsEditor.locators.SettingsEditor.settingConstructor(title, category), this);
+                        } catch (err) {
+                            throw new Error('Setting type not supported!');
+                        }
                     }
                 }
             }
@@ -142,7 +148,7 @@ export class SettingsEditor extends Editor {
 
 /**
  * Abstract item representing a Setting with title, description and
- * an input element (combo/textbox/checkbox/link)
+ * an input element (combo/textbox/checkbox/link/array)
  */
 export abstract class Setting extends AbstractElement {
 
@@ -274,11 +280,11 @@ export class CheckboxSetting extends Setting {
 export class LinkSetting extends Setting {
 
     async getValue(): Promise<string> {
-        throw new Error('Method getValue is not available for LinkSetting');
+        throw new Error('Method getValue is not available for LinkSetting!');
     }
 
     async setValue(value: string | boolean): Promise<void> {
-        throw new Error('Method setValue is not available for LinkSetting');
+        throw new Error('Method setValue is not available for LinkSetting!');
     }
 
     /**
@@ -288,5 +294,208 @@ export class LinkSetting extends Setting {
     async openLink(): Promise<void> {
         const link = await this.findElement(SettingsEditor.locators.SettingsEditor.linkButton);
         await link.click();
+    }
+}
+
+/**
+ * Setting with an array of string values (rows)
+ */
+export class ArraySetting extends Setting {
+
+    /**
+     * @deprecated Method 'getValue' is not available for ArraySetting!
+     */
+    async getValue(): Promise<string | boolean> {
+        throw new Error('Method \'getValue\' is not available for ArraySetting!');
+    }
+
+    /**
+     * @deprecated Method 'setValue' is not available for ArraySetting!
+     */
+    async setValue(value: string | boolean): Promise<void> {
+        throw new Error('Method \'setValue\' is not available for ArraySetting!');
+    }
+
+    /**
+     * Select a row of a setting array of string values
+     * @param item label | index
+     */
+    async select(item: string | number): Promise<void> {
+        const toSelect = await this.getItem(item);
+        await toSelect?.select()
+    }
+
+    /**
+     * Get a row as new ArraySettingItem object
+     * @param item label or index
+     * @returns ArraySettingItem | undefined
+     */
+    async getItem(item: string | number): Promise<ArraySettingItem | undefined> {
+        const row = await this.findRow(item);
+        if(row) {
+            return new ArraySettingItem(row, this);
+        }
+        return undefined;
+    }
+
+    /**
+     * Get a list of all rows as ArraySettingItem objects
+     * @returns ArraySettingItem[]
+     */
+    async getItems(): Promise<ArraySettingItem[]> {
+        const listRows = await this.getRows();
+        let items: ArraySettingItem[] = [];
+        for(const row of listRows) {
+            items.push(new ArraySettingItem(row, this));
+        }
+        return items;
+    }
+
+    /**
+     * Get a list of all rows values
+     * @returns string[]
+     */
+    async getValues(): Promise<string[]> {
+        const items = await this.getItems();
+        let values: string[] = [];
+        for(const item of items) {
+            values.push(await item.getValue());
+        }
+        return values;
+    }
+
+    /**
+     * Click 'Add Item' and get row as ArraySettingItem in edit mode
+     * @returns ArraySettingItem
+     */
+    async add(): Promise<ArraySettingItem> {
+        // click 'Add Item' button
+        const button = await this.findElement(SettingsEditor.locators.SettingsEditor.arrayNewRow).findElement(By.className('monaco-button'));
+        await button.click();
+        await new Promise(sleep => setTimeout(sleep, 1_000)); // need to force some time to allow DOM rerender elements
+
+        // get item row switched to 'edit' mode
+        const list = await this.getListRootElement();
+        const editRow = await list.findElement(SettingsEditor.locators.SettingsEditor.arrayEditRow);
+        return new ArraySettingItem(editRow, this);
+    }
+
+    /**
+     * Select a row, then click 'Edit Item' and get row as ArraySettingItem in edit mode
+     * @param item label | index
+     * @returns ArraySettingItem | undefined
+     */
+    async edit(item: string | number): Promise<ArraySettingItem | undefined> {
+        const row = await this.findRow(item);
+        if(row) {
+            // select item row
+            const toEdit = new ArraySettingItem(row, this);
+            await toEdit.select();
+
+            // click 'Edit Item' button 
+            const edit = await toEdit.findElement(SettingsEditor.locators.SettingsEditor.arrayBtnConstructor('Edit Item'));
+            await edit.click();
+            await new Promise(sleep => setTimeout(sleep, 1_000)); // need to force some time to allow DOM rerender elements
+
+            // get item row switched to 'edit' mode
+            const list = await this.getListRootElement();
+            const editRow = await list.findElement(SettingsEditor.locators.SettingsEditor.arrayEditRow);
+            return new ArraySettingItem(editRow, this);
+        }
+        return undefined;
+    }
+
+    private async getListRootElement(): Promise<WebElement> {
+        return await this.findElement(SettingsEditor.locators.SettingsEditor.arrayRoot);
+    }
+
+    private async getRows(): Promise<WebElement[]> {
+        const list = await this.getListRootElement();
+        return await list.findElements(SettingsEditor.locators.SettingsEditor.arrayRow);
+    }
+
+    private async findRow(item: string | number): Promise<WebElement | undefined> {
+        const listRows = await this.getRows();
+        if(Number.isInteger(item)) {
+            const index = +item;
+            if (index < 0 || index > listRows.length - 1) {
+                throw Error(`Index '${index}' is of bounds! Found items have length = ${listRows.length}.`);
+            }
+            return listRows[index];
+        } else {
+            for(const row of listRows) {
+                const li = await row.findElement(SettingsEditor.locators.SettingsEditor.arrayRowValue);
+                if(await li.getText() === item) {
+                    return row;
+                }
+            }
+        }
+        return undefined;
+    }
+}
+
+/**
+ * Represents each row of an ArraySetting array of strings
+ */
+export class ArraySettingItem extends AbstractElement {
+
+    constructor(element: WebElement, setting: ArraySetting) {
+        super(element, setting);
+    }
+
+    /**
+     * Select an item
+     */
+    async select(): Promise<void> {
+        await this.click();
+        await new Promise(sleep => setTimeout(sleep, 500));
+    }
+
+    /**
+     * Get item text value
+     * @returns string
+     */
+    async getValue(): Promise<string> {
+        return await this.getText();
+    }
+
+    /**
+     * Set item text value
+     * @param value string
+     */
+    async setValue(value: string): Promise<void> {
+        const input = await this.findElement(SettingsEditor.locators.SettingsEditor.textSetting);
+        await input.clear();
+        await input.sendKeys(value);
+    }
+
+    /**
+     * Click 'Remove Item' button
+     */
+    async remove(): Promise<void> {
+        await this.select();
+        const remove = await this.findElement(SettingsEditor.locators.SettingsEditor.arrayBtnConstructor('Remove Item'));
+        await remove.click();
+        await new Promise(sleep => setTimeout(sleep, 500));
+    }
+
+    /**
+    * Click 'OK' button
+    * @description Only when the item is in edit mode
+    */
+    async ok(): Promise<void> {
+        const ok = await this.findElement(SettingsEditor.locators.SettingsEditor.arraySettingItem.btnConstructor('OK'));
+        await ok.click();
+        await new Promise(sleep => setTimeout(sleep, 500));
+    }
+
+    /**
+    * Click 'Cancel' button
+    * @description Only when the item is in edit mode
+    */
+    async cancel(): Promise<void> {
+        const cancel = await this.findElement(SettingsEditor.locators.SettingsEditor.arraySettingItem.btnConstructor('Cancel'));
+        await cancel.click();
+        await new Promise(sleep => setTimeout(sleep, 500));
     }
 }

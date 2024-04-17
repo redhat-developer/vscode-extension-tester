@@ -141,7 +141,7 @@
 			}
 		],
 		"configuration": {
-			"title": "Test Project",
+			"title": "ExTester Tests",
 			"properties": {
 				"testProject.general.helloWorld": {
 					"type": "boolean",
@@ -151,6 +151,19 @@
 				"testProject.enableCodeLens": {
 					"type": "boolean",
 					"default": false
+				},
+				"testProject.general.helloWorldArray": {
+					"type": "array",
+					"uniqueItems": true,
+					"items": {
+						"type": "string"
+					},
+					"additionalProperties": false,
+					"markdownDescription": "This is an example array of strings",
+					"default": [
+						"Hello World",
+						"Hello ExTester"
+					]
 				}
 			}
 		},
