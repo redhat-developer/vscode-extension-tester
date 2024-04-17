@@ -43,7 +43,9 @@
 
 #### NodeJS Support Policy
 
-ExTester is aiming same support for [NodeJS releases](https://nodejs.org/en/about/previous-releases) as VS Code has. For more info see [Contributing to Visual Studio Code > Prerequisites](https://github.com/microsoft/vscode/wiki/How-to-Contribute#prerequisites).
+ExTester is aiming same support for [NodeJS releases](https://nodejs.org/en/about/previous-releases) as **Visual Studio Code** and **Selenium** have.
+
+- For more info see [Contributing to Visual Studio Code > Prerequisites](https://github.com/microsoft/vscode/wiki/How-to-Contribute#prerequisites) and [Selenium > selenium-webdriver > Node Support Policy](https://github.com/SeleniumHQ/selenium/tree/trunk/javascript/node/selenium-webdriver#node-support-policy).
 
 ### Usage
 
