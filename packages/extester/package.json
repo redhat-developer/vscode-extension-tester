@@ -63,7 +63,7 @@
     "compare-versions": "^6.1.0",
     "fs-extra": "^11.2.0",
     "glob": "^10.3.12",
-    "got": "^14.2.1",
+    "got": "^13.0.0",
     "hpagent": "^1.2.0",
     "js-yaml": "^4.1.0",
     "sanitize-filename": "^1.6.3",
