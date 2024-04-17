@@ -95,9 +95,8 @@ export class VSRunner {
                 }
                 if (code.coverageEnabled) {
                     await coverage?.write();
-                } else {
-                    code.uninstallExtension(self.cleanup);
                 }
+                code.uninstallExtension(self.cleanup);
             });
 
             this.mocha.run((failures) => {

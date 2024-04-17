@@ -132,9 +132,7 @@ export class ExTester {
                 console.log(`Attempting with ChromeDriver ${actualChromeVersion} anyway. Tests may experience issues due to version mismatch.`);
             }
         }
-        if (!this.code.coverageEnabled) {
-            await this.installVsix({useYarn});
-        }
+        await this.installVsix({useYarn});
         if (installDependencies && !offline) {
             this.code.installDependencies();
         }
