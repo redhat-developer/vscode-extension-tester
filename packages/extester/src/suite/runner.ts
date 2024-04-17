@@ -158,6 +158,14 @@ export class VSRunner {
                 console.log('Unsupported mocha configuration file extension, make sure to use .js, .json, .yml or .yaml file');
             }
         }
+
+        if (process.env.MOCHA_GREP) {
+            conf.grep = process.env.MOCHA_GREP;
+        }
+        if (process.env.MOCHA_INVERT) {
+            conf.invert = process.env.MOCHA_INVERT === 'true';
+        }
+
         return conf;
     }
 }
