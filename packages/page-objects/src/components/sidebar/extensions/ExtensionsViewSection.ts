@@ -53,7 +53,7 @@ export class ExtensionsViewSection extends ViewSection {
         await this.getDriver().wait(until.elementIsNotVisible(progress));
 
         const parent = this.enclosingItem as ViewContent;
-        let sectionTitle = this.getSectionForCategory(title);
+        const sectionTitle = this.getSectionForCategory(title);
 
         const section = await parent.getSection(sectionTitle) as ExtensionsViewSection;
         

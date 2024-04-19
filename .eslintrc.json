@@ -1,13 +1,36 @@
 {
+    "root": true, // this is root configuration for project
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
-        "sourceType": "module"
-    },
+		"ecmaVersion": 2022,
+		"sourceType": "module",
+		"project": "./tsconfig.json",
+		"ecmaFeatures": {
+			"impliedStrict": true
+		}
+	},
+    "env": {
+		"browser": true,
+		"es2022": true,
+		"mocha": true
+	},
+    "extends": [
+		"eslint:recommended",
+		"plugin:@typescript-eslint/recommended"
+	],
     "plugins": [
-        "@typescript-eslint"
+        "@typescript-eslint",
+        "@stylistic"
     ],
-    "root": true,
     "rules": {
+        "@typescript-eslint/no-var-requires": "off", // allows require statements outside of imports
+        "@typescript-eslint/no-floating-promises": "warn",
+        "no-unused-expressions": "off",
+        "@typescript-eslint/no-unused-expressions": "off",
+        "@typescript-eslint/no-unused-vars": "warn",
+        "@typescript-eslint/no-namespace": "off",
+		"@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-this-alias": "off",
         "@typescript-eslint/member-delimiter-style": [
             "warn",
             {
@@ -27,24 +50,18 @@
                 "selector": "variable",
                 "format": [
                     "camelCase",
-                    "UPPER_CASE",
-                    "PascalCase"
+                    "PascalCase",
+                    "UPPER_CASE"
                 ]
 			}
 		],
-        "@typescript-eslint/no-unused-expressions": "off",
-        "@typescript-eslint/semi": [
-            "warn",
-            "always"
-        ],
+        "@stylistic/semi": "warn",
         "curly": "warn",
         "eqeqeq": [
             "warn",
             "always"
         ],
         "no-redeclare": "warn",
-        "no-throw-literal": "warn",
-        "no-unused-expressions": "off",
-        "semi": "off"
+        "no-throw-literal": "warn"
     }
 }

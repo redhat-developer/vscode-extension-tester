@@ -100,7 +100,7 @@ export class ViewContent extends AbstractElement {
             return new type(panel, this);
         }
 
-        let section: ViewSection = new DefaultTreeSection(panel, this);
+        const section: ViewSection = new DefaultTreeSection(panel, this);
         const types = ViewContent.locators.DefaultTreeSection.type;
         const locators = ViewContent.locators;
 

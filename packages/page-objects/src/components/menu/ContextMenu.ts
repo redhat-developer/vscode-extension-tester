@@ -49,7 +49,7 @@ export class ContextMenu extends Menu {
      * @returns Promise resolving when the menu is closed
      */
     async close(): Promise<void> {
-        let actions = this.getDriver().actions();
+        const actions = this.getDriver().actions();
         await actions.clear();
         await this.getDriver().actions().sendKeys(Key.ESCAPE).perform();
         try {

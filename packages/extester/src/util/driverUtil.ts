@@ -1,5 +1,3 @@
-'use strict';
-
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as childProcess from 'child_process';

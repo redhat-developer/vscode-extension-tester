@@ -18,18 +18,18 @@ export class CodelensProvider implements vscode.CodeLensProvider {
     constructor() {
         this.regex = /(\w+)/g;
 
-        vscode.workspace.onDidChangeConfiguration((_) => {
+        vscode.workspace.onDidChangeConfiguration(() => {
             this._onDidChangeCodeLenses.fire();
         });
     }
 
-    public provideCodeLenses(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.CodeLens[] | Thenable<vscode.CodeLens[]> {
+    public provideCodeLenses(document: vscode.TextDocument): vscode.CodeLens[] | Thenable<vscode.CodeLens[]> {
 
         if (vscode.workspace.getConfiguration("testProject").get("enableCodeLens", true)) {
             this.codeLenses = [];
             const regex = new RegExp(this.regex);
             const text = document.getText();
-            let matches;
+            let matches: RegExpExecArray;
             while ((matches = regex.exec(text)) !== null) {
                 const line = document.lineAt(document.positionAt(matches.index).line);
                 const indexOf = line.text.indexOf(matches[0]);
@@ -44,7 +44,7 @@ export class CodelensProvider implements vscode.CodeLensProvider {
         return [];
     }
 
-    public resolveCodeLens(codeLens: vscode.CodeLens, token: vscode.CancellationToken) {
+    public resolveCodeLens(codeLens: vscode.CodeLens) {
         if (vscode.workspace.getConfiguration("testProject").get("enableCodeLens", true)) {
             codeLens.command = {
                 title: "Codelens provided by sample extension",

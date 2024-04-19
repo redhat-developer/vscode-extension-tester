@@ -117,7 +117,7 @@ describe('Debugging', function () {
         it('BreakpointSectionItem.setBreakpointEnabled', async function () {
             let item = await getBreakpointItem(view, this.timeout() - 2000);
             const driver = item.getDriver();
-            let status = await item.isBreakpointEnabled(); // true
+            const status = await item.isBreakpointEnabled(); // true
 
             await item.setBreakpointEnabled(status); // true --> true
             await driver.wait(

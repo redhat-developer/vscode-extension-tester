@@ -54,7 +54,7 @@ export class LocatorLoader {
             .sort(compareVersions).reverse();
         }
 
-        for (let version of versions) {
+        for (const version of versions) {
             const diff = require(path.join(this.baseFolder, version)).diff as LocatorDiff;
 
             const newLocators: Merge<Locators, PartialDeep<Locators>> = mergeLocators(this.locators, diff);
@@ -78,8 +78,8 @@ function merge(target: any, obj: any) {
             continue;
         }
 
-        let oldVal = obj[key];
-        let newVal = target[key];
+        const oldVal = obj[key];
+        const newVal = target[key];
 
         if (typeof(newVal) === 'object' && typeof(oldVal) === 'object') {
             target[key] = merge(newVal, oldVal);

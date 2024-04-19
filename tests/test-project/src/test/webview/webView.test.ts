@@ -67,9 +67,9 @@ describe('WebViews', function () {
                 await new EditorView().openEditor(tabs[0]);
             });
 
-            switchToFrame();
-            runTests();
-            clean();
+            void switchToFrame();
+            void runTests();
+            void clean();
         });
 
         describe('Second WebView', async function () {
@@ -78,9 +78,9 @@ describe('WebViews', function () {
                 await new EditorView().openEditor(tabs[1]);
             });
 
-            switchToFrame();
-            runTests();
-            clean();
+            void switchToFrame();
+            void runTests();
+            void clean();
         });
 
         describe('Third WebView', async function () {
@@ -89,9 +89,9 @@ describe('WebViews', function () {
                 await new EditorView().openEditor(tabs[2]);
             });
 
-            switchToFrame();
-            runTests();
-            clean();
+            void switchToFrame();
+            void runTests();
+            void clean();
         });
 
         async function switchToFrame() {

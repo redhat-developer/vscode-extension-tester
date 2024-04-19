@@ -46,7 +46,7 @@ export class ProblemsView extends AbstractElement {
     /**
      * @deprecated The method should not be used and getAllVisibleMarkers() should be used instead.
      */
-     async getAllMarkers(type: MarkerType): Promise<Marker[]> {
+    async getAllMarkers(type: MarkerType): Promise<Marker[]> {
         return this.getAllVisibleMarkers(type);
     }
 
@@ -63,8 +63,7 @@ export class ProblemsView extends AbstractElement {
         const markers: Marker[] = [];
         const elements = await this.findElements(ProblemsView.locators.ProblemsView.markerRow);
         for (const element of elements) {
-            let marker: Marker;
-            marker = await new Marker(element, this).wait();
+            const marker = await new Marker(element, this).wait();
             if (type === MarkerType.Any || type === await marker.getType()) {
                 markers.push(marker);
             }

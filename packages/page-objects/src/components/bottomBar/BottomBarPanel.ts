@@ -118,7 +118,7 @@ export class BottomBarPanel extends AbstractElement {
     }
 
     public async closePanel() {
-        let closeButton = await this.findElement(BottomBarPanel.locators.BottomBarPanel.closeAction);
+        const closeButton = await this.findElement(BottomBarPanel.locators.BottomBarPanel.closeAction);
         await closeButton.click();
     }
 }

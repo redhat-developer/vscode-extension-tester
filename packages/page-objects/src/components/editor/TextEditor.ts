@@ -231,8 +231,7 @@ export class TextEditor extends Editor {
         let actions = this.getDriver().actions();
         await actions.clear();
         actions.keyDown(Key.SHIFT);
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        for (const _i of text) {
+        for (let i = 0; i < text.length; i++) {
             actions = actions.sendKeys(Key.RIGHT);
         }
         actions = actions.keyUp(Key.SHIFT);
@@ -286,7 +285,7 @@ export class TextEditor extends Editor {
     }
 
     async openFindWidget(): Promise<FindWidget> {
-        let actions = this.getDriver().actions();
+        const actions = this.getDriver().actions();
         await actions.clear();
         await actions.keyDown(TextEditor.ctlKey).sendKeys('f').keyUp(TextEditor.ctlKey).perform();
         const widget = await this.getDriver().wait(until.elementLocated(TextEditor.locators.TextEditor.findWidget), 2000);
@@ -348,7 +347,7 @@ export class TextEditor extends Editor {
             const columnKey = columnGap >= 0 ? Key.LEFT : Key.RIGHT;
             for (let i = 0; i < Math.abs(columnGap); i++) {
                 await inputarea.sendKeys(columnKey);
-                let actualCoordinates = (await this.getCoordinates())[0];
+                const actualCoordinates = (await this.getCoordinates())[0];
                 if (actualCoordinates !== coordinates[0]) {
                     throw new Error(`Column number ${column} is not accessible on line ${line}`);
                 }

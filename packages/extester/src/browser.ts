@@ -1,5 +1,3 @@
-'use strict';
-
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import { compareVersions } from 'compare-versions';
@@ -15,14 +13,14 @@ export class VSBrowser {
     static readonly browserName = 'vscode';
     private storagePath: string;
     private extensionsFolder: string | undefined;
-    private customSettings: Object;
+    private customSettings: object;
     private _driver!: WebDriver;
     private codeVersion: string;
     private releaseType: ReleaseQuality;
     private logLevel: logging.Level;
     private static _instance: VSBrowser;
 
-    constructor(codeVersion: string, releaseType: ReleaseQuality, customSettings: Object = {}, logLevel: logging.Level = logging.Level.INFO) {
+    constructor(codeVersion: string, releaseType: ReleaseQuality, customSettings: object = {}, logLevel: logging.Level = logging.Level.INFO) {
         this.storagePath = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.resolve(DEFAULT_STORAGE_FOLDER);
         this.extensionsFolder = process.env.EXTENSIONS_FOLDER ? process.env.EXTENSIONS_FOLDER : undefined;
         this.customSettings = customSettings;
@@ -32,7 +30,7 @@ export class VSBrowser {
         this.logLevel = logLevel;
 
         VSBrowser._instance = this;
-    };
+    }
 
     /**
      * Starts the vscode browser from a given path

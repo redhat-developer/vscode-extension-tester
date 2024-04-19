@@ -5,7 +5,7 @@ import { AbstractElement } from "./AbstractElement";
  * Heavily inspired by https://stackoverflow.com/a/65418734
  */
 
-type Constructor<T = {}> = new (...args: any[]) => T;
+type Constructor<T = object> = new (...args: any[]) => T;
 
 /**
  * The interface that a class is required to have in order to use the Webview mixin.

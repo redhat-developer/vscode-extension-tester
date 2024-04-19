@@ -1,5 +1,3 @@
-'use strict';
-
 import { VSBrowser } from '../browser';
 import * as fs from 'fs-extra';
 import Mocha from 'mocha';
@@ -17,13 +15,13 @@ import * as os from 'os';
 export class VSRunner {
     private mocha: Mocha;
     private chromeBin: string;
-    private customSettings: Object;
+    private customSettings: object;
     private codeVersion: string;
     private cleanup: boolean;
     private tmpLink = path.join(os.tmpdir(), 'extest-code');
     private releaseType: ReleaseQuality;
 
-    constructor(bin: string, codeVersion: string, customSettings: Object = {}, cleanup: boolean = false, releaseType: ReleaseQuality, config?: string) {
+    constructor(bin: string, codeVersion: string, customSettings: object = {}, cleanup: boolean = false, releaseType: ReleaseQuality, config?: string) {
         const conf = this.loadConfig(config);
         this.mocha = new Mocha(conf);
         this.chromeBin = bin;
@@ -41,8 +39,8 @@ export class VSRunner {
      */
     runTests(testFilesPattern: string[], code: CodeUtil, logLevel: logging.Level = logging.Level.INFO, resources: string[]): Promise<number> {
         return new Promise(resolve => {
-            let self = this;
-            let browser: VSBrowser = new VSBrowser(this.codeVersion, this.releaseType, this.customSettings, logLevel);
+            const self = this;
+            const browser: VSBrowser = new VSBrowser(this.codeVersion, this.releaseType, this.customSettings, logLevel);
 
             const testFiles = new Set<string>();
             for (const pattern of testFilesPattern) {
@@ -116,7 +114,7 @@ export class VSRunner {
         const newSegments = dest.split(path.sep);
 
         let found = false;
-        for (let segment of segments) {
+        for (const segment of segments) {
             if (!found) {
                 found = segment === dir.base;
             } else {
@@ -132,7 +130,7 @@ export class VSRunner {
         let file = config;
         if (!config) {
             file = path.resolve('.');
-            for (let defFile of defaultFiles) {
+            for (const defFile of defaultFiles) {
                 if (fs.existsSync(path.join(file, defFile))) {
                     file = path.join(file, defFile);
                     break;

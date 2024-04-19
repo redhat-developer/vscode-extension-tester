@@ -117,11 +117,11 @@ describe('InputBox', () => {
         await (await InputBox.create()).selectQuickPick('Text File');
         await new Promise(res => setTimeout(res, 500));
         await new StatusBar().openLanguageSelection();
-        input = await InputBox.create();;
+        input = await InputBox.create();
     });
 
     after(async() => {
-        input.cancel();
+        await input.cancel();
         await new EditorView().closeAllEditors();
     });
 
