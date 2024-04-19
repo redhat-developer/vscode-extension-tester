@@ -119,7 +119,7 @@ function withErrors(command: (...args: any[]) => Promise<void>) {
             }
             process.exitCode = 1;
         }
-    }    
+    };
 }
 
 function codeStream(stream: string) {

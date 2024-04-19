@@ -2,7 +2,7 @@
 
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import * as child_process from 'child_process';
+import * as childProcess from 'child_process';
 import { Unpack } from './unpack';
 import { Download } from './download';
 import { DEFAULT_STORAGE_FOLDER } from '../extester';
@@ -108,7 +108,7 @@ export class DriverUtil {
         let url = `https://chromedriver.storage.googleapis.com/${version}/chromedriver_${driverPlatform}.zip`;
         if (+majorVersion > 114) {
             driverPlatform = DriverUtil.getChromeDriverPlatform();
-            url = `https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${version}/${driverPlatform}/chromedriver-${driverPlatform}.zip`
+            url = `https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${version}/${driverPlatform}/chromedriver-${driverPlatform}.zip`;
         }
         return url;
     }
@@ -117,7 +117,7 @@ export class DriverUtil {
         try {
             return await this.getLocalDriverVersion(version);
         } catch (err) {
-            console.log('ERROR: Cannot find a copy of ChromeDriver in local cache in offline mode, exiting.')
+            console.log('ERROR: Cannot find a copy of ChromeDriver in local cache in offline mode, exiting.');
             throw err;
         }
     }
@@ -128,7 +128,7 @@ export class DriverUtil {
     private async getLocalDriverVersion(version: string): Promise<string> {
         const command = `${this.getChromeDriverBinaryPath(version)} -v`;
         return new Promise<string>((resolve, reject) => {
-            child_process.exec(command, (err, stdout) => {
+            childProcess.exec(command, (err, stdout) => {
                 if (err) {
                     return reject(new Error(err.message));
                 }
@@ -178,9 +178,9 @@ export class DriverUtil {
         62: '2.34',
         61: '2.33',
         60: '2.32'
-    }
+    };
 }
 
 interface VersionMap {
-    [key:number]: string
+    [key:number]: string;
 }

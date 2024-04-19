@@ -8,7 +8,7 @@ import * as os from 'os';
 import { URL } from 'url';
 import pjson from '../package.json';
 
-export { ReleaseQuality }
+export { ReleaseQuality };
 export { MochaOptions } from 'mocha';
 export * from './browser';
 export * from './suite/mochaHooks';
@@ -26,7 +26,7 @@ export interface SetupOptions {
 export const DEFAULT_SETUP_OPTIONS = {
     vscodeVersion: 'latest',
     installDependencies: false
-}
+};
 
 export const DEFAULT_STORAGE_FOLDER = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.join(os.tmpdir(), 'test-resources');
 
@@ -58,7 +58,7 @@ export class ExTester {
     }
 
     /**
-     * Download VSCode of given version and release quality stream
+     * Download VS Code of given version and release quality stream
      * @param version version to download, default latest
      */
     async downloadCode(version: string = 'latest'): Promise<void> {
@@ -70,7 +70,7 @@ export class ExTester {
      * @param vsixFile path to extension .vsix file. If not set, default vsce path will be used
      * @param useYarn when true run `vsce package` with the `--yarn` flag
      */
-    async installVsix({vsixFile, useYarn, installDependencies}: {vsixFile?: string, useYarn?: boolean, installDependencies?: boolean} = {}): Promise<void> {
+    async installVsix({ vsixFile, useYarn, installDependencies }: { vsixFile?: string; useYarn?: boolean; installDependencies?: boolean } = {}): Promise<void> {
         let target = vsixFile;
         if (vsixFile) {
             try {
@@ -105,7 +105,7 @@ export class ExTester {
 
     /**
      * Download the matching chromedriver for a given VS Code version
-     * @param vscodeVersion selected versio nof VSCode, default latest
+     * @param vscodeVersion selected version of VS Code, default latest
      */
     async downloadChromeDriver(vscodeVersion: string = 'latest'): Promise<string> {
         const chromiumVersion = await this.code.getChromiumVersion(loadCodeVersion(vscodeVersion));
@@ -113,7 +113,7 @@ export class ExTester {
     }
 
     /**
-     * Performs all necessary setup: getting VSCode + ChromeDriver
+     * Performs all necessary setup: getting VS Code + ChromeDriver
      * and packaging/installing extension into the test instance
      *
      * @param options Additional options for setting up the tests
@@ -130,7 +130,7 @@ export class ExTester {
             const expectedChromeVersion = (this.code.checkOfflineRequirements()).split('.')[0];
             const actualChromeVersion = (await this.chrome.checkDriverVersionOffline(vscodeParsedVersion)).split('.')[0];
             if (expectedChromeVersion !== actualChromeVersion) {
-                console.log('\x1b[33m%s\x1b[0m', `WARNING: Local copy of VS Code runs Chromium version ${expectedChromeVersion}, the installed ChromeDriver is version ${actualChromeVersion}.`)
+                console.log('\x1b[33m%s\x1b[0m', `WARNING: Local copy of VS Code runs Chromium version ${expectedChromeVersion}, the installed ChromeDriver is version ${actualChromeVersion}.`);
                 console.log(`Attempting with ChromeDriver ${actualChromeVersion} anyway. Tests may experience issues due to version mismatch.`);
             }
         }
@@ -170,16 +170,16 @@ export class ExTester {
 }
 
 export function loadCodeVersion(version: string | undefined): string {
-    const code_version = process.env.CODE_VERSION ? process.env.CODE_VERSION : version;
+    const codeVersion = process.env.CODE_VERSION ? process.env.CODE_VERSION : version;
 
-    if (code_version !== undefined) {
-        if (code_version.toLowerCase() === 'max') {
+    if (codeVersion !== undefined) {
+        if (codeVersion.toLowerCase() === 'max') {
             return VSCODE_VERSION_MAX;
         }
-        if (code_version.toLowerCase() === 'min') {
+        if (codeVersion.toLowerCase() === 'min') {
             return VSCODE_VERSION_MIN;
         }
-        return code_version;
+        return codeVersion;
     }
     return 'latest';
 }

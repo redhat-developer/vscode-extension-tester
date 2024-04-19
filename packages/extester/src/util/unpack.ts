@@ -14,7 +14,7 @@ export class Unpack {
                         const errWho = err instanceof Error ? err : new Error(err);
                         reject(errWho);
                     } else {
-                        resolve()
+                        resolve();
                     }
                 });
             }

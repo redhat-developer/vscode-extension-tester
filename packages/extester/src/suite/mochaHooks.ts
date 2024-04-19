@@ -1,3 +1,4 @@
+/* eslint-disable no-redeclare */
 import { Func } from 'mocha';
 import { VSBrowser } from '../extester';
 import sanitize from 'sanitize-filename';
@@ -44,7 +45,9 @@ function createScreenshotCallbackFunction(name: string | undefined, hookType: Ho
             await fn.call(this);
         }
         catch (e) {
-            if (this === undefined) throw e;
+            if (this === undefined) {
+                throw e;
+            }
             if (this.test === undefined) {
                 try {
                     await VSBrowser.instance.takeScreenshot(sanitize(alternativeFileName));
@@ -64,7 +67,7 @@ function createScreenshotCallbackFunction(name: string | undefined, hookType: Ho
             }
             throw e;
         }
-    }
+    };
 }
 
 /**
