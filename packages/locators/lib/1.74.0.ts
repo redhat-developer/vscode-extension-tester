@@ -6,4 +6,4 @@ export const diff: LocatorDiff = {
             attribute: 'id'
         }
     }
-}
+};

@@ -7,4 +7,4 @@ export const diff: LocatorDiff = {
             constructor: (label: string) => By.xpath(`.//div[@role='listitem' and .//span[text()='${label}']]`)
         }
     }
-}
+};

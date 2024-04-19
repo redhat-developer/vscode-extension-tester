@@ -13,4 +13,4 @@ export const diff: LocatorDiff = {
             providerType: By.className('description'),
         }
     }
-}
+};

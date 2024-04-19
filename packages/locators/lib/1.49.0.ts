@@ -7,4 +7,4 @@ export const diff: LocatorDiff = {
             constructor: By.className('terminal-outer-container')
         }
     }
-}
+};

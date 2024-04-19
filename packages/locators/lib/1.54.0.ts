@@ -8,4 +8,4 @@ export const diff: LocatorDiff = {
             killTerminal: By.xpath(`.//a[@title='Kill the Active Terminal Instance']`)  
         }
     }
-}
+};

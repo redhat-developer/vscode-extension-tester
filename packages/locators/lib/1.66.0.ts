@@ -10,4 +10,4 @@ export const diff: LocatorDiff = {
             closeAction: By.className('codicon-panel-close')
         }
     }
-}
+};

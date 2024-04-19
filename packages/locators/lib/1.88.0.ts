@@ -7,4 +7,4 @@ export const diff: LocatorDiff = {
             button: (title: string) => By.xpath(`.//div[@role='button' and starts-with(@aria-label, "${title}")]`)
         }
     }
-}
+};

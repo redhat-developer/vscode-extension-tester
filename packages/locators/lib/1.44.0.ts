@@ -8,4 +8,4 @@ export const diff: LocatorDiff = {
             multiSelectIndex: (index: number) => By.xpath(`.//div[@role='option' and @data-index='${index}']`)
         }
     }
-}
+};

@@ -10,4 +10,4 @@ export const diff: LocatorDiff = {
             providerHeader: By.css(`div[class*='pane-header scm-provider']`)
         }
     }
-}
+};

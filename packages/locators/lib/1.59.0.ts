@@ -6,4 +6,4 @@ export const diff: LocatorDiff = {
             toggleReplace: By.xpath(`.//div[@title="Toggle Replace"]`),
         }
     }
-}
+};

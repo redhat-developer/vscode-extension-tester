@@ -8,4 +8,4 @@ export const diff: LocatorDiff = {
             clear: By.className('codicon-clear-all')
         }
     }
-}
+};

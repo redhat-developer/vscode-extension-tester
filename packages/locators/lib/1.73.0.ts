@@ -5,4 +5,4 @@ export const diff: LocatorDiff = {
             markersFilter: By.className('viewpane-filter')
         }
     }
-}
+};

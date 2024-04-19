@@ -6,7 +6,7 @@ const abstractElement = {
         enabled: hasNotClass("disabled"),
         selected: hasAttribute('aria-selected', 'true')
     }
-}
+};
 
 const activityBar = {
     ActivityBar: {
@@ -23,7 +23,7 @@ const activityBar = {
         debugId: By.id('workbench.view.debug'),
         badge: By.className('badge')
     }
-}
+};
 
 const bottomBar = {
     BottomBarPanel: {
@@ -85,7 +85,7 @@ const bottomBar = {
     WebviewView: {
         iframe: By.xpath(`//div[not(@class)]/iframe[@class='webview ready' and not(@data-parent-flow-to-element-id)]`)
     }
-}
+};
 
 const editor = {
     EditorView: {
@@ -192,7 +192,7 @@ const editor = {
         container: (id: string) => By.id(id),
         attribute: 'aria-flowto'
     }
-}
+};
 
 const menu = {
     ContextMenu: {
@@ -219,7 +219,7 @@ const menu = {
         restore: By.className('window-unmaximize'),
         close: By.className('window-close')
     }
-}
+};
 
 const sideBar = {
     SideBarView: {
@@ -379,7 +379,7 @@ const sideBar = {
         optionByName: (name: string) => By.xpath(`.//option[@value='${name}']`),
         startButton: By.className('codicon-debug-start')
     }
-}
+};
 
 const statusBar = {
     StatusBar: {
@@ -394,7 +394,7 @@ const statusBar = {
         item: By.className('statusbar-item'),
         itemTitle: 'aria-label'
     }
-}
+};
 
 const workbench = {
     Workbench: {
@@ -429,7 +429,7 @@ const workbench = {
         ctor: By.className('debug-toolbar'),
         button: (title: string) => By.className(`codicon-debug-${title}`)
     }
-}
+};
 
 const input = {
     Input: {
@@ -459,7 +459,7 @@ const input = {
         quickList: By.className('quick-open-tree'),
         row: By.xpath(`.//div[@role='treeitem']`)
     }
-}
+};
 
 const dialog = {
     Dialog: {
@@ -473,10 +473,10 @@ const dialog = {
             value: fromAttribute('title')
         }
     }
-}
+};
 
-const welcomeContentButtonSelector = ".//a[@class='monaco-button monaco-text-button']"
-const welcomeContentTextSelector = ".//p"
+const welcomeContentButtonSelector = ".//a[@class='monaco-button monaco-text-button']";
+const welcomeContentTextSelector = ".//p";
 
 const welcome = {
     WelcomeContent: {
@@ -484,7 +484,7 @@ const welcome = {
         buttonOrText: By.xpath(`${welcomeContentButtonSelector} | ${welcomeContentTextSelector}`),
         text: By.xpath(welcomeContentTextSelector)
     }
-}
+};
 
 /**
  * All available locators for vscode version 1.37.0
@@ -501,4 +501,4 @@ export const locators: Locators = {
     ...input,
     ...dialog,
     ...welcome
-}
+};

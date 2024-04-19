@@ -8,4 +8,4 @@ export const diff: LocatorDiff = {
             webView: By.xpath(`.//div[@data-editor-id='WebviewEditor']`)
         }
     }
-}
+};
