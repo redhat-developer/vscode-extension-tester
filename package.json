@@ -23,15 +23,15 @@
     "@types/fs-extra": "^11.0.4",
     "@types/js-yaml": "^4.0.9",
     "@types/mocha": "^10.0.6",
-    "@types/node": "^20.12.2",
+    "@types/node": "^20.12.7",
     "@types/selenium-webdriver": "^4.1.22",
     "@types/targz": "^1.0.4",
     "@typescript-eslint/eslint-plugin": "^7.7.0",
     "@typescript-eslint/parser": "^7.7.0",
     "eslint": "^8.57.0",
-    "lerna": "^8.1.2",
+    "lerna": "^6.4.1",
     "rimraf": "^5.0.5",
-    "type-fest": "^4.14.0",
+    "type-fest": "^4.15.0",
     "typescript": "^5.4.5"
   }
 }
