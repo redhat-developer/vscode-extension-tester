@@ -7,4 +7,4 @@ export const diff: LocatorDiff = {
             tooltip: By.className('monaco-icon-label-container')
         }
     }
-}
+};

@@ -7,4 +7,4 @@ export const diff: LocatorDiff = {
             closeTab: By.className('codicon-close')
         }
     }
-}
+};

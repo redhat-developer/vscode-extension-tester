@@ -13,4 +13,4 @@ export const diff: LocatorDiff = {
             multiSelectIndex: (index: number) => By.xpath(`.//div[@role='checkbox' and @data-index='${index}']`)
         }
     }
-}
+};

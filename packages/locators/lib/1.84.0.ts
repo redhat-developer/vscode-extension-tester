@@ -5,4 +5,4 @@ export const diff: LocatorDiff = {
             tabContainer: By.className('composite-bar-container')
         }
     }
-}
+};

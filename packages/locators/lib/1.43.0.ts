@@ -11,4 +11,4 @@ export const diff: LocatorDiff = {
             close: By.className('codicon-chevron-down')
         }
     }
-}
+};

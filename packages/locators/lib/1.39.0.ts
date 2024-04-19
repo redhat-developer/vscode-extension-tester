@@ -17,4 +17,4 @@ export const diff: LocatorDiff = {
             more: By.className('codicon-more')
         }
     }
-}
+};

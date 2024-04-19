@@ -10,4 +10,4 @@ export const diff: LocatorDiff = {
             newTerminal: By.xpath(`.//a[@title='New Terminal']`) 
         }
     }
-}
+};

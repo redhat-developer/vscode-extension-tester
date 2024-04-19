@@ -8,4 +8,4 @@ export const diff: LocatorDiff = {
             actionConstructor: (title: string) => By.xpath(`.//a[@aria-label='${title}']`)
         },
     }
-}
+};

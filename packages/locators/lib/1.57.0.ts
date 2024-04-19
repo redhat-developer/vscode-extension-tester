@@ -10,4 +10,4 @@ export const diff: LocatorDiff = {
             constructor: By.className('integrated-terminal')
         }
     }
-}
+};

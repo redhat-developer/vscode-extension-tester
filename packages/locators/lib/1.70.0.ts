@@ -20,4 +20,4 @@ export const diff: LocatorDiff = {
             attribute: 'aria-label'
         }
     }
-}
+};
