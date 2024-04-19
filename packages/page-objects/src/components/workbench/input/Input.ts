@@ -203,14 +203,14 @@ export abstract class Input extends AbstractElement {
      * Find whether the input box has an active progress bar
      * @returns Promise resolving to true/false
      */
-    abstract hasProgress(): Promise<boolean>
+    abstract hasProgress(): Promise<boolean>;
 
     /**
      * Retrieve the quick pick items currently available in the DOM
      * (visible in the quick pick menu)
      * @returns Promise resolving to array of QuickPickItem objects
      */
-    abstract getQuickPicks(): Promise<QuickPickItem[]>
+    abstract getQuickPicks(): Promise<QuickPickItem[]>;
 
     private async resetPosition(): Promise<void> {
         const text = await this.getText();

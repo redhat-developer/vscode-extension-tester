@@ -46,7 +46,9 @@ export abstract class Menu extends AbstractElement {
         let parent: Menu = this;
         for (const label of path) {
 			const item = await parent.getItem(label);
-            if (!item) return parent;
+            if (!item) {
+                return parent;
+            }
             await Menu.driver.wait(async function () {
                 return await item.isDisplayed() && await item.isEnabled();
             });

@@ -9,7 +9,7 @@ export abstract class AbstractElement extends WebElement {
     public static readonly ctlKey = process.platform === 'darwin' ? Key.COMMAND : Key.CONTROL;
     protected static driver: WebDriver;
     protected static locators: Locators;
-    protected static versionInfo: { version: string, browser: string };
+    protected static versionInfo: { version: string; browser: string };
     protected enclosingItem: WebElement;
 
     /**

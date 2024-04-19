@@ -27,7 +27,8 @@
                 "selector": "variable",
                 "format": [
                     "camelCase",
-                    "UPPER_CASE"
+                    "UPPER_CASE",
+                    "PascalCase"
                 ]
 			}
 		],

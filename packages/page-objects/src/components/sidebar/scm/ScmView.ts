@@ -20,7 +20,7 @@ export class ScmView extends SideBarView {
             return providers[0];
         }
         const names = await Promise.all(providers.map(async item => await item.getTitle()));
-        const index = names.findIndex(name => name === title)
+        const index = names.findIndex(name => name === title);
 
         return index > -1 ? providers[index] : undefined;
     }
@@ -37,7 +37,7 @@ export class ScmView extends SideBarView {
 
     /**
      * Initialize repository in the current folder if no SCM provider is found
-     * @returns true if the action was completed succesfully, false if a provider already exists
+     * @returns true if the action was completed successfully, false if a provider already exists
      */
     async initializeRepository(): Promise<boolean> {
         const buttons = await this.findElements(ScmView.locators.ScmView.initButton);

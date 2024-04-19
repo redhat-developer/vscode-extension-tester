@@ -1,3 +1,4 @@
+/* eslint-disable no-redeclare */
 import { WebElement } from "selenium-webdriver";
 import { AbstractElement } from "../AbstractElement";
 import WebviewMixin from "../WebviewMixin";

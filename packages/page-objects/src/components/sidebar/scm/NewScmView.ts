@@ -55,7 +55,7 @@ export class SingleScmProvider extends ScmProvider {
             buttons.push(await new TitleActionButton(ScmView.locators.ScmView.actionConstructor(title), titlePart).wait());
         }
         const names = await Promise.all(buttons.map(async button => button.getTitle()));
-        const index = names.findIndex(name => name === title)
+        const index = names.findIndex(name => name === title);
         if (index > -1) {
             await buttons[index].click();
             return true;
@@ -135,7 +135,7 @@ export class MultiScmProvider extends ScmProvider {
                 }
             }
             if (!header) {
-                return []
+                return [];
             }
 
             const startIndex = +await header.getAttribute('data-index');
