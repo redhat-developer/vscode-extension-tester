@@ -1,3 +1,4 @@
+/* eslint-disable no-redeclare */
 import { until, WebElement } from "selenium-webdriver";
 import WebviewMixin from "../WebviewMixin";
 import { Editor } from "./Editor";

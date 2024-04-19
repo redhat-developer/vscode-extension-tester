@@ -107,7 +107,7 @@ export class TerminalView extends ChannelView {
             await new Promise(res => setTimeout(res, 500));
             timer += 500;
             style = await input.getCssValue('left');
-        } while (style === '0px')
+        } while (style === '0px');
     }
 
     /**
@@ -172,7 +172,7 @@ export class TerminalView extends ChannelView {
         await this.getDriver().sleep(1000);
         const label = (await row.getAttribute('aria-label')).split(' ');
 
-        return `${label[1]}: ${label[2]}`
+        return `${label[1]}: ${label[2]}`;
     }
 
     async selectChannel(name: string): Promise<void> {

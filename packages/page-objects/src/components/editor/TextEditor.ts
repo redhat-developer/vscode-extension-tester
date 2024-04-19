@@ -71,7 +71,7 @@ export class TextEditor extends Editor {
     async toggleContentAssist(open: boolean): Promise<ContentAssist | void> {
         let isHidden = true;
         try {
-            const assist = await this.findElement(TextEditor.locators.ContentAssist.constructor)
+            const assist = await this.findElement(TextEditor.locators.ContentAssist.constructor);
             const klass = await assist.getAttribute('class');
             const visibility = await assist.getCssValue('visibility');
             isHidden = klass.indexOf('visible') < 0 || visibility === 'hidden';
@@ -231,6 +231,7 @@ export class TextEditor extends Editor {
         let actions = this.getDriver().actions();
         await actions.clear();
         actions.keyDown(Key.SHIFT);
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         for (const _i of text) {
             actions = actions.sendKeys(Key.RIGHT);
         }
@@ -348,7 +349,7 @@ export class TextEditor extends Editor {
             for (let i = 0; i < Math.abs(columnGap); i++) {
                 await inputarea.sendKeys(columnKey);
                 let actualCoordinates = (await this.getCoordinates())[0];
-                if (actualCoordinates != coordinates[0]) {
+                if (actualCoordinates !== coordinates[0]) {
                     throw new Error(`Column number ${column} is not accessible on line ${line}`);
                 }
             }
@@ -434,7 +435,7 @@ export class TextEditor extends Editor {
         const breakpointContainer = TextEditor.versionInfo.version >= '1.80.0' ? await this.findElement(By.className('glyph-margin-widgets')) : lineOverlay;
         const breakPoint = await breakpointContainer.findElements(TextEditor.locators.TextEditor.breakpoint.generalSelector);
         if (breakPoint.length > 0) {
-            if (this.breakPoints.indexOf(line) != -1) {
+            if (this.breakPoints.indexOf(line) !== -1) {
                 await breakPoint[this.breakPoints.indexOf(line)].click();
                 await new Promise(res => setTimeout(res, 200));
                 this.breakPoints.splice(this.breakPoints.indexOf(line), 1);
@@ -472,7 +473,7 @@ export class TextEditor extends Editor {
         let lineElement: WebElement;
         if (TextEditor.versionInfo.version >= '1.80.0') {
             const styleTopAttr = await breakpoints[0].getCssValue('top');
-            lineElement = await this.findElement(TextEditor.locators.TextEditor.marginArea).findElement(By.xpath(`.//div[contains(@style, "${styleTopAttr}")]`))
+            lineElement = await this.findElement(TextEditor.locators.TextEditor.marginArea).findElement(By.xpath(`.//div[contains(@style, "${styleTopAttr}")]`));
         } else {
             lineElement = await breakpoints[0].findElement(By.xpath('./..'));
         }

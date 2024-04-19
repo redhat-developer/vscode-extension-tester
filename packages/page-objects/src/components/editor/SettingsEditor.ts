@@ -70,19 +70,19 @@ export class SettingsEditor extends Editor {
         const items = await this.findElements(SettingsEditor.locators.SettingsEditor.itemRow);
         for (const item of items) {
             try {
-                const _category = (await (await item.findElement(SettingsEditor.locators.SettingsEditor.settingCategory)).getText()).replace(':', '');
-                const _title = await (await item.findElement(SettingsEditor.locators.SettingsEditor.settingLabel)).getText();
+                const itemCategory = (await (await item.findElement(SettingsEditor.locators.SettingsEditor.settingCategory)).getText()).replace(':', '');
+                const itemTitle = await (await item.findElement(SettingsEditor.locators.SettingsEditor.settingLabel)).getText();
                 if(category !== '') {
-                    if(category.toLowerCase().replace(this.divider, '').replace(/\s/g, '').trim() !== _category.toLowerCase().replace(this.divider, '').replace(/\s/g, '').trim()) {
+                    if(category.toLowerCase().replace(this.divider, '').replace(/\s/g, '').trim() !== itemCategory.toLowerCase().replace(this.divider, '').replace(/\s/g, '').trim()) {
                         continue;
                     }
                 }
                 if(title !== '') {
-                    if(title.toLowerCase().replace(/\s/g, '').trim() !== _title.toLowerCase().replace(/\s/g, '').trim()) {
+                    if(title.toLowerCase().replace(/\s/g, '').trim() !== itemTitle.toLowerCase().replace(/\s/g, '').trim()) {
                         continue;
                     }
                 }
-                return await (await this.createSetting(item, _title, _category)).wait();
+                return await (await this.createSetting(item, itemTitle, itemCategory)).wait();
             } catch (err) {
             }
         }
@@ -161,14 +161,14 @@ export abstract class Setting extends AbstractElement {
      * 
      * @returns promise that resolves to the current value of the setting
      */
-    abstract getValue(): Promise<string | boolean>
+    abstract getValue(): Promise<string | boolean>;
     
     /**
      * Set the value of the setting based on its input type
      *
      * @param value boolean for checkboxes, string otherwise
      */
-    abstract setValue(value: string | boolean): Promise<void>
+    abstract setValue(value: string | boolean): Promise<void>;
 
     /**
      * Get the category of the setting
@@ -322,7 +322,7 @@ export class ArraySetting extends Setting {
      */
     async select(item: string | number): Promise<void> {
         const toSelect = await this.getItem(item);
-        await toSelect?.select()
+        await toSelect?.select();
     }
 
     /**

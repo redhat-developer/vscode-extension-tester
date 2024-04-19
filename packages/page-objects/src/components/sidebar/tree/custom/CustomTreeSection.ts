@@ -3,7 +3,7 @@ import { TreeItem } from "../../ViewItem";
 import { Key, until, WebElement } from "selenium-webdriver";
 import { CustomTreeItem, ViewContent } from "../../../..";
 
-export type GenericCustomTreeItemConstructor<T extends TreeItem> = { new(rootElement: WebElement, tree: TreeSection): T ;};
+export type GenericCustomTreeItemConstructor<T extends TreeItem> = { new(rootElement: WebElement, tree: TreeSection): T };
 
 /**
  * Generic custom tree view, e.g. contributed by an extension
@@ -30,7 +30,7 @@ export class GenericCustomTreeSection<T extends TreeItem> extends TreeSection {
         const elements = await container.findElements(CustomTreeSection.locators.CustomTreeSection.itemRow);
         for (const element of elements) {
             if (await element.isDisplayed()) {
-                items.push(new this.itemConstructor(element, this))
+                items.push(new this.itemConstructor(element, this));
             }
         }
         return items;

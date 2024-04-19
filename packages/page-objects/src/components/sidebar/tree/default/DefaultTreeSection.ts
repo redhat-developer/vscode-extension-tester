@@ -36,7 +36,7 @@ export class DefaultTreeSection extends TreeSection {
                 }
                 await container.sendKeys(Key.PAGE_DOWN);
             }
-        } while (!item)
+        } while (!item);
 
         return item;
     }

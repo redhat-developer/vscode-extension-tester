@@ -57,13 +57,13 @@ export abstract class TreeItem extends ViewItem {
      * Finds whether the item is expanded. Always returns false if item has no children.
      * @returns Promise resolving to true/false
      */
-    abstract isExpanded(): Promise<boolean>
+    abstract isExpanded(): Promise<boolean>;
 
     /**
      * Find children of an item, will try to expand the item in the process
      * @returns Promise resolving to array of TreeItem objects, empty array if item has no children
      */
-    abstract getChildren(): Promise<TreeItem[]>
+    abstract getChildren(): Promise<TreeItem[]>;
 
     /**
      * Finds if the item is expandable/collapsible
