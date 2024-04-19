@@ -183,8 +183,8 @@ describe('CustomTreeSection', () => {
         });
 
         it('expand is idempotent', async () => {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            for (const _i of [1, 2]) {
+            const items = [1, 2];
+            for(let i = 0; i < items.length; i++) {
                 await item.expand();
                 expect(await item.isExpanded()).to.equal(true);
             }

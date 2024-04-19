@@ -153,7 +153,7 @@ export abstract class ViewSection extends AbstractElement {
      * @returns ContextMenu page object if the action succeeds, undefined otherwise
      */
     async moreActions(): Promise<ContextMenu|undefined> {
-        let more = await this.getAction('More Actions...');
+        const more = await this.getAction('More Actions...');
         if (!more) {
             return undefined;
         }

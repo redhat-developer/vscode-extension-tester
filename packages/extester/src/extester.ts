@@ -1,5 +1,3 @@
-'use strict';
-
 import { CodeUtil, DEFAULT_RUN_OPTIONS, ReleaseQuality, RunOptions } from './util/codeUtil';
 import { DriverUtil } from './util/driverUtil';
 import * as fs from 'fs-extra';

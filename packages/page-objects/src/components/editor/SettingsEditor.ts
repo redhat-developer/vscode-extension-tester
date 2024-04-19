@@ -84,6 +84,7 @@ export class SettingsEditor extends Editor {
                 }
                 return await (await this.createSetting(item, itemTitle, itemCategory)).wait();
             } catch (err) {
+                // do nothing
             }
         }
         return setting;
@@ -206,7 +207,7 @@ export class ComboSetting extends Setting {
 
     async setValue(value: string): Promise<void> {
         const rows = await this.getOptions();
-        for (let row of rows) {
+        for (const row of rows) {
             if ((await row.getAttribute('class')).indexOf('disabled') < 0) {
                 const text = await row.getAttribute(SettingsEditor.locators.SettingsEditor.comboValue);
                 if (value === text) {
@@ -283,6 +284,7 @@ export class LinkSetting extends Setting {
         throw new Error('Method getValue is not available for LinkSetting!');
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async setValue(value: string | boolean): Promise<void> {
         throw new Error('Method setValue is not available for LinkSetting!');
     }
@@ -312,6 +314,7 @@ export class ArraySetting extends Setting {
     /**
      * @deprecated Method 'setValue' is not available for ArraySetting!
      */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async setValue(value: string | boolean): Promise<void> {
         throw new Error('Method \'setValue\' is not available for ArraySetting!');
     }
@@ -344,7 +347,7 @@ export class ArraySetting extends Setting {
      */
     async getItems(): Promise<ArraySettingItem[]> {
         const listRows = await this.getRows();
-        let items: ArraySettingItem[] = [];
+        const items: ArraySettingItem[] = [];
         for(const row of listRows) {
             items.push(new ArraySettingItem(row, this));
         }
@@ -357,7 +360,7 @@ export class ArraySetting extends Setting {
      */
     async getValues(): Promise<string[]> {
         const items = await this.getItems();
-        let values: string[] = [];
+        const values: string[] = [];
         for(const item of items) {
             values.push(await item.getValue());
         }

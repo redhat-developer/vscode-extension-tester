@@ -33,7 +33,9 @@ describe('CustomEditor', () => {
                 expect.fail(err);
             // }
         } finally {
-            await webview.switchBack();
+            if(webview) {
+                await webview.switchBack();
+            }
         }
     });
 

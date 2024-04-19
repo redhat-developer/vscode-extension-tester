@@ -29,7 +29,7 @@ describe('Open resource test', function () {
             const [title, error] = await getTitle();
             lastError = error ?? lastError;
 
-            let index = title?.indexOf(prefix) ?? 0;
+            const index = title?.indexOf(prefix) ?? 0;
 
             if (index > 0) {
                 let openFolderPath = title.slice(index + prefix.length);

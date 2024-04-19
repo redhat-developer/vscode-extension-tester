@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable no-redeclare */
 import { Func } from 'mocha';
 import { VSBrowser } from '../extester';

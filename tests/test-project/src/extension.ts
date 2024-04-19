@@ -7,40 +7,40 @@ import { TreeView } from './treeView';
 export const ERROR_MESSAGE_COMMAND = 'extension.errorMsg';
 
 export function activate(context: vscode.ExtensionContext) {
-	let openCommand = vscode.commands.registerCommand('extension.openFile', async () => {
+	const openCommand = vscode.commands.registerCommand('extension.openFile', async () => {
 		const document = await vscode.workspace.openTextDocument(vscode.Uri.file(
 			path.resolve(__dirname, '..', '..', 'resources', 'test-file.ts')));
 		await vscode.window.showTextDocument(document);
 	});
-	let openFolder = vscode.commands.registerCommand('extension.openFolder', async () => {
+	const openFolder = vscode.commands.registerCommand('extension.openFolder', () => {
 		const dirpath = path.resolve(__dirname, '..', '..', 'resources', 'test-folder');
 		vscode.workspace.updateWorkspaceFolders(vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders.length : 0,
 			null, { uri: vscode.Uri.file(dirpath) });
 	});
-	let closeFolder = vscode.commands.registerCommand('extension.closeFolder', async () => {
+	const closeFolder = vscode.commands.registerCommand('extension.closeFolder', () => {
 		vscode.workspace.updateWorkspaceFolders(0, 1);
 	});
-	let testCommand = vscode.commands.registerCommand('extension.test', async () => {
-		vscode.window.showQuickPick([{ label: 'TestLabel', description: 'Test Description' }]);
+	const testCommand = vscode.commands.registerCommand('extension.test', async () => {
+		await vscode.window.showQuickPick([{ label: 'TestLabel', description: 'Test Description' }]);
 	});
-	let webViewCommand = vscode.commands.registerCommand('extension.webview', async() => {
+	const webViewCommand = vscode.commands.registerCommand('extension.webview', async () => {
 		new TestView();
 	});
-	let notificationCommand = vscode.commands.registerCommand('extension.notification', () => {
-		vscode.window.showInformationMessage('This is a notification', 'Yes', 'No');
+	const notificationCommand = vscode.commands.registerCommand('extension.notification', async () => {
+		await vscode.window.showInformationMessage('This is a notification', 'Yes', 'No');
 	});
-	let quickPickCommand = vscode.commands.registerCommand('extension.quickpick', () => {
-		vscode.window.showQuickPick(['test1', 'test2', 'test3'], { canPickMany: true, ignoreFocusOut: true });
+	const quickPickCommand = vscode.commands.registerCommand('extension.quickpick', async () => {
+		await vscode.window.showQuickPick(['test1', 'test2', 'test3'], { canPickMany: true, ignoreFocusOut: true });
 	});
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand('extension.helloWorld', () => {
-			vscode.window.showInformationMessage('Hello World!');
+		vscode.commands.registerCommand('extension.helloWorld', async () => {
+			await vscode.window.showInformationMessage('Hello World!');
 		})
 	);
 	context.subscriptions.push(
-		vscode.commands.registerCommand('extension.helloWorld2', () => {
-			vscode.window.showInformationMessage('Hello World, Test Project!');
+		vscode.commands.registerCommand('extension.helloWorld2', async () => {
+			await vscode.window.showInformationMessage('Hello World, Test Project!');
 		})
 	);
 	context.subscriptions.push(openCommand);
@@ -56,11 +56,13 @@ export function activate(context: vscode.ExtensionContext) {
 
 	new TreeView(context);
 
-	context.subscriptions.push(vscode.window.createTreeView("emptyView", { treeDataProvider: {
-		getChildren: () => emptyViewNoContent ? undefined : [{key: "There is content!"}],
-		getTreeItem: (e) => new vscode.TreeItem(e.key),
-		onDidChangeTreeData: emitter.event,
-	}}));
+	context.subscriptions.push(vscode.window.createTreeView("emptyView", {
+		treeDataProvider: {
+			getChildren: () => emptyViewNoContent ? undefined : [{ key: "There is content!" }],
+			getTreeItem: (e) => new vscode.TreeItem(e.key),
+			onDidChangeTreeData: emitter.event,
+		}
+	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand(
 		"extension.populateTestView",
@@ -70,16 +72,16 @@ export function activate(context: vscode.ExtensionContext) {
 	const codelensProvider = new CodelensProvider();
 	context.subscriptions.push(vscode.languages.registerCodeLensProvider("*", codelensProvider));
 	context.subscriptions.push(
-		vscode.commands.registerCommand("extension.enableCodeLens", () => {
-			vscode.workspace.getConfiguration("testProject").update("enableCodeLens", true, true);
+		vscode.commands.registerCommand("extension.enableCodeLens", async () => {
+			await vscode.workspace.getConfiguration("testProject").update("enableCodeLens", true, true);
 		}));
 	context.subscriptions.push(
-		vscode.commands.registerCommand("extension.disableCodeLens", () => {
-			vscode.workspace.getConfiguration("testProject").update("enableCodeLens", false, true);
+		vscode.commands.registerCommand("extension.disableCodeLens", async () => {
+			await vscode.workspace.getConfiguration("testProject").update("enableCodeLens", false, true);
 		}));
 	context.subscriptions.push(
-		vscode.commands.registerCommand("extension.codelensAction", (args: any) => {
-			vscode.window.showInformationMessage(`CodeLens action clicked with args=${args}`);
+		vscode.commands.registerCommand("extension.codelensAction", async (args: any) => {
+			await vscode.window.showInformationMessage(`CodeLens action clicked with args=${args}`);
 		}));
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider("myPanelView", new MyPanelView())
@@ -88,14 +90,14 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.registerWebviewViewProvider("mySidePanelView", new MyPanelView())
 	);
 
-	vscode.commands.registerCommand('extension.treeItemAction', async() => {
+	vscode.commands.registerCommand('extension.treeItemAction', async () => {
 	});
 }
 
-export function deactivate() {}
+export function deactivate() { }
 
 let emptyViewNoContent: boolean = true;
-const emitter = new vscode.EventEmitter<{key: string}>();
+const emitter = new vscode.EventEmitter<{ key: string }>();
 
 class TestView {
 	public static readonly viewType = 'testView';
@@ -114,8 +116,7 @@ class TestView {
 
 		this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
 
-		this._panel.onDidChangeViewState(
-			e => {
+		this._panel.onDidChangeViewState(() => {
 				if (this._panel.visible) {
 					this.update(randomWebViewTitle);
 				}
@@ -153,7 +154,7 @@ class TestView {
 }
 
 class MyPanelView implements vscode.WebviewViewProvider {
-	resolveWebviewView(webviewView: vscode.WebviewView, context: vscode.WebviewViewResolveContext<unknown>, token: vscode.CancellationToken): void | Thenable<void> {
+	resolveWebviewView(webviewView: vscode.WebviewView): void | Thenable<void> {
 		webviewView.webview.html = "<!DOCTYPE html><html><head><title>My Panel View</title></head><body><div><h1>Shopping List</h1><ul><li>Apple</li><li>Banana</li></ul></div></body></html>";
 	}
 }

@@ -1,5 +1,3 @@
-'use strict';
-
 import * as childProcess from 'child_process';
 import * as fs from 'fs-extra';
 import * as path from 'path';
@@ -160,7 +158,7 @@ export class CodeUtil {
     }
 
     private getCliInitCommand(): string {
-        let cli = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}"`;
+        const cli = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}"`;
         if(this.getExistingCodeVersion() >= '1.86.0') {
             return cli;
         } else {
@@ -182,7 +180,7 @@ export class CodeUtil {
      */
     open(...paths: string[]): void {
         const segments = paths.map(f => `"${f}"`).join(' ');
-        let command = `${this.getCliInitCommand()} -r ${segments} --user-data-dir="${path.join(this.downloadFolder, 'settings')}"`;
+        const command = `${this.getCliInitCommand()} -r ${segments} --user-data-dir="${path.join(this.downloadFolder, 'settings')}"`;
         childProcess.execSync(command);
     }
 
@@ -352,7 +350,7 @@ export class CodeUtil {
      * Check what VS Code version is present in the testing folder
      */
     private getExistingCodeVersion(): string {
-        let command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}"`;
+        const command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}"`;
         let out: Buffer;
         try {
             out = childProcess.execSync(`${command} -v`);
@@ -412,7 +410,7 @@ export class CodeUtil {
      * Parse JSON from a file
      * @param path path to json file
      */
-    private parseSettings(path: string): Object {
+    private parseSettings(path: string): object {
         if (!path) {
             return {};
         }

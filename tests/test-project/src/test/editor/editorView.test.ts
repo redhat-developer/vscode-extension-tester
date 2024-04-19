@@ -137,7 +137,7 @@ describe('EditorView', function () {
 
         it('getEditorGroups works', async function () {
             this.timeout(30000);
-            let driverActions = view.getDriver().actions();
+            const driverActions = view.getDriver().actions();
             await driverActions.clear();
             await driverActions.keyDown(EditorView.ctlKey).sendKeys('\\').keyUp(EditorView.ctlKey).perform();
             await view.getDriver().wait(async function() {

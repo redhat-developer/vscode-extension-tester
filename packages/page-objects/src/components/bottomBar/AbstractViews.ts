@@ -69,7 +69,7 @@ export abstract class TextView extends ChannelView {
             // workaround issue https://github.com/redhat-developer/vscode-extension-tester/issues/835
             // do not fail if clipboard is empty
         }
-        let textarea = await this.findElement(ChannelView.locators.BottomBarViews.textArea);
+        const textarea = await this.findElement(ChannelView.locators.BottomBarViews.textArea);
         await textarea.sendKeys(Key.chord(TextView.ctlKey, 'a'));
         await textarea.sendKeys(Key.chord(TextView.ctlKey, 'c'));
         const text = clipboard.readSync();

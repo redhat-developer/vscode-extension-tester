@@ -135,7 +135,7 @@ export class EditorView extends AbstractElement {
         for (let i = 0; i < groups.length - 1; i++) {
             for (let j = 0; j < groups.length - i - 1; j++) {
                 if ((await groups[j].getRect()).x > (await groups[j + 1].getRect()).x) {
-                    let temp = groups[j];
+                    const temp = groups[j];
                     groups[j] = groups[j + 1];
                     groups[j + 1] = temp;
                 }

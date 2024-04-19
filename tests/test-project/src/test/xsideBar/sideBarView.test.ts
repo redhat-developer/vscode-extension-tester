@@ -105,7 +105,7 @@ describe('SideBarView', () => {
             it('findItem returns undefined when item exists outside its level range', async () => {
                 await section.openItem('foolder');
                 const item = await section.findItem('bar', 1);
-                (await section.findItem('foolder')).collapse();
+                await (await section.findItem('foolder')).collapse();
                 expect(item).undefined;
             });
 

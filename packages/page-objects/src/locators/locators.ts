@@ -485,7 +485,7 @@ export interface Locators {
  */
 export interface LocatorDiff {
     locators: PartialDeep<Locators>;
-    extras?: Object;
+    extras?: object;
 }
 
 export function hasAttribute(attr: string, value?: string, locator?: By): ((el: WebElement) => Promise<boolean>) {

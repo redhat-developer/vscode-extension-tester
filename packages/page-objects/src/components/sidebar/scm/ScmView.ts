@@ -262,7 +262,7 @@ export class MoreAction extends ElementWithContexMenu {
     async openContextMenu(): Promise<ContextMenu> {
         await this.click();
         const shadowRootHost = await this.enclosingItem.findElements(By.className('shadow-root-host'));
-        let actions = this.getDriver().actions();
+        const actions = this.getDriver().actions();
         await actions.clear();
         await actions.sendKeys(Key.ESCAPE).perform();
         const webdriverCapabilities = await (this.getDriver() as ChromiumWebDriver).getCapabilities();

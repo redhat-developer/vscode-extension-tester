@@ -40,7 +40,7 @@ const tree: Tree = {
 		'db': undefined
 	}
 };
-let nodes = {};
+const nodes = {};
 
 function dataProvider(): vscode.TreeDataProvider<{ key: string }> {
     return {
@@ -66,7 +66,7 @@ function getChildren(key: string | undefined): string[] {
 	if (!key) {
 		return Object.keys(tree);
 	}
-	let treeElement = getTreeElement(key);
+	const treeElement = getTreeElement(key);
 	if (treeElement) {
 		return Object.keys(treeElement);
 	}
@@ -76,7 +76,7 @@ function getChildren(key: string | undefined): string[] {
 function getTreeItem(key: string): vscode.TreeItem {
 	const treeElement = getTreeElement(key);
 	let collapsibleState: vscode.TreeItemCollapsibleState;
-	  if (treeElement === undefined) {
+	if (treeElement === undefined) {
         collapsibleState = vscode.TreeItemCollapsibleState.None;
     } else {
         collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;

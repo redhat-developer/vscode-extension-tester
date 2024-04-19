@@ -9,6 +9,7 @@
     "strict": true,
     "noUnusedLocals": true,
     "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "declaration": true
   },

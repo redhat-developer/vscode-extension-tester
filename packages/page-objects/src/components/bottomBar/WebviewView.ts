@@ -12,6 +12,7 @@ class WebviewViewBase extends AbstractElement {
         super(WebviewViewBase.locators.Workbench.constructor);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async getViewToSwitchTo(handle: string): Promise<WebElement | undefined> {
         return await this.getDriver().findElement(WebviewViewBase.locators.WebviewView.iframe);
     }

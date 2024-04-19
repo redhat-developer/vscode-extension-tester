@@ -24,7 +24,7 @@ class WebViewBase extends Editor {
         const containers = await this.getDriver().wait(until.elementsLocated(WebViewBase.locators.WebView.container(await reference.getAttribute(WebViewBase.locators.WebView.attribute))), 5000);
 
         return await containers[0].getDriver().wait(async () => {
-            for (let container of containers) {
+            for (const container of containers) {
                 const tries = await container.findElements(WebViewBase.locators.WebView.iframe);
                 if (tries.length > 0) {
                     return tries[0];

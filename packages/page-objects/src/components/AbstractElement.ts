@@ -32,8 +32,8 @@ export abstract class AbstractElement extends WebElement {
         if (base instanceof WebElement) {
             super(AbstractElement.driver, base.getId());
         } else {
-            let toFind = item.findElement(base);
-            let id = toFind.getId();
+            const toFind = item.findElement(base);
+            const id = toFind.getId();
             super(AbstractElement.driver, id);
         }
         this.enclosingItem = item;
