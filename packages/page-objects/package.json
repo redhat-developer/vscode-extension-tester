@@ -10,7 +10,9 @@
   ],
   "scripts": {
     "prepack": "npm run build",
-    "build": "npm run clean && tsc",
+    "build": "npm run clean && npm run compile",
+    "compile": "tsc -p ./ && npm run lint",
+    "lint": "eslint src --ext .ts",
     "clean": "rimraf out"
   },
   "author": "Red Hat",

@@ -15,7 +15,9 @@
   },
   "scripts": {
     "prepack": "npm run build",
-    "build": "npm run clean && tsc && chmod a+x ./out/cli.js",
+    "build": "npm run clean && npm run compile && chmod a+x ./out/cli.js",
+    "compile": "tsc -p ./ && npm run lint",
+    "lint": "eslint src --ext .ts",
     "clean": "rimraf out"
   },
   "author": "Red Hat",
