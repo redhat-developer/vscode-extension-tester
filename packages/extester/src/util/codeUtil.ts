@@ -1,6 +1,6 @@
 'use strict';
 
-import * as child_process from 'child_process';
+import * as childProcess from 'child_process';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as vsce from '@vscode/vsce';
@@ -39,7 +39,7 @@ export const DEFAULT_RUN_OPTIONS = {
     logLevel: logging.Level.INFO,
     offline: false,
     resources: []
-}
+};
 
 /**
  * Handles the VS Code instance used for testing.
@@ -96,7 +96,7 @@ export class CodeUtil {
         await this.checkCodeVersion(version);
 
         const literalVersion = version === 'latest' ? this.availableVersions[0] : version;
-        if (this.releaseType == ReleaseQuality.Stable && literalVersion !== this.availableVersions[0]) {
+        if (this.releaseType === ReleaseQuality.Stable && literalVersion !== this.availableVersions[0]) {
             console.log(
                 '\x1b[33m%s\x1b[0m',
                 `\n\nWARNING: You are using the outdated VS Code version '${literalVersion}'. The latest stable version is '${this.availableVersions[0]}'.\n\n`
@@ -164,7 +164,7 @@ export class CodeUtil {
         if(this.getExistingCodeVersion() >= '1.86.0') {
             return cli;
         } else {
-            return `${cli} --ms-enable-electron-run-as-node`
+            return `${cli} --ms-enable-electron-run-as-node`;
         }
     }
 
@@ -173,7 +173,7 @@ export class CodeUtil {
         if (this.extensionsFolder) {
             command += ` --extensions-dir=${this.extensionsFolder}`;
         }
-        child_process.execSync(command, { stdio: 'inherit' });
+        childProcess.execSync(command, { stdio: 'inherit' });
     }
 
     /**
@@ -183,7 +183,7 @@ export class CodeUtil {
     open(...paths: string[]): void {
         const segments = paths.map(f => `"${f}"`).join(' ');
         let command = `${this.getCliInitCommand()} -r ${segments} --user-data-dir="${path.join(this.downloadFolder, 'settings')}"`;
-        child_process.execSync(command);
+        childProcess.execSync(command);
     }
 
     /**
@@ -228,7 +228,7 @@ export class CodeUtil {
             if (this.extensionsFolder) {
                 command += ` --extensions-dir=${this.extensionsFolder}`;
             }
-            child_process.execSync(command, { stdio: 'inherit' });
+            childProcess.execSync(command, { stdio: 'inherit' });
         }
     }
 
@@ -355,9 +355,9 @@ export class CodeUtil {
         let command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}"`;
         let out: Buffer;
         try {
-            out = child_process.execSync(`${command} -v`);
+            out = childProcess.execSync(`${command} -v`);
         } catch (error) {
-            out = child_process.execSync(`${command} --ms-enable-electron-run-as-node -v`);
+            out = childProcess.execSync(`${command} --ms-enable-electron-run-as-node -v`);
         }
         return out.toString().split('\n')[0];
     }

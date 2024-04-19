@@ -19,14 +19,14 @@ const options = {
         http: httpProxyAgent,
         https: httpsProxyAgent
     }
-}
+};
 
 export class Download {
 
     static async getText(uri: string): Promise<string> {
         const got = (await import('got')).default;
         const body = await got(uri, options).text();
-        return JSON.parse(body as string)
+        return JSON.parse(body as string);
     }
 
     static async getFile(uri: string, destination: string, progress = false): Promise<void> {

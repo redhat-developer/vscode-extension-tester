@@ -93,7 +93,7 @@ export class VSRunner {
 
             this.mocha.run((failures) => {
                 process.exitCode = failures ? 1 : 0;
-                if(process.exitCode) {
+                if (process.exitCode) {
                     console.log(
                         '\x1b[33m%s\x1b[0m',
                         `INFO: Screenshots of failures can be found in: ${browser.getScreenshotsDir()}\n`
@@ -127,11 +127,11 @@ export class VSRunner {
     }
 
     private loadConfig(config?: string): Mocha.MochaOptions {
-        const defaultFiles = ['.mocharc.js', '.mocharc.json', '.mocharc.yml', '.mocharc.yaml']
+        const defaultFiles = ['.mocharc.js', '.mocharc.json', '.mocharc.yml', '.mocharc.yaml'];
         let conf: Mocha.MochaOptions = {};
         let file = config;
         if (!config) {
-            file = path.resolve('.')
+            file = path.resolve('.');
             for (let defFile of defaultFiles) {
                 if (fs.existsSync(path.join(file, defFile))) {
                     file = path.join(file, defFile);

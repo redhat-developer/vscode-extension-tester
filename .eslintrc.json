@@ -21,7 +21,16 @@
                 }
             }
         ],
-        "@typescript-eslint/naming-convention": "warn",
+        "@typescript-eslint/naming-convention": [
+			"error",
+			{
+                "selector": "variable",
+                "format": [
+                    "camelCase",
+                    "UPPER_CASE"
+                ]
+			}
+		],
         "@typescript-eslint/no-unused-expressions": "off",
         "@typescript-eslint/semi": [
             "warn",
