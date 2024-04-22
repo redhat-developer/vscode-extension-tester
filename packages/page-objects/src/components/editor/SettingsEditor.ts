@@ -5,7 +5,7 @@ import { AbstractElement } from "../AbstractElement";
 import { EditorView, EditorGroup } from "../..";
 
 /**
- * Page object representing the internal VSCode settings editor
+ * Page object representing the internal VS Code settings editor
  */
 export class SettingsEditor extends Editor {
 

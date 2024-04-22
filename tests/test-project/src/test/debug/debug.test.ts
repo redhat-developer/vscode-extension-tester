@@ -18,7 +18,7 @@ describe('Debugging', function () {
         await browser.driver.sleep(5000);
         view = (await (await new ActivityBar().getViewControl('Run'))?.openView()) as DebugView;
 
-        // clear notifications center which causes flaky tests from VSCode version 1.75.x
+        // clear notifications center which causes flaky tests from VS Code version 1.75.x
         await (await new Workbench().openNotificationsCenter()).clearAllNotifications();
     });
 
