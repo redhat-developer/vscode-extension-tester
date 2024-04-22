@@ -60,13 +60,14 @@ export function activate(context: vscode.ExtensionContext) {
 		treeDataProvider: {
 			getChildren: () => emptyViewNoContent ? undefined : [{ key: "There is content!" }],
 			getTreeItem: (e) => new vscode.TreeItem(e.key),
-			onDidChangeTreeData: emitter.event,
+			onDidChangeTreeData: emitter.event
 		}
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand(
-		"extension.populateTestView",
-		() => { emptyViewNoContent = false; emitter.fire(undefined); }
+	context.subscriptions.push(vscode.commands.registerCommand("extension.populateTestView", async () => {
+			emptyViewNoContent = false;
+			emitter.fire(undefined);
+		}
 	));
 
 	const codelensProvider = new CodelensProvider();
@@ -97,7 +98,7 @@ export function activate(context: vscode.ExtensionContext) {
 export function deactivate() { }
 
 let emptyViewNoContent: boolean = true;
-const emitter = new vscode.EventEmitter<{ key: string }>();
+const emitter = new vscode.EventEmitter<undefined>();
 
 class TestView {
 	public static readonly viewType = 'testView';

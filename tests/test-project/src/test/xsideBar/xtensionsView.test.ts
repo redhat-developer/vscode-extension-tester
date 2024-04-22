@@ -1,4 +1,4 @@
-import { ActivityBar, ExtensionsViewSection, EditorView, ExtensionsViewItem, VSBrowser, beforeEach } from 'vscode-extension-tester';
+import { ActivityBar, ExtensionsViewSection, EditorView, ExtensionsViewItem, VSBrowser, beforeEach, ViewControl } from 'vscode-extension-tester';
 import { expect } from 'chai';
 import pjson from '../../../package.json';
 
@@ -12,7 +12,7 @@ describe('ExtensionsView', () => {
     }
 
     before(async () => {
-        const view = await (await new ActivityBar().getViewControl('Extensions')).openView();
+        const view = await (await new ActivityBar().getViewControl('Extensions') as ViewControl).openView();
         await view.getDriver().wait(async function () {
             return (await view.getContent().getSections()).length > 0;
         });
@@ -20,7 +20,7 @@ describe('ExtensionsView', () => {
     });
 
     after(async function()  {
-        await (await new ActivityBar().getViewControl('Extensions')).closeView();
+        await (await new ActivityBar().getViewControl('Extensions') as ViewControl).closeView();
         await new EditorView().closeAllEditors();
     });
 

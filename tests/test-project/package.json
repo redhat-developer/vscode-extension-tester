@@ -188,6 +188,7 @@
 		"vscode:prepublish": "npm run build",
 		"build": "npm run clean && npm run compile",
 		"clean": "rimraf out",
+		"watch": "tsc -watch -p ./",
 		"compile": "tsc -p ./ && npm run lint",
 		"lint": "eslint src --ext .ts",
 		"cb-init": "echo hello_ExTester | clipboard",

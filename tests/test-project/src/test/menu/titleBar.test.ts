@@ -16,7 +16,7 @@ import { ActivityBar, TitleBar, ContextMenu, TitleBarItem, EditorView, VSBrowser
 
         // workspace cleanup before tests
         await new EditorView().closeAllEditors();
-        await (await new ActivityBar().getViewControl('Explorer')).closeView();
+        await (await new ActivityBar().getViewControl('Explorer'))?.closeView();
     });
 
     after(async function () {
@@ -37,7 +37,7 @@ import { ActivityBar, TitleBar, ContextMenu, TitleBarItem, EditorView, VSBrowser
 
     it('getItem returns an item with the given name', async function () {
         const item = await bar.getItem('File');
-        expect(await item.getLabel()).equals('File');
+        expect(await item?.getLabel()).equals('File');
     });
 
     it('getItems returns all top menu items', async function () {
@@ -69,7 +69,7 @@ import { ActivityBar, TitleBar, ContextMenu, TitleBarItem, EditorView, VSBrowser
     });
 
     describe('TitleBarItem', function () {
-        let item: TitleBarItem;
+        let item: TitleBarItem | undefined;
 
         before(async function () {
             bar = new TitleBar();
@@ -77,19 +77,19 @@ import { ActivityBar, TitleBar, ContextMenu, TitleBarItem, EditorView, VSBrowser
         });
 
         it('getParent returns the title bar', async function() {
-            const parent = item.getParent();
+            const parent = item?.getParent();
             expect(parent).equals(bar);
         });
 
         it('getLabel returns the item label', async function () {
-            const label = await item.getLabel();
+            const label = await item?.getLabel();
             expect(label).equals('File');
         });
 
         it('select open the item', async function () {
-            const menu = await item.select();
-            expect(await menu.isDisplayed()).is.true;
-            await menu.close();
+            const menu = await item?.select();
+            expect(await menu?.isDisplayed()).is.true;
+            await menu?.close();
         });
     });
 });

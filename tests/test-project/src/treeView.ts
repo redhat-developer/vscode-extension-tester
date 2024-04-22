@@ -40,7 +40,7 @@ const tree: Tree = {
 		'db': undefined
 	}
 };
-const nodes = {};
+const nodes: any = {};
 
 function dataProvider(): vscode.TreeDataProvider<{ key: string }> {
     return {
@@ -91,7 +91,7 @@ function getTreeItem(key: string): vscode.TreeItem {
 }
 
 function getTreeElement(element: string): null | undefined | Tree {
-	let parent = tree;
+	let parent: Tree | null | undefined = tree;
 	for (let i = 0; i < element.length; i++) {
 		parent = parent[element.substring(0, i + 1)];
 		if (parent === null || parent === undefined) {

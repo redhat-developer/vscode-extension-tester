@@ -16,7 +16,7 @@ describe('Debugging', function () {
         await browser.driver.sleep(5000);
         await browser.openResources(path.join(folder, 'test.js'));
         await browser.driver.sleep(5000);
-        view = (await (await new ActivityBar().getViewControl('Run')).openView()) as DebugView;
+        view = (await (await new ActivityBar().getViewControl('Run'))?.openView()) as DebugView;
 
         // clear notifications center which causes flaky tests from VSCode version 1.75.x
         await (await new Workbench().openNotificationsCenter()).clearAllNotifications();
@@ -25,7 +25,7 @@ describe('Debugging', function () {
     after('After cleanup', async function () {
         this.timeout(15000);
         await new EditorView().closeAllEditors();
-        await (await new ActivityBar().getViewControl('Run and Debug')).closeView();
+        await (await new ActivityBar().getViewControl('Run and Debug'))?.closeView();
         await new BottomBarPanel().toggle(false);
 
         await new TitleBar().select('File', 'Close Folder');
@@ -105,45 +105,48 @@ describe('Debugging', function () {
 
         it('BreakpointSectionItem.getBreakpoint', async function () {
             const item = await getBreakpointItem(view, this.timeout() - 2000);
-            const breakpoint = await item.getBreakpoint();
+            const breakpoint = await item?.getBreakpoint();
             expect(breakpoint).not.undefined;
         });
 
         it('BreakpointSectionItem.isBreakpointEnabled', async function () {
             const item = await getBreakpointItem(view, this.timeout() - 2000);
-            expect(await item.isBreakpointEnabled()).to.be.true;
+            expect(await item?.isBreakpointEnabled()).to.be.true;
         });
 
         it('BreakpointSectionItem.setBreakpointEnabled', async function () {
             let item = await getBreakpointItem(view, this.timeout() - 2000);
+            if(item === undefined) {
+                throw Error('Breakpoint Item was not found!');
+            }
             const driver = item.getDriver();
             const status = await item.isBreakpointEnabled(); // true
 
-            await item.setBreakpointEnabled(status); // true --> true
-            await driver.wait(
+            await item?.setBreakpointEnabled(status); // true --> true
+            await driver?.wait(
                 async () => {
                     item = await getBreakpointItem(view, this.timeout() - 2000);
-                    return await item.isBreakpointEnabled() === status;
+                    return await item?.isBreakpointEnabled() === status;
                 },
                 this.timeout() - 2000,
                 `could not set status from ${status} to ${status}`
             );
 
-            await item.setBreakpointEnabled(!status); // true --> false
-            await driver.wait(
+            await item?.setBreakpointEnabled(!status); // true --> false
+            await driver?.wait(
                 async () => {
                     item = await getBreakpointItem(view, this.timeout() - 2000);
-                    return await item.isBreakpointEnabled() === !status;
+                    return await item?.isBreakpointEnabled() === !status;
                 },
                 this.timeout() - 2000,
                 `could not set status from ${status} to ${!status}`
             );
 
-            await item.setBreakpointEnabled(status); // false --> true
-            await driver.wait(
+            await item?.setBreakpointEnabled(status); // false --> true
+            await driver?.wait(
                 async () => {
                     item = await getBreakpointItem(view, this.timeout() - 2000);
-                    return await item.isBreakpointEnabled() === status;
+                    return await item?.isBreakpointEnabled() === status;
                 },
                 this.timeout() - 2000,
                 `could not set status from ${!status} to ${status}`
@@ -152,25 +155,26 @@ describe('Debugging', function () {
 
         it('BreakpointSectionItem.getLabel', async function () {
             const item = await getBreakpointItem(view, this.timeout() - 2000);
-            expect(await item.getLabel()).equals('test.js');
+            expect(await item?.getLabel()).equals('test.js');
         });
 
         // Currently not supported
         it.skip('BreakpointSectionItem.getBreakpointFilePath', async function () {
             const item = await getBreakpointItem(view, this.timeout() - 2000);
-            expect(await item.getBreakpointFilePath()).equals('test.js');
+            expect(await item?.getBreakpointFilePath()).equals('test.js');
         });
 
         it('BreakpointSectionItem.getBreakpointLine', async function () {
             const item = await getBreakpointItem(view, this.timeout() - 2000);
-            expect(await item.getBreakpointLine()).equals(line);
+            expect(await item?.getBreakpointLine()).equals(line);
         });
 
         it('BreakpointSectionItem.getActionButtons', async function () {
             await VSBrowser.instance.driver.wait(async () => {
                 try {
                     const item = await getBreakpointItem(view, this.timeout() - 2000);
-                    return (await item.getActionButtons()).length > 0;
+                    const actionBtns = await item?.getActionButtons() ?? [];
+                    return actionBtns.length > 0;
                 }
                 catch (e) {
                     if (e instanceof error.StaleElementReferenceError) {
@@ -183,12 +187,12 @@ describe('Debugging', function () {
 
         it('VariableSectionItem.getVariableName', async function () {
             const item = await getNumVariable(view, this.timeout() - 2000);
-            expect(await item.getVariableName()).equals('num:');
+            expect(await item?.getVariableName()).equals('num:');
         });
 
         it('VariableSectionItem.getVariableValue', async function () {
             const item = await getNumVariable(view, this.timeout() - 2000);
-            expect(await item.getVariableValue()).equals('5');
+            expect(await item?.getVariableValue()).equals('5');
         });
 
         it('VariableSectionItem.getVariableNameTooltip', async function () {
@@ -196,20 +200,20 @@ describe('Debugging', function () {
                 this.skip();
             }
             const item = await getNumVariable(view, this.timeout() - 2000);
-            expect(await item.getVariableNameTooltip()).equals('number');
+            expect(await item?.getVariableNameTooltip()).equals('number');
         });
 
         it('VariableSectionItem.getVariableValueTooltip', async function () {
             const item = await getNumVariable(view, this.timeout() - 2000);
-            expect(await item.getVariableValueTooltip()).equals('5');
+            expect(await item?.getVariableValueTooltip()).equals('5');
         });
 
         it('Variable view: setVariableValue', async function () {
             let item = await getNumVariable(view, this.timeout() - 2000);
-            expect(await item.getVariableValue()).equals('5');
-            await item.setVariableValue('42');
+            expect(await item?.getVariableValue()).equals('5');
+            await item?.setVariableValue('42');
             item = await getNumVariable(view, this.timeout() - 2000);
-            expect(await item.getVariableValue()).equals('42');
+            expect(await item?.getVariableValue()).equals('42');
         });
 
         it('evaluate an expression', async function () {

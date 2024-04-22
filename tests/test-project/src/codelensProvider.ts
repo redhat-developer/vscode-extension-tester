@@ -29,7 +29,7 @@ export class CodelensProvider implements vscode.CodeLensProvider {
             this.codeLenses = [];
             const regex = new RegExp(this.regex);
             const text = document.getText();
-            let matches: RegExpExecArray;
+            let matches: RegExpExecArray | null;
             while ((matches = regex.exec(text)) !== null) {
                 const line = document.lineAt(document.positionAt(matches.index).line);
                 const indexOf = line.text.indexOf(matches[0]);

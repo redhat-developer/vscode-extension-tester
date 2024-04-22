@@ -4,7 +4,7 @@ import { SettingsEditor, Workbench, EditorView, ComboSetting, TextSetting, Check
 describe('Settings Editor', function () {
     let editor: SettingsEditor;
 
-    before(async function () {
+    before(async () => {
         this.timeout(30000);
         editor = await new Workbench().openSettings();
         await new Promise(t => setTimeout(t, 5_000)); // wait to be sure settings editor is loaded properly
@@ -35,7 +35,7 @@ describe('Settings Editor', function () {
     describe('combo setting', function () {
         let setting: ComboSetting;
 
-        before(async function () {
+        before(async () => {
             this.timeout(15000);
             setting = await editor.findSetting('Title Bar Style', 'Window') as ComboSetting;
         });
@@ -81,7 +81,7 @@ describe('Settings Editor', function () {
     describe('text setting', function () {
         let setting: TextSetting;
 
-        before(async function () {
+        before(async () => {
             this.timeout(15000);
             setting = await editor.findSetting('Auto Save Delay', 'Files') as TextSetting;
         });
@@ -101,7 +101,7 @@ describe('Settings Editor', function () {
     describe('checkbox setting', function () {
         let setting: CheckboxSetting;
 
-        before(async function () {
+        before(async () => {
             this.timeout(15000);
             setting = await editor.findSetting('Code Lens', 'Editor') as CheckboxSetting;
         });
@@ -121,7 +121,7 @@ describe('Settings Editor', function () {
     describe('array setting', function () {
         let setting: ArraySetting;
 
-        before(async function () {
+        before(async () => {
             this.timeout(15000);
             setting = await editor.findSetting('Hello World Array', 'Test Project', 'General') as ArraySetting;
         });
@@ -129,14 +129,14 @@ describe('Settings Editor', function () {
         it('getItem works - using index', async function () {
             const item = await setting.getItem(1);
             expect(item).is.not.undefined;
-            const value = await item.getValue();
+            const value = await item?.getValue();
             expect(value).is.equal('Hello ExTester');
         });
 
         it('getItem works - using label', async function () {
             const item = await setting.getItem('Hello World');
             expect(item).is.not.undefined;
-            const value = await item.getValue();
+            const value = await item?.getValue();
             expect(value).is.equal('Hello World');
         });
 
@@ -169,13 +169,13 @@ describe('Settings Editor', function () {
             await waitUntilItemExists('Add Item 3');
 
             const newValue = await setting.getItem('Add Item 1');
-            expect(await newValue.getValue()).is.equal('Add Item 1');
+            expect(await newValue?.getValue()).is.equal('Add Item 1');
         });
 
         it('removeItem works - using label', async function () {
             this.timeout(15000);
             const toRemove = await setting.getItem('Hello ExTester');
-            await toRemove.remove();
+            await toRemove?.remove();
             await waitUntilItemNotExists('Hello ExTester');
 
             const values = await setting.getValues();
@@ -186,7 +186,7 @@ describe('Settings Editor', function () {
         it('removeItem works - using index', async function () {
             this.timeout(15000);
             const toRemove = await setting.getItem(1);
-            await toRemove.remove();
+            await toRemove?.remove();
             await waitUntilItemNotExists('Add Item 1');
 
             const values = await setting.getValues();
@@ -197,8 +197,8 @@ describe('Settings Editor', function () {
         it('editItem works - using label', async function () {
             this.timeout(15000);
             const toEdit = await setting.edit('Hello World');
-            await toEdit.setValue('Edit Item Label');
-            await toEdit.ok();
+            await toEdit?.setValue('Edit Item Label');
+            await toEdit?.ok();
             await waitUntilItemExists('Edit Item Label');
 
             const values = await setting.getValues();
@@ -208,8 +208,8 @@ describe('Settings Editor', function () {
         it('editItem works - using index', async function () {
             this.timeout(15000);
             const toEdit = await setting.edit(1);
-            await toEdit.setValue('Edit Item Index');
-            await toEdit.ok();
+            await toEdit?.setValue('Edit Item Index');
+            await toEdit?.ok();
             await waitUntilItemExists('Edit Item Index');
 
             const values = await setting.getValues();
@@ -217,7 +217,7 @@ describe('Settings Editor', function () {
         });
 
         async function waitUntilItemExists(item: string, timeout: number = 10_000): Promise<void> {
-            let values = [];
+            let values: string[] = [];
             await setting.getDriver().wait(async function () {
                 values = await setting.getValues();
                 return values.includes(item);
@@ -225,7 +225,7 @@ describe('Settings Editor', function () {
         }
 
         async function waitUntilItemNotExists(item: string, timeout: number = 10_000): Promise<void> {
-            let values = [];
+            let values: string[] = [];
             await setting.getDriver().wait(async function () {
                 values = await setting.getValues();
                 return !values.includes(item);

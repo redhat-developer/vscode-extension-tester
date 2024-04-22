@@ -22,7 +22,6 @@ describe('WebviewViews', function () {
             after(async function () {
                 if (webviewView) {
                     await webviewView.switchBack();
-                    webviewView = undefined;
                 }
                 if(param.closePanel) {
                     await new BottomBarPanel().toggle(false);
