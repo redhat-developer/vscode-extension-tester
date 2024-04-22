@@ -5,7 +5,7 @@ updates:
     directory: "/"
     schedule:
       interval: daily
-    open-pull-requests-limit: 3
+    open-pull-requests-limit: 5
     labels:
       - "skip-changelog"
     reviewers:
@@ -14,36 +14,7 @@ updates:
     directory: '/'
     schedule:
       interval: 'daily'
-    versioning-strategy: increase
-    reviewers:
-      - redhat-developer/extester-maintainers
-  - package-ecosystem: 'npm'
-    directory: '/tests/test-project'
-    schedule:
-      interval: 'daily'
-    labels:
-      - "skip-changelog"
-    versioning-strategy: increase
-    reviewers:
-      - redhat-developer/extester-maintainers
-  - package-ecosystem: 'npm'
-    directory: '/packages/extester'
-    schedule:
-      interval: 'daily'
-    versioning-strategy: increase
-    reviewers:
-      - redhat-developer/extester-maintainers
-  - package-ecosystem: 'npm'
-    directory: '/packages/locators'
-    schedule:
-      interval: 'daily'
-    versioning-strategy: increase
-    reviewers:
-      - redhat-developer/extester-maintainers
-  - package-ecosystem: 'npm'
-    directory: '/packages/page-objects'
-    schedule:
-      interval: 'daily'
+    open-pull-requests-limit: 20
     versioning-strategy: increase
     reviewers:
       - redhat-developer/extester-maintainers
