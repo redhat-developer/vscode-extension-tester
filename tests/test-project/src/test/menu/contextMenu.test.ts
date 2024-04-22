@@ -6,7 +6,7 @@ import * as path from 'path';
     let bar: TitleBar;
     let menu: ContextMenu;
 
-    before(async function () {
+    before(async () => {
         this.timeout(30000);
         await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-folder'));
         await VSBrowser.instance.driver.sleep(5000);

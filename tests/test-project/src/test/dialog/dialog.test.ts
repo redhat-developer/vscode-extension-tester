@@ -1,10 +1,10 @@
 import { expect } from "chai";
 import { By, EditorView, InputBox, ModalDialog, TextEditor, until, VSBrowser, after, before, Workbench } from 'vscode-extension-tester';
 
-(VSBrowser.instance.version >= '1.50.0' && process.platform !== 'darwin' ? describe : describe.skip)('Modal Dialog', () => {
+(VSBrowser.instance.version >= '1.50.0' && process.platform !== 'darwin' ? describe : describe.skip)('Modal Dialog', function () {
     let dialog: ModalDialog;
 
-    before(async function () {
+    before(async () => {
         this.timeout(30000);
         await new Workbench().executeCommand('Create: New File...');
         await (await InputBox.create()).selectQuickPick('Text File');

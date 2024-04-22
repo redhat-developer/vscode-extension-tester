@@ -1,12 +1,12 @@
 import * as path from 'path';
 import { expect } from 'chai';
-import { TextEditor, EditorView, StatusBar, InputBox, ContentAssist, Workbench, FindWidget, VSBrowser, Notification, after, before } from 'vscode-extension-tester';
+import { TextEditor, EditorView, StatusBar, InputBox, ContentAssist, Workbench, FindWidget, VSBrowser, after, before } from 'vscode-extension-tester';
 
 describe('ContentAssist', async function () {
     let assist: ContentAssist;
     let editor: TextEditor;
 
-    before(async function () {
+    before(async () => {
         this.timeout(30000);
         await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-file.ts'));
         await VSBrowser.instance.waitForWorkbench();
@@ -50,7 +50,7 @@ describe('ContentAssist', async function () {
 
     it('getItem retrieves suggestion by text', async function () {
         const item = await assist.getItem('AbortController');
-        expect(await item.getLabel()).equals('AbortController');
+        expect(await item?.getLabel()).equals('AbortController');
     });
 
     it('getItem can find an item beyond visible range', async function () {
@@ -70,7 +70,7 @@ describe('TextEditor', function () {
 
     const testText = process.platform === 'win32' ? `line1\r\nline2\r\nline3` : `line1\nline2\nline3`;
 
-    before(async function () {
+    before(async () => {
         this.timeout(8000);
         await new Workbench().executeCommand('Create: New File...');
         await (await InputBox.create()).selectQuickPick('Text File');
@@ -180,7 +180,11 @@ describe('TextEditor', function () {
             try {
                 await editor.selectText(text);
             } catch (err) {
-                expect(err.message).has.string(`Text '${text}' not found`);
+                if(err instanceof Error) {
+                    expect(err.message).has.string(`Text '${text}' not found`);
+                } else {
+                    expect.fail();
+                }
             }
         });
 
@@ -190,8 +194,8 @@ describe('TextEditor', function () {
 
             expect(selection).not.undefined;
 
-            const menu = await selection.openContextMenu();
-            await menu.close();
+            const menu = await selection?.openContextMenu();
+            await menu?.close();
         });
     });
 
@@ -292,21 +296,21 @@ describe('TextEditor', function () {
             const lens0Duplicate = await editor.getCodeLens(0);
             const lens1 = await editor.getCodeLens(1);
 
-            expect(await lens0.getId()).not.equal(await lens1.getId());
-            expect(await lens0.getId()).equal(await lens0Duplicate.getId());
+            expect(await lens0?.getId()).not.equal(await lens1?.getId());
+            expect(await lens0?.getId()).equal(await lens0Duplicate?.getId());
         });
 
         it('getCodeLens works with partial text', async function () {
             const lens = await editor.getCodeLens('Codelens provided');
-            expect(await lens.getText()).has.string('Codelens provided');
-            expect(await lens.getTooltip()).has.string('Tooltip provided');
+            expect(await lens?.getText()).has.string('Codelens provided');
+            expect(await lens?.getTooltip()).has.string('Tooltip provided');
         });
 
         it('getCodeLenses works with second in the span', async function () {
             const lens = await editor.getCodeLens(6);
             expect(lens).is.not.undefined;
-            expect(await lens.getText()).has.string('Codelens provided');
-            expect(await lens.getTooltip()).has.string('Tooltip provided');
+            expect(await lens?.getText()).has.string('Codelens provided');
+            expect(await lens?.getTooltip()).has.string('Tooltip provided');
         });
 
         it('getCodeLens returns undefined when nothing is found', async function () {
@@ -320,11 +324,11 @@ describe('TextEditor', function () {
         it('clicking triggers the lens command', async function () {
             this.timeout(20000);
             const lens = await editor.getCodeLens(2);
-            await lens.click();
-            await lens.getDriver().sleep(1000);
+            await lens?.click();
+            await lens?.getDriver().sleep(1000);
             const notifications = await new Workbench().getNotifications();
-            let notification: Notification;
 
+            let notification = undefined;
             for (const not of notifications) {
                 if ((await not.getMessage()).startsWith('CodeLens action clicked')) {
                     notification = not;

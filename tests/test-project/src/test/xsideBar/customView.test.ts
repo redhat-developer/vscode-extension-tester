@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { ActivityBar, CustomTreeItem, CustomTreeSection, NotificationType, TreeItem, VSBrowser, ViewContent, ViewItem, WelcomeContentButton, Workbench } from 'vscode-extension-tester';
+import { ActivityBar, CustomTreeItem, CustomTreeSection, NotificationType, TreeItem, VSBrowser, ViewContent, ViewControl, ViewItem, WelcomeContentButton, WelcomeContentSection, Workbench } from 'vscode-extension-tester';
 
 describe('CustomTreeSection', () => {
     let section: CustomTreeSection;
@@ -8,7 +8,7 @@ describe('CustomTreeSection', () => {
 
     before(async function() {
         this.timeout(5000);
-        const view = await (await new ActivityBar().getViewControl('Explorer')).openView();
+        const view = await (await new ActivityBar().getViewControl('Explorer') as ViewControl).openView();
         await new Promise((res) => { setTimeout(res, 1000); });
         content = view.getContent();
         section = await content.getSection('Test View');
@@ -17,7 +17,7 @@ describe('CustomTreeSection', () => {
     });
 
     after(async () => {
-        await (await new ActivityBar().getViewControl('Explorer')).closeView();
+        await (await new ActivityBar().getViewControl('Explorer') as ViewControl).closeView();
         await new Promise((res) => { setTimeout(res, 1000); });
     });
 
@@ -68,7 +68,7 @@ describe('CustomTreeSection', () => {
 
     it('getAction works', async () => {
         const action = await section.getAction('Collapse All');
-        expect(await action.getLabel()).equals('Collapse All');
+        expect(await action?.getLabel()).equals('Collapse All');
     });
 
     it('findWelcomeContent returns undefined if no WelcomeContent is present', async () => {
@@ -77,7 +77,7 @@ describe('CustomTreeSection', () => {
     });
 
     it('findWelcomeContent returns the section', async () => {
-        const welcomeContent = await emptyViewSection.findWelcomeContent();
+        const welcomeContent = await emptyViewSection.findWelcomeContent() as WelcomeContentSection;
         const buttons = await welcomeContent.getButtons();
         const textSections = await welcomeContent.getTextSections();
 
@@ -92,7 +92,7 @@ describe('CustomTreeSection', () => {
     });
 
     it('getContent returns the buttons and strings in an ordered array', async () => {
-        const welcomeContentEntries = await (await emptyViewSection.findWelcomeContent()).getContents();
+        const welcomeContentEntries = await (await emptyViewSection.findWelcomeContent() as WelcomeContentSection).getContents();
 
         expect(welcomeContentEntries).to.be.an("array").and.have.length(4);
 
@@ -106,7 +106,7 @@ describe('CustomTreeSection', () => {
     describe('WelcomeContentButton', () => {
         it('takeAction executes the command', async function() {
             this.timeout(10000);
-            const buttons = await (await emptyViewSection.findWelcomeContent()).getButtons();
+            const buttons = await (await emptyViewSection.findWelcomeContent() as WelcomeContentSection).getButtons();
             await buttons[0].click();
 
             await new Promise(res => setTimeout(res, 500));
@@ -115,7 +115,7 @@ describe('CustomTreeSection', () => {
     });
 
     describe('CustomViewItem', () => {
-        let item: CustomTreeItem;
+        let item: CustomTreeItem | undefined;
 
         before(async () => {
             await emptyViewSection.collapse();
@@ -123,84 +123,88 @@ describe('CustomTreeSection', () => {
         });
 
         it('getAction works', async() => {
-            const action = await item.getActionButton("Tree Item Action");
+            const action = await item?.getActionButton("Tree Item Action");
             expect(action).not.undefined;
         });
 
         it('getLabel works', async () => {
-            const label = await item.getLabel();
+            const label = await item?.getLabel();
             expect(label).equals('a');
         });
 
         it('getTooltip works', async () => {
-            const tooltip = await item.getTooltip();
+            const tooltip = await item?.getTooltip();
             expect(tooltip).equals('Tooltip for a');
         });
 
         it('getDescription works', async () => {
-            const description = await item.getDescription();
+            const description = await item?.getDescription();
             expect(description).equals('Description for a');
         });
 
         it('collapse works', async () => {
-            await item.collapse();
-            expect(await item.isExpanded()).is.false;
+            await item?.collapse();
+            expect(await item?.isExpanded()).is.false;
         });
 
         it('selecting toggles expand state', async () => {
-            await item.select();
-            expect(await item.isExpanded()).is.true;
-            await item.collapse();
-            expect(await item.isExpanded()).is.false;
+            await item?.select();
+            expect(await item?.isExpanded()).is.true;
+            await item?.collapse();
+            expect(await item?.isExpanded()).is.false;
         });
 
         it('hasChildren works', async () => {
-            const children = await item.hasChildren();
+            const children = await item?.hasChildren();
             expect(children).is.true;
         });
 
         it('hasChildren works for expandable elements without children', async () => {
             const cItem = await section.findItem('c');
-            expect(await cItem.hasChildren()).is.false;
+            expect(await cItem?.hasChildren()).is.false;
         });
 
         it('getChildren works', async () => {
-            const children = await item.getChildren();
-            expect(children.length).equals(2);
+            const children = await item?.getChildren();
+            expect(children?.length).equals(2);
         });
 
         it('findChildItem works', async () => {
-            const child = await item.findChildItem('ab');
+            const child = await item?.findChildItem('ab');
             expect(child).not.undefined;
         });
 
         it('expand works', async () => {
             item = await section.findItem('a');
-            await item.collapse();
-            expect(await item.isExpanded()).to.equal(false);
-            await item.expand();
-            expect(await item.isExpanded()).to.equal(true);
+            await item?.collapse();
+            expect(await item?.isExpanded()).to.equal(false);
+            await item?.expand();
+            expect(await item?.isExpanded()).to.equal(true);
         });
 
         it('expand is idempotent', async () => {
             const items = [1, 2];
             for(let i = 0; i < items.length; i++) {
-                await item.expand();
-                expect(await item.isExpanded()).to.equal(true);
+                await item?.expand();
+                expect(await item?.isExpanded()).to.equal(true);
             }
         });
 
-        describe('tree item with a command', () => {
-            let dItem: TreeItem;
+        describe('tree item with a command', function () {
+            let dItem: TreeItem | undefined;
             let bench: Workbench;
 
-            before(async () => {
+            before(async function () {
                 dItem = await section.findItem('d');
                 bench = new Workbench();
             });
 
-            beforeEach(async () => {
-                await (await bench.openNotificationsCenter()).clearAllNotifications();
+            beforeEach(async function () {
+                try {
+                    await (await bench.openNotificationsCenter()).clearAllNotifications();
+                } catch (error) {
+                    // do nothing
+                }
             });
 
             afterEach(async () => {
@@ -210,12 +214,12 @@ describe('CustomTreeSection', () => {
 
             it('getChildren does not click on the tree item', async () => {
                 expect(await (dItem as CustomTreeItem).getChildren()).to.have.length(2);
-                await dItem.collapse();
+                await dItem?.collapse();
             });
 
             it('findChildItem does not click on the tree item', async () => {
                 expect(await (dItem as CustomTreeItem).findChildItem("da")).to.not.equal(undefined);
-                await dItem.collapse();
+                await dItem?.collapse();
             });
 
             it('findItem does not click on the tree item', async () => {
@@ -223,7 +227,7 @@ describe('CustomTreeSection', () => {
             });
 
             it('clicking on the tree item with a command assigned, triggers the command', async () => {
-                await dItem.click();
+                await dItem?.click();
                 const errorNotification = await (await bench.openNotificationsCenter()).getNotifications(NotificationType.Error);
                 expect(errorNotification).to.have.length(1);
                 expect(await errorNotification[0].getMessage()).to.equal("This is an error!");

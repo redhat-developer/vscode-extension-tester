@@ -1,16 +1,16 @@
 import * as path from 'path';
 import { expect } from 'chai';
-import { SideBarView, ActivityBar, ViewTitlePart, Workbench, ViewItem, ViewContent, DefaultTreeSection, DefaultTreeItem, TextEditor, EditorView, VSBrowser } from 'vscode-extension-tester';
+import { SideBarView, ActivityBar, ViewTitlePart, Workbench, ViewItem, ViewContent, DefaultTreeSection, DefaultTreeItem, TextEditor, EditorView, VSBrowser, ViewControl, TreeItem, ViewPanelAction } from 'vscode-extension-tester';
 
 describe('SideBarView', () => {
     let view: SideBarView;
 
     before(async () => {
-        view = await (await new ActivityBar().getViewControl('Explorer')).openView();
+        view = await (await new ActivityBar().getViewControl('Explorer') as ViewControl).openView();
     });
 
     after(async () => {
-        await (await new ActivityBar().getViewControl('Explorer')).closeView();
+        await (await new ActivityBar().getViewControl('Explorer') as ViewControl).closeView();
     });
 
     it('getTitlePart works', async () => {
@@ -51,7 +51,7 @@ describe('SideBarView', () => {
         before(async function() {
             this.timeout(15000);
             await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-folder'));
-            view = await (await new ActivityBar().getViewControl('Explorer')).openView();
+            view = await (await new ActivityBar().getViewControl('Explorer') as ViewControl).openView();
             await new Promise((res) => { setTimeout(res, 1000); });
             content = view.getContent();
         });
@@ -105,7 +105,7 @@ describe('SideBarView', () => {
             it('findItem returns undefined when item exists outside its level range', async () => {
                 await section.openItem('foolder');
                 const item = await section.findItem('bar', 1);
-                await (await section.findItem('foolder')).collapse();
+                await (await section.findItem('foolder') as TreeItem).collapse();
                 expect(item).undefined;
             });
 
@@ -114,7 +114,11 @@ describe('SideBarView', () => {
                 try {
                     await section.openItem('x', 'y');
                 } catch (err) {
-                    expect(err.message).to.have.string(`Available items in current directory: [${items.toString()}]`);
+                    if (err instanceof Error) {
+                        expect(err.message).to.have.string(`Available items in current directory: [${items.toString()}]`);
+                    } else {
+                        expect.fail();
+                    }
                 }
             });
 
@@ -135,7 +139,7 @@ describe('SideBarView', () => {
             });
 
             it('getAction works', async () => {
-                const action = await section.getAction('Refresh Explorer');
+                const action = await section.getAction('Refresh Explorer') as ViewPanelAction;
                 expect(await action.getLabel()).equals('Refresh Explorer');
             });
 

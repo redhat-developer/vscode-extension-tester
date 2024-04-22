@@ -29,9 +29,9 @@ describe('CustomEditor', () => {
             await webview.getDriver().actions().move({origin:note}).perform();
             await note.findElement(By.className('delete-button')).click();
         } catch(err) {
-            // if (!(err instanceof error.StaleElementReferenceError)) {
-                expect.fail(err);
-            // }
+            if (err instanceof Error) {
+                expect.fail(err.message);
+            }
         } finally {
             if(webview) {
                 await webview.switchBack();
@@ -63,7 +63,9 @@ describe('CustomEditor', () => {
                 await input.cancel();
             }
         } catch (err) {
-            expect.fail(err);
+            if (err instanceof Error) {
+                expect.fail(err.message);
+            }
         }
     });
 });

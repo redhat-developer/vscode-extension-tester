@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { after, before, EditorView, EditorTab, EditorTabNotFound, error, Workbench, TextEditor, SettingsEditor, WebView, QuickOpenBox, DiffEditor, InputBox, VSBrowser } from 'vscode-extension-tester';
+import { EditorView, EditorTab, EditorTabNotFound, error, Workbench, TextEditor, SettingsEditor, WebView, QuickOpenBox, DiffEditor, InputBox, VSBrowser } from 'vscode-extension-tester';
 
 describe('EditorView', function () {
     let view: EditorView;
@@ -33,7 +33,7 @@ describe('EditorView', function () {
     });
 
     it('openEditor works with webview editor', async function () {
-        let editorTitle: string;
+        let editorTitle: string = '';
         (await view.getOpenEditorTitles()).forEach(title => {
             if (title.startsWith('Test WebView')) {
                 editorTitle = title;
@@ -90,12 +90,12 @@ describe('EditorView', function () {
 
     it('getAction(title: string) works', async function () {
         const action = await view.getAction('More Actions...');
-        expect(await action.getTitle()).equal('More Actions...');
+        expect(await action?.getTitle()).equal('More Actions...');
     });
 
     it('getAction(predicate: PredicateFunction) works', async function () {
         const action = await view.getAction(async (action) => await action.getTitle() === 'More Actions...');
-        expect(await action.getTitle()).equal('More Actions...');
+        expect(await action?.getTitle()).equal('More Actions...');
     });
 
     it('Editor getAction works', async function () {

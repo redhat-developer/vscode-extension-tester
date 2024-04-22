@@ -23,16 +23,6 @@
         "internalConsoleOptions": "neverOpen",
       },
       {
-        "type": "node",
-        "request": "launch",
-        "name": "Launch Program",
-        "runtimeArgs": [
-          "--version"
-        ],
-        "outputCapture": "std",
-        "runtimeVersion": "16.14.0",
-      },
-      {
         "name": "Run Extension",
         "type": "extensionHost",
         "request": "launch",
