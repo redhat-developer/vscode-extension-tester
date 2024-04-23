@@ -4,7 +4,7 @@ import { Menu } from "./Menu";
 import { MenuItem } from "./MenuItem";
 
 /**
- * Page object representing the custom VSCode title bar
+ * Page object representing the custom VS Code title bar
  */
 export class TitleBar extends Menu {
 
@@ -59,7 +59,7 @@ export class TitleBar extends Menu {
 }
 
 /**
- * Page object representing an item of the custom VSCode title bar
+ * Page object representing an item of the custom VS Code title bar
  */
 export class TitleBarItem extends MenuItem {
 
