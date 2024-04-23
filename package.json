@@ -8,9 +8,11 @@
     "url": "https://github.com/redhat-developer/vscode-extension-tester.git"
   },
   "scripts": {
+    "version": "lerna version --no-private --no-push --signoff-git-commit",
+    "publish": "lerna publish from-package --no-private",
     "prepublishOnly": "npm run build",
-    "build": "npx lerna run build",
-    "build:changed": "npx lerna run build --since main",
+    "build": "lerna run build",
+    "build:changed": "lerna run build --since main",
     "test": "npm run ui-test --workspace=extester-test",
     "test:build": "npm run build:changed && npm install --workspace=extester-test && npm test"
   },
