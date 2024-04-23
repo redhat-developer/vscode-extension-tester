@@ -1,6 +1,7 @@
 ![find](https://user-images.githubusercontent.com/4181232/122541820-5fd60f00-d02a-11eb-99de-2c304bdc5dfe.png)
 
 #### Lookup
+
 ```typescript
 // open the find widget from text editor
 const editor = new TextEditor();
@@ -8,6 +9,7 @@ const widget = await editor.openFindWidget();
 ```
 
 #### Search
+
 ```typescript
 // set search text
 await widget.setSearchText();
@@ -24,6 +26,7 @@ const totalCount = counts[1];
 ```
 
 #### Replace
+
 ```typescript
 // toggle replace on/off
 await widget.toggleReplace(true); // or false
@@ -38,6 +41,7 @@ await widget.replaceAll();
 ```
 
 #### Switches
+
 ```typescript
 // switch 'Match Case' on/off
 await widget.toggleMatchCase(true/false);
@@ -50,6 +54,7 @@ await widget.togglePreserveCase(true/false);
 ```
 
 #### Close
+
 ```typescript
 await widget.close();
 ```

@@ -1,7 +1,7 @@
 It is possible to take screenshots when testing Visual Studio Code extensions.
 Screenshot can be captured by calling:
 
-```js
+```typescript
 VSBrowser.instance.takeScreenshot(basename: string)
 ```
 
@@ -15,7 +15,7 @@ determined by calling `this.currentTest.fullTitle()`. This feature does not appl
 hooks by default. In order to capture screenshots on failed hooks, one
 must import vscode-extension-tester hook.
 
-```js
+```typescript
 // Supported hooks: before, beforeEach, after and afterEach
 import { before } from 'vscode-extension-tester'
 ```

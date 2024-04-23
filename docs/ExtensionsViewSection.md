@@ -3,7 +3,9 @@
 Section in the Extensions view. Unlike the other section types, extension sections behave differently.
 
 #### Lookup
+
 Get a section handle from an open side bar.
+
 ```typescript
 import { SideBarView, ExtensionsViewSection } from 'vscode-extension-tester';
 ...
@@ -12,7 +14,9 @@ const section = await new SideBarView().getContent().getSection('enabled') as Ex
 ```
 
 #### Finding Items
+
 Item lookup behaves in a completely different way to the tree sections. In this case it is based on the search bar on top of the view and as such is able to find items beyond the initial section. In this case you will need to manually clear the search bar in order to gain back access to the original section.
+
 ```typescript
 // get all visible items inside the section
 const items = await section.getVisibleItems();
@@ -32,11 +36,13 @@ await section.openItem('@installed java');
 ```
 
 #### ExtensionsViewItem
+
 ![extension](https://user-images.githubusercontent.com/4181232/65508733-24e48d00-ded1-11e9-9f53-1e47e8d79943.png)
 
 Item representing an extension in the extensions view.
 
 ##### Get information about the extension
+
 ```typescript
 // get title
 const title = await item.getTitle();
@@ -55,6 +61,7 @@ const installed = await item.isInstalled();
 ```
 
 ##### Operations
+
 ```typescript
 // manage the item - open its context menu
 const menu = await item.manage();

@@ -1,7 +1,9 @@
 ![notification](https://user-images.githubusercontent.com/4181232/56662617-b478dc00-66a4-11e9-9b1a-193efb96440b.png)
 
 #### Lookup
+
 To get notifications outside the notifications center, one should use a ```Workbench``` object:
+
 ```typescript
 import { Workbench } from 'vscode-extension-tester';
 ...
@@ -10,6 +12,7 @@ const notification = notifications[0];
 ```
 
 #### Get Some Info
+
 ```typescript
 // get the message
 const message = await notification.getMessage();
@@ -22,6 +25,7 @@ const hasProgress = await notification.hasProgress();
 ```
 
 #### Take Action
+
 ```typescript
 // dismiss the notification
 await notification.dismiss();

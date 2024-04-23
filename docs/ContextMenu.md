@@ -2,7 +2,9 @@
 Page object for any context menu opened by left-clicking an element that has a context menu. Title bar items also produce context menus when clicked.
 
 #### Open/Lookup
+
 Typically, a context menu is opened by calling ```openContextMenu``` on elements that support it. For example:
+
 ```typescript
 import { ActivityBar, ContextMenu } from 'vscode-extension-tester';
 ...
@@ -10,6 +12,7 @@ const menu = await new ActivityBar().openContextMenu();
 ```
 
 #### Retrieve Items
+
 ```typescript
 // find if an item with title exists
 const exists = await menu.hasItem('Copy');
@@ -20,6 +23,7 @@ const items = await menu.getItems();
 ```
 
 #### Select Item
+
 ```typescript
 // recursively select an item in nested submenus
 await menu.select('File', 'Preferences', 'Settings');

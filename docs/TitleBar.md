@@ -3,6 +3,7 @@
 Page object for the title bar. Works only if the selected title bar type is 'custom'. Native title bar is not supported.
 
 #### Lookup
+
 ```typescript
 import { TitleBar } from 'vscode-extension-tester';
 ...
@@ -10,6 +11,7 @@ const titleBar = new TitleBar();
 ```
 
 #### Item Retrieval
+
 ```typescript
 // find if an item with title exists
 const exists = await titleBar.hasItem('File');
@@ -20,11 +22,13 @@ const items = await titleBar.getItems();
 ```
 
 #### Get Displayed Title
+
 ```typescript
 const title = await titleBar.getTitle();
 ```
 
 #### Get Window Controls Handle
+
 ```typescript
 const controls = titleBar.getWindowControls();
 ```

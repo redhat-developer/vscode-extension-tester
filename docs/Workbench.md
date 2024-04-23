@@ -1,6 +1,7 @@
 Workbench is the container for all the other elements. As such it mainly offers convenience methods to get handles for its subparts. It also retrieves handles for elements that are not accessible from a particular subpart.
 
 #### Lookup
+
 ```typescript
 import { Workbench } from 'vscode-extension-tester'; 
 ...
@@ -8,6 +9,7 @@ const workbench = new Workbench();
 ```
 
 #### Subparts Handles
+
 ```typescript
 // get title bar handle
 const titleBar = workbench.getTitleBar();
@@ -32,7 +34,9 @@ const center = workbench.openNotificationsCenter();
 ```
 
 #### Command Prompt
+
 You can also use ```Workbench``` to open the command prompt and execute commands.
+
 ```typescript
 // open command prompt, can then be handled as a QuickOpenBox
 const commandInput = await workbench.openCommandPrompt();
@@ -43,7 +47,9 @@ await workbench.executeCommand('close workspace');
 ```
 
 #### Settings
+
 Opening the VS Code Settings editor is also available.
+
 ```typescript
 const settingsEditor = await workbench.openSettings();
 ```

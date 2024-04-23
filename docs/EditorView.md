@@ -1,6 +1,7 @@
 ![editorView](https://user-images.githubusercontent.com/4181232/56643169-5f73a080-6679-11e9-8b16-13f4b5f11a35.png)
 
 #### Lookup
+
 ```typescript
 import { EditorView } from 'vscode-extension-tester';
 ...
@@ -8,12 +9,14 @@ const editorView = new EditorView();
 ```
 
 #### Select an Editor Tab
+
 ```typescript
 // open editor tab by title
 const editor = await editorView.openEditor('package.json');
 ```
 
 #### Closing Editors
+
 ```typescript
 // close an editor tab by title
 await editorView.closeEditor('package.json');
@@ -22,11 +25,13 @@ await editorView.closeAllEditors();
 ```
 
 #### Retrieve Open Tab Titles
+
 ```typescript
 const titles = await editorView.getOpenEditorTitles();
 ```
 
 #### Editor Actions
+
 ```typescript
 // find an editor action button by title
 const button = await editorView.getAction('Open Changes');
@@ -37,9 +42,11 @@ const buttons = await editorView.getActions();
 ```
 
 ### Editor Groups
+
 By default, all EditorView methods work with the first (left-most) editor group, except `closeAllEditors` and `getOpenEditorTitles` which by default work across all groups. You can use indices to target specific editor groups, or you can get handles to directly work with `EditorGroup` objects.
 
 #### EditorView Actions on Editor Groups
+
 ```typescript
 // open editor in the second group (from the left, using a zero-based index)
 const editor = await editorView.openEditor('package.json', 1);
@@ -56,6 +63,7 @@ const titles = await editorView.getOpenEditorTitles(1);
 ```
 
 #### Retrieve Handles for the Editor Groups
+
 Instead of working in context of the whole editor view, you can get a handle for a particular editor group. The `EditorGroup` object then exposes the same set of methods as `EditorView` (without the group retrieval though).
 
 ```typescript
@@ -67,10 +75,13 @@ const groups = await editorView.getEditorGroups();
 ```
 
 ### Editor Tabs
+
 Another way to handle open editors is using the editor tabs. For that we have the `EditorTab` page object.
 
 #### Lookup
+
 There are two basic ways to get `EditorTab` objects, through `EditorView`/`EditorGroup`:
+
 ```typescript
 // using EditorView, the same principle applies to EditorGroup
 // get tab by title from the first group
@@ -82,12 +93,14 @@ const active = await editorView.getActiveTab();
 ```
 
 From an `Editor` instance:
+
 ```typescript
 const editor = await editorView.openEditor('Index.d.ts');
 const etab = await editorView.getTab();
 ```
 
 #### Actions
+
 ```typescript
 // get the tab title
 const title = await tab.getTitle();

@@ -1,8 +1,9 @@
 ![customTree](https://user-images.githubusercontent.com/4181232/65507524-6e7fa880-dece-11e9-93a5-e6ead75afc4e.png)
 
-The 'custom' tree section, usually contributed by extensions as TreeView. All The behaviour is defined by the general [[ViewSection]] class.
+The 'custom' tree section, usually contributed by extensions as TreeView. All The behavior is defined by the general [[ViewSection]] class.
 
 #### Lookup
+
 ```typescript
 import { SideBarView, CustomTreeSection } from 'vscode-extension-tester';
 ...
@@ -11,7 +12,9 @@ const section = await new SideBarView().getContent().getSection('servers') as Cu
 ```
 
 #### Get Welcome Content
+
 Some sections may provide a welcome content when their tree is empty.
+
 ```typescript
 // find welcome content, return undefined if not present
 const welcome: WelcomeContentSection = await section.findWelcomeContent();

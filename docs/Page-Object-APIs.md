@@ -3,58 +3,67 @@ In order to keep everyone from having to go through the VS Code DOM, which is qu
 See the individual page object pages below for quick usage guide.
 
 ##### Activity Bar
- - [[ActionsControl]]
- - [[ActivityBar]]
- - [[ViewContol]]
+
+- [[ActionsControl]]
+- [[ActivityBar]]
+- [[ViewContol]]
 
 ##### Bottom Bar
- - [[BottomBarPanel]]
- - [[DebugConsoleView]]
- - [[ProblemsView]]
- - [[OutputView]]
- - [[TerminalView]]
+
+- [[BottomBarPanel]]
+- [[DebugConsoleView]]
+- [[ProblemsView]]
+- [[OutputView]]
+- [[TerminalView]]
 
 ##### Dialogs
- - [[ModalDialog]]
+
+- [[ModalDialog]]
 
 ##### Editor
- - [[ContentAssist]]
- - [[FindWidget]]
- - [[TextEditor]]
- - [[EditorView]]
- - [[SettingsEditor]]
-   - [[Setting]]
- - [[WebView]]
- - [[DiffEditor]]
- - [[CustomEditor]]
+
+- [[ContentAssist]]
+- [[FindWidget]]
+- [[TextEditor]]
+- [[EditorView]]
+- [[SettingsEditor]]
+  - [[Setting]]
+- [[WebView]]
+- [[DiffEditor]]
+- [[CustomEditor]]
 
 ##### Menu
- - [[ContextMenu]]
- - [[ContextMenuItem]]
+
+- [[ContextMenu]]
+- [[ContextMenuItem]]
 
 ##### Title Bar
- - [[TitleBar]]
- - [[TitleBarItem]]
- - [[WindowControls]]
+
+- [[TitleBar]]
+- [[TitleBarItem]]
+- [[WindowControls]]
 
 ##### Side Bar
- - [[SideBarView]]
- - [[ViewContent]]
- - [[ViewItem]]
- - [[ViewSection]]
-   - [[DefaultTreeSection]]
-   - [[CustomTreeSection]]
-   - [[ExtensionsViewSection]]
- - [[ViewTitlePart]]
- - [[ScmView]]
- - [[DebugView]]
+
+- [[SideBarView]]
+- [[ViewContent]]
+- [[ViewItem]]
+- [[ViewSection]]
+  - [[DefaultTreeSection]]
+  - [[CustomTreeSection]]
+  - [[ExtensionsViewSection]]
+- [[ViewTitlePart]]
+- [[ScmView]]
+- [[DebugView]]
 
 ##### Status Bar
- - [[StatusBar]]
+
+- [[StatusBar]]
 
 ##### Workbench
- - [[Notification]]
- - [[NotificationsCenter]]
- - [[Workbench]]
- - [[Input]]
- - [[DebugToolbar]]
+
+- [[Notification]]
+- [[NotificationsCenter]]
+- [[Workbench]]
+- [[Input]]
+- [[DebugToolbar]]

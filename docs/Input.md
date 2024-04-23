@@ -5,10 +5,13 @@ There are two types of input boxes in VS Code: 'quick input' and 'quick open'. T
 Another caveat of an input box in VS Code is that unless it has already been opened, the underlying DOM element does not exist. This may result in lookup errors when using the constructor to search for input boxes. Instead, we recommend using the static `create` method that will safely wait for the element to appear.
 
 ### InputBox
+
 This is the page object for the plain and simple input box you either put some text into, or just pick from the quick pick selection.
 
 #### Lookup
+
 There are no methods that explicitly open and return a handle to an input box. So first make sure it is opened before you try to handle it.
+
 ```typescript
 import { InputBox } from 'vscode-extension-tester';
 ...
@@ -20,17 +23,21 @@ const input = new InputBox();
 ```
 
 #### Quick Input Message
+
 The only difference in the GUI to quick open box is the option to display a message underneath a quick input box. To get it, use:
+
 ```typescript
 const message = await input.getMessage();
 ```
 
 ### QuickOpenBox
+
 **As of VS Code 1.44.0, QuickOpenBox is no longer in use. InputBox is used exclusively.**
 
 Analogically to quick input, this is the page object handling quick open box. This type of input is usually used to (apart from other functions) open files or folders. The command prompt is also built on this element.
 
 #### Lookup
+
 ```typescript
 import { QuickOpenBox } from 'vscode-extension-tester';
 ...
@@ -42,7 +49,9 @@ const input = new QuickOpenBox();
 ```
 
 ### Common Functionality
+
 #### Text Manipulation
+
 ```typescript
 // get text in the input box
 const text = await input.getText();
@@ -53,6 +62,7 @@ const placeholder = await input.getPlaceHolder();
 ```
 
 #### Actions
+
 ```typescript
 // confirm (press enter in the input)
 await input.confirm();
@@ -69,13 +79,16 @@ const pick2 = await input.findQuickPick('Input.d.ts');
 ```
 
 #### Progress
+
 ```typescript
 // find if there is an active progress bar
 const hasProgress = await input.hasProgress();
 ```
 
 #### Title Bar
+
 An input box can have its own title bar for the multi step flow
+
 ```typescript
 // get the current title, returns undefined if no title bar is present
 const title = await input.getTitle();
@@ -84,13 +97,16 @@ await input.back();
 ```
 
 ### QuickPickItem
+
 Page objects retrieved when calling ```getQuickPick```
+
 ```typescript
 const picks = await input.getQuickPicks();
 const pick = picks[0];
 ```
 
 #### Actions
+
 ```typescript
 // get text
 const text = await pick.getText();

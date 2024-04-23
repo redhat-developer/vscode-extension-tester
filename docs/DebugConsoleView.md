@@ -1,6 +1,7 @@
 Page object needs extending, currently minimal support.
 
 #### Lookup
+
 ```typescript
 import { BottomBarPanel, DebugConsoleView } from 'vscode-extension-tester';
 ...
@@ -8,6 +9,7 @@ const debugView = await new BottomBarPanel().openDebugConsoleView();
 ```
 
 #### Text Handling
+
 ```typescript
 // get all text as string
 const text = await debugView.getText();
@@ -16,6 +18,7 @@ await debugView.clearText();
 ```
 
 #### Expressions
+
 ```typescript
 // type an expression
 await debugView.setExpression('expression');

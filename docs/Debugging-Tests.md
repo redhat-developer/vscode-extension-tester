@@ -1,36 +1,39 @@
 Attaching a debugger from VS Code can be achieved with a launch configuration such as this one:
-```
+
+```json
 {
-	"name": "Debug UI Tests",
-	"type": "node",
-	"request": "launch",
-	"program": "${workspaceFolder}/node_modules/.bin/extest",
-	"args": [
-		"setup-and-run",
-		"${workspaceFolder}/out/ui-test/*.js",
-		"--mocha_config",
-		"${workspaceFolder}/src/ui-test/.mocharc-debug.js"
-	],
-	"console": "integratedTerminal",
-	"internalConsoleOptions": "neverOpen"
+ "name": "Debug UI Tests",
+ "type": "node",
+ "request": "launch",
+ "program": "${workspaceFolder}/node_modules/.bin/extest",
+ "args": [
+  "setup-and-run",
+  "${workspaceFolder}/out/ui-test/*.js",
+  "--mocha_config",
+  "${workspaceFolder}/src/ui-test/.mocharc-debug.js"
+ ],
+ "console": "integratedTerminal",
+ "internalConsoleOptions": "neverOpen"
 }
 ```
-Sometimes Windows terminal has trouble interpreting the extecutable. If that happens, you can run the cli directly:
-```
+
+Sometimes Windows terminal has trouble interpreting the executable. If that happens, you can run the cli directly:
+
+```json
 {
-	"name": "Debug UI Tests",
-	"type": "node",
-	"request": "launch",
-	"program": "${workspaceFolder}/node_modules/vscode-extension-tester/out/cli.js",
-	"args": [
-		"setup-and-run",
-		"${workspaceFolder}/out/ui-test/*.js",
-		"--mocha_config",
-		"${workspaceFolder}/src/ui-test/.mocharc-debug.js"
-	],
-	"console": "integratedTerminal",
-	"runtimeExecutable": "node",
-	"internalConsoleOptions": "neverOpen"
+ "name": "Debug UI Tests",
+ "type": "node",
+ "request": "launch",
+ "program": "${workspaceFolder}/node_modules/vscode-extension-tester/out/cli.js",
+ "args": [
+  "setup-and-run",
+  "${workspaceFolder}/out/ui-test/*.js",
+  "--mocha_config",
+  "${workspaceFolder}/src/ui-test/.mocharc-debug.js"
+ ],
+ "console": "integratedTerminal",
+ "runtimeExecutable": "node",
+ "internalConsoleOptions": "neverOpen"
 }
 ```
 

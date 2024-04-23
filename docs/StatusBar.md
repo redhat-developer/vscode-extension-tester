@@ -1,6 +1,7 @@
 ![status](https://user-images.githubusercontent.com/4181232/56661682-91e5c380-66a2-11e9-859d-1974cb98006d.png)
 
 #### Lookup
+
 ```typescript
 import { StatusBar } from 'vscode-extension-tester';
 ...
@@ -8,6 +9,7 @@ const statusbar = new StatusBar();
 ```
 
 #### Notifications Center
+
 ```typescript
 // open notifications center
 const center = await statusbar.openNotificationsCenter();
@@ -16,6 +18,7 @@ await statusbar.closeNotificationsCenter();
 ```
 
 #### Editor Status
+
 ```typescript
 // open language selection input
 await statusbar.openLanguageSelection();
@@ -40,6 +43,7 @@ const posString = await statusbar.getCurrentPosition();
 ```
 
 #### Arbitrary Status Items
+
 ```typescript
 // find a status item by title
 const item = await statusbar.getItem('Select Encoding');

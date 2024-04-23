@@ -24,7 +24,7 @@ const title = setting.getTitle();
 const category = setting.getCategory();
 
 // get the description
-const decription = await setting.getDescription();
+const description = await setting.getDescription();
 ```
 
 #### Handling Values

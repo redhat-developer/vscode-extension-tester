@@ -1,9 +1,11 @@
 ![section](https://user-images.githubusercontent.com/4181232/56656305-76c08700-6695-11e9-8630-e878ff478201.png)
 
-This is an abstract class for side bar view sections. Most behaviour is defined here, but for specifics, check out the specific subtypes.
+This is an abstract class for side bar view sections. Most behavior is defined here, but for specifics, check out the specific subtypes.
 
 #### Lookup
+
 Get a section handle from an open side bar.
+
 ```typescript
 import { SideBarView } from 'vscode-extension-tester';
 ...
@@ -11,6 +13,7 @@ const section = await new SideBarView().getContent().getSection('workspace');
 ```
 
 #### Section Manipulation
+
 ```typescript
 // get the section title
 const title = section.getTitle();
@@ -23,7 +26,9 @@ const expanded = await section.isExpanded();
 ```
 
 #### Action Buttons
+
 Section header may also contain some action buttons.
+
 ```typescript
 // get an action button by label
 const action = await section.getAction('New File');
@@ -34,6 +39,7 @@ await action.click();
 ```
 
 #### (Tree) Items Manipulation
+
 ```typescript
 // get all visible items, note that currently not shown on screen will not be retrieved
 const visibleItems = await section.getVisibleItems();
