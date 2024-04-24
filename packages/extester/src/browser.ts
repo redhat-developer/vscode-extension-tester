@@ -13,7 +13,6 @@ export class VSBrowser {
     static readonly browserName = 'vscode';
     private storagePath: string;
     private extensionsFolder: string | undefined;
-    private extensionDevelopmentPath: string | undefined;
     private customSettings: object;
     private _driver!: WebDriver;
     private codeVersion: string;
@@ -24,7 +23,6 @@ export class VSBrowser {
     constructor(codeVersion: string, releaseType: ReleaseQuality, customSettings: object = {}, logLevel: logging.Level = logging.Level.INFO) {
         this.storagePath = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.resolve(DEFAULT_STORAGE_FOLDER);
         this.extensionsFolder = process.env.EXTENSIONS_FOLDER ? process.env.EXTENSIONS_FOLDER : undefined;
-        this.extensionDevelopmentPath = process.env.EXTENSION_DEV_PATH ? process.env.EXTENSION_DEV_PATH : undefined;
         this.customSettings = customSettings;
         this.codeVersion = codeVersion;
         this.releaseType = releaseType;

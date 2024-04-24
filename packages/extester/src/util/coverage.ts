@@ -28,7 +28,7 @@ export class Coverage {
   public async loadConfig() {
     // Read nyc/c8 JSON configuration file for reading user-defined coverage report options.
     const mod = await import("find-up");
-    const config = mod.findUpSync(['.c8rc', '.c8rc.json', '.nycrc', '.nycrc.json'])
+    const config = mod.findUpSync(['.c8rc', '.c8rc.json', '.nycrc', '.nycrc.json']);
     if (config) {
       try {
         const json = readFileSync(config).toString();
@@ -82,7 +82,7 @@ export class Coverage {
         if (this.userOptions[key]) {
           reportOptions["reportsDirectory"] = this.userOptions[key];
         }
-      })
+      });
     }
 
     try {
