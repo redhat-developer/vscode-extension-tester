@@ -69,7 +69,7 @@
     "hpagent": "^1.2.0",
     "js-yaml": "^4.1.0",
     "sanitize-filename": "^1.6.3",
-    "selenium-webdriver": "^4.19.0",
+    "selenium-webdriver": "^4.20.0",
     "targz": "^1.0.1"
   },
   "peerDependencies": {
