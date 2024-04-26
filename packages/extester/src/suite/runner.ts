@@ -167,6 +167,13 @@ export class VSRunner {
             }
         }
 
+        if (process.env.MOCHA_GREP) {
+            conf.grep = process.env.MOCHA_GREP;
+        }
+        if (process.env.MOCHA_INVERT) {
+            conf.invert = process.env.MOCHA_INVERT === 'true';
+        }
+
         return conf;
     }
 }
