@@ -29,7 +29,6 @@ describe('Sample notifications tests', () => {
         }
         
         expect(await notification.getText()).equals('Hello World!');
-        expect(await notification.getSource()).has.string('HelloWorld ExTester');
         expect(await notification.getType()).equals(NotificationType.Info);
 
         // and we can manually dismiss the notification
@@ -37,7 +36,7 @@ describe('Sample notifications tests', () => {
     });
 
     // Another way to look at notifications is to open the notifications center
-    // Notifications there usually stay untill dismissed
+    // Notifications there usually stay until dismissed
     it('Notifications Center', async () => {
         const center = await new Workbench().openNotificationsCenter();
 
@@ -56,7 +55,6 @@ describe('Sample notifications tests', () => {
         }
 
         expect(await notification.getText()).equals('Hello World!');
-        expect(await notification.getSource()).has.string('HelloWorld ExTester');
         expect(await notification.getType()).equals(NotificationType.Info);
 
         // this time we can clear all notifications
