@@ -123,6 +123,7 @@ Options:
   -m, --mocha_config <mocharc.js>              # Path to Mocha configuration file
   -l, --log_level <level>                      # Log messages from webdriver with a given level (default: "Info")
   -f, --offline                                # Attempt to run without internet connection, make sure to have all requirements downloaded (default: false)
+  -C, --coverage                               # Enable code coverage using c8
   -h, --help                                   # display help for command
 ```
 
@@ -147,6 +148,7 @@ Options:
   -i, --install_dependencies                   # Automatically install extensions your extension depends on (default: false)
   -l, --log_level <level>                      # Log messages from webdriver with a given level (default: "Info")
   -f, --offline                                # Attempt to run without internet connection, make sure to have all requirements downloaded (default: false)
+  -C, --coverage                               # Enable code coverage using c8
   -h, --help                                   # display help for command
 ```
 
