@@ -43,8 +43,8 @@ export class ExTester {
     private code: CodeUtil;
     private chrome: DriverUtil;
 
-    constructor(storageFolder: string = DEFAULT_STORAGE_FOLDER, releaseType: ReleaseQuality = ReleaseQuality.Stable, extensionsDir?: string) {
-        this.code = new CodeUtil(storageFolder, releaseType, extensionsDir);
+    constructor(storageFolder: string = DEFAULT_STORAGE_FOLDER, releaseType: ReleaseQuality = ReleaseQuality.Stable, extensionsDir?: string, coverage?: boolean) {
+        this.code = new CodeUtil(storageFolder, releaseType, extensionsDir, coverage);
         this.chrome = new DriverUtil(storageFolder);
 
         if (process.versions.node.slice(0, 2) > NODEJS_VERSION_MAX) {
@@ -116,7 +116,7 @@ export class ExTester {
      *
      * @param options Additional options for setting up the tests
      */
-    async setupRequirements(options: SetupOptions = DEFAULT_SETUP_OPTIONS, offline = false): Promise<void> {
+    async setupRequirements(options: SetupOptions = DEFAULT_SETUP_OPTIONS, offline = false, cleanup = false): Promise<void> {
         const { useYarn, vscodeVersion, installDependencies } = options;
 
         const vscodeParsedVersion = loadCodeVersion(vscodeVersion);
@@ -132,7 +132,9 @@ export class ExTester {
                 console.log(`Attempting with ChromeDriver ${actualChromeVersion} anyway. Tests may experience issues due to version mismatch.`);
             }
         }
-        await this.installVsix({useYarn});
+        if (!this.code.coverageEnabled || cleanup) {
+            await this.installVsix({useYarn});
+        }
         if (installDependencies && !offline) {
             this.code.installDependencies();
         }
@@ -149,7 +151,7 @@ export class ExTester {
      * @returns Promise resolving to the mocha process exit code - 0 for no failures, 1 otherwise
      */
     async setupAndRunTests(testFilesPattern: string | string[], vscodeVersion: string = 'latest', setupOptions: Omit<SetupOptions, "vscodeVersion"> = DEFAULT_SETUP_OPTIONS, runOptions: Omit<RunOptions, "vscodeVersion"> = DEFAULT_RUN_OPTIONS): Promise<number> {
-        await this.setupRequirements({...setupOptions, vscodeVersion}, runOptions.offline);
+        await this.setupRequirements({...setupOptions, vscodeVersion}, runOptions.offline, runOptions.cleanup);
         return await this.runTests(testFilesPattern, {...runOptions, vscodeVersion});
     }
 

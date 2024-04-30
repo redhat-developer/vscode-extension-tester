@@ -14,6 +14,7 @@
     "build": "lerna run build",
     "build:changed": "lerna run build --since main",
     "test": "npm run ui-test --workspace=extester-test",
+    "test:coverage": "npm run test -- -- --coverage",
     "test:build": "npm run build:changed && npm install --workspace=extester-test && npm test"
   },
   "workspaces": [

@@ -19,7 +19,8 @@ The first part automates all the steps necessary to launch UI tests of your VSCo
 
 Find more about the test setup: [[Test-Setup]]
 
-See how to change the Mocha test runner configuration: [[Mocha-Configuration]]
+See how to change the Mocha test runner configuration: [[Mocha-Configuration]] and 
+also how to enable code coverage using the c8 tool [[CodeCoverage]]
 
 Once the setup is complete, check out the sample test file: [[Writing-Simple-Tests]].
 
