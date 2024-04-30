@@ -40,3 +40,15 @@ const options: MochaOptions = {
 
 export default options;
 ```
+
+### ENV variables for Mocha options
+
+We are supporting only `MOCHA_GREP` and `MOCHA_INVERT` variables at the moment. It allows simpler overriding that options without need of modifying the Mocha config files.
+
+```shell
+# Run the test case whose name is "ExtensionsView"
+MOCHA_GREP="ExtensionsView" npm run test
+
+# Run the test cases whose name is NOT "ExtensionsView"
+MOCHA_GREP="ExtensionsView" MOCHA_INVERT=true npm run test
+```
