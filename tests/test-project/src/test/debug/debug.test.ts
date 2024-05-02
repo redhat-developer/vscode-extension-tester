@@ -1,4 +1,4 @@
-import { ActivityBar, BottomBarPanel, Breakpoint, BreakpointSectionItem, DebugConsoleView, DebugToolbar, DebugView, EditorView, error, Key, TextEditor, TitleBar, until, VSBrowser, WebDriver, Workbench } from 'vscode-extension-tester';
+import { ActivityBar, BottomBarPanel, Breakpoint, BreakpointSectionItem, DebugConsoleView, DebugToolbar, DebugView, EditorView, error, Key, TextEditor, until, VSBrowser, WebDriver, Workbench } from 'vscode-extension-tester';
 import * as path from 'path';
 import { expect } from "chai";
 
@@ -28,7 +28,7 @@ describe('Debugging', function () {
         await (await new ActivityBar().getViewControl('Run and Debug'))?.closeView();
         await new BottomBarPanel().toggle(false);
 
-        await new TitleBar().select('File', 'Close Folder');
+        await new Workbench().executeCommand('Workspaces: Close Workspace');
         await new Promise(res => setTimeout(res, 5000));
     });
 
