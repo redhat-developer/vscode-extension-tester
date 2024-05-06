@@ -73,6 +73,7 @@ describe('Settings Editor', function () {
         });
 
         it('getDescription works', async function () {
+            setting = await editor.findSetting('Title Bar Style', 'Window') as ComboSetting;
             const desc = await setting.getDescription();
             expect(desc).not.empty;
         });
