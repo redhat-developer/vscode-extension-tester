@@ -204,6 +204,9 @@ describe('Debugging', function () {
         });
 
         it('VariableSectionItem.getVariableValueTooltip', async function () {
+            if(VSBrowser.instance.version >= '1.89.0') {
+                this.skip();
+            }
             const item = await getNumVariable(view, this.timeout() - 2000);
             expect(await item?.getVariableValueTooltip()).equals('5');
         });
