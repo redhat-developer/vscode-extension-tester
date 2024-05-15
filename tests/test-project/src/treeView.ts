@@ -6,10 +6,13 @@ import { ERROR_MESSAGE_COMMAND } from './extension';
  * https://github.com/microsoft/vscode-extension-samples/tree/master/tree-view-sample
  */
 export class TreeView {
-    constructor(context: vscode.ExtensionContext) {
-        const view = vscode.window.createTreeView('testView', { treeDataProvider: dataProvider(), showCollapseAll: true });
-        context.subscriptions.push(view);
-    }
+	constructor(context: vscode.ExtensionContext) {
+		const view = vscode.window.createTreeView('testView', {
+			treeDataProvider: dataProvider(),
+			showCollapseAll: true,
+		});
+		context.subscriptions.push(view);
+	}
 }
 
 type Tree = { [key: string]: Tree | undefined | null };
@@ -18,47 +21,50 @@ type Tree = { [key: string]: Tree | undefined | null };
 // leafs are keys that are undefined or null. If it is undefined, then its collapsibleState is None, if it null, then it is Collapsed
 // The tree element with the key 'd' is special: it has a command attached to it. It thus cannot be expanded by simply clicking on it, as that just triggers the command.
 const tree: Tree = {
-	'a': {
-		'aa': {
-			'aaa': {
-				'aaaa': {
-					'aaaaa': {
-						'aaaaaa': undefined,
-					}
-				}
-			}
+	a: {
+		aa: {
+			aaa: {
+				aaaa: {
+					aaaaa: {
+						aaaaaa: undefined,
+					},
+				},
+			},
 		},
-		'ab': undefined,
+		ab: undefined,
 	},
-	'b': {
-		'ba': undefined,
-		'bb': undefined
+	b: {
+		ba: undefined,
+		bb: undefined,
 	},
-	'c': null,
-	'd': {
-		'da': undefined,
-		'db': undefined
-	}
+	c: null,
+	d: {
+		da: undefined,
+		db: undefined,
+	},
 };
 const nodes: any = {};
 
 function dataProvider(): vscode.TreeDataProvider<{ key: string }> {
-    return {
+	return {
 		getChildren: (element?: { key: string }): { key: string }[] => {
 			return getChildren(element?.key).map((key: string) => getNode(key));
 		},
 		getTreeItem: (element: { key: string }): vscode.TreeItem => {
 			const treeItem = getTreeItem(element.key);
 			treeItem.id = element.key;
-			if (element.key === "d") {
-				treeItem.command = { title: "show an error", command: ERROR_MESSAGE_COMMAND };
+			if (element.key === 'd') {
+				treeItem.command = {
+					title: 'show an error',
+					command: ERROR_MESSAGE_COMMAND,
+				};
 			}
 			return treeItem;
 		},
 		getParent: ({ key }: { key: string }): { key: string } => {
 			const parentKey = key.substring(0, key.length - 1);
 			return new Key(parentKey);
-		}
+		},
 	};
 }
 
@@ -77,16 +83,16 @@ function getTreeItem(key: string): vscode.TreeItem {
 	const treeElement = getTreeElement(key);
 	let collapsibleState: vscode.TreeItemCollapsibleState;
 	if (treeElement === undefined) {
-        collapsibleState = vscode.TreeItemCollapsibleState.None;
-    } else {
-        collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
-    }
+		collapsibleState = vscode.TreeItemCollapsibleState.None;
+	} else {
+		collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
+	}
 	return {
 		label: key,
 		tooltip: `Tooltip for ${key}`,
 		description: `Description for ${key}`,
 		collapsibleState,
-		contextValue: "ExtensionTreeItem"
+		contextValue: 'ExtensionTreeItem',
 	};
 }
 
@@ -109,5 +115,5 @@ function getNode(key: string): { key: string } {
 }
 
 class Key {
-	constructor(readonly key: string) { }
+	constructor(readonly key: string) {}
 }

@@ -20,7 +20,7 @@ Some views have action buttons in their title part.
 
 ```typescript
 // get action button by title
-const button = await titlePart.getActionButton('Clear');
+const button = await titlePart.getActionButton("Clear");
 // get all action buttons
 const buttons = await titlePart.getActionButtons();
 // click a button

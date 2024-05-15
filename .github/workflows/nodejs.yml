@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [ lts/*, latest ]
+        node: [lts/*, latest]
     uses: ./.github/workflows/template-main.yaml
     with:
       version: max

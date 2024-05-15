@@ -19,122 +19,123 @@ import { Workbench, EditorView, WebView, By } from 'vscode-extension-tester';
 import { expect } from 'chai';
 
 describe('WebViews', function () {
+	describe('Single WebView', function () {
+		let view: WebView;
 
-    describe('Single WebView', function () {
+		before(async function () {
+			this.timeout(8000);
+			await new Workbench().executeCommand('Webview Test');
+			await new Promise((res) => {
+				setTimeout(res, 500);
+			});
+			view = new WebView();
+			await view.switchToFrame();
+		});
 
-        let view: WebView;
+		after(async function () {
+			await view.switchBack();
+			await new EditorView().closeAllEditors();
+		});
 
-        before(async function () {
-            this.timeout(8000);
-            await new Workbench().executeCommand('Webview Test');
-            await new Promise((res) => { setTimeout(res, 500); });
-            view = new WebView();
-            await view.switchToFrame();
-        });
+		it('findWebElement works', async function () {
+			const element = await view.findWebElement(By.css('h1'));
+			expect(await element.getText()).has.string('This is a web view');
+		});
 
-        after(async function () {
-            await view.switchBack();
-            await new EditorView().closeAllEditors();
-        });
+		it('findWebElements works', async function () {
+			const elements = await view.findWebElements(By.css('h1'));
+			expect(elements.length).equals(1);
+		});
+	});
 
-        it('findWebElement works', async function () {
-            const element = await view.findWebElement(By.css('h1'));
-            expect(await element.getText()).has.string('This is a web view');
-        });
+	describe('Several WebViews', function () {
+		let view: WebView;
+		let tabs: string[];
 
-        it('findWebElements works', async function () {
-            const elements = await view.findWebElements(By.css('h1'));
-            expect(elements.length).equals(1);
-        });
-    });
+		before(async function () {
+			await new EditorView().closeAllEditors();
+		});
 
-    describe('Several WebViews', function () {
+		before(async function () {
+			this.timeout(30000);
 
-        let view: WebView;
-        let tabs: string[];
+			const workbench = new Workbench();
 
-        before(async function () {
-            await new EditorView().closeAllEditors();
-        });
+			await workbench.executeCommand('Webview Test');
+			await new Promise((res) => {
+				setTimeout(res, 500);
+			});
 
-        before(async function () {
-            this.timeout(30000);
+			await workbench.executeCommand('Webview Test');
+			await new Promise((res) => {
+				setTimeout(res, 500);
+			});
 
-            const workbench = new Workbench();
+			await workbench.executeCommand('Webview Test');
+			await new Promise((res) => {
+				setTimeout(res, 500);
+			});
 
-            await workbench.executeCommand('Webview Test');
-            await new Promise((res) => { setTimeout(res, 500); });
+			tabs = await new EditorView().getOpenEditorTitles();
+		});
 
-            await workbench.executeCommand('Webview Test');
-            await new Promise((res) => { setTimeout(res, 500); });
+		after(async function () {
+			await new EditorView().closeAllEditors();
+		});
 
-            await workbench.executeCommand('Webview Test');
-            await new Promise((res) => { setTimeout(res, 500); });
+		describe('First WebView', function () {
+			before(async function () {
+				await new EditorView().openEditor(tabs[0]);
+			});
 
-            tabs = await new EditorView().getOpenEditorTitles();
-        });
+			void switchToFrame();
+			void runTests();
+			void clean();
+		});
 
-        after(async function () {
-            await new EditorView().closeAllEditors();
-        });
+		describe('Second WebView', async function () {
+			before(async function () {
+				await new EditorView().openEditor(tabs[1]);
+			});
 
-        describe('First WebView', function () {
+			void switchToFrame();
+			void runTests();
+			void clean();
+		});
 
-            before(async function () {
-                await new EditorView().openEditor(tabs[0]);
-            });
+		describe('Third WebView', async function () {
+			before(async function () {
+				await new EditorView().openEditor(tabs[2]);
+			});
 
-            void switchToFrame();
-            void runTests();
-            void clean();
-        });
+			void switchToFrame();
+			void runTests();
+			void clean();
+		});
 
-        describe('Second WebView', async function () {
+		async function switchToFrame() {
+			before(async function () {
+				view = new WebView();
+				await view.switchToFrame();
+			});
+		}
 
-            before(async function () {
-                await new EditorView().openEditor(tabs[1]);
-            });
+		async function runTests() {
+			it('findWebElement works', async function () {
+				const element = await view.findWebElement(By.css('h1'));
+				expect(await element.getText()).has.string('This is a web view');
+			});
 
-            void switchToFrame();
-            void runTests();
-            void clean();
-        });
+			it('findWebElements works', async function () {
+				const elements = await view.findWebElements(By.css('h1'));
+				expect(elements.length).equals(1);
+			});
+		}
 
-        describe('Third WebView', async function () {
-
-            before(async function () {
-                await new EditorView().openEditor(tabs[2]);
-            });
-
-            void switchToFrame();
-            void runTests();
-            void clean();
-        });
-
-        async function switchToFrame() {
-            before(async function () {
-                view = new WebView();
-                await view.switchToFrame();
-            });
-        }
-
-        async function runTests() {
-            it('findWebElement works', async function () {
-                const element = await view.findWebElement(By.css('h1'));
-                expect(await element.getText()).has.string('This is a web view');
-            });
-
-            it('findWebElements works', async function () {
-                const elements = await view.findWebElements(By.css('h1'));
-                expect(elements.length).equals(1);
-            });
-        }
-
-        async function clean() {
-            after(async function () {
-                await view.switchBack();
-            });
-        }
-
-    });
+		async function clean() {
+			after(async function () {
+				await view.switchBack();
+			});
+		}
+	});
 });

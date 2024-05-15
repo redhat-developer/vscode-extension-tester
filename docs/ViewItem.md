@@ -2,7 +2,7 @@
 
 #### Lookup
 
-The best way to get an item reference is to use the ```findItem``` method from ```ViewSection```.
+The best way to get an item reference is to use the `findItem` method from `ViewSection`.
 
 ```typescript
 const viewSection = ...;
@@ -13,7 +13,7 @@ const item = await viewSection.findItem('package.json');
 
 ```typescript
 // get item's label
-const label = item.getLabel()
+const label = item.getLabel();
 // find if the item can be expanded
 const isExpandable = await item.isExpandable();
 // try to expand the item and find if it has children

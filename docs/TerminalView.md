@@ -14,13 +14,13 @@ const terminalView = await new BottomBarPanel().openTerminalView();
 // get names of all available terminals
 const names = await terminalView.getChannelNames();
 // select a terminal from the drop box by name
-await terminalView.selectChannel('Git');
+await terminalView.selectChannel("Git");
 ```
 
 #### Execute Commands
 
 ```typescript
-await terminalView.executeCommand('git status');
+await terminalView.executeCommand("git status");
 ```
 
 #### Get Text

@@ -5,7 +5,7 @@ Screenshot can be captured by calling:
 VSBrowser.instance.takeScreenshot(basename: string)
 ```
 
-Captured screenshots will be saved in *screenshots* folder which can be found in a test storage folder (`$TMPDIR/test-resources` by default).
+Captured screenshots will be saved in _screenshots_ folder which can be found in a test storage folder (`$TMPDIR/test-resources` by default).
 File name will be generated from given basename in the following format: `${basename}.png`.
 
 #### Mocha integration
@@ -17,5 +17,5 @@ must import vscode-extension-tester hook.
 
 ```typescript
 // Supported hooks: before, beforeEach, after and afterEach
-import { before } from 'vscode-extension-tester'
+import { before } from "vscode-extension-tester";
 ```

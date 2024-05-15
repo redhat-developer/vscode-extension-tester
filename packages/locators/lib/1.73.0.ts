@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-import { By, LocatorDiff } from "@redhat-developer/page-objects";
+import { By, LocatorDiff } from '@redhat-developer/page-objects';
 export const diff: LocatorDiff = {
-    locators: {
-        ProblemsView: {
-            markersFilter: By.className('viewpane-filter')
-        }
-    }
+	locators: {
+		ProblemsView: {
+			markersFilter: By.className('viewpane-filter'),
+		},
+	},
 };

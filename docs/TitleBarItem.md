@@ -3,10 +3,10 @@
 #### Lookup
 
 ```typescript
-import { TitleBar } from 'vscode-extension-tester';
+import { TitleBar } from "vscode-extension-tester";
 
 // get an item from the title bar
-const item = await new TitleBar().getItem('File');
+const item = await new TitleBar().getItem("File");
 ```
 
 #### Select the Item

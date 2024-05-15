@@ -19,7 +19,7 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.showInformationMessage('Hello World!');
 	});
 
-	let webViewCommand = vscode.commands.registerCommand('extension.webview', async() => {
+	let webViewCommand = vscode.commands.registerCommand('extension.webview', async () => {
 		TestView.createOrShow();
 	});
 
@@ -38,9 +38,7 @@ class TestView {
 	private _disposables: vscode.Disposable[] = [];
 
 	public static createOrShow() {
-		const column = vscode.window.activeTextEditor
-			? vscode.window.activeTextEditor.viewColumn
-			: undefined;
+		const column = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : undefined;
 
 		if (TestView.instance) {
 			TestView.instance._panel.reveal(column);
@@ -58,13 +56,13 @@ class TestView {
 		this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
 
 		this._panel.onDidChangeViewState(
-			e => {
+			(e) => {
 				if (this._panel.visible) {
 					this.update();
 				}
 			},
 			null,
-			this._disposables
+			this._disposables,
 		);
 	}
 

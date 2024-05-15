@@ -2,27 +2,25 @@
 
 // Script run within the webview itself.
 (function () {
-
 	// Get a reference to the VS Code webview api.
 	// We use this API to post messages back to our extension.
 
 	// @ts-ignore
 	const vscode = acquireVsCodeApi();
 
-
 	const notesContainer = /** @type {HTMLElement} */ (document.querySelector('.notes'));
 
 	const addButtonContainer = document.querySelector('.add-button');
 	addButtonContainer.querySelector('button').addEventListener('click', () => {
 		vscode.postMessage({
-			type: 'add'
+			type: 'add',
 		});
-	})
+	});
 
 	const errorContainer = document.createElement('div');
 	document.body.appendChild(errorContainer);
-	errorContainer.className = 'error'
-	errorContainer.style.display = 'none'
+	errorContainer.className = 'error';
+	errorContainer.style.display = 'none';
 
 	/**
 	 * Render the document in the webview.
@@ -65,7 +63,7 @@
 			const deleteButton = document.createElement('button');
 			deleteButton.className = 'delete-button';
 			deleteButton.addEventListener('click', () => {
-				vscode.postMessage({ type: 'delete', id: note.id, });
+				vscode.postMessage({ type: 'delete', id: note.id });
 			});
 			element.appendChild(deleteButton);
 		}
@@ -74,7 +72,7 @@
 	}
 
 	// Handle messages sent from the extension to the webview
-	window.addEventListener('message', event => {
+	window.addEventListener('message', (event) => {
 		const message = event.data; // The json data that the extension sent
 		switch (message.type) {
 			case 'update':
@@ -97,4 +95,4 @@
 	if (state) {
 		updateContent(state.text);
 	}
-}());
+})();

@@ -32,11 +32,11 @@ An example config.ts file might look like this:
 import { MochaOptions } from "vscode-extension-tester";
 
 const options: MochaOptions = {
-    reporter: 'spec',
-    slow: 75,
-    timeout: 2000,
-    ui: 'bdd'
-}
+  reporter: "spec",
+  slow: 75,
+  timeout: 2000,
+  ui: "bdd",
+};
 
 export default options;
 ```

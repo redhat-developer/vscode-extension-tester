@@ -36,7 +36,7 @@ npm install
 
 ### Test It
 
-**When you make a change, make sure the tests are passing**. In the ```tests/test-project``` directory there is a dummy VS Code extension we use to test the framework itself.
+**When you make a change, make sure the tests are passing**. In the `tests/test-project` directory there is a dummy VS Code extension we use to test the framework itself.
 
 For that, you can use the following script and launch the tests:
 
@@ -44,7 +44,7 @@ For that, you can use the following script and launch the tests:
 npm run test:build
 ```
 
-If you are adding a new feature, be sure to **write new tests** for it. If you navigate to the ```tests/test-project/src/test``` folder, you will find a test file structure that mirrors the source files. Put your new test into the appropriate existing file, or create a new one that follows the same structure.
+If you are adding a new feature, be sure to **write new tests** for it. If you navigate to the `tests/test-project/src/test` folder, you will find a test file structure that mirrors the source files. Put your new test into the appropriate existing file, or create a new one that follows the same structure.
 
 ### Pull Requests
 
@@ -66,12 +66,12 @@ Lastly, a pull request check on [Github Actions](../../actions) is going to kick
 - [ ] Check all related PR's were merged and the `Main CI` is green
 
 1. Execute `npm run version`
-    - [ ] commit changes and open new PR
-    - [ ] wait for PR is approved and merged
-    - [ ] after merge, wait until `Main CI` is green
+   - [ ] commit changes and open new PR
+   - [ ] wait for PR is approved and merged
+   - [ ] after merge, wait until `Main CI` is green
 2. Execute `npm run publish`
-    - [ ] create and push new `vX.X.X` tag
-    - [ ] create a new GitHub [release](../../releases) from a new `vX.X.X` tag (with generated release notes)
+   - [ ] create and push new `vX.X.X` tag
+   - [ ] create a new GitHub [release](../../releases) from a new `vX.X.X` tag (with generated release notes)
 
 ### Post publish tasks
 

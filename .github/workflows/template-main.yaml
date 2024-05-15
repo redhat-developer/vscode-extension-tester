@@ -8,11 +8,11 @@ on:
         type: string
       nodejs:
         required: false
-        default: '18.x'
+        default: "18.x"
         type: string
       code_type:
         required: false
-        default: 'stable'
+        default: "stable"
         type: string
 
 jobs:
@@ -21,7 +21,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        os: [ubuntu-latest, macos-latest, windows-latest]
       fail-fast: false
 
     env:
@@ -44,6 +44,9 @@ jobs:
 
       - name: 🔧 Build
         run: npm run build
+
+      - name: ✨ Code Formatter - Prettier
+        run: npx prettier . --check
 
       - name: 🔧 Install - Test Project
         run: npm install --workspace=extester-test

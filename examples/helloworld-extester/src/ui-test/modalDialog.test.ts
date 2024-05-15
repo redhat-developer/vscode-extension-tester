@@ -20,42 +20,42 @@ import { EditorView, ModalDialog, TextEditor, Workbench } from 'vscode-extension
 
 // Example of handling a modal dialog
 describe('Sample Modal Dialog Tests', () => {
-    let dialog: ModalDialog;
-    
-    before(async () => {
-        // we need to open some modal dialog first, so lets try to close an unsaved file
-        // create a new file
-        await new Workbench().executeCommand('create new file');
-        // make some changes
-        const editor = new TextEditor();
-        await editor.typeTextAt(1, 1, 'text');
-        // try to close the editor unsaved, which opens a modal dialog
-        await new EditorView().closeEditor(await editor.getTitle());
-        dialog = new ModalDialog();
-    });
+	let dialog: ModalDialog;
 
-    // now we can check what the dialog says
-    it('Get the message', async () => {
-        const message = await dialog.getMessage();
+	before(async () => {
+		// we need to open some modal dialog first, so lets try to close an unsaved file
+		// create a new file
+		await new Workbench().executeCommand('create new file');
+		// make some changes
+		const editor = new TextEditor();
+		await editor.typeTextAt(1, 1, 'text');
+		// try to close the editor unsaved, which opens a modal dialog
+		await new EditorView().closeEditor(await editor.getTitle());
+		dialog = new ModalDialog();
+	});
 
-        expect(message).contains('Do you want to save the changes you made');
-    });
+	// now we can check what the dialog says
+	it('Get the message', async () => {
+		const message = await dialog.getMessage();
 
-    // and the additional details
-    it('Get the details', async () => {
-        const details = await dialog.getDetails();
+		expect(message).contains('Do you want to save the changes you made');
+	});
 
-        expect(details).equals(`Your changes will be lost if you don't save them.`);
-    });
+	// and the additional details
+	it('Get the details', async () => {
+		const details = await dialog.getDetails();
 
-    // we can also find and use the buttons on the dialog
-    it('Use the buttons', async () => {
-        const buttons = await dialog.getButtons();
+		expect(details).equals(`Your changes will be lost if you don't save them.`);
+	});
 
-        // there should be 3 of them
-        expect(buttons.length).equals(3);
+	// we can also find and use the buttons on the dialog
+	it('Use the buttons', async () => {
+		const buttons = await dialog.getButtons();
 
-        // or we can directly push a button by title
-        await dialog.pushButton(`Don't Save`);
-    });
+		// there should be 3 of them
+		expect(buttons.length).equals(3);
+
+		// or we can directly push a button by title
+		await dialog.pushButton(`Don't Save`);
+	});
 });

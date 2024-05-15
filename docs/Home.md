@@ -3,7 +3,7 @@
 ExTester is a package designed to help you run UI tests for your VS Code extensions using selenium-webdriver.
 Simply install it into your extension devDependencies to get started:
 
-```npm install --save-dev vscode-extension-tester```
+`npm install --save-dev vscode-extension-tester`
 
 As such there are two major parts to the project:
 
@@ -19,14 +19,14 @@ The first part automates all the steps necessary to launch UI tests of your VSCo
 
 Find more about the test setup: [[Test-Setup]]
 
-See how to change the Mocha test runner configuration: [[Mocha-Configuration]] and 
+See how to change the Mocha test runner configuration: [[Mocha-Configuration]] and
 also how to enable code coverage using the c8 tool [[CodeCoverage]]
 
 Once the setup is complete, check out the sample test file: [[Writing-Simple-Tests]].
 
 Debugging UI tests from VSCode: [[Debugging-Tests]]
 
-***
+---
 
 ## Page Object APIs
 
@@ -34,7 +34,7 @@ Once your tests are set up and running, you may use the convenient page object A
 
 Find documentation about the Page Object APIs: [[Page-Object-APIs]].
 
-***
+---
 
 ## Opening Files and Folders
 
@@ -56,14 +56,14 @@ If you are running ExTester 4.2.0 or newer, the Simple Dialog is enabled by defa
 ```plain
 Files > Simple Dialog > Enable: True
 Window > Dialog Style: Custom
-```  
+```
 
 You can also pass in custom options JSON file to the command that runs the tests using the `-o` flag. The property names are as follows:
 
 ```json
 {
-    "files.simpleDialog.enable": true,
-    "window.dialogStyle": "custom"
+  "files.simpleDialog.enable": true,
+  "window.dialogStyle": "custom"
 }
 ```
 
@@ -71,7 +71,7 @@ Invoking the open dialog (e.g. via `File > Open Folder...`) then opens an input 
 
 ```typescript
 const input = await InputBox.create();
-await input.setText('/path/to/your/folder/');
+await input.setText("/path/to/your/folder/");
 await input.confirm();
 ```
 

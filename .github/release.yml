@@ -5,13 +5,13 @@ changelog:
   categories:
     - title: 🚫 Bugs
       labels:
-        - 'bug'
+        - "bug"
       exclude:
         labels:
           - dependencies
     - title: 🚀 Features
       labels:
-        - 'enhancement'
+        - "enhancement"
       exclude:
         labels:
           - dependencies

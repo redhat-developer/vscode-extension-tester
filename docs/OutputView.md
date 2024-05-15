@@ -23,5 +23,5 @@ await outputView.clearText();
 // get names of all available channels
 const names = await outputView.getChannelNames();
 // select a channel from the drop box by name
-await outputView.selectChannel('Git');
+await outputView.selectChannel("Git");
 ```

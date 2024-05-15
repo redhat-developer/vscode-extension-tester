@@ -2,7 +2,7 @@
 
 #### Lookup
 
-To get notifications outside the notifications center, one should use a ```Workbench``` object:
+To get notifications outside the notifications center, one should use a `Workbench` object:
 
 ```typescript
 import { Workbench } from 'vscode-extension-tester';
@@ -34,5 +34,5 @@ const actions = await notification.getActions();
 // get an action's title (text)
 const title = actions[0].getTitle();
 // take action (i.e. click a button with title)
-await notification.takeAction('Install All');
+await notification.takeAction("Install All");
 ```

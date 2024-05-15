@@ -46,7 +46,7 @@ const posString = await statusbar.getCurrentPosition();
 
 ```typescript
 // find a status item by title
-const item = await statusbar.getItem('Select Encoding');
+const item = await statusbar.getItem("Select Encoding");
 // get all status items as web elements
 const items = await statusbar.getItems();
 ```

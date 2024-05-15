@@ -36,7 +36,7 @@ All setting types share the same functions to manipulate their values, however t
 const value = await setting.getValue();
 
 // generic setting of a value
-await setting.setValue('off');
+await setting.setValue("off");
 ```
 
 ##### Setting Value Types

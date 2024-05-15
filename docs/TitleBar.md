@@ -14,9 +14,9 @@ const titleBar = new TitleBar();
 
 ```typescript
 // find if an item with title exists
-const exists = await titleBar.hasItem('File');
+const exists = await titleBar.hasItem("File");
 // get a handle for an item
-const item = await titleBar.getItem('File');
+const item = await titleBar.getItem("File");
 // get all displayed items
 const items = await titleBar.getItems();
 ```

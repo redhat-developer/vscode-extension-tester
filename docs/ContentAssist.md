@@ -12,9 +12,9 @@ const contentAssist = await new TextEditor().toggleContentAssist(true);
 
 ```typescript
 // find if an item with given label is present
-const hasItem = await contentAssist.hasItem('Get');
+const hasItem = await contentAssist.hasItem("Get");
 // get an item by label
-const item = await contentAssist.getItem('Get');
+const item = await contentAssist.getItem("Get");
 // get all visible items
 const items = await contentAssist.getItems();
 ```
@@ -22,5 +22,5 @@ const items = await contentAssist.getItems();
 #### Select an Item
 
 ```typescript
-await contentAssist.getItem('Get').click();
+await contentAssist.getItem("Get").click();
 ```

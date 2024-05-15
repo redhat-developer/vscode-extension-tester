@@ -15,84 +15,82 @@
  * limitations under the License.
  */
 
-import { Key } from "selenium-webdriver";
-import { WindowControls, ContextMenu } from "../..";
-import { Menu } from "./Menu";
-import { MenuItem } from "./MenuItem";
+import { Key } from 'selenium-webdriver';
+import { WindowControls, ContextMenu } from '../..';
+import { Menu } from './Menu';
+import { MenuItem } from './MenuItem';
 
 /**
  * Page object representing the custom VS Code title bar
  */
 export class TitleBar extends Menu {
+	constructor() {
+		super(TitleBar.locators.TitleBar.constructor, TitleBar.locators.Workbench.constructor);
+	}
 
-    constructor() {
-        super(TitleBar.locators.TitleBar.constructor, TitleBar.locators.Workbench.constructor);
-    }
+	/**
+	 * Get title bar item by name
+	 * @param name name of the item to search by
+	 * @returns Promise resolving to TitleBarItem object
+	 */
+	async getItem(name: string): Promise<TitleBarItem | undefined> {
+		try {
+			await this.findElement(TitleBar.locators.TitleBar.itemConstructor(name));
+			return await new TitleBarItem(name, this).wait();
+		} catch (err) {
+			return undefined;
+		}
+	}
 
-    /**
-     * Get title bar item by name
-     * @param name name of the item to search by
-     * @returns Promise resolving to TitleBarItem object
-     */
-    async getItem(name: string): Promise<TitleBarItem | undefined> {
-        try {
-            await this.findElement(TitleBar.locators.TitleBar.itemConstructor(name));
-            return await new TitleBarItem(name, this).wait();
-        } catch (err) {
-            return undefined;
-        }
-    }
+	/**
+	 * Get all title bar items
+	 * @returns Promise resolving to array of TitleBarItem objects
+	 */
+	async getItems(): Promise<TitleBarItem[]> {
+		const items: TitleBarItem[] = [];
+		const elements = await this.findElements(TitleBar.locators.TitleBar.itemElement);
 
-    /**
-     * Get all title bar items
-     * @returns Promise resolving to array of TitleBarItem objects
-     */
-    async getItems(): Promise<TitleBarItem[]> {
-        const items: TitleBarItem[] = [];
-        const elements = await this.findElements(TitleBar.locators.TitleBar.itemElement);
+		for (const element of elements) {
+			if (await element.isDisplayed()) {
+				items.push(await new TitleBarItem(await element.getAttribute(TitleBar.locators.TitleBar.itemLabel), this).wait());
+			}
+		}
+		return items;
+	}
 
-        for (const element of elements) {
-            if (await element.isDisplayed()) {
-                items.push(await new TitleBarItem(await element.getAttribute(TitleBar.locators.TitleBar.itemLabel), this).wait());
-            }
-        }
-        return items;
-    }
+	/**
+	 * Get the window title
+	 * @returns Promise resolving to the window title
+	 */
+	async getTitle(): Promise<string> {
+		return await this.findElement(TitleBar.locators.TitleBar.title).getText();
+	}
 
-    /**
-     * Get the window title
-     * @returns Promise resolving to the window title
-     */
-    async getTitle(): Promise<string> {
-        return await this.findElement(TitleBar.locators.TitleBar.title).getText();
-    }
-
-    /**
-     * Get a reference to the WindowControls
-     */
-    getWindowControls(): WindowControls {
-        return new WindowControls(this);
-    }
+	/**
+	 * Get a reference to the WindowControls
+	 */
+	getWindowControls(): WindowControls {
+		return new WindowControls(this);
+	}
 }
 
 /**
  * Page object representing an item of the custom VS Code title bar
  */
 export class TitleBarItem extends MenuItem {
+	constructor(label: string, parent: Menu) {
+		super(TitleBar.locators.TitleBar.itemConstructor(label), parent);
+		this.parent = parent;
+		this.label = label;
+	}
 
-    constructor(label: string, parent: Menu) {
-        super(TitleBar.locators.TitleBar.itemConstructor(label), parent);
-        this.parent = parent;
-        this.label = label;
-    }
-
-    async select(): Promise<ContextMenu> {
-        const openMenus = await this.getDriver().findElements(TitleBar.locators.ContextMenu.constructor);
-        if (openMenus.length > 0 && await openMenus[0].isDisplayed()) {
-            await this.getDriver().actions().sendKeys(Key.ESCAPE).perform();
-        }
-        await this.click();
-        await new Promise(res => setTimeout(res, 500));
-        return new ContextMenu(this).wait();
-    }
+	async select(): Promise<ContextMenu> {
+		const openMenus = await this.getDriver().findElements(TitleBar.locators.ContextMenu.constructor);
+		if (openMenus.length > 0 && (await openMenus[0].isDisplayed())) {
+			await this.getDriver().actions().sendKeys(Key.ESCAPE).perform();
+		}
+		await this.click();
+		await new Promise((res) => setTimeout(res, 500));
+		return new ContextMenu(this).wait();
+	}
 }

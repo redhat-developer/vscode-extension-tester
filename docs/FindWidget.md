@@ -44,13 +44,13 @@ await widget.replaceAll();
 
 ```typescript
 // switch 'Match Case' on/off
-await widget.toggleMatchCase(true/false);
+await widget.toggleMatchCase(true / false);
 // switch 'Match Whole Word' on/off
-await widget.toggleMatchWholeWord(true/false);
+await widget.toggleMatchWholeWord(true / false);
 // switch 'Use Regular Expression' on/off
-await widget.toggleUseRegularExpression(true/false);
+await widget.toggleUseRegularExpression(true / false);
 // switch 'Preserve Case' on/off
-await widget.togglePreserveCase(true/false);
+await widget.togglePreserveCase(true / false);
 ```
 
 #### Close

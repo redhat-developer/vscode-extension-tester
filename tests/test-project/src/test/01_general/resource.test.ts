@@ -21,45 +21,48 @@ import * as os from 'os';
 import * as path from 'path';
 
 async function getTitle(): Promise<[string | undefined, Error | undefined]> {
-    try {
-        const titleBar = new TitleBar();
-        const title = await titleBar.getTitle();
-        return [title, undefined];
-    }
-    catch (e) {
-        if (e instanceof error.InvalidSelectorError) {
-            throw e;
-        }
-        return [undefined, new Error((e as Error).message)];
-    }
+	try {
+		const titleBar = new TitleBar();
+		const title = await titleBar.getTitle();
+		return [title, undefined];
+	} catch (e) {
+		if (e instanceof error.InvalidSelectorError) {
+			throw e;
+		}
+		return [undefined, new Error((e as Error).message)];
+	}
 }
 
 describe('Open resource test', function () {
-    this.timeout(30000);
-    
-    it('Single folder is open from CLI', async function() {
-        let lastError = new Error('Could not get title from TitleBar.');
-        const prefix = 'folder: ';
+	this.timeout(30000);
 
-        await VSBrowser.instance.driver.wait(async () => {
-            const [title, error] = await getTitle();
-            lastError = error ?? lastError;
+	it('Single folder is open from CLI', async function () {
+		let lastError = new Error('Could not get title from TitleBar.');
+		const prefix = 'folder: ';
 
-            const index = title?.indexOf(prefix) ?? 0;
+		await VSBrowser.instance.driver.wait(
+			async () => {
+				const [title, error] = await getTitle();
+				lastError = error ?? lastError;
 
-            if (index > 0) {
-                let openFolderPath = title?.slice(index + prefix.length);
-                if (openFolderPath) {
-                    if (openFolderPath.startsWith('~/')) {
-                        openFolderPath = path.join(os.homedir(), openFolderPath.slice(2));
-                    }
+				const index = title?.indexOf(prefix) ?? 0;
 
-                    expect(openFolderPath.split(' ')[0]).equals(process.cwd());
-                    return true;
-                }
-            }
+				if (index > 0) {
+					let openFolderPath = title?.slice(index + prefix.length);
+					if (openFolderPath) {
+						if (openFolderPath.startsWith('~/')) {
+							openFolderPath = path.join(os.homedir(), openFolderPath.slice(2));
+						}
 
-            return false;
-        }, this.timeout() - 2000, lastError.toString());
-    });
+						expect(openFolderPath.split(' ')[0]).equals(process.cwd());
+						return true;
+					}
+				}
+
+				return false;
+			},
+			this.timeout() - 2000,
+			lastError.toString(),
+		);
+	});
 });

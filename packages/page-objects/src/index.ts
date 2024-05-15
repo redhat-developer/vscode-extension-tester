@@ -95,7 +95,7 @@ export * from './conditions/WaitForAttribute';
  * @param browserID identifier/name of the browser (i.e. vscode)
  */
 export function initPageObjects(currentVersion: string, baseVersion: string, locatorFolder: string, driver: WebDriver, browserID: string) {
-    const locators = new LocatorLoader(currentVersion, baseVersion, locatorFolder).loadLocators();
+	const locators = new LocatorLoader(currentVersion, baseVersion, locatorFolder).loadLocators();
 
-    AbstractElement.init(locators, driver, browserID, currentVersion);
+	AbstractElement.init(locators, driver, browserID, currentVersion);
 }

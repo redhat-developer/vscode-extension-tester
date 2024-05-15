@@ -1,12 +1,10 @@
 {
-	"extends": "../../tsconfig.json",
-	"compilerOptions": {
-		"outDir": "out",
-		"rootDir": "src",
-		"forceConsistentCasingInFileNames": true,
-		"strict": true
-	},
-	"include": [
-		"src"
-	]
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "out",
+    "rootDir": "src",
+    "forceConsistentCasingInFileNames": true,
+    "strict": true
+  },
+  "include": ["src"]
 }

@@ -28,13 +28,13 @@ const numberOfLines = await editor.getNumberOfLines();
 
 ```typescript
 // replace all text with a string
-await editor.setText('my fabulous text');
+await editor.setText("my fabulous text");
 // replace text at a given line number
-await editor.setTextAtLine(1, 'my fabulous line');
+await editor.setTextAtLine(1, "my fabulous line");
 // type text at the current coordinates
-await editor.typeText('I have the best text');
+await editor.typeText("I have the best text");
 // type text starting at given coordinates (line, column)
-await editor.typeTextAt(1, 3, ' absolutely');
+await editor.typeTextAt(1, 3, " absolutely");
 // format the whole document with built-in tools
 await editor.formatDocument();
 // get the current cursor coordinates as number array [x,y]
@@ -71,9 +71,9 @@ await editor.toggleContentAssist(false);
 
 ```typescript
 // get line number that contains some text
-const lineNum = await editor.getLineOfText('some text');
+const lineNum = await editor.getLineOfText("some text");
 // find and select text
-await editor.selectText('some text');
+await editor.selectText("some text");
 // get selected text as string
 const text = await editor.getSelectedText();
 // get selection block as a page object
@@ -93,7 +93,7 @@ await editor.toggleBreakpoint(1);
 
 ```typescript
 // get a code lens by (partial) text
-const lens = await editor.getCodeLens('my code lens text');
+const lens = await editor.getCodeLens("my code lens text");
 // get code lens by index (zero-based from the top of the editor)
 const firstLens = await editor.getCodeLens(0);
 // get all code lenses

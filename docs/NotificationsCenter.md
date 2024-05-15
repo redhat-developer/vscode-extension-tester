@@ -2,7 +2,7 @@
 
 #### Lookup
 
-To open the notifications center, use either ```Workbench``` or ```StatusBar``` object:
+To open the notifications center, use either `Workbench` or `StatusBar` object:
 
 ```typescript
 import { Workbench, StatusBar, NotificationType } from 'vscode-extension-tester';

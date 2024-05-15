@@ -4,19 +4,19 @@ The ExTester offers both CLI and API to perform all the setup actions. That way 
 
 - `CODE_VERSION` - can be used to set version of VS Code you want to run with the appropriate ChromeDriver version
 
-    ```shell
-    export CODE_VERSION="1.84.2"
-    ```
+  ```shell
+  export CODE_VERSION="1.84.2"
+  ```
 
 - `TEST_RESOURCES` - can be used to set folder used for all test resources, by default `$TMPDIR/test-resources` (value of `$TMPDIR` differs based on operating system)
 
-    ```shell
-    export TEST_RESOURCES="./test-folder"
-    ```
+  ```shell
+  export TEST_RESOURCES="./test-folder"
+  ```
 
 ## Using the CLI
 
-All the CLI actions are available with the command ```extest``` which is available to your npm scripts once the package is installed. The default storage folder for all test resources is a ```$TMPDIR/test-resources```.
+All the CLI actions are available with the command `extest` which is available to your npm scripts once the package is installed. The default storage folder for all test resources is a `$TMPDIR/test-resources`.
 
 ### Download VS Code
 
@@ -154,100 +154,102 @@ Options:
 
 ## Using the API
 
-The same actions are available in the ```ExTester``` class as API:
+The same actions are available in the `ExTester` class as API:
 
 ```typescript
 export interface SetupOptions {
-    /** version of VS Code to test against, defaults to latest */
-    vscodeVersion?: string;
-    /** when true run `vsce package` with the `--yarn` flag */
-    useYarn?: boolean;
-    /** install the extension's dependencies from the marketplace. Defaults to `false`. */
-    installDependencies?: boolean;
+  /** version of VS Code to test against, defaults to latest */
+  vscodeVersion?: string;
+  /** when true run `vsce package` with the `--yarn` flag */
+  useYarn?: boolean;
+  /** install the extension's dependencies from the marketplace. Defaults to `false`. */
+  installDependencies?: boolean;
 }
 export declare const DEFAULT_SETUP_OPTIONS: {
-    vscodeVersion: string;
-    installDependencies: boolean;
+  vscodeVersion: string;
+  installDependencies: boolean;
 };
 
 export interface RunOptions {
-    /** version of VS Code to test against, defaults to latest */
-    vscodeVersion?: string;
-    /** path to custom settings json file */
-    settings?: string;
-    /** remove the extension's directory as well (if present) */
-    cleanup?: boolean;
-    /** path to a custom mocha configuration file */
-    config?: string;
-    /** logging level of the webdriver */
-    logLevel?: VSBrowserLogLevel;
-    /** try to perform all setup without internet connection, needs all requirements pre-downloaded manually */
-    offline?: boolean;
+  /** version of VS Code to test against, defaults to latest */
+  vscodeVersion?: string;
+  /** path to custom settings json file */
+  settings?: string;
+  /** remove the extension's directory as well (if present) */
+  cleanup?: boolean;
+  /** path to a custom mocha configuration file */
+  config?: string;
+  /** logging level of the webdriver */
+  logLevel?: VSBrowserLogLevel;
+  /** try to perform all setup without internet connection, needs all requirements pre-downloaded manually */
+  offline?: boolean;
 }
 /** defaults for the [[RunOptions]] */
 export declare const DEFAULT_RUN_OPTIONS: {
-    vscodeVersion: 'latest',
-    settings: '',
-    logLevel: logging.Level.INFO,
-    offline: false
+  vscodeVersion: "latest";
+  settings: "";
+  logLevel: logging.Level.INFO;
+  offline: false;
 };
 
 /**
  * ExTester
  */
 export declare class ExTester {
-    private code;
-    private chrome;
-    constructor(storageFolder?: string, releaseType?: ReleaseQuality, extensionsDir?: string);
-    /**
-     * Download VS Code of given version and release quality stream
-     * @param version version to download, default latest
-     */
-    downloadCode(version?: string): Promise<void>;
-    /**
-     * Install the extension into the test instance of VS Code
-     * @param vsixFile path to extension .vsix file. If not set, default vsce path will be used
-     * @param useYarn when true run `vsce package` with the `--yarn` flag
-     */
-    installVsix({ vsixFile, useYarn }?: {
-        vsixFile?: string;
-        useYarn?: boolean;
-    }): Promise<void>;
-    /**
-     * Install an extension from VS Code marketplace into the test instance
-     * @param id id of the extension to install
-     */
-    installFromMarketplace(id: string): Promise<void>;
-    /**
-     * Download the matching chromedriver for a given VS Code version
-     * @param vscodeVersion selected versio nof VS Code, default latest
-     */
-    downloadChromeDriver(vscodeVersion?: string): Promise<void>;
-    /**
-     * Performs all necessary setup: getting VS Code + ChromeDriver
-     * and packaging/installing extension into the test instance
-     *
-     * @param options Additional options for setting up the tests
-     */
-    setupRequirements(options?: SetupOptions): Promise<void>;
-    /**
-     * Performs requirements setup and runs extension tests
-     *
-     * @param testFilesPattern glob pattern for test files to run
-     * @param vscodeVersion version of VS Code to test against, defaults to latest
-     * @param setupOptions Additional options for setting up the tests
-     * @param runOptions Additional options for running the tests
-     *
-     * @returns Promise resolving to the mocha process exit code - 0 for no failures, 1 otherwise
-     */
-    setupAndRunTests(testFilesPattern: string, vscodeVersion?: string, setupOptions?: Omit<SetupOptions, "vscodeVersion">, runOptions?: Omit<RunOptions, "vscodeVersion">): Promise<number>;
-    /**
-     * Runs the selected test files in VS Code using mocha and webdriver
-     * @param testFilesPattern glob pattern for selected test files
-     * @param runOptions Additional options for running the tests
-     *
-     * @returns Promise resolving to the mocha process exit code - 0 for no failures, 1 otherwise
-     */
-    runTests(testFilesPattern: string, runOptions?: RunOptions): Promise<number>;
+  private code;
+  private chrome;
+  constructor(storageFolder?: string, releaseType?: ReleaseQuality, extensionsDir?: string);
+  /**
+   * Download VS Code of given version and release quality stream
+   * @param version version to download, default latest
+   */
+  downloadCode(version?: string): Promise<void>;
+  /**
+   * Install the extension into the test instance of VS Code
+   * @param vsixFile path to extension .vsix file. If not set, default vsce path will be used
+   * @param useYarn when true run `vsce package` with the `--yarn` flag
+   */
+  installVsix({ vsixFile, useYarn }?: { vsixFile?: string; useYarn?: boolean }): Promise<void>;
+  /**
+   * Install an extension from VS Code marketplace into the test instance
+   * @param id id of the extension to install
+   */
+  installFromMarketplace(id: string): Promise<void>;
+  /**
+   * Download the matching chromedriver for a given VS Code version
+   * @param vscodeVersion selected versio nof VS Code, default latest
+   */
+  downloadChromeDriver(vscodeVersion?: string): Promise<void>;
+  /**
+   * Performs all necessary setup: getting VS Code + ChromeDriver
+   * and packaging/installing extension into the test instance
+   *
+   * @param options Additional options for setting up the tests
+   */
+  setupRequirements(options?: SetupOptions): Promise<void>;
+  /**
+   * Performs requirements setup and runs extension tests
+   *
+   * @param testFilesPattern glob pattern for test files to run
+   * @param vscodeVersion version of VS Code to test against, defaults to latest
+   * @param setupOptions Additional options for setting up the tests
+   * @param runOptions Additional options for running the tests
+   *
+   * @returns Promise resolving to the mocha process exit code - 0 for no failures, 1 otherwise
+   */
+  setupAndRunTests(
+    testFilesPattern: string,
+    vscodeVersion?: string,
+    setupOptions?: Omit<SetupOptions, "vscodeVersion">,
+    runOptions?: Omit<RunOptions, "vscodeVersion">,
+  ): Promise<number>;
+  /**
+   * Runs the selected test files in VS Code using mocha and webdriver
+   * @param testFilesPattern glob pattern for selected test files
+   * @param runOptions Additional options for running the tests
+   *
+   * @returns Promise resolving to the mocha process exit code - 0 for no failures, 1 otherwise
+   */
+  runTests(testFilesPattern: string, runOptions?: RunOptions): Promise<number>;
 }
 ```
