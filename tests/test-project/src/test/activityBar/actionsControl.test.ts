@@ -22,7 +22,7 @@ import { ActivityBar, ActionsControl } from 'vscode-extension-tester';
     let bar: ActivityBar;
     let control: ActionsControl | undefined;
 
-    before(async function() {
+    before(async function () {
         bar = new ActivityBar();
         control = await bar.getGlobalAction('Manage');
     });
