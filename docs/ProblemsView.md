@@ -13,7 +13,7 @@ const problemsView = await new BottomBarPanel().openProblemsView();
 Fill in a string into the filter box.
 
 ```typescript
-await problemsView.setFilter('**/filter/glob*');
+await problemsView.setFilter("**/filter/glob*");
 ```
 
 #### Collapse All Markers

@@ -16,10 +16,10 @@ Search for a setting with a given name and category, see more about the [[Settin
 
 ```typescript
 // look for a setting named 'Auto Save' under 'Editor' category
-const setting = await settingsEditor.findSetting('Auto Save', 'Editor');
+const setting = await settingsEditor.findSetting("Auto Save", "Editor");
 
 // find a setting in nested categories, e.g. 'Enable' in 'Files' > 'Simple Dialog'
-const setting1 = await settingsEditor.findSetting('Enable', 'Files', 'Simple Dialog');
+const setting1 = await settingsEditor.findSetting("Enable", "Files", "Simple Dialog");
 ```
 
 #### Switch Settings Perspectives
@@ -28,5 +28,5 @@ VSCode has two perspectives for its settings: 'User' and 'Workspace'. If your VS
 
 ```typescript
 // switch to Workspace perspective
-await settingsEditor.switchToPerspective('Workspace');
+await settingsEditor.switchToPerspective("Workspace");
 ```

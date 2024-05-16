@@ -12,7 +12,7 @@ const contentPart = new SideBarView().getContent();
 
 ```typescript
 // get a section by title, case insensitive
-const section = await contentPart.getSection('Open Editors');
+const section = await contentPart.getSection("Open Editors");
 // get all sections
 const sections = await contentPart.getSections();
 ```

@@ -21,11 +21,11 @@ await debugView.clearText();
 
 ```typescript
 // type an expression
-await debugView.setExpression('expression');
+await debugView.setExpression("expression");
 // evaluate an existing expression
 await debugView.evaluateExpression();
 // type and evaluate an expression
-await debugView.evaluateExpression('expression');
+await debugView.evaluateExpression("expression");
 // get a handle for content assist
 const assist = await debugView.getContentAssist();
 ```

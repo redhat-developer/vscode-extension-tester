@@ -5,7 +5,7 @@
 The best way to open the view is to use the activity bar on the left. It might take a second for the view to initialize, so make sure to account for it.
 
 ```typescript
-view = await new ActivityBar().getViewControl('Source Control').openView() as ScmView;
+view = (await new ActivityBar().getViewControl("Source Control").openView()) as ScmView;
 ```
 
 #### Actions
@@ -14,7 +14,7 @@ In an SCM view we can do two things: initialize a repository if none exists, or 
 
 ```typescript
 // get a provider (repository) by title
-const provider = await view.getProvider('vscode-extension-tester');
+const provider = await view.getProvider("vscode-extension-tester");
 // get all providers (useful if you have multiple repositories open)
 const providers = await view.getProviders();
 // initialize repository if none is present in current workspace
@@ -42,13 +42,13 @@ There are several buttons to push and an input field to fill, which you can do a
 
 ```typescript
 // click an action button (the buttons are either on the title part on the top for a single repo, or next to the provider title for multiple repos). For instance, refresh:
-await provider.takeAction('Refresh');
+await provider.takeAction("Refresh");
 
 // click the `More Actions` button to open a context menu with all the available commands
 const contextmenu = await provider.openMoreActions();
 
 // Fill in the commit message and make a commit
-await provider.commitChanges('Commit message');
+await provider.commitChanges("Commit message");
 ```
 
 #### Handling Changes
@@ -83,5 +83,5 @@ const expanded = await change.isExpanded();
 await change.toggleExpand(true); // or false to collapse it :)
 
 // use on of the action buttons for the item, e.g. stage
-await change.takeAction('Stage Changes');
+await change.takeAction("Stage Changes");
 ```

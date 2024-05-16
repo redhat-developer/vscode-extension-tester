@@ -12,14 +12,14 @@ const editorView = new EditorView();
 
 ```typescript
 // open editor tab by title
-const editor = await editorView.openEditor('package.json');
+const editor = await editorView.openEditor("package.json");
 ```
 
 #### Closing Editors
 
 ```typescript
 // close an editor tab by title
-await editorView.closeEditor('package.json');
+await editorView.closeEditor("package.json");
 // close all open tabs
 await editorView.closeAllEditors();
 ```
@@ -34,9 +34,9 @@ const titles = await editorView.getOpenEditorTitles();
 
 ```typescript
 // find an editor action button by title
-const button = await editorView.getAction('Open Changes');
+const button = await editorView.getAction("Open Changes");
 // also works for multiple editor groups, select the group by index, starting with 0 from the left
-const buttonFromSecondGroup = await editorView.getAction('More Actions...', 1);
+const buttonFromSecondGroup = await editorView.getAction("More Actions...", 1);
 // get all visible action buttons, again you may specify a group index, default is 0
 const buttons = await editorView.getActions();
 ```
@@ -49,11 +49,10 @@ By default, all EditorView methods work with the first (left-most) editor group,
 
 ```typescript
 // open editor in the second group (from the left, using a zero-based index)
-const editor = await editorView.openEditor('package.json', 1);
-
+const editor = await editorView.openEditor("package.json", 1);
 
 // close editor in the second group
-await editorView.closeEditor('package.json', 1);
+await editorView.closeEditor("package.json", 1);
 
 // close all editors in the second group (and the whole group)
 await editorView.closeAllEditors(1);
@@ -85,7 +84,7 @@ There are two basic ways to get `EditorTab` objects, through `EditorView`/`Edito
 ```typescript
 // using EditorView, the same principle applies to EditorGroup
 // get tab by title from the first group
-const tab = await editorView.getTabByTitle('Index.d.ts');
+const tab = await editorView.getTabByTitle("Index.d.ts");
 // get all open tabs in a list
 const tabs = await editorView.getOpenTabs();
 // get the active tab (or undefined if none is active)
@@ -95,7 +94,7 @@ const active = await editorView.getActiveTab();
 From an `Editor` instance:
 
 ```typescript
-const editor = await editorView.openEditor('Index.d.ts');
+const editor = await editorView.openEditor("Index.d.ts");
 const etab = await editorView.getTab();
 ```
 

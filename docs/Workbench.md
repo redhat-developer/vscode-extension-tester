@@ -3,7 +3,7 @@ Workbench is the container for all the other elements. As such it mainly offers 
 #### Lookup
 
 ```typescript
-import { Workbench } from 'vscode-extension-tester'; 
+import { Workbench } from 'vscode-extension-tester';
 ...
 const workbench = new Workbench();
 ```
@@ -35,7 +35,7 @@ const center = workbench.openNotificationsCenter();
 
 #### Command Prompt
 
-You can also use ```Workbench``` to open the command prompt and execute commands.
+You can also use `Workbench` to open the command prompt and execute commands.
 
 ```typescript
 // open command prompt, can then be handled as a QuickOpenBox
@@ -43,7 +43,7 @@ const commandInput = await workbench.openCommandPrompt();
 
 /* open command prompt and execute a command in it, the text does not need to be a perfect match
  uses VS Code's fuzzy search to find the best match */
-await workbench.executeCommand('close workspace');
+await workbench.executeCommand("close workspace");
 ```
 
 #### Settings

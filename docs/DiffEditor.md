@@ -4,7 +4,7 @@
 
 ```typescript
 // through editors view
-const diffEditor1 = await new EditorView().openEditor('editorTitle');
+const diffEditor1 = await new EditorView().openEditor("editorTitle");
 
 // directly
 const diffEditor2 = new DiffEditor();

@@ -22,17 +22,17 @@ Item lookup behaves in a completely different way to the tree sections. In this 
 const items = await section.getVisibleItems();
 
 // find an extension anywhere (including the marketplace)
-const item = await section.findItem('npm');
+const item = await section.findItem("npm");
 // clear the search bar so the original section reappears
 await section.clearSearch();
 
 // find an extension in the installed section
-const item2 = await section.findItem('@installed java');
+const item2 = await section.findItem("@installed java");
 // clear the search bar so the original section reappears
 await section.clearSearch();
 
 // open an item in the editor view
-await section.openItem('@installed java');
+await section.openItem("@installed java");
 ```
 
 #### ExtensionsViewItem

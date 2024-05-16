@@ -16,16 +16,16 @@
 		}
 
 		addPoint(/** @type {number} */ x, /** @type {number} */ y) {
-			this.stroke.push([x, y])
+			this.stroke.push([x, y]);
 		}
 	}
 
 	/**
-	 * @param {Uint8Array} initialContent 
+	 * @param {Uint8Array} initialContent
 	 * @return {Promise<HTMLImageElement>}
 	 */
 	async function loadImageFromData(initialContent) {
-		const blob = new Blob([initialContent], { 'type': 'image/png' });
+		const blob = new Blob([initialContent], { type: 'image/png' });
 		const url = URL.createObjectURL(blob);
 		try {
 			const img = document.createElement('img');
@@ -42,7 +42,7 @@
 	}
 
 	class PawDrawEditor {
-		constructor( /** @type {HTMLElement} */ parent) {
+		constructor(/** @type {HTMLElement} */ parent) {
 			this.ready = false;
 
 			this.editable = false;
@@ -60,7 +60,7 @@
 
 		addPoint(/** @type {number} */ x, /** @type {number} */ y) {
 			if (this.currentStroke) {
-				this.currentStroke.addPoint(x, y)
+				this.currentStroke.addPoint(x, y);
 			}
 		}
 
@@ -86,9 +86,9 @@
 		_initElements(/** @type {HTMLElement} */ parent) {
 			const colorButtons = /** @type {NodeListOf<HTMLButtonElement>} */ (document.querySelectorAll('.drawing-controls button'));
 			for (const colorButton of colorButtons) {
-				colorButton.addEventListener('click', e => {
+				colorButton.addEventListener('click', (e) => {
 					e.stopPropagation();
-					colorButtons.forEach(button => button.classList.remove('active'));
+					colorButtons.forEach((button) => button.classList.remove('active'));
 					colorButton.classList.add('active');
 					this.drawingColor = colorButton.dataset['color'];
 				});
@@ -144,7 +144,7 @@
 				}
 			});
 
-			parent.addEventListener('mousemove', e => {
+			parent.addEventListener('mousemove', (e) => {
 				if (!isDrawing || !this.ready || !this.editable) {
 					return;
 				}
@@ -171,8 +171,8 @@
 		}
 
 		/**
-		 * @param {Uint8Array | undefined} data 
-		 * @param {Array<Stroke> | undefined} strokes 
+		 * @param {Uint8Array | undefined} data
+		 * @param {Array<Stroke> | undefined} strokes
 		 */
 		async reset(data, strokes = []) {
 			if (data) {
@@ -188,7 +188,7 @@
 		}
 
 		/**
-		 * @param {Array<Stroke> | undefined} strokes 
+		 * @param {Array<Stroke> | undefined} strokes
 		 */
 		async resetUntitled(strokes = []) {
 			const size = 100;
@@ -218,8 +218,8 @@
 			outCtx.drawImage(this.initialCanvas, 0, 0);
 			outCtx.drawImage(this.drawingCanvas, 0, 0);
 
-			const blob = await new Promise(resolve => {
-				outCanvas.toBlob(resolve, 'image/png')
+			const blob = await new Promise((resolve) => {
+				outCanvas.toBlob(resolve, 'image/png');
 			});
 
 			return new Uint8Array(await blob.arrayBuffer());
@@ -229,40 +229,41 @@
 	const editor = new PawDrawEditor(document.querySelector('.drawing-canvas'));
 
 	// Handle messages from the extension
-	window.addEventListener('message', async e => {
+	window.addEventListener('message', async (e) => {
 		const { type, body, requestId } = e.data;
 		switch (type) {
-			case 'init':
-				{
-					editor.setEditable(body.editable);
-					if (body.untitled) {
-						await editor.resetUntitled();
-						return;
-					} else {
-						// Load the initial image into the canvas.
-						const data = new Uint8Array(body.value.data);
-						await editor.reset(data);
-						return;
-					}
-				}
-			case 'update':
-				{
-					const data = body.content ? new Uint8Array(body.content.data) : undefined;
-					const strokes = body.edits.map(edit => new Stroke(edit.color, edit.stroke));
-					await editor.reset(data, strokes)
+			case 'init': {
+				editor.setEditable(body.editable);
+				if (body.untitled) {
+					await editor.resetUntitled();
+					return;
+				} else {
+					// Load the initial image into the canvas.
+					const data = new Uint8Array(body.value.data);
+					await editor.reset(data);
 					return;
 				}
-			case 'getFileData':
-				{
-					// Get the image data for the canvas and post it back to the extension.
-					editor.getImageData().then(data => {
-						vscode.postMessage({ type: 'response', requestId, body: Array.from(data) });
+			}
+			case 'update': {
+				const data = body.content ? new Uint8Array(body.content.data) : undefined;
+				const strokes = body.edits.map((edit) => new Stroke(edit.color, edit.stroke));
+				await editor.reset(data, strokes);
+				return;
+			}
+			case 'getFileData': {
+				// Get the image data for the canvas and post it back to the extension.
+				editor.getImageData().then((data) => {
+					vscode.postMessage({
+						type: 'response',
+						requestId,
+						body: Array.from(data),
 					});
-					return;
-				}
+				});
+				return;
+			}
 		}
 	});
 
 	// Signal to VS Code that the webview is initialized.
 	vscode.postMessage({ type: 'ready' });
-}());
+})();

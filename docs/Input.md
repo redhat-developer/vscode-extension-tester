@@ -56,7 +56,7 @@ const input = new QuickOpenBox();
 // get text in the input box
 const text = await input.getText();
 // replace text in the input box with a string
-await input.setText('amazing text');
+await input.setText("amazing text");
 // get the placeholder text
 const placeholder = await input.getPlaceHolder();
 ```
@@ -72,10 +72,10 @@ await input.cancel();
 const picks = await input.getQuickPicks();
 // search for a quick pick item by text or index and click it (includes scrolling if item is not visible)
 await input.selectQuickPick(1);
-await input.selectQuickPick('Input.d.ts');
+await input.selectQuickPick("Input.d.ts");
 // search for a quick pick item and get a handle for it (includes scrolling if item is not visible)
 const pick = await input.findQuickPick(1);
-const pick2 = await input.findQuickPick('Input.d.ts');
+const pick2 = await input.findQuickPick("Input.d.ts");
 ```
 
 #### Progress
@@ -98,7 +98,7 @@ await input.back();
 
 ### QuickPickItem
 
-Page objects retrieved when calling ```getQuickPick```
+Page objects retrieved when calling `getQuickPick`
 
 ```typescript
 const picks = await input.getQuickPicks();

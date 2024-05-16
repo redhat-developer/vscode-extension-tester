@@ -31,7 +31,7 @@ Section header may also contain some action buttons.
 
 ```typescript
 // get an action button by label
-const action = await section.getAction('New File');
+const action = await section.getAction("New File");
 // get all action buttons for the section
 const actions = await section.getActions();
 // click an action button
@@ -44,11 +44,10 @@ await action.click();
 // get all visible items, note that currently not shown on screen will not be retrieved
 const visibleItems = await section.getVisibleItems();
 // find an item with a given label, involves scrolling to items currently not showing
-const item = await section.findItem('package.json');
+const item = await section.findItem("package.json");
 // recursively navigate to an item and click it
-   // if the item has children (./src/webdriver/components folder)
-   const children = await section.openItem('src', 'webdriver', 'components');
-   // if the item is a leaf
-   await section.openItem('src', 'webdriver', 'components', 'AbstractElement.ts');
-
+// if the item has children (./src/webdriver/components folder)
+const children = await section.openItem("src", "webdriver", "components");
+// if the item is a leaf
+await section.openItem("src", "webdriver", "components", "AbstractElement.ts");
 ```

@@ -18,12 +18,12 @@ const message = await dialog.getMessage();
 const details = await dialog.getDetails();
 
 // get the button web elements
-const buttons = await dialog.getButtons()
+const buttons = await dialog.getButtons();
 ```
 
 #### Push a button
 
 ```typescript
 // push button with a given title
-await dialog.pushButton('Save All');
+await dialog.pushButton("Save All");
 ```

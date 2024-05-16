@@ -6,14 +6,15 @@ We are supporting only the latest version of ExTester framework package.
 
 | Version | Supported          |
 | ------- | ------------------ |
-| latest   | :white_check_mark: |
+| latest  | :white_check_mark: |
 
 ## Reporting a Vulnerability
 
-If you discover a vulnerability in the ExTester project, we encourage you to report it to us so that we can address it promptly. 
+If you discover a vulnerability in the ExTester project, we encourage you to report it to us so that we can address it promptly.
 
 Here's how you can report a vulnerability:
-1. Email the details of the vulnerability to djelinek@redhat.com.
+
+1. Email the details of the vulnerability to <djelinek@redhat.com>.
 2. Include as much information as possible about the vulnerability, including steps to reproduce if applicable.
 3. Please do not disclose the vulnerability publicly until we have had a chance to investigate and respond.
 

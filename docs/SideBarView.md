@@ -3,11 +3,11 @@
 #### Lookup
 
 ```typescript
-import { ActivityBar, SideBarView } from 'vscode-extension-tester';
+import { ActivityBar, SideBarView } from "vscode-extension-tester";
 // to look up the currently open view (if any is open)
 const view = new SideBarView();
 // to open a specific view and look it up
-const control = await new ActivityBar().getViewControl('Explorer');
+const control = await new ActivityBar().getViewControl("Explorer");
 const view1 = await control.openView();
 ```
 

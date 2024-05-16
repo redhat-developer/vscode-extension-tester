@@ -22,7 +22,7 @@ const welcome: WelcomeContentSection = await section.findWelcomeContent();
 // get all the possible buttons and paragraphs in a list
 const contents = await welcome.getContents();
 
-// get all buttons 
+// get all buttons
 const btns = await welcome.getButtons();
 
 // get paragraphs as strings in a list

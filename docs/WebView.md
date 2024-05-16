@@ -26,7 +26,7 @@ await webview.switchBack();
 
 #### Searching for Elements Inside a Web View
 
-Make sure when searching for and manipulating with elements inside (or outside) the web view that you have switched webdriver to the appropriate context. Also, be aware that referencing an element from the default window  while switched to the web view (and vice versa) will throw a `StaleElementReference` error.
+Make sure when searching for and manipulating with elements inside (or outside) the web view that you have switched webdriver to the appropriate context. Also, be aware that referencing an element from the default window while switched to the web view (and vice versa) will throw a `StaleElementReference` error.
 
 ```typescript
 // first, switch inside the web view

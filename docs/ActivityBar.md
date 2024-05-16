@@ -24,7 +24,7 @@ Find a view control/button in the activity bar by its title
 
 ```typescript
 // get Explorer view control
-const controls = await activityBar.getViewControl('Explorer');
+const controls = await activityBar.getViewControl("Explorer");
 ```
 
 #### Get global actions
@@ -40,7 +40,7 @@ const actions = await activityBar.getGlobalActions();
 Find global actions button by title
 
 ```typescript
-const actions = await activityBar.getGlobalAction('Manage');
+const actions = await activityBar.getGlobalAction("Manage");
 ```
 
 #### Open context menu

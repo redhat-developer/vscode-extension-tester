@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
 	height: 100%;
 }
 
@@ -54,12 +55,12 @@ html, body {
 }
 
 .drawing-controls button:before {
-	-webkit-mask: url("./paw-color.svg") no-repeat 50% 50%;
+	-webkit-mask: url('./paw-color.svg') no-repeat 50% 50%;
 }
 
 .drawing-controls button:after {
 	background-color: #111;
-	-webkit-mask: url("./paw-outline.svg") no-repeat 50% 50%;
+	-webkit-mask: url('./paw-outline.svg') no-repeat 50% 50%;
 }
 
 .drawing-controls button.black:before {

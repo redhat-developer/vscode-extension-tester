@@ -6,7 +6,7 @@ See the individual page object pages below for quick usage guide.
 
 - [[ActionsControl]]
 - [[ActivityBar]]
-- [[ViewContol]]
+- [[ViewControl]]
 
 ##### Bottom Bar
 

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { WebElement } from "selenium-webdriver";
+import { WebElement } from 'selenium-webdriver';
 
 /**
  * Condition to wait until an element's attribute has a specified value
@@ -24,8 +24,8 @@ import { WebElement } from "selenium-webdriver";
  * @param value value to wait for the attribute to have
  */
 export function waitForAttributeValue(element: WebElement, attribute: string, value: string) {
-    return async () => {
-        const result = await element.getAttribute(attribute);
-        return result === value;
-    };
+	return async () => {
+		const result = await element.getAttribute(attribute);
+		return result === value;
+	};
 }

@@ -1,0 +1,6 @@
+coverage/
+out/
+resources/
+test-resources/
+test-extensions/
+.test-extensions/
