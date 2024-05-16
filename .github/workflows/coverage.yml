@@ -46,6 +46,25 @@ jobs:
           xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' npm run test:coverage
           exit 0
 
+      # - name: ☁️ SonarCloud Scan
+      #   uses: SonarSource/sonarcloud-github-action@master
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      # - name: Setup LCOV
+      #   uses: hrishikesh-kadam/setup-lcov@v1
+
+      - name: 📊 Report Coverage on PR
+        uses: zgosalvez/github-actions-report-lcov@v3
+        with:
+          coverage-files: ${{ github.workspace }}/tests/test-project/coverage/lcov.info
+          artifact-name: coverage
+          minimum-coverage: 90
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          update-comment: true
+          working-directory: ${{ github.workspace }}/tests/test-project
+
       - name: 💾 Upload Coverage
         uses: actions/upload-artifact@v4
         if: always()
