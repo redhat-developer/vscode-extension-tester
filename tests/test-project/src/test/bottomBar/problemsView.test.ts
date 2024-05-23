@@ -88,25 +88,55 @@ describe('ProblemsView', function () {
 		});
 
 		it('toggleExpand works', async function () {
-			const marker = (await view.getAllVisibleMarkers(MarkerType.File))[0];
-			await marker.toggleExpand(false);
-			let markers = await view.getAllVisibleMarkers(MarkerType.Any);
-			expect(markers.length).equals(1);
+			await VSBrowser.instance.driver.wait(
+				async function () {
+					try {
+						const marker = (await view.getAllVisibleMarkers(MarkerType.File))[0];
+						await marker.toggleExpand(false);
+						let markers = await view.getAllVisibleMarkers(MarkerType.Any);
+						expect(markers.length).equals(1);
 
-			await marker.toggleExpand(true);
-			markers = await view.getAllVisibleMarkers(MarkerType.Any);
-			expect(markers.length).equals(2);
+						await marker.toggleExpand(true);
+						markers = await view.getAllVisibleMarkers(MarkerType.Any);
+						expect(markers.length).equals(2);
+						return true;
+					} catch (err) {
+						// Extra click to avoid the error: "ElementClickInterceptedError"
+						// Workaround for the issue: https://github.com/redhat-developer/vscode-extension-tester/issues/1285
+						await VSBrowser.instance.driver.actions().click().perform();
+						return false;
+					}
+				},
+				10000,
+				undefined,
+				1000,
+			);
 		});
 
 		it('click works', async function () {
-			const markers = await view.getAllVisibleMarkers(MarkerType.File);
-			for (const marker of markers) {
-				if ((await marker.getLabel()) === 'test-file.ts') {
-					await marker.click();
-				}
-			}
-			const anyMarkers = await view.getAllVisibleMarkers(MarkerType.Any);
-			expect(anyMarkers.length).equals(1);
+			await VSBrowser.instance.driver.wait(
+				async function () {
+					try {
+						const markers = await view.getAllVisibleMarkers(MarkerType.File);
+						for (const marker of markers) {
+							if ((await marker.getLabel()) === 'test-file.ts') {
+								await marker.click();
+							}
+						}
+						const anyMarkers = await view.getAllVisibleMarkers(MarkerType.Any);
+						expect(anyMarkers.length).equals(1);
+						return true;
+					} catch (err) {
+						// Extra click to avoid the error: "ElementClickInterceptedError"
+						// Workaround for the issue: https://github.com/redhat-developer/vscode-extension-tester/issues/1285
+						await VSBrowser.instance.driver.actions().click().perform();
+						return false;
+					}
+				},
+				10000,
+				undefined,
+				1000,
+			);
 		});
 	});
 });
