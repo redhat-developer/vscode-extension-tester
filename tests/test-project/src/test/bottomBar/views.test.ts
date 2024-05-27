@@ -113,9 +113,21 @@ describe('Output View/Text Views', function () {
 		});
 
 		it('newTerminal opens a new term channel', async function () {
+			const expectedChannel = `2: ${terminalName}`;
 			await terminal.newTerminal();
-			const channel = await terminal.getCurrentChannel();
-			expect(channel).equals(`2: ${terminalName}`);
+			await VSBrowser.instance.driver.wait(
+				async () => {
+					try {
+						return (await terminal.getCurrentChannel()) === expectedChannel;
+					} catch (err) {
+						return false;
+					}
+				},
+				10000,
+				undefined,
+				1000,
+			);
+			expect(await terminal.getCurrentChannel()).equals(expectedChannel);
 		});
 	});
 });
