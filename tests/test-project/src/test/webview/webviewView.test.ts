@@ -16,7 +16,7 @@
  */
 
 import { expect } from 'chai';
-import { BottomBarPanel, By, CustomTreeSection, SideBarView, WebviewView, Workbench } from 'vscode-extension-tester';
+import { BottomBarPanel, By, CustomTreeSection, SideBarView, VSBrowser, WebviewView, Workbench } from 'vscode-extension-tester';
 
 describe('WebviewViews', function () {
 	const params = [
@@ -49,7 +49,24 @@ describe('WebviewViews', function () {
 					await webviewView.switchBack();
 				}
 				if (param.closePanel) {
-					await new BottomBarPanel().toggle(false);
+					await VSBrowser.instance.driver.wait(
+						async function () {
+							try {
+								await new BottomBarPanel().toggle(false);
+								return true;
+							} catch (err) {
+								// Dismiss "Linux subsystem for Windows available" notification to avoid the error: "ElementClickInterceptedError"
+								const notifications = await new Workbench().getNotifications();
+								if (process.platform === 'win32' && notifications.length > 0) {
+									await notifications[0].dismiss();
+								}
+								return false;
+							}
+						},
+						10000,
+						undefined,
+						1000,
+					);
 				}
 				if (param.closeSection) {
 					const section = (await new SideBarView().getContent().getSection('My Side Panel View')) as CustomTreeSection;
