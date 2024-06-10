@@ -15,11 +15,15 @@
  * limitations under the License.
  */
 
-import { EditorView, Workbench } from 'vscode-extension-tester';
+import { EditorView, VSBrowser, Workbench } from 'vscode-extension-tester';
 import * as path from 'path';
 
 describe('Simple open file dialog', function () {
 	const filePath = path.resolve('.', 'package.json');
+
+	after(async function () {
+		await new EditorView().closeAllEditors();
+	});
 
 	it('Opens a file', async function () {
 		this.timeout(30000);
@@ -28,9 +32,19 @@ describe('Simple open file dialog', function () {
 		await input.selectQuickPick('File: Open File...');
 		await new Promise((res) => setTimeout(res, 1000));
 		await input.setText(filePath);
-		await input.confirm();
-		await new Promise((res) => setTimeout(res, 1000));
 
-		await new EditorView().openEditor('package.json');
+		await VSBrowser.instance.driver.wait(
+			async () => {
+				try {
+					await input.confirm();
+					await new Promise((res) => setTimeout(res, 1000));
+					return (await new EditorView().openEditor('package.json')).isDisplayed();
+				} catch {
+					return false;
+				}
+			},
+			this.timeout() - 10000,
+			`No editor with title 'package.json' available.`,
+		);
 	});
 });
