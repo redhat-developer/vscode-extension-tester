@@ -120,7 +120,7 @@ describe('Debugging', function () {
 
 		it('start the debug session', async function () {
 			await view.start();
-			debugBar = await DebugToolbar.create();
+			debugBar = await DebugToolbar.create(10000);
 			await debugBar.waitForBreakPoint();
 		});
 
