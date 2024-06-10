@@ -123,7 +123,11 @@ export class DriverUtil {
 		let url = `https://chromedriver.storage.googleapis.com/${version}/chromedriver_${driverPlatform}.zip`;
 		if (+majorVersion > 114) {
 			driverPlatform = DriverUtil.getChromeDriverPlatform();
-			url = `https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${version}/${driverPlatform}/chromedriver-${driverPlatform}.zip`;
+			if (+majorVersion >= 122) {
+				url = `https://storage.googleapis.com/chrome-for-testing-public/${version}/${driverPlatform}/chromedriver-${driverPlatform}.zip`;
+			} else {
+				url = `https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${version}/${driverPlatform}/chromedriver-${driverPlatform}.zip`;
+			}
 		}
 		return url;
 	}
