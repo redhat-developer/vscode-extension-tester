@@ -8,7 +8,7 @@ on:
         type: string
       nodejs:
         required: false
-        default: "18.x"
+        default: "20.x"
         type: string
       code_type:
         required: false
