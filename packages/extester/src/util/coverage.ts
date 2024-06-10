@@ -42,7 +42,7 @@ export class Coverage {
 
 	public async write() {
 		const reportOptions: any = {
-			reporter: ['text', 'html'],
+			reporter: ['text', 'html', 'lcovonly'],
 			all: false,
 			excludeNodeModules: true,
 			include: [],
