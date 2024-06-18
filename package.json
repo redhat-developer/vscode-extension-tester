@@ -22,7 +22,7 @@
     "tests/*"
   ],
   "devDependencies": {
-    "@stylistic/eslint-plugin": "^2.1.0",
+    "@stylistic/eslint-plugin": "^2.2.1",
     "@types/clone-deep": "^4.0.4",
     "@types/fs-extra": "^11.0.4",
     "@types/js-yaml": "^4.0.9",
