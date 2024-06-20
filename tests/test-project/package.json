@@ -168,10 +168,15 @@
       }
     },
     "menus": {
-      "editor/title": [
+      "editor/title/run": [
         {
           "command": "extension.helloWorld",
-          "group": "navigation",
+          "group": "1_run@1",
+          "when": "resourceFilename =~ /Untitled.*$/"
+        },
+        {
+          "command": "extension.helloWorld2",
+          "group": "1_run@2",
           "when": "resourceFilename =~ /Untitled.*$/"
         }
       ],
