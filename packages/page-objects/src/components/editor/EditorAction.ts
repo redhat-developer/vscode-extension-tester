@@ -16,10 +16,12 @@
  */
 
 import { EditorGroup } from './EditorView';
-import { AbstractElement } from '../AbstractElement';
-import { WebElement } from '../..';
+import { By, ContextMenu, Key, WebElement } from '../..';
+import { ElementWithContexMenu } from '../ElementWithContextMenu';
+import { ChromiumWebDriver } from 'selenium-webdriver/chromium';
 
-export class EditorAction extends AbstractElement {
+export class EditorAction extends ElementWithContexMenu {
+
 	constructor(element: WebElement, parent: EditorGroup) {
 		super(element, parent);
 	}
@@ -29,5 +31,37 @@ export class EditorAction extends AbstractElement {
 	 */
 	async getTitle(): Promise<string> {
 		return await this.getAttribute(EditorAction.locators.EditorView.attribute);
+	}
+}
+
+export class EditorActionDropdown extends EditorAction {
+	async open(): Promise<ContextMenu> {
+		await this.click();
+		const shadowRootHost = await this.enclosingItem.findElements(By.className('shadow-root-host'));
+		const actions = this.getDriver().actions();
+		await actions.clear();
+		await actions.sendKeys(Key.ESCAPE).perform();
+		const webdriverCapabilities = await (this.getDriver() as ChromiumWebDriver).getCapabilities();
+		const chromiumVersion = webdriverCapabilities.getBrowserVersion();
+		if (shadowRootHost.length > 0) {
+			if ((await this.getAttribute('aria-expanded')) !== 'true') {
+				await this.click();
+			}
+			let shadowRoot;
+			const webdriverCapabilities = await (this.getDriver() as ChromiumWebDriver).getCapabilities();
+			const chromiumVersion = webdriverCapabilities.getBrowserVersion();
+			if (chromiumVersion && parseInt(chromiumVersion.split('.')[0]) >= 96) {
+				shadowRoot = await shadowRootHost[0].getShadowRoot();
+				return new ContextMenu(await shadowRoot.findElement(By.className('monaco-menu-container'))).wait();
+			} else {
+				shadowRoot = (await this.getDriver().executeScript('return arguments[0].shadowRoot', shadowRootHost[0])) as WebElement;
+				return new ContextMenu(shadowRoot).wait();
+			}
+		} else if (chromiumVersion && parseInt(chromiumVersion.split('.')[0]) >= 100) {
+			await this.click();
+			const workbench = await this.getDriver().findElement(ElementWithContexMenu.locators.Workbench.constructor);
+			return new ContextMenu(workbench).wait();
+		}
+		return await super.openContextMenu();
 	}
 }

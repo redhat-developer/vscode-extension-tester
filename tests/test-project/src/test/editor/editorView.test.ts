@@ -29,6 +29,8 @@ import {
 	DiffEditor,
 	InputBox,
 	VSBrowser,
+	EditorActionDropdown,
+	NotificationType,
 } from 'vscode-extension-tester';
 
 describe('EditorView', function () {
@@ -132,6 +134,27 @@ describe('EditorView', function () {
 		await new EditorView().openEditor('Untitled-2');
 		const editorAction = await view.getAction('Hello World');
 		expect(editorAction).not.undefined;
+	});
+
+	(process.platform === 'darwin' ? it.skip : it)('Editor getAction dropdown', async function () {
+		this.timeout(15_000);
+		await new EditorView().openEditor('Untitled-2');
+		const editorAction = (await view.getAction('Run or Debug...')) as EditorActionDropdown;
+
+		if (editorAction) {
+			const menu = await editorAction.open();
+			await menu.select('Hello a World');
+
+			const center = await new Workbench().openNotificationsCenter();
+			const notifications = await center.getNotifications(NotificationType.Any);
+
+			expect(await notifications.at(0)?.getText()).is.equal('Hello World, Test Project!');
+
+			await center.clearAllNotifications();
+			await center.close();
+		} else {
+			expect.fail('Cannot find any dropdown editor action!');
+		}
 	});
 
 	describe('Editor Tab', function () {

@@ -119,6 +119,7 @@ const editor = {
 		actionContainer: By.className('editor-actions'),
 		actionItem: By.className('action-label'),
 		attribute: 'title',
+		dropdown: 'aria-haspopup',
 	},
 	Editor: {
 		constructor: By.className('editor-instance'),

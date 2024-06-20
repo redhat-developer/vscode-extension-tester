@@ -124,6 +124,7 @@ export interface Locators {
 		actionContainer: By;
 		actionItem: By;
 		attribute: string;
+		dropdown: string;
 	};
 	Editor: {
 		constructor: By;

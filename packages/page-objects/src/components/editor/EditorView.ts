@@ -21,7 +21,7 @@ import { AbstractElement } from '../AbstractElement';
 import { ElementWithContexMenu } from '../ElementWithContextMenu';
 import { DiffEditor } from './DiffEditor';
 import { Editor } from './Editor';
-import { EditorAction } from './EditorAction';
+import { EditorAction, EditorActionDropdown } from './EditorAction';
 import { SettingsEditor } from './SettingsEditor';
 import { WebView } from './WebView';
 
@@ -339,7 +339,16 @@ export class EditorGroup extends AbstractElement {
 	 */
 	async getActions(): Promise<EditorAction[]> {
 		const actions = await this.findElement(EditorGroup.locators.EditorView.actionContainer).findElements(EditorGroup.locators.EditorView.actionItem);
-		return actions.map((action) => new EditorAction(action, this));
+		return Promise.all(
+			actions.map(async (action) => {
+				const dropdown = await action.getAttribute(EditorGroup.locators.EditorView.dropdown);
+				if (dropdown) {
+					return new EditorActionDropdown(action, this);
+				} else {
+					return new EditorAction(action, this);
+				}
+			}),
+		);
 	}
 
 	/**
