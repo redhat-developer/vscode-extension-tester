@@ -44,15 +44,15 @@
     "ui-test": "extest setup-and-run './out/ui-test/*.test.js' --code_version max --code_settings settings.json --extensions_dir .test-extensions"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.14",
-    "@types/mocha": "^10.0.6",
-    "@types/node": "^20.12.7",
+    "@types/chai": "^4.3.16",
+    "@types/mocha": "^10.0.7",
+    "@types/node": "^20.14.8",
     "@types/vscode": "^1.85.0",
-    "@typescript-eslint/eslint-plugin": "^7.7.1",
+    "@typescript-eslint/eslint-plugin": "^7.14.1",
     "chai": "^4.4.1",
     "eslint": "^8.57.0",
-    "mocha": "^10.4.0",
-    "typescript": "^5.4.5",
-    "vscode-extension-tester": "^8.1.0"
+    "mocha": "^10.5.0",
+    "typescript": "^5.5.2",
+    "vscode-extension-tester": "^8.3.0"
   }
 }
