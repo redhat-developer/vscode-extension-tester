@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
-import * as fs from 'fs-extra';
-import { exec } from 'child_process';
+import { PathLike } from 'fs-extra';
+import unzip from 'unzipper';
 import targz from 'targz';
+import { exec } from 'child_process';
 
 export class Unpack {
-	static unpack(input: fs.PathLike, target: fs.PathLike): Promise<void> {
+	static async unpack(input: PathLike, target: PathLike): Promise<void> {
 		return new Promise((resolve, reject) => {
 			if (input.toString().endsWith('.tar.gz')) {
 				targz.decompress(
@@ -38,9 +39,8 @@ export class Unpack {
 					},
 				);
 			} else if (input.toString().endsWith('.zip')) {
-				fs.mkdirpSync(target.toString());
 				if (process.platform === 'darwin' || process.platform === 'linux') {
-					exec(`cd ${target} && unzip -qo ${input.toString()}`, (err) => {
+					exec(`unzip -qo ${input.toString()}`, { cwd: target.toString() }, (err) => {
 						if (err) {
 							reject(new Error(err.message));
 						} else {
@@ -48,13 +48,17 @@ export class Unpack {
 						}
 					});
 				} else {
-					exec(`cd ${target} && tar -xvf ${input.toString()}`, (err) => {
-						if (err) {
+					// WINDOWS, ...
+					unzip.Open.file(`${input.toString()}`)
+						.then((d: { extract: (arg0: { path: string; concurrency: number }) => any }) =>
+							d.extract({ path: `${target.toString()}`, concurrency: 5 }),
+						)
+						.then((val: void | PromiseLike<void>) => {
+							resolve(val);
+						})
+						.catch((err: { message: string | undefined }) => {
 							reject(new Error(err.message));
-						} else {
-							resolve();
-						}
-					});
+						});
 				}
 			} else {
 				reject(`Unsupported extension for '${input}'`);
