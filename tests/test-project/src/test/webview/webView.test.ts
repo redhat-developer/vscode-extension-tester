@@ -89,7 +89,7 @@ describe('WebViews', function () {
 			});
 
 			void switchToFrame();
-			void runTests();
+			void runTests(0);
 			void clean();
 		});
 
@@ -99,7 +99,7 @@ describe('WebViews', function () {
 			});
 
 			void switchToFrame();
-			void runTests();
+			void runTests(1);
 			void clean();
 		});
 
@@ -109,7 +109,7 @@ describe('WebViews', function () {
 			});
 
 			void switchToFrame();
-			void runTests();
+			void runTests(2);
 			void clean();
 		});
 
@@ -120,10 +120,10 @@ describe('WebViews', function () {
 			});
 		}
 
-		async function runTests() {
+		async function runTests(index: number) {
 			it('findWebElement works', async function () {
 				const element = await view.findWebElement(By.css('h1'));
-				expect(await element.getText()).has.string('This is a web view');
+				expect(await element.getText()).has.string(`This is a web view with title: ${tabs[index]}`);
 			});
 
 			it('findWebElements works', async function () {

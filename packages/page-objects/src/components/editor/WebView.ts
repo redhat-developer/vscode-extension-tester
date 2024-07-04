@@ -16,7 +16,7 @@
  */
 
 /* eslint-disable no-redeclare */
-import { until, WebElement } from 'selenium-webdriver';
+import { WebElement } from 'selenium-webdriver';
 import WebviewMixin from '../WebviewMixin';
 import { Editor } from './Editor';
 
@@ -35,22 +35,7 @@ class WebViewBase extends Editor {
 			}
 		}
 		await this.getDriver().switchTo().window(handle);
-
-		const reference = await this.findElement(WebViewBase.locators.EditorView.webView);
-		const containers = await this.getDriver().wait(
-			until.elementsLocated(WebViewBase.locators.WebView.container(await reference.getAttribute(WebViewBase.locators.WebView.attribute))),
-			5000,
-		);
-
-		return (await containers[0].getDriver().wait(async () => {
-			for (const container of containers) {
-				const tries = await container.findElements(WebViewBase.locators.WebView.iframe);
-				if (tries.length > 0) {
-					return tries[0];
-				}
-			}
-			return undefined;
-		}, 5000)) as WebElement;
+		return await this.getDriver().findElement(WebViewBase.locators.WebView.iframe);
 	}
 }
 
