@@ -16,13 +16,14 @@
  */
 
 import { ContentAssist, ContextMenu, InputBox, Workbench } from '../..';
-import { By, ChromiumWebDriver, Key, until, WebElement } from 'selenium-webdriver';
+import { By, Key, until, WebElement } from 'selenium-webdriver';
 import { fileURLToPath } from 'url';
 import { StatusBar } from '../statusBar/StatusBar';
 import { Editor } from './Editor';
 import { ElementWithContexMenu } from '../ElementWithContextMenu';
 import { AbstractElement } from '../AbstractElement';
 import { Breakpoint } from './Breakpoint';
+import { ChromiumWebDriver } from 'selenium-webdriver/chromium';
 
 export class BreakpointError extends Error {}
 

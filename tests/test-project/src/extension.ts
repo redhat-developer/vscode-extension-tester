@@ -109,20 +109,21 @@ class TestView {
 
 	private readonly _panel: vscode.WebviewPanel;
 	private _disposables: vscode.Disposable[] = [];
+	private randomWebViewTitle: string;
 
 	constructor() {
 		const column = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : undefined;
 
-		const randomWebViewTitle = 'Test WebView ' + Math.floor(Math.random() * 100);
-		this._panel = vscode.window.createWebviewPanel(TestView.viewType, randomWebViewTitle, column || vscode.ViewColumn.One);
-		this.update(randomWebViewTitle);
+		this.randomWebViewTitle = 'Test WebView ' + Math.floor(Math.random() * 100);
+		this._panel = vscode.window.createWebviewPanel(TestView.viewType, this.randomWebViewTitle, column || vscode.ViewColumn.One);
+		this.update(this.randomWebViewTitle);
 
 		this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
 
 		this._panel.onDidChangeViewState(
 			() => {
 				if (this._panel.visible) {
-					this.update(randomWebViewTitle);
+					this.update(this.randomWebViewTitle);
 				}
 			},
 			null,
@@ -148,10 +149,10 @@ class TestView {
 		<head>
 			<meta charset="UTF-8">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-			<title>Test Webview</title>
+			<title>${title}</title>
 		</head>
 		<body>
-			<h1>This is a web view</h1>
+			<h1>This is a web view with title: ${title}</h1>
 		</body>
 		</html>`;
 	}

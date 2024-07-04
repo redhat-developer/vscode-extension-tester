@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-import { By, ChromiumWebDriver, until, WebElement } from 'selenium-webdriver';
+import { By, until, WebElement } from 'selenium-webdriver';
 import { ContextMenu, ViewContent, ViewItem, waitForAttributeValue, WelcomeContentSection } from '../..';
 import { AbstractElement } from '../AbstractElement';
 import { ElementWithContexMenu } from '../ElementWithContextMenu';
+import { ChromiumWebDriver } from 'selenium-webdriver/chromium';
 
 export type ViewSectionConstructor<T extends ViewSection> = {
 	new (rootElement: WebElement, tree: ViewContent): T;

@@ -16,10 +16,11 @@
  */
 
 import { SideBarView } from '../SideBarView';
-import { WebElement, Key, By, ChromiumWebDriver } from 'selenium-webdriver';
+import { WebElement, Key, By } from 'selenium-webdriver';
 import { AbstractElement } from '../../AbstractElement';
 import { ContextMenu } from '../../..';
 import { ElementWithContexMenu } from '../../ElementWithContextMenu';
+import { ChromiumWebDriver } from 'selenium-webdriver/chromium';
 
 /**
  * Page object representing the Source Control view
