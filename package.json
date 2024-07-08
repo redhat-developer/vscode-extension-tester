@@ -34,7 +34,7 @@
     "@typescript-eslint/parser": "^7.15.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
-    "lerna": "^8.1.5",
+    "lerna": "^8.1.6",
     "prettier": "3.3.2",
     "rimraf": "^5.0.7",
     "type-fest": "^4.21.0",
