@@ -36,6 +36,7 @@ import * as path from 'path';
 import { expect } from 'chai';
 
 const line = 7;
+const varSub = VSBrowser.instance.version >= '1.91.0' ? 'num =' : 'num:';
 
 describe('Debugging', function () {
 	process.env.NODE = process.execPath;
@@ -227,7 +228,7 @@ describe('Debugging', function () {
 
 		it('VariableSectionItem.getVariableName', async function () {
 			const item = await getNumVariable(view, this.timeout() - 2000);
-			expect(await item?.getVariableName()).equals('num:');
+			expect(await item?.getVariableName()).equals(varSub);
 		});
 
 		it('VariableSectionItem.getVariableValue', async function () {
@@ -322,7 +323,7 @@ async function getNumVariable(view: DebugView, timeout: number) {
 				try {
 					const variablesSection = await view.getVariablesSection();
 					await variablesSection?.openItem('Local');
-					return await variablesSection.findItem('num:');
+					return await variablesSection.findItem(varSub);
 				} catch (e) {
 					if (
 						e instanceof error.StaleElementReferenceError ||
