@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-import { ElementWithContexMenu } from '../ElementWithContextMenu';
+import { ElementWithContextMenu } from '../ElementWithContextMenu';
 import { AbstractElement } from '../AbstractElement';
 import { By, SideBarView } from '../..';
 
 /**
  * Page object representing the top (title) part of a side bar view
  */
-export class ViewTitlePart extends ElementWithContexMenu {
+export class ViewTitlePart extends ElementWithContextMenu {
 	constructor(view: SideBarView = new SideBarView()) {
 		super(ViewTitlePart.locators.ViewTitlePart.constructor, view);
 	}

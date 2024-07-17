@@ -18,7 +18,7 @@
 import { error, WebElement } from 'selenium-webdriver';
 import { TextEditor } from '../..';
 import { AbstractElement } from '../AbstractElement';
-import { ElementWithContexMenu } from '../ElementWithContextMenu';
+import { ElementWithContextMenu } from '../ElementWithContextMenu';
 import { DiffEditor } from './DiffEditor';
 import { Editor } from './Editor';
 import { EditorAction, EditorActionDropdown } from './EditorAction';
@@ -374,7 +374,7 @@ export class EditorGroup extends AbstractElement {
 /**
  * Page object for editor view tab
  */
-export class EditorTab extends ElementWithContexMenu {
+export class EditorTab extends ElementWithContextMenu {
 	constructor(element: WebElement, view: EditorView) {
 		super(element, view);
 	}

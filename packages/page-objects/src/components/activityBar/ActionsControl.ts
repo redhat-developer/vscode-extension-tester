@@ -17,12 +17,12 @@
 
 import { WebElement } from 'selenium-webdriver';
 import { ActivityBar, ContextMenu } from '../..';
-import { ElementWithContexMenu } from '../ElementWithContextMenu';
+import { ElementWithContextMenu } from '../ElementWithContextMenu';
 
 /**
  * Page object representing the global action controls on the bottom of the action bar
  */
-export class ActionsControl extends ElementWithContexMenu {
+export class ActionsControl extends ElementWithContextMenu {
 	constructor(element: WebElement, bar: ActivityBar) {
 		super(element, bar);
 	}

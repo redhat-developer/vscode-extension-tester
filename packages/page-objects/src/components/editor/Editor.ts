@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-import { ElementWithContexMenu } from '../ElementWithContextMenu';
+import { ElementWithContextMenu } from '../ElementWithContextMenu';
 import { EditorTab, EditorView, EditorGroup } from '../..';
 import { WebElement, Locator } from 'selenium-webdriver';
 
 /**
  * Abstract representation of an editor tab
  */
-export abstract class Editor extends ElementWithContexMenu {
+export abstract class Editor extends ElementWithContextMenu {
 	constructor(view: EditorView | EditorGroup = new EditorView(), base: Locator | WebElement = Editor.locators.Editor.constructor) {
 		super(base, view);
 	}

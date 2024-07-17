@@ -16,14 +16,14 @@
  */
 
 import { ActivityBar, DebugView, SideBarView, ScmView } from '../..';
-import { ElementWithContexMenu } from '../ElementWithContextMenu';
+import { ElementWithContextMenu } from '../ElementWithContextMenu';
 import { WebElement } from 'selenium-webdriver';
 import { NewScmView } from '../sidebar/scm/NewScmView';
 
 /**
  * Page object representing a view container item in the activity bar
  */
-export class ViewControl extends ElementWithContexMenu {
+export class ViewControl extends ElementWithContextMenu {
 	constructor(element: WebElement, bar: ActivityBar) {
 		super(element, bar);
 	}

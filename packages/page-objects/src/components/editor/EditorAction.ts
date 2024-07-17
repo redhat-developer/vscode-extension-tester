@@ -17,11 +17,10 @@
 
 import { EditorGroup } from './EditorView';
 import { By, ContextMenu, Key, WebElement } from '../..';
-import { ElementWithContexMenu } from '../ElementWithContextMenu';
+import { ElementWithContextMenu } from '../ElementWithContextMenu';
 import { ChromiumWebDriver } from 'selenium-webdriver/chromium';
 
-export class EditorAction extends ElementWithContexMenu {
-
+export class EditorAction extends ElementWithContextMenu {
 	constructor(element: WebElement, parent: EditorGroup) {
 		super(element, parent);
 	}
@@ -59,7 +58,7 @@ export class EditorActionDropdown extends EditorAction {
 			}
 		} else if (chromiumVersion && parseInt(chromiumVersion.split('.')[0]) >= 100) {
 			await this.click();
-			const workbench = await this.getDriver().findElement(ElementWithContexMenu.locators.Workbench.constructor);
+			const workbench = await this.getDriver().findElement(ElementWithContextMenu.locators.Workbench.constructor);
 			return new ContextMenu(workbench).wait();
 		}
 		return await super.openContextMenu();

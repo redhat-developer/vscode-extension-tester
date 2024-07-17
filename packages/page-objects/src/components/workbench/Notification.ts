@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { ElementWithContexMenu } from '../ElementWithContextMenu';
+import { ElementWithContextMenu } from '../ElementWithContextMenu';
 import { AbstractElement } from '../AbstractElement';
 import { By, until, WebElement } from 'selenium-webdriver';
 
@@ -32,7 +32,7 @@ export enum NotificationType {
 /**
  * Abstract element representing a notification
  */
-export abstract class Notification extends ElementWithContexMenu {
+export abstract class Notification extends ElementWithContextMenu {
 	/**
 	 * Get the message of the notification
 	 * @returns Promise resolving to notification message

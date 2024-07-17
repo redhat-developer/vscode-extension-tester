@@ -16,12 +16,12 @@
  */
 
 import { Key } from 'selenium-webdriver';
-import { ElementWithContexMenu } from '../ElementWithContextMenu';
+import { ElementWithContextMenu } from '../ElementWithContextMenu';
 
 /**
  * View with channel selector
  */
-export abstract class ChannelView extends ElementWithContexMenu {
+export abstract class ChannelView extends ElementWithContextMenu {
 	protected actionsLabel!: string;
 
 	/**
