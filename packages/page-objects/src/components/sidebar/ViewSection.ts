@@ -18,7 +18,7 @@
 import { By, until, WebElement } from 'selenium-webdriver';
 import { ContextMenu, ViewContent, ViewItem, waitForAttributeValue, WelcomeContentSection } from '../..';
 import { AbstractElement } from '../AbstractElement';
-import { ElementWithContexMenu } from '../ElementWithContextMenu';
+import { ElementWithContextMenu } from '../ElementWithContextMenu';
 import { ChromiumWebDriver } from 'selenium-webdriver/chromium';
 
 export type ViewSectionConstructor<T extends ViewSection> = {
@@ -177,7 +177,7 @@ export abstract class ViewSection extends AbstractElement {
 			return undefined;
 		}
 		const section = this;
-		const btn = new (class extends ElementWithContexMenu {
+		const btn = new (class extends ElementWithContextMenu {
 			async openContextMenu() {
 				await this.click();
 				const shadowRootHost = await section.findElements(By.className('shadow-root-host'));

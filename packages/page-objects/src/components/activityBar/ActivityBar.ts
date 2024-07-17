@@ -16,12 +16,12 @@
  */
 
 import { ActionsControl, ViewControl } from '../..';
-import { ElementWithContexMenu } from '../ElementWithContextMenu';
+import { ElementWithContextMenu } from '../ElementWithContextMenu';
 
 /**
  * Page object representing the left side activity bar in VS Code
  */
-export class ActivityBar extends ElementWithContexMenu {
+export class ActivityBar extends ElementWithContextMenu {
 	constructor() {
 		super(ActivityBar.locators.ActivityBar.constructor, ActivityBar.locators.Workbench.constructor);
 	}

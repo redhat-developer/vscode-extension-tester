@@ -18,7 +18,7 @@
 import { ScmView, ScmProvider, MoreAction, ScmChange } from './ScmView';
 import { WebElement, Key } from 'selenium-webdriver';
 import { ContextMenu } from '../../menu/ContextMenu';
-import { ElementWithContexMenu } from '../../ElementWithContextMenu';
+import { ElementWithContextMenu } from '../../ElementWithContextMenu';
 import { TitleActionButton } from '../ViewTitlePart';
 
 /**
@@ -181,7 +181,7 @@ export class MultiScmProvider extends ScmProvider {
 	}
 }
 
-class MultiMoreAction extends ElementWithContexMenu {
+class MultiMoreAction extends ElementWithContextMenu {
 	constructor(scm: ScmProvider) {
 		super(MoreAction.locators.ScmView.multiMore, scm);
 	}

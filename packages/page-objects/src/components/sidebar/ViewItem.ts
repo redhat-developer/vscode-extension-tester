@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { ElementWithContexMenu } from '../ElementWithContextMenu';
+import { ElementWithContextMenu } from '../ElementWithContextMenu';
 import { AbstractElement } from '../AbstractElement';
 import { WebElement, By, error } from 'selenium-webdriver';
 import { NullAttributeError } from '../../errors/NullAttributeError';
@@ -23,7 +23,7 @@ import { NullAttributeError } from '../../errors/NullAttributeError';
 /**
  * Arbitrary item in the side bar view
  */
-export abstract class ViewItem extends ElementWithContexMenu {
+export abstract class ViewItem extends ElementWithContextMenu {
 	/**
 	 * Select the item in the view.
 	 * Note that selecting the item will toggle its expand state when applicable.

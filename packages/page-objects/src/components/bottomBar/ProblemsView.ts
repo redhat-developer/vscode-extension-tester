@@ -18,7 +18,7 @@
 import { BottomBarPanel } from '../..';
 import { AbstractElement } from '../AbstractElement';
 import { WebElement } from 'selenium-webdriver';
-import { ElementWithContexMenu } from '../ElementWithContextMenu';
+import { ElementWithContextMenu } from '../ElementWithContextMenu';
 
 /**
  * Problems view in the bottom panel
@@ -102,7 +102,7 @@ export class ProblemsView extends AbstractElement {
 /**
  * Page object for a Marker in Problems view
  */
-export class Marker extends ElementWithContexMenu {
+export class Marker extends ElementWithContextMenu {
 	constructor(element: WebElement, view: ProblemsView) {
 		super(element, view);
 	}

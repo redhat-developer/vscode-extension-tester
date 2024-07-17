@@ -18,7 +18,7 @@
 import { Key, until } from 'selenium-webdriver';
 import { BottomBarPanel, ContentAssist, Workbench } from '../..';
 import { TextView, ChannelView } from './AbstractViews';
-import { ElementWithContexMenu } from '../ElementWithContextMenu';
+import { ElementWithContextMenu } from '../ElementWithContextMenu';
 
 /**
  * Output view of the bottom panel
@@ -42,7 +42,7 @@ export class OutputView extends TextView {
  * Debug Console view on the bottom panel
  * Most functionality will only be available when a debug session is running
  */
-export class DebugConsoleView extends ElementWithContexMenu {
+export class DebugConsoleView extends ElementWithContextMenu {
 	constructor(panel: BottomBarPanel = new BottomBarPanel()) {
 		super(DebugConsoleView.locators.DebugConsoleView.constructor, panel);
 	}
