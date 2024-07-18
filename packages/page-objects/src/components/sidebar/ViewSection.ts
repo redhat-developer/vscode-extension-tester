@@ -221,7 +221,7 @@ export class ViewPanelAction extends AbstractElement {
 	}
 
 	async wait(timeout: number = 1000): Promise<this> {
-		await this.getDriver().wait(until.elementIsEnabled(this), timeout);
+		await this.getDriver().wait(until.elementLocated(ViewSection.locators.ViewSection.actions), timeout);
 		return this;
 	}
 }
