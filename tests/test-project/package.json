@@ -99,6 +99,14 @@
       {
         "command": "extension.treeItemAction",
         "title": "Tree Item Action"
+      },
+      {
+        "command": "testView.refresh",
+        "title": "Refresh",
+        "icon": {
+          "light": "resources/icons/light/refresh.svg",
+          "dark": "resources/icons/dark/refresh.svg"
+        }
       }
     ],
     "viewsContainers": {
@@ -115,6 +123,10 @@
         {
           "id": "testView",
           "name": "Test View"
+        },
+        {
+          "id": "testView2",
+          "name": "Test View 2"
         },
         {
           "id": "emptyView",
@@ -185,6 +197,12 @@
           "command": "extension.treeItemAction",
           "when": "viewItem =~ /ExtensionTreeItem/",
           "group": "inline"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "testView.refresh",
+          "group": "navigation"
         }
       ]
     }

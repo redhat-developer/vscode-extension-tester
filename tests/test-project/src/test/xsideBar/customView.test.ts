@@ -33,6 +33,7 @@ import {
 
 describe('CustomTreeSection', () => {
 	let section: CustomTreeSection;
+	let emptySection: CustomTreeSection;
 	let emptyViewSection: CustomTreeSection;
 	let content: ViewContent;
 
@@ -44,6 +45,8 @@ describe('CustomTreeSection', () => {
 		});
 		content = view.getContent();
 		section = await content.getSection('Test View');
+		emptySection = await content.getSection('Test View 2');
+		await emptySection.expand();
 		emptyViewSection = await content.getSection('Empty View');
 		await emptyViewSection.expand();
 	});
@@ -104,9 +107,20 @@ describe('CustomTreeSection', () => {
 		expect(actions).not.empty;
 	});
 
+	it('getActions of EMPTY works', async () => {
+		const actions = await emptySection.getActions();
+		expect(actions).not.empty;
+	});
+
 	it('getAction works', async () => {
 		const action = await section.getAction('Collapse All');
 		expect(await action?.getLabel()).equals('Collapse All');
+	});
+
+	it('getAction of EMPTY works', async () => {
+		const action = await emptySection.getAction('Refresh');
+		expect(await action?.getLabel()).equals('Refresh');
+		await emptySection.collapse();
 	});
 
 	it('findWelcomeContent returns undefined if no WelcomeContent is present', async () => {

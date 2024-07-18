@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { CatScratchEditorProvider } from './catScratchEditor';
 import { CodelensProvider } from './codelensProvider';
-import { TreeView } from './treeView';
+import { TreeView, TreeView2 } from './treeView';
 
 export const ERROR_MESSAGE_COMMAND = 'extension.errorMsg';
 
@@ -57,7 +57,14 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand(ERROR_MESSAGE_COMMAND, () => vscode.window.showErrorMessage('This is an error!')));
 	context.subscriptions.push(CatScratchEditorProvider.register(context));
 
-	new TreeView(context);
+	new TreeView(context, 'testView');
+	new TreeView2(context, 'testView2');
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand('testView.refresh', async () => {
+			await vscode.window.showInformationMessage('Refresh View button clicked!');
+		}),
+	);
 
 	context.subscriptions.push(
 		vscode.window.createTreeView('emptyView', {

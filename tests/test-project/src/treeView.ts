@@ -2,13 +2,30 @@ import * as vscode from 'vscode';
 import { ERROR_MESSAGE_COMMAND } from './extension';
 
 /**
- * Test tree view as shown in treeview sample extension available at
+ * Test tree view as shown in TreeView sample extension available at
  * https://github.com/microsoft/vscode-extension-samples/tree/master/tree-view-sample
  */
 export class TreeView {
-	constructor(context: vscode.ExtensionContext) {
-		const view = vscode.window.createTreeView('testView', {
+	constructor(context: vscode.ExtensionContext, viewID: string) {
+		const view = vscode.window.createTreeView(viewID, {
 			treeDataProvider: dataProvider(),
+			showCollapseAll: true,
+		});
+		context.subscriptions.push(view);
+	}
+}
+
+export class TreeView2 {
+	constructor(context: vscode.ExtensionContext, viewID: string) {
+		const view = vscode.window.createTreeView(viewID, {
+			treeDataProvider: {
+				getTreeItem: function (): vscode.TreeItem | Thenable<vscode.TreeItem> {
+					return {};
+				},
+				getChildren: function (): vscode.ProviderResult<unknown[]> {
+					return [];
+				},
+			},
 			showCollapseAll: true,
 		});
 		context.subscriptions.push(view);
