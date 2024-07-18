@@ -351,6 +351,13 @@ export interface Locators {
 			tooltip: WebElementFunction<WebElement, string>;
 		};
 	};
+	DebugCallStackSection: {
+		predicate: WebElementFunction<ViewSection, boolean>;
+	};
+	CallStackItem: {
+		label: By;
+		text: By;
+	};
 	ExtensionsViewSection: {
 		items: By;
 		itemRow: By;

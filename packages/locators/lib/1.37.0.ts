@@ -349,6 +349,13 @@ const sideBar = {
 			tooltip: fromAttribute('title'),
 		},
 	},
+	DebugCallStackSection: {
+		predicate: async (section: ViewSection) => (await section.getTitle()).toLowerCase() === 'call stack',
+	},
+	CallStackItem: {
+		label: By.className('monaco-highlighted-label'),
+		text: By.className('state label monaco-count-badge long'),
+	},
 	ExtensionsViewSection: {
 		items: By.className('monaco-list-rows'),
 		itemRow: By.className('monaco-list-row'),

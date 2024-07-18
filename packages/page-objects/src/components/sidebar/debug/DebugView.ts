@@ -17,6 +17,7 @@
 
 import { SideBarView } from '../SideBarView';
 import { DebugBreakpointSection } from '../tree/debug/DebugBreakpointSection';
+import { DebugCallStackSection } from '../tree/debug/DebugCallStackSection';
 import { DebugVariableSection } from '../tree/debug/DebugVariablesSection';
 
 /**
@@ -89,5 +90,14 @@ export class DebugView extends SideBarView {
 	async start(): Promise<void> {
 		const action = await this.getTitlePart().findElement(DebugView.locators.DebugView.launchCombo);
 		await action.findElement(DebugView.locators.DebugView.startButton).click();
+	}
+
+	/**
+	 * Get Call Stack section
+	 * @returns CallStackSection page object
+	 */
+	async getCallStackSection(): Promise<DebugCallStackSection> {
+		const content = this.getContent();
+		return content.getSection(DebugCallStackSection.locators.DebugCallStackSection.predicate, DebugCallStackSection);
 	}
 }
