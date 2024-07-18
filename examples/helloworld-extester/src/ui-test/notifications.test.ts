@@ -46,7 +46,7 @@ describe('Sample notifications tests', () => {
 			}
 		}
 
-		expect(await notification.getText()).equals('Hello World!');
+		expect(await notification.getText()).equals('Hello World, Test Project!');
 		expect(await notification.getType()).equals(NotificationType.Info);
 
 		// and we can manually dismiss the notification
@@ -72,7 +72,7 @@ describe('Sample notifications tests', () => {
 			}
 		}
 
-		expect(await notification.getText()).equals('Hello World!');
+		expect(await notification.getText()).equals('Hello World, Test Project!');
 		expect(await notification.getType()).equals(NotificationType.Info);
 
 		// this time we can clear all notifications

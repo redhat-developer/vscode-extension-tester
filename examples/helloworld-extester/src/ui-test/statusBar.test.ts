@@ -22,7 +22,8 @@ import { InputBox, StatusBar, VSBrowser } from 'vscode-extension-tester';
 describe('Example status bar tests', () => {
 	let statusBar: StatusBar;
 
-	before(async () => {
+	before(async function () {
+		this.timeout(15_000);
 		statusBar = new StatusBar();
 		// most basic functions of status bar are only available when a file is opened
 		await VSBrowser.instance.openResources(path.join('src', 'ui-test', 'resources', 'problems.ts'));

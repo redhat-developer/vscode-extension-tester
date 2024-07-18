@@ -27,6 +27,9 @@ describe('Example extension view tests', () => {
 		this.timeout(15000);
 		// open the extensions view
 		const view = await (await new ActivityBar().getViewControl('Extensions'))?.openView();
+		await view?.getDriver().wait(async function () {
+			return (await view.getContent().getSections()).length > 0;
+		});
 
 		// we want to find the hello-world extension (this project)
 		// first we need a view section, best place to get started is the 'Installed' section
@@ -35,7 +38,10 @@ describe('Example extension view tests', () => {
 		// search for the extension, you can use any syntax vscode supports for the search field
 		// it is best to prepend @installed to the extension name if you don't want to see the results from marketplace
 		// also, getting the name directly from package.json seem like a good idea
-		helloExtension = (await extensions.findItem(`@installed ${pjson.displayName}`)) as ExtensionsViewItem;
+		await extensions.getDriver().wait(async function () {
+			helloExtension = (await extensions.findItem(`@installed ${pjson.displayName}`)) as ExtensionsViewItem;
+			return helloExtension !== undefined;
+		});
 	});
 
 	it('Check the extension info', async () => {
