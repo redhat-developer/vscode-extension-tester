@@ -99,8 +99,13 @@ describe('Output View/Text Views', function () {
 			try {
 				await terminal.selectChannel(`1: ${terminalName}`);
 			} catch (err) {
-				terminalName = 'sh';
-				await terminal.selectChannel(`1: ${terminalName}`);
+				try {
+					terminalName = 'sh';
+					await terminal.selectChannel(`1: ${terminalName}`);
+				} catch (error) {
+					terminalName = 'zsh';
+					await terminal.selectChannel(`1: ${terminalName}`);
+				}
 			}
 			const text = await terminal.getText();
 			expect(text).not.empty;
@@ -113,12 +118,12 @@ describe('Output View/Text Views', function () {
 		});
 
 		it('newTerminal opens a new term channel', async function () {
-			const expectedChannel = `2: ${terminalName}`;
+			const expectedChannel = [`2: ${terminalName}`, `2: zsh`];
 			await terminal.newTerminal();
 			await VSBrowser.instance.driver.wait(
 				async () => {
 					try {
-						return (await terminal.getCurrentChannel()) === expectedChannel;
+						return expectedChannel.includes(await terminal.getCurrentChannel());
 					} catch (err) {
 						return false;
 					}
@@ -127,7 +132,7 @@ describe('Output View/Text Views', function () {
 				undefined,
 				1000,
 			);
-			expect(await terminal.getCurrentChannel()).equals(expectedChannel);
+			expect(expectedChannel).contains(await terminal.getCurrentChannel());
 		});
 	});
 });
