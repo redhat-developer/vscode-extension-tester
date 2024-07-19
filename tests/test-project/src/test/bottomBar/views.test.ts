@@ -91,6 +91,7 @@ describe('Output View/Text Views', function () {
 		let terminalName = process.platform === 'win32' ? (VSBrowser.instance.version >= '1.53.0' ? 'pwsh' : 'powershell') : 'bash';
 
 		before(async () => {
+			this.timeout(15_000);
 			terminal = await panel.openTerminalView();
 			await new Promise((res) => setTimeout(res, 2000));
 		});
