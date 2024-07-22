@@ -47,7 +47,7 @@ export class SettingsEditor extends Editor {
 		const category = categories.join(this.divider);
 		const searchBox = await this.findElement(SettingsEditor.locators.Editor.inputArea);
 		await searchBox.sendKeys(Key.chord(SettingsEditor.ctlKey, 'a'));
-		await searchBox.sendKeys(`${category}${this.divider}${title}`);
+		await searchBox.sendKeys(`${category}>${title}`);
 
 		return await this._getSettingItem(title, category);
 	}
