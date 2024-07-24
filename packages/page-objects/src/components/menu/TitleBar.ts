@@ -68,6 +68,7 @@ export class TitleBar extends Menu {
 
 	/**
 	 * Get a reference to the WindowControls
+	 * @deprecated Window Control is no more available in a DOM of Visual Studio Code
 	 */
 	getWindowControls(): WindowControls {
 		return new WindowControls(this);

@@ -21,6 +21,7 @@ import { WebElement } from 'selenium-webdriver';
 
 /**
  * Page object for the windows controls part of the title bar
+ * @deprecated Window Control is no more available in a DOM of Visual Studio Code
  */
 export class WindowControls extends AbstractElement {
 	constructor(bar: TitleBar = new TitleBar()) {
@@ -30,6 +31,7 @@ export class WindowControls extends AbstractElement {
 	/**
 	 * Use the minimize window button
 	 * @returns Promise resolving when minimize button is pressed
+	 * @deprecated Window Control is no more available in a DOM of Visual Studio Code
 	 */
 	async minimize(): Promise<void> {
 		const minButton = await this.findElement(WindowControls.locators.WindowControls.minimize);
@@ -39,6 +41,7 @@ export class WindowControls extends AbstractElement {
 	/**
 	 * Use the maximize window button if the window is not maximized
 	 * @returns Promise resolving when maximize button is pressed
+	 * @deprecated Window Control is no more available in a DOM of Visual Studio Code
 	 */
 	async maximize(): Promise<void> {
 		let maxButton: WebElement;
@@ -53,6 +56,7 @@ export class WindowControls extends AbstractElement {
 	/**
 	 * Use the restore window button if the window is maximized
 	 * @returns Promise resolving when restore button is pressed
+	 * @deprecated Window Control is no more available in a DOM of Visual Studio Code
 	 */
 	async restore(): Promise<void> {
 		let maxButton: WebElement;
@@ -67,6 +71,7 @@ export class WindowControls extends AbstractElement {
 	/**
 	 * Use the window close button. Use at your own risk.
 	 * @returns Promise resolving when close button is pressed
+	 * @deprecated Window Control is no more available in a DOM of Visual Studio Code
 	 */
 	async close(): Promise<void> {
 		const closeButton = await this.findElement(WindowControls.locators.WindowControls.close);
