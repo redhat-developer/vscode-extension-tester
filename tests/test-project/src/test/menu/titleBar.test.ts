@@ -46,7 +46,10 @@ import { ActivityBar, TitleBar, ContextMenu, TitleBarItem, EditorView, VSBrowser
 		expect(title).to.includes('Visual Studio Code');
 	});
 
-	it('getWindowControls works', async function () {
+	/**
+	 * @deprecated Window Control is no more available in a DOM of Visual Studio Code
+	 */
+	it.skip('getWindowControls works', async function () {
 		const controls = bar.getWindowControls();
 		expect(controls).not.undefined;
 	});
