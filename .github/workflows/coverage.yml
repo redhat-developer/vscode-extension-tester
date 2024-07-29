@@ -11,8 +11,14 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
 
+# permissions: write-all
+  # contents: read
+  # pull-requests: write
+
 jobs:
   coverage:
+    permissions: write-all
+
     runs-on: ubuntu-latest
 
     env:
@@ -55,15 +61,21 @@ jobs:
       # - name: Setup LCOV
       #   uses: hrishikesh-kadam/setup-lcov@v1
 
-      - name: 📊 Report Coverage on PR
-        uses: zgosalvez/github-actions-report-lcov@v3
+      # - name: 📊 Report Coverage on PR
+      #   uses: zgosalvez/github-actions-report-lcov@v3
+      #   with:
+      #     coverage-files: ${{ github.workspace }}/tests/test-project/coverage/lcov.info
+      #     artifact-name: coverage
+      #     minimum-coverage: 90
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     update-comment: true
+      #     working-directory: ${{ github.workspace }}/tests/test-project
+
+      - name: LCOV Pull Request Report
+        uses: kefasjw/lcov-pull-request-report@v1.1.0
         with:
-          coverage-files: ${{ github.workspace }}/tests/test-project/coverage/lcov.info
-          artifact-name: coverage
-          minimum-coverage: 90
+          lcov-file: ${{ github.workspace }}/tests/test-project/coverage/lcov.info
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          update-comment: true
-          working-directory: ${{ github.workspace }}/tests/test-project
 
       - name: 💾 Upload Coverage
         uses: actions/upload-artifact@v4
