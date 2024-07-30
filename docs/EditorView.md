@@ -41,6 +41,21 @@ const buttonFromSecondGroup = await editorView.getAction("More Actions...", 1);
 const buttons = await editorView.getActions();
 ```
 
+##### Editor Actions - Dropdown
+
+![editorActionsDropdown](images/editorActions-dropdown.png)
+
+**Note:** Be aware that it is not supported on macOS. For more information see [Known Issues](../KNOWN_ISSUES.md).
+
+```typescript
+// find an editor action button by title
+const action = (await view.getAction("Run or Debug...")) as EditorActionDropdown;
+// open the dropdown for that button
+const menu = await action.open();
+// select an item from an opened context menu
+await menu.select("Hello a World");
+```
+
 ### Editor Groups
 
 By default, all EditorView methods work with the first (left-most) editor group, except `closeAllEditors` and `getOpenEditorTitles` which by default work across all groups. You can use indices to target specific editor groups, or you can get handles to directly work with `EditorGroup` objects.
