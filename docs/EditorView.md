@@ -45,7 +45,7 @@ const buttons = await editorView.getActions();
 
 ![editorActionsDropdown](images/editorActions-dropdown.png)
 
-**Note:** Be aware that it is not supported on macOS. For more information see [Known Issues](../KNOWN_ISSUES.md).
+**Note:** Be aware that it is not supported on macOS. For more information see [Known Issues](https://github.com/redhat-developer/vscode-extension-tester/blob/main/KNOWN_ISSUES.md).
 
 ```typescript
 // find an editor action button by title
