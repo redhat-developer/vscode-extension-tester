@@ -20,6 +20,7 @@ import {
 	BottomBarPanel,
 	Breakpoint,
 	BreakpointSectionItem,
+	DebugCallStackSection,
 	DebugConsoleView,
 	DebugToolbar,
 	DebugView,
@@ -96,6 +97,7 @@ describe('Debugging', function () {
 		let debugBar: DebugToolbar;
 		let driver: WebDriver;
 		let breakpoint!: Breakpoint;
+		let callStack: DebugCallStackSection;
 
 		before(async function () {
 			editor = (await new EditorView().openEditor('test.js')) as TextEditor;
@@ -258,6 +260,36 @@ describe('Debugging', function () {
 			await item?.setVariableValue('42');
 			item = await getNumVariable(view, this.timeout() - 2000);
 			expect(await item?.getVariableValue()).equals('42');
+		});
+
+		it('CallStack: getCallStackSection', async function () {
+			callStack = await view.getCallStackSection();
+			expect(callStack).not.undefined;
+		});
+
+		it('CallStackItem.getVisibleItems', async function () {
+			const items = await callStack.getVisibleItems();
+			expect(items.length).equals(3);
+		});
+
+		it('CallStackItem.getLabel', async function () {
+			const items = await callStack.getVisibleItems();
+			const label = await items.at(0)?.getLabel();
+			expect(label).to.contain('Test Launch');
+		});
+
+		it('CallStackItem.getText', async function () {
+			const items = await callStack.getVisibleItems();
+			const text = await items.at(0)?.getText();
+			expect(text).to.contain('PAUSED ON BREAKPOINT');
+		});
+
+		it('CallStackItem.getActionButtons', async function () {
+			const items = await callStack.getVisibleItems();
+			const buttons = await items.at(0)?.getActionButtons();
+			const button = await buttons?.at(0)?.getLabel();
+			expect(buttons?.length).equals(8);
+			expect(button).to.contain('Take Performance Profile');
 		});
 
 		it('evaluate an expression', async function () {
