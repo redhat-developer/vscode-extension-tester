@@ -280,4 +280,16 @@ export class QuickPickItem extends AbstractElement {
 	async select(): Promise<void> {
 		await this.click();
 	}
+
+	/**
+	 * Checks if QuickPickItem is selected.
+	 * @returns Promise resolving to true/false.
+	 */
+	async isSelected(): Promise<boolean> {
+		const checked = await this.getAttribute(Input.locators.Input.quickPickIsSelected);
+		if (checked === 'true') {
+			return true;
+		}
+		return false;
+	}
 }
