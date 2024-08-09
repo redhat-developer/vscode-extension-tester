@@ -465,6 +465,7 @@ export interface Locators {
 		quickPickLabel: By;
 		quickPickDescription: By;
 		quickPickSelectAll: By;
+		quickPickIsSelected: string;
 		titleBar: By;
 		title: By;
 		backButton: By;
