@@ -466,6 +466,7 @@ const input = {
 		quickPickLabel: By.className('label-name'),
 		quickPickDescription: By.className('label-description'),
 		quickPickSelectAll: By.className('quick-input-check-all'),
+		quickPickIsSelected: 'aria-checked',
 		titleBar: By.className('quick-input-titlebar'),
 		title: By.className('quick-input-title'),
 		backButton: By.className('codicon-quick-input-back'),
