@@ -52,8 +52,8 @@
     "ui-test"
   ],
   "supportedVersions": {
-    "vscode-min": "1.89.1",
-    "vscode-max": "1.91.1",
+    "vscode-min": "1.90.2",
+    "vscode-max": "1.92.1",
     "nodejs": "20"
   },
   "dependencies": {

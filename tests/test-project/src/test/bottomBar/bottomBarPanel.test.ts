@@ -24,7 +24,7 @@ describe('BottomBarPanel', function () {
 	before(async function () {
 		panel = new BottomBarPanel();
 		await (await new Workbench().openNotificationsCenter()).clearAllNotifications();
-		await ((await new ActivityBar().getViewControl('Explorer')) as ViewControl).openView();
+		await ((await new ActivityBar().getViewControl('Explorer')) as ViewControl).closeView();
 	});
 
 	after(async function () {
