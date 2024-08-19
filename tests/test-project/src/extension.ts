@@ -101,7 +101,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}),
 	);
 	context.subscriptions.push(vscode.window.registerWebviewViewProvider('myPanelView', new MyPanelView()));
-	context.subscriptions.push(vscode.window.registerWebviewViewProvider('mySidePanelView', new MyPanelView()));
+	context.subscriptions.push(vscode.window.registerWebviewViewProvider('mySidePanelView', new MySidePanelView()));
 
 	vscode.commands.registerCommand('extension.treeItemAction', async () => {});
 }
@@ -169,5 +169,12 @@ class MyPanelView implements vscode.WebviewViewProvider {
 	resolveWebviewView(webviewView: vscode.WebviewView): void | Thenable<void> {
 		webviewView.webview.html =
 			'<!DOCTYPE html><html><head><title>My Panel View</title></head><body><div><h1>Shopping List</h1><ul><li>Apple</li><li>Banana</li></ul></div></body></html>';
+	}
+}
+
+class MySidePanelView implements vscode.WebviewViewProvider {
+	resolveWebviewView(webviewView: vscode.WebviewView): void | Thenable<void> {
+		webviewView.webview.html =
+			'<!DOCTYPE html><html><head><title>My Side Panel View</title></head><body><div><h1>Shopping Side List</h1><ul><li>Side Apple</li><li>Side Banana</li></ul></div></body></html>';
 	}
 }
