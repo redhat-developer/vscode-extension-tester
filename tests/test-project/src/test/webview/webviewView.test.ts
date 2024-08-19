@@ -16,7 +16,7 @@
  */
 
 import { expect } from 'chai';
-import { BottomBarPanel, By, CustomTreeSection, SideBarView, VSBrowser, WebviewView, Workbench } from 'vscode-extension-tester';
+import { BottomBarPanel, By, CustomTreeSection, EditorView, SideBarView, VSBrowser, WebviewView, Workbench } from 'vscode-extension-tester';
 
 describe('WebviewViews', function () {
 	const params = [
@@ -25,14 +25,24 @@ describe('WebviewViews', function () {
 			command: 'My Panel: Focus on My Panel View View',
 			closePanel: true,
 			closeSection: false,
+			h1: 'Shopping List',
+			li0: 'Apple',
+			li1: 'Banana',
 		},
 		{
 			title: 'SideBar',
 			command: 'Explorer: Focus on My Side Panel View View',
 			closePanel: false,
 			closeSection: true,
+			h1: 'Shopping Side List',
+			li0: 'Side Apple',
+			li1: 'Side Banana',
 		},
 	];
+
+	after(async function () {
+		await new EditorView().closeAllEditors();
+	});
 
 	params.forEach(function (param) {
 		describe(`${param.title} WebviewViews`, function () {
@@ -76,7 +86,7 @@ describe('WebviewViews', function () {
 
 			it('findWebElement works', async function () {
 				const element = await webviewView.findWebElement(By.css('h1'));
-				expect(await element.getText()).has.string('Shopping List');
+				expect(await element.getText()).has.string(param.h1);
 			});
 
 			it('findWebElements works', async function () {
@@ -93,8 +103,8 @@ describe('WebviewViews', function () {
 					}),
 				);
 				expect(listContent).to.have.length(2);
-				expect(listContent).to.contain('Apple');
-				expect(listContent).to.contain('Banana');
+				expect(listContent).to.contain(param.li0);
+				expect(listContent).to.contain(param.li1);
 			});
 		});
 	});
