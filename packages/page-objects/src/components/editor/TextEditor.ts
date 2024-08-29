@@ -409,7 +409,7 @@ export class TextEditor extends Editor {
 			}
 			await inputArea.getDriver().actions().clear();
 			await inputArea.sendKeys(lineKey);
-			await inputArea.getDriver().sleep(500);
+			await inputArea.getDriver().sleep(50);
 		}
 	}
 
@@ -430,7 +430,7 @@ export class TextEditor extends Editor {
 			}
 			await inputArea.getDriver().actions().clear();
 			await inputArea.sendKeys(columnKey);
-			await inputArea.getDriver().sleep(500);
+			await inputArea.getDriver().sleep(50);
 			if ((await this.getCoordinates())[0] !== coordinates[0]) {
 				throw new Error(`Column number ${column} is not accessible on line ${coordinates[0]}`);
 			}
