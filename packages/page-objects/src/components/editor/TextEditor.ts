@@ -627,6 +627,32 @@ export class TextEditor extends Editor {
 	}
 
 	/**
+	 * Get all breakpoints.
+	 * @returns List of Breakpoints.
+	 */
+	async getBreakpoints(): Promise<Breakpoint[]> {
+		const breakpoints: Breakpoint[] = [];
+
+		const breakpointLocators = Breakpoint.locators.TextEditor.breakpoint;
+		const breakpointContainer = TextEditor.versionInfo.version >= '1.80.0' ? await this.findElement(By.className('glyph-margin-widgets')) : this;
+		const breakpointsSelectors = await breakpointContainer.findElements(breakpointLocators.generalSelector);
+
+		for (const breakpointSelector of breakpointsSelectors) {
+			let lineElement: WebElement;
+			if (TextEditor.versionInfo.version >= '1.80.0') {
+				const styleTopAttr = await breakpointSelector.getCssValue('top');
+				lineElement = await this.findElement(TextEditor.locators.TextEditor.marginArea).findElement(
+					By.xpath(`.//div[contains(@style, "${styleTopAttr}")]`),
+				);
+			} else {
+				lineElement = await breakpointSelector.findElement(By.xpath('./..'));
+			}
+			breakpoints.push(new Breakpoint(breakpointSelector, lineElement));
+		}
+		return breakpoints;
+	}
+
+	/**
 	 * Get all code lenses within the editor
 	 * @returns list of CodeLens page objects
 	 */
