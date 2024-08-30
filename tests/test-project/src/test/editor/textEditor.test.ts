@@ -63,7 +63,7 @@ describe('ContentAssist', async function () {
 	});
 
 	beforeEach(async () => {
-		this.timeout(15000);
+		this.timeout(8000);
 		assist = (await editor.toggleContentAssist(true)) as ContentAssist;
 		await new Promise((res) => setTimeout(res, 2000));
 	});
@@ -105,7 +105,7 @@ describe('TextEditor', function () {
 	const testText = process.platform === 'win32' ? `line1\r\nline2\r\nline3` : `line1\nline2\nline3`;
 
 	before(async () => {
-		this.timeout(15000);
+		this.timeout(8000);
 		await new Workbench().executeCommand('Create: New File...');
 		await (await InputBox.create()).selectQuickPick('Text File');
 		await new Promise((res) => {
@@ -138,14 +138,14 @@ describe('TextEditor', function () {
 	});
 
 	it('can type text at given coordinates', async function () {
-		this.timeout(10000);
+		this.timeout(5000);
 		await editor.typeTextAt(1, 6, '1');
 		const line = await editor.getTextAtLine(1);
 		expect(line).has.string('line11');
 	});
 
 	it('getCoordinates works', async function () {
-		this.timeout(20000);
+		this.timeout(15000);
 
 		await editor.setCursor(1, 1);
 		expect(await editor.getCoordinates()).to.deep.equal([1, 1]);
