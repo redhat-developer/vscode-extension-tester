@@ -627,6 +627,21 @@ export class TextEditor extends Editor {
 	}
 
 	/**
+	 * Get paused breakpoint on line if available. Otherwise, return undefined.
+	 * @param line number of the line to retrieve
+	 * @returns promise which resolves to either Breakpoint page object or undefined
+	 */
+	async getBreakpoint(line: number): Promise<Breakpoint | undefined> {
+		const breakpoints = await this.getBreakpoints();
+		for (const breakpoint of breakpoints) {
+			if ((await breakpoint.getLineNumber()) === line) {
+				return breakpoint;
+			}
+		}
+		return undefined;
+	}
+
+	/**
 	 * Get all breakpoints.
 	 * @returns List of Breakpoints.
 	 */

@@ -135,6 +135,11 @@ describe('Debugging', function () {
 			)) as Breakpoint;
 		});
 
+		it('TextEditor: getBreakpoint works', async function () {
+			const breakpoint = await editor.getBreakpoint(7);
+			expect(breakpoint).not.undefined;
+		});
+
 		it('TextEditor: getBreakpoints works', async function () {
 			const breakpoints = editor.getBreakpoints();
 			expect((await breakpoints).length).equals(2);
