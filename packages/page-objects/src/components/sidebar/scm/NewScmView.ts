@@ -16,7 +16,7 @@
  */
 
 import { ScmView, ScmProvider, MoreAction, ScmChange } from './ScmView';
-import { WebElement, Key } from 'selenium-webdriver';
+import { WebElement, Key, By } from 'selenium-webdriver';
 import { ContextMenu } from '../../menu/ContextMenu';
 import { ElementWithContextMenu } from '../../ElementWithContextMenu';
 import { TitleActionButton } from '../ViewTitlePart';
@@ -62,17 +62,31 @@ export class SingleScmProvider extends ScmProvider {
 
 	async takeAction(title: string): Promise<boolean> {
 		const view = this.enclosingItem as NewScmView;
-		const titlePart = view.getTitlePart();
-		const elements = await titlePart.findElements(ScmView.locators.ScmView.action);
+		let actions: WebElement[] = [];
+		let names: string[] = [];
 		const buttons: TitleActionButton[] = [];
-		for (const element of elements) {
-			const title = await element.getAttribute(ScmView.locators.ScmView.actionLabel);
-			buttons.push(await new TitleActionButton(ScmView.locators.ScmView.actionConstructor(title), titlePart).wait());
+
+		if (ScmProvider.versionInfo.version >= '1.93.0') {
+			const header = await view.findElement(By.xpath(`.//div[@aria-label='Source Control Section']`));
+			actions = await header.findElements(ScmProvider.locators.ScmView.action);
+			names = await Promise.all(actions.map(async (action) => await action.getAttribute(ScmProvider.locators.ScmView.actionLabel)));
+		} else {
+			const titlePart = view.getTitlePart();
+			const elements = await titlePart.findElements(ScmView.locators.ScmView.action);
+			for (const element of elements) {
+				const title = await element.getAttribute(ScmView.locators.ScmView.actionLabel);
+				buttons.push(await new TitleActionButton(ScmView.locators.ScmView.actionConstructor(title), titlePart).wait());
+			}
+			names = await Promise.all(buttons.map(async (button) => button.getTitle()));
 		}
-		const names = await Promise.all(buttons.map(async (button) => button.getTitle()));
-		const index = names.findIndex((name) => name === title);
+
+		const index = names.findIndex((item) => item === title);
 		if (index > -1) {
-			await buttons[index].click();
+			if (ScmProvider.versionInfo.version >= '1.93.0') {
+				await actions[index].click();
+			} else {
+				await buttons[index].click();
+			}
 			return true;
 		}
 		return false;
