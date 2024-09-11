@@ -29,21 +29,21 @@
 
 ### Features
 
-- ⭐ Download a test instance of Visual Studio Code.
-- ⭐ Download the appropriate version of ChromeDriver.
-- ⭐ Pack and Install your extension into downloaded VS Code instance.
-- ⭐ Launch the VS Code instance using Selenium WebDriver.
-- ⭐ Run your tests.
+- ⬇️ Download a test instance of <b>Visual Studio Code</b>.
+- ⬇️ Download the appropriate version of <b>ChromeDriver</b>.
+- 📦 <b>Pack</b> and <b>Install</b> your extension into downloaded VS Code instance.
+- 🚀 <b>Launch</b> the <b>VS Code</b> instance using Selenium WebDriver.
+- 🔥 <b>Run</b> your <b>tests</b>.
 
 ### Requirements
 
-| NodeJS                                                                                                                                                                                                          | Visual Studio Code                                                                                                                            | Operating System                                                                                                                                                                                                                                      |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| <table style="text-align:center;"> <tr><th>18.x.x</th><th>20.x.x</th><th>LTS</th><th>Latest</th></tr><tr><td>✅</td><td>✅</td><td>❓</td><td>❓</td></tr><tr><td colspan="4">❓ Best-effort</td></tr> </table> | <table style="text-align:center;"> <tr><th>min</th><th>-</th><th>max</th></tr><tr><td>1.91.x</td><td>1.92.x</td><td>1.93.x</td></tr> </table> | <table style="text-align:center;"> <tr><th>Linux</th><th>Windows</th><th>macOS</th></tr><tr><td>✅</td><td>✅</td><td>⚠️</td></tr><tr><td colspan="3">⚠️ [Known Issues](KNOWN_ISSUES.md#macos-known-limitations-of-native-objects)</td></tr> </table> |
+| NodeJS                                                                                                                                                                                | Visual Studio Code                                                                                                                            | Operating System                                                                                                                                                                                                                                      |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <table style="text-align:center;"> <tr><th>20.x.x</th><th>LTS</th><th>Latest</th></tr><tr><td>✅</td><td>❓</td><td>❓</td></tr><tr><td colspan="3">❓ Best-effort</td></tr> </table> | <table style="text-align:center;"> <tr><th>min</th><th>-</th><th>max</th></tr><tr><td>1.91.x</td><td>1.92.x</td><td>1.93.x</td></tr> </table> | <table style="text-align:center;"> <tr><th>Linux</th><th>Windows</th><th>macOS</th></tr><tr><td>✅</td><td>✅</td><td>⚠️</td></tr><tr><td colspan="3">⚠️ [Known Issues](KNOWN_ISSUES.md#macos-known-limitations-of-native-objects)</td></tr> </table> |
 
 #### NodeJS Support Policy
 
-ExTester is aiming same support for [NodeJS releases](https://nodejs.org/en/about/previous-releases) as **Visual Studio Code** and **Selenium** have.
+ExTester is aiming same support for [NodeJS releases](https://nodejs.org/en/about/previous-releases) as **Visual Studio Code** and **Selenium WebDriver** have.
 
 - For more info see [Contributing to Visual Studio Code > Prerequisites](https://github.com/microsoft/vscode/wiki/How-to-Contribute#prerequisites) and [Selenium > selenium-webdriver > Node Support Policy](https://github.com/SeleniumHQ/selenium/tree/trunk/javascript/node/selenium-webdriver#node-support-policy).
 
