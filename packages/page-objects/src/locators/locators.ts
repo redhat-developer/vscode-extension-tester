@@ -516,7 +516,7 @@ export interface LocatorDiff {
 
 export function hasAttribute(attr: string, value?: string, locator?: By): (el: WebElement) => Promise<boolean> {
 	return async (el: WebElement) => {
-		el = locator ? el.findElement(locator) : el;
+		el = locator ? await el.findElement(locator) : el;
 		const attrValue = await el.getAttribute(attr);
 		if (value === undefined) {
 			return attrValue !== null;
@@ -527,7 +527,7 @@ export function hasAttribute(attr: string, value?: string, locator?: By): (el: W
 
 export function hasClass(classOrPredicate: string | ((klass: string) => boolean), locator?: By): (el: WebElement) => Promise<boolean> {
 	return async (el: WebElement) => {
-		el = locator ? el.findElement(locator) : el;
+		el = locator ? await el.findElement(locator) : el;
 		const klasses = await el.getAttribute('class');
 		const segments = klasses?.split(/\s+/g);
 		const predicate = typeof classOrPredicate === 'string' ? (klass: string) => klass === classOrPredicate : classOrPredicate;
@@ -537,7 +537,7 @@ export function hasClass(classOrPredicate: string | ((klass: string) => boolean)
 
 export function hasNotClass(klass: string, locator?: By): (el: WebElement) => Promise<boolean> {
 	return async (el: WebElement) => {
-		el = locator ? el.findElement(locator) : el;
+		el = locator ? await el.findElement(locator) : el;
 		return !(await hasClass(klass).call(undefined, el));
 	};
 }
@@ -550,14 +550,14 @@ export function hasElement(locatorSelector: (l: Locators) => By): (el: WebElemen
 
 export function fromAttribute(attribute: string, locator?: By): (el: WebElement) => Promise<string> {
 	return async (el: WebElement) => {
-		el = locator ? el.findElement(locator) : el;
-		return el.getAttribute(attribute);
+		el = locator ? await el.findElement(locator) : el;
+		return await el.getAttribute(attribute);
 	};
 }
 
 export function fromText(locator?: By): (el: WebElement) => Promise<string> {
 	return async (el: WebElement) => {
-		el = locator ? el.findElement(locator) : el;
-		return el.getText();
+		el = locator ? await el.findElement(locator) : el;
+		return await el.getText();
 	};
 }

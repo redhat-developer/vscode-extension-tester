@@ -136,21 +136,39 @@ describe('Debugging', function () {
 		});
 
 		it('TextEditor: getBreakpoint works', async function () {
-			const breakpoint = await editor.getBreakpoint(7);
+			const breakpoint = (await driver.wait<Breakpoint>(
+				async () => await editor.getBreakpoint(7),
+				10000,
+				'could not find breakpoint at line 7',
+			)) as Breakpoint;
 			expect(breakpoint).not.undefined;
 		});
 
 		it('TextEditor: getBreakpoints works', async function () {
-			const breakpoints = editor.getBreakpoints();
-			expect((await breakpoints).length).equals(2);
-			expect(await (await breakpoints).at(0)?.getLineNumber()).equals(7);
+			const breakpoints = (await driver.wait<Breakpoint[]>(
+				async () => await editor.getBreakpoints(),
+				10000,
+				'could not find breakpoints',
+			)) as Breakpoint[];
+			expect(breakpoints.length).equals(2);
+			expect(await breakpoints.at(0)?.getLineNumber()).equals(7);
 		});
 
 		it('Breakpoint: getLineNumber works', async function () {
+			breakpoint = (await driver.wait<Breakpoint>(
+				async () => await editor.getPausedBreakpoint(),
+				10000,
+				'could not find paused breakpoint',
+			)) as Breakpoint;
 			expect(await breakpoint.getLineNumber()).equals(line);
 		});
 
 		it('Breakpoint: isPaused works', async function () {
+			breakpoint = (await driver.wait<Breakpoint>(
+				async () => await editor.getPausedBreakpoint(),
+				10000,
+				'could not find paused breakpoint',
+			)) as Breakpoint;
 			expect(await breakpoint.isPaused()).to.be.true;
 		});
 
