@@ -37,6 +37,9 @@ describe('ProblemsView', function () {
 		await view.getDriver().wait(() => {
 			return problemsExist(view);
 		}, 15000);
+
+		await view.setFilter('!test-resources/**'); // to workaround linux issues on CI occurring from VS COde 1.93.0
+		await view.getDriver().sleep(500);
 	});
 
 	after(async function () {
