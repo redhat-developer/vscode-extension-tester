@@ -1,0 +1,17 @@
+name: 🔧 Task
+description: Simple changes, mainly maintenance manner
+title: "[🔧 Task] "
+labels: [task, new-issue]
+body:
+  - type: markdown
+    attributes:
+      value: Thank you for taking the time to fill out this task description!
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the task
+      description: What is missing? or what would you like to improve? or what needs to be changed?
+      placeholder: |
+        Please add as many details as possible.
+    validations:
+      required: true
