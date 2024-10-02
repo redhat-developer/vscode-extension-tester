@@ -74,6 +74,8 @@ export * from './components/editor/DiffEditor';
 export * from './components/editor/WebView';
 export * from './components/editor/ContentAssist';
 export * from './components/editor/CustomEditor';
+export * from './components/editor/ExtensionEditorView';
+export * from './components/editor/ExtensionEditorDetailsSection';
 
 export { Notification, NotificationType } from './components/workbench/Notification';
 export * from './components/workbench/NotificationsCenter';

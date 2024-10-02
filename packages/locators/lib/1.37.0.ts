@@ -211,6 +211,27 @@ const editor = {
 		container: (id: string) => By.id(id),
 		attribute: 'aria-flowto',
 	},
+	ExtensionEditorView: {
+		constructor: By.className('extension-editor'),
+		name: By.className('name'),
+		version: By.className('version'),
+		publisher: By.className('publisher-name'),
+		description: By.className('description'),
+		count: By.className('count'),
+		navbar: By.className('navbar'),
+		tab: By.className('action-label'),
+		activeTab: By.xpath(`.//a[starts-with(@class, 'action-label checked')]`),
+		specificTab: (tabname: string) => By.xpath(`.//a[starts-with(@class, 'action-label') and text()='${tabname}']`),
+	},
+	ExtensionEditorDetailsSection: {
+		categoriesContainer: By.className('categories'),
+		category: By.className('category'),
+		resourcesContainer: By.className('resources'),
+		resource: By.className('resource'),
+		moreInfoContainer: By.className('more-info'),
+		moreInfo: By.className('more-info-entry'),
+		moreInfoElements: By.xpath('./*'),
+	},
 };
 
 const menu = {

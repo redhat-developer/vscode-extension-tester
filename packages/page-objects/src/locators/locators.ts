@@ -215,6 +215,27 @@ export interface Locators {
 		container: (id: string) => By;
 		attribute: string;
 	};
+	ExtensionEditorView: {
+		constructor: By;
+		name: By;
+		version: By;
+		publisher: By;
+		description: By;
+		count: By;
+		navbar: By;
+		tab: By;
+		activeTab: By;
+		specificTab: (tabname: string) => By;
+	};
+	ExtensionEditorDetailsSection: {
+		categoriesContainer: By;
+		category: By;
+		resourcesContainer: By;
+		resource: By;
+		moreInfoContainer: By;
+		moreInfo: By;
+		moreInfoElements: By;
+	};
 
 	// Menus
 	ContextMenu: {
