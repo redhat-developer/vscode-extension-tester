@@ -145,13 +145,13 @@ export class VSBrowser {
 	/**
 	 * Waits until parts of the workbench are loaded
 	 */
-	async waitForWorkbench(timeout = 30000): Promise<void> {
+	async waitForWorkbench(timeout: number = 30_000): Promise<void> {
 		// Workaround/patch for https://github.com/redhat-developer/vscode-extension-tester/issues/466
 		try {
 			await this._driver.wait(until.elementLocated(By.className('monaco-workbench')), timeout, `Workbench was not loaded properly after ${timeout} ms.`);
 		} catch (err) {
 			if ((err as Error).name === 'WebDriverError') {
-				await new Promise((res) => setTimeout(res, 3000));
+				await this._driver.sleep(3_000);
 			} else {
 				throw err;
 			}
@@ -199,14 +199,16 @@ export class VSBrowser {
 	 * @param paths path(s) of folder(s)/files(s) to open as varargs
 	 * @returns Promise resolving when all selected resources are opened and the workbench reloads
 	 */
-	async openResources(...paths: string[]): Promise<void> {
-		if (paths.length === 0) {
+	async openResources(resource: { path: string | string[]; timeout?: number; delay?: number }): Promise<void> {
+		if (resource.path.length === 0) {
 			return;
 		}
 
 		const code = new CodeUtil(this.storagePath, this.releaseType, this.extensionsFolder);
-		code.open(...paths);
-		await new Promise((res) => setTimeout(res, 3000));
-		await this.waitForWorkbench();
+		code.open(resource.path);
+		if (resource.delay) {
+			await this._driver.sleep(resource.delay);
+		}
+		await this.waitForWorkbench(resource.timeout);
 	}
 }

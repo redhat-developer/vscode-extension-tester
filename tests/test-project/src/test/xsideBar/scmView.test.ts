@@ -26,7 +26,7 @@ import * as fs from 'fs-extra';
 	before(async function () {
 		this.timeout(15000);
 		fs.writeFileSync(path.resolve('.', 'testfile'), 'content');
-		await VSBrowser.instance.openResources(path.resolve('..', '..'));
+		await VSBrowser.instance.openResources({ path: path.resolve('..', '..'), delay: 3_000 });
 		await VSBrowser.instance.waitForWorkbench();
 		view = (await ((await new ActivityBar().getViewControl('Source Control')) as ViewControl).openView()) as ScmView;
 		await new Promise((res) => {

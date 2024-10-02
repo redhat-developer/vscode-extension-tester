@@ -25,7 +25,7 @@ describe('CustomEditor', () => {
 	const CUSTOM_TITLE: string = 'example.cscratch';
 
 	before(async () => {
-		await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', CUSTOM_TITLE));
+		await VSBrowser.instance.openResources({ path: path.resolve(__dirname, '..', '..', '..', 'resources', CUSTOM_TITLE) });
 		editor = new CustomEditor();
 	});
 

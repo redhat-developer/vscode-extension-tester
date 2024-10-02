@@ -92,11 +92,8 @@ export class VSRunner {
 				const start = Date.now();
 				const binPath = process.platform === 'darwin' ? await self.createShortcut(code.getCodeFolder(), self.tmpLink) : self.chromeBin;
 				await browser.start(binPath);
-				await browser.openResources(...resources);
-				await browser.waitForWorkbench();
-				await new Promise((res) => {
-					setTimeout(res, 3000);
-				});
+				await browser.openResources({ path: resources, delay: 1_500 });
+				await browser.driver.sleep(3_000);
 				console.log(`Browser ready in ${Date.now() - start} ms`);
 				console.log('Launching tests...');
 			});

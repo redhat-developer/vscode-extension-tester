@@ -26,7 +26,7 @@ describe('Output View/Text Views', function () {
 
 	before(async function () {
 		this.timeout(25000);
-		await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources'));
+		await VSBrowser.instance.openResources({ path: path.resolve(__dirname, '..', '..', '..', 'resources'), delay: 3_000 });
 		await VSBrowser.instance.waitForWorkbench();
 	});
 
