@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-import { Editor } from '../..';
+import { Editor, EditorGroup, EditorView } from '../..';
 
 export class ExtensionEditorView extends Editor {
-	constructor() {
-		super(undefined, ExtensionEditorView.locators.ExtensionEditorView.constructor);
+	constructor(view: EditorView | EditorGroup = new EditorView()) {
+		super(view, ExtensionEditorView.locators.ExtensionEditorView.constructor);
 	}
 
 	/**

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { ExtensionEditorView } from '../..';
+import { ExtensionEditorView, WebView } from '../..';
 
 export class ExtensionEditorDetailsSection extends ExtensionEditorView {
 	/**
@@ -86,7 +86,7 @@ export class ExtensionEditorDetailsSection extends ExtensionEditorView {
 	/**
 	 * Blocked by https://github.com/redhat-developer/vscode-extension-tester/issues/1492
 	 */
-	async getReadme(): Promise<Error> {
-		return Error('Not implemented yet.');
+	async getReadme(): Promise<WebView> {
+		throw Error('Not implemented yet.');
 	}
 }
