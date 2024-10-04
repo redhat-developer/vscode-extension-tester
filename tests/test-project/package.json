@@ -220,7 +220,7 @@
   },
   "devDependencies": {
     "@types/chai": "^4.3.16",
-    "@types/vscode": "^1.85.0",
+    "@types/vscode": "^1.94.0",
     "chai": "^4.5.0",
     "clipboard-cli": "^4.0.0",
     "clipboardy": "^4.0.0",
