@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "module": "Node16",
-    "target": "ES2022",
-    "lib": ["ES2022"],
+    "target": "ES2023",
+    "lib": ["ES2023"],
     "sourceMap": true,
     "strict": true,
     "noUnusedLocals": true,

@@ -12,7 +12,7 @@
     "prepack": "npm run build",
     "build": "npm run clean && npm run compile",
     "compile": "tsc -p ./ && npm run lint",
-    "lint": "eslint src --ext .ts",
+    "lint": "eslint src",
     "clean": "rimraf out"
   },
   "author": "Red Hat",
