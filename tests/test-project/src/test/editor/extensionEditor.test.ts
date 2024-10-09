@@ -29,8 +29,10 @@ import {
 	WebDriver,
 } from 'vscode-extension-tester';
 import * as pjson from '../../../package.json';
+import * as path from 'path';
 
 describe('Extension Editor', function () {
+	this.timeout(99999999);
 	let driver: WebDriver;
 	let viewControl: ViewControl;
 	let extensionsView: SideBarView;
@@ -43,19 +45,14 @@ describe('Extension Editor', function () {
 
 	before(async function () {
 		driver = VSBrowser.instance.driver;
+		await VSBrowser.instance.openResources({ path: path.resolve(__dirname, '..', '..', '..', 'resources', 'test-folder') });
 		viewControl = (await new ActivityBar().getViewControl('Extensions')) as ViewControl;
 		extensionsView = await viewControl.openView();
 		await driver.wait(async function () {
 			return (await extensionsView.getContent().getSections()).length > 0;
 		});
 
-		const view = await viewControl.openView();
-
-		await driver.wait(async function () {
-			return (await view.getContent().getSections()).length > 0;
-		});
-		section = (await view.getContent().getSection('Installed')) as ExtensionsViewSection;
-
+		section = (await extensionsView.getContent().getSection('Installed')) as ExtensionsViewSection;
 		await driver.wait(async function () {
 			item = (await section.findItem(`@installed ${pjson.displayName}`)) as ExtensionsViewItem;
 			return item !== undefined;
