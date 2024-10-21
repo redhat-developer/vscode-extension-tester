@@ -82,7 +82,7 @@ program
 	.action(
 		withErrors(async (id, ids, cmd) => {
 			const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
-			await extest.installFromMarketplace(id, cmd.pre_release?true:false);
+			await extest.installFromMarketplace(id, cmd.pre_release);
 			if (ids && ids.length > 0) {
 				for (const idx of ids) {
 					await extest.installFromMarketplace(idx);
