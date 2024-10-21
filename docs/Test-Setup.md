@@ -82,6 +82,7 @@ Options:
   -s, --storage <storage>                      # Use this folder for all test resources
   -e, --extensions_dir <extensions_directory>  # VS Code will use this directory for managing extensions
   -t, --type <type>                            # Type of VS Code release (stable/insider)
+  -p, --pre_release                            # Installs the pre-release version of the extension
   -h, --help                                   # display help for command
 ```
 
