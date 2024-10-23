@@ -19,6 +19,7 @@
   <a href="#features">Features</a> •
   <a href="#requirements">Requirements</a> •
   <a href="#usage">Usage</a> •
+  <a href="#example">Example</a> •
   <a href="https://github.com/redhat-developer/vscode-extension-tester/wiki/">Documentation</a> •
   <a href="#known-issues">Known Issues</a>
 </p>
@@ -61,6 +62,10 @@ Make sure to check out the 🔗 [Documentation](../../wiki) for detailed instruc
 - 📄 [Configuring Mocha](../../wiki/Mocha-Configuration)
 - 📄 [An example simple test case](../../wiki/Writing-Simple-Tests)
 - 📄 [Page objects API quick guide](../../wiki/Page-Object-APIs)
+
+### Example
+
+For an example project, check out the [vscode-extension-tester-example](https://github.com/redhat-developer/vscode-extension-tester-example) repository, where you can find detailed setup and usage instructions.
 
 ### Documentation
 

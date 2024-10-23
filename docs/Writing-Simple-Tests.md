@@ -2,6 +2,8 @@ ExTester is integrated with Mocha framework (as such requires Mocha 5.2+ to be p
 
 This is what a really simple test case might look like. Note that here we are only using pure webdriver. To use the provided page objects, see the [[Page-Object-APIs]].
 
+For an example project, check out the [vscode-extension-tester-example](https://github.com/redhat-developer/vscode-extension-tester-example) repository, where you can find detailed setup and usage instructions.
+
 ```typescript
 import { assert } from "chai";
 // import the webdriver and the high level browser wrapper
