@@ -33,4 +33,4 @@ We recommend using separate mocha configuration files for running, and debugging
 
 To learn more about mocha configuration, check [[Mocha-Configuration]].
 
-An example debugging setup can be found in [helloworld-extester](../tree/main/examples/helloworld-extester).
+An example debugging setup can be found in [vscode-extension-tester-example](https://github.com/redhat-developer/vscode-extension-tester-example).
