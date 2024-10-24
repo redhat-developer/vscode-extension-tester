@@ -21,7 +21,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-24.04, macos-latest, windows-latest]
       fail-fast: false
 
     env:
@@ -52,11 +52,11 @@ jobs:
         run: npm install --workspace=extester-test
 
       - name: 🔍 Run Tests (macOS, windows)
-        if: matrix.os != 'ubuntu-latest'
+        if: matrix.os != 'ubuntu-24.04'
         run: npm test
 
       - name: 🔍 Run Tests (linux)
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-24.04'
         run: xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' npm test
 
       - name: 💾 Upload Screenshots
