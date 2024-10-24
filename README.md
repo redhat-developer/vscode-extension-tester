@@ -9,6 +9,7 @@
   <a href="https://github.com/redhat-developer/vscode-extension-tester/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache%202-yellow.svg?style=for-the-badge&logo=appveyor" alt="License"/></a>
   </br>
   <a href="https://code.visualstudio.com"><img src="https://img.shields.io/badge/VS_Code-1.94.x-blue?style=for-the-badge&logo=visualstudiocode" alt="Maximal supported version of VS Code"></a>
+  <a href="https://github.com/prettier/prettier"><img src="https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=for-the-badge" alt="Code styled by Prettier"></a>
   <a href="https://github.com/redhat-developer/vscode-extension-tester/actions/workflows/main.yml"><img src="https://img.shields.io/github/actions/workflow/status/redhat-developer/vscode-extension-tester/main.yml?label=Main%20CI&style=for-the-badge&logo=githubactions" alt="Main CI"></a>
   <a href="https://github.com/redhat-developer/vscode-extension-tester/actions/workflows/insiders.yml"><img src="https://img.shields.io/github/actions/workflow/status/redhat-developer/vscode-extension-tester/insiders.yml?branch=main&label=Insider%20CI&style=for-the-badge&logo=githubactions" alt="Insider CI"></a>
 </p><br/>
