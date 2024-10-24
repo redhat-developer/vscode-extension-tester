@@ -4,11 +4,13 @@ import { defineConfig } from 'eslint-define-config';
 import ts from '@typescript-eslint/parser';
 import tsEslint from '@typescript-eslint/eslint-plugin';
 import stylisticEslint from '@stylistic/eslint-plugin';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 
 export default defineConfig([
 	{
 		ignores: ['**/*.test.js'],
 	},
+	eslintPluginPrettierRecommended,
 	{
 		files: ['**/*.ts', '**/*.tsx'],
 		languageOptions: {
@@ -61,6 +63,7 @@ export default defineConfig([
 			eqeqeq: ['warn', 'always'],
 			'no-redeclare': 'warn',
 			'no-throw-literal': 'warn',
+			'prettier/prettier': ['warn'],
 		},
 	},
 ]);
