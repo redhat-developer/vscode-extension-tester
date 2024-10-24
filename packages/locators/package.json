@@ -33,7 +33,7 @@
     "prepack": "npm run build",
     "build": "npm run clean && npm run compile",
     "compile": "tsc -p ./ && npm run lint",
-    "lint": "eslint lib",
+    "lint": "eslint --fix --fix-type layout lib",
     "clean": "rimraf out"
   },
   "peerDependencies": {

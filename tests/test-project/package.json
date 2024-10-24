@@ -213,7 +213,7 @@
     "clean": "rimraf out",
     "watch": "tsc -watch -p ./",
     "compile": "tsc -p ./ && npm run lint",
-    "lint": "eslint src",
+    "lint": "eslint --fix --fix-type layout src",
     "cb-init": "echo hello_ExTester | clipboard",
     "ui-test": "npm run cb-init && extest setup-and-run './out/test/cli/order-3.test.js' './out/test/cli/order-2.test.js' './out/test/cli/order-1.test.js' './out/test/**/!(clipboard)*.test.js' './out/test/system/clipboard.test.js' -u -i -r . -e ./test-extensions",
     "ui-test:coverage": "MOCHA_GREP='order|clipboard|ExtensionsView|TitleBar' MOCHA_INVERT=true extest setup-and-run './out/test/**/*.test.js' -i -r . -e ./test-extensions --coverage"
