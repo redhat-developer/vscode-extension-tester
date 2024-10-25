@@ -127,8 +127,8 @@ export class ExTester {
 	 * Install an extension from VS Code marketplace into the test instance
 	 * @param id id of the extension to install
 	 */
-	async installFromMarketplace(id: string): Promise<void> {
-		return this.code.installExtension(undefined, id);
+	async installFromMarketplace(id: string, preRelease = false): Promise<void> {
+		return this.code.installExtension(undefined, id, preRelease);
 	}
 
 	/**

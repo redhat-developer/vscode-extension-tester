@@ -154,10 +154,10 @@ export class CodeUtil {
 	/**
 	 * Install your extension into the test instance of VS Code
 	 */
-	installExtension(vsix?: string, id?: string): void {
+	installExtension(vsix?: string, id?: string, preRelease = false): void {
 		const pjson = require(path.resolve('package.json'));
 		if (id) {
-			return this.installExt(id);
+			return this.installExt(id, preRelease);
 		}
 		const vsixPath = path.resolve(vsix ? vsix : `${pjson.name}-${pjson.version}.vsix`);
 		this.installExt(vsixPath);
@@ -186,8 +186,11 @@ export class CodeUtil {
 		}
 	}
 
-	private installExt(pathOrID: string): void {
+	private installExt(pathOrID: string, preRelease = false): void {
 		let command = `${this.getCliInitCommand()} --force --install-extension "${pathOrID}"`;
+		if(preRelease){
+			command += " --pre-release";
+		}
 		if (this.extensionsFolder) {
 			command += ` --extensions-dir=${this.extensionsFolder}`;
 		}

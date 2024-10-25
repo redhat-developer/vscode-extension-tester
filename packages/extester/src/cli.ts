@@ -78,10 +78,11 @@ program
 	.option('-s, --storage <storage>', 'Use this folder for all test resources')
 	.option('-e, --extensions_dir <extensions_directory>', 'VS Code will use this directory for managing extensions')
 	.option('-t, --type <type>', 'Type of VS Code release (stable/insider)')
+	.option('-p, --pre_release', 'Installs the pre-release version of the extension')
 	.action(
 		withErrors(async (id, ids, cmd) => {
 			const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
-			await extest.installFromMarketplace(id);
+			await extest.installFromMarketplace(id,  cmd.pre_release);
 			if (ids && ids.length > 0) {
 				for (const idx of ids) {
 					await extest.installFromMarketplace(idx);
