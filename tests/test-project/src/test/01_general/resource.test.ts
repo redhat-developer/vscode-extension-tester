@@ -33,7 +33,7 @@ async function getTitle(): Promise<[string | undefined, Error | undefined]> {
 	}
 }
 
-describe('Open resource test', function () {
+describe.only('Open resource test', function () {
 	this.timeout(30000);
 
 	it('Single folder is open from CLI', async function () {
