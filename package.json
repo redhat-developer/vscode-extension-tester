@@ -34,7 +34,7 @@
     "@types/targz": "^1.0.4",
     "@types/vscode": "^1.94.0",
     "@typescript-eslint/eslint-plugin": "^8.11.0",
-    "@typescript-eslint/parser": "^8.11.0",
+    "@typescript-eslint/parser": "^8.12.1",
     "eslint": "^9.13.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-define-config": "^2.1.0",
