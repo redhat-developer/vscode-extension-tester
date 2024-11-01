@@ -24,7 +24,7 @@ jobs:
 
   check:
     if: always()
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     name: 🚦 Status Check
     needs: [test]
     steps:

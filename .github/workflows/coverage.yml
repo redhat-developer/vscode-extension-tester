@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   coverage:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     env:
       CODE_TYPE: stable
@@ -39,11 +39,12 @@ jobs:
       - name: 🔧 Install - Test Project
         run: npm install --workspace=extester-test
 
+      - name: ⚙️ Allow unprivileged user namespace (ubuntu)
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
       - name: 📊 Run Tests with Coverage enabled
         # 'set +e' and 'exit 0' - that means the workflow will not fail even the test failures are present. The failing tests are not directive for the code coverage reports itself
         run: |
-          # allow unprivileged user namespace
-          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
           set +e
           xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' npm run test:coverage
           exit 0
