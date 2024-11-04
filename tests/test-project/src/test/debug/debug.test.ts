@@ -136,6 +136,7 @@ describe('Debugging', function () {
 		});
 
 		it('TextEditor: getBreakpoint works', async function () {
+			editor = (await new EditorView().openEditor('test.js')) as TextEditor;
 			const breakpoint = (await driver.wait<Breakpoint>(
 				async () => await editor.getBreakpoint(7),
 				10000,
@@ -145,6 +146,7 @@ describe('Debugging', function () {
 		});
 
 		it('TextEditor: getBreakpoints works', async function () {
+			editor = (await new EditorView().openEditor('test.js')) as TextEditor;
 			const breakpoints = (await driver.wait<Breakpoint[]>(
 				async () => await editor.getBreakpoints(),
 				10000,
