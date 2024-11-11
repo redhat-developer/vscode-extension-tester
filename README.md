@@ -20,7 +20,7 @@
   <a href="#features">Features</a> •
   <a href="#requirements">Requirements</a> •
   <a href="#usage">Usage</a> •
-  <a href="#example">Example</a> •
+  <a href="https://github.com/redhat-developer/vscode-extension-tester-example">Example</a> •
   <a href="https://github.com/redhat-developer/vscode-extension-tester/wiki/">Documentation</a> •
   <a href="#known-issues">Known Issues</a>
 </p>
@@ -66,7 +66,7 @@ Make sure to check out the 🔗 [Documentation](../../wiki) for detailed instruc
 
 ### Example
 
-For an example project, check out the [vscode-extension-tester-example](https://github.com/redhat-developer/vscode-extension-tester-example) repository, where you can find detailed setup and usage instructions.
+For an example project, check out the [Hello World Example](https://github.com/redhat-developer/vscode-extension-tester-example) repository, where you can find detailed setup and usage instructions.
 
 ### Documentation
 
