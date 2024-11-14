@@ -76,9 +76,9 @@ Lastly, a pull request check on [Github Actions](../../actions) is going to kick
 ### Post publish tasks
 
 - [ ] Close published version [milestone](../../milestones) and update ExTester [project board](../../projects/41/views/3)
-- Update `examples/helloworld-extester` project
-  - [ ] Bump `vscode-extension-tester` version to recently released one
-  - [ ] Run tests and check everything is working properly
+- Update [vscode-extension-tester-example](https://github.com/redhat-developer/vscode-extension-tester-example) project
+  - [ ] Merge PR's opened by Dependabot
+  - [ ] Check Main CI build is green
 - _(optional)_ Spread a message about new release using IM tools, mailing lists and social media
 
 ## DCO
