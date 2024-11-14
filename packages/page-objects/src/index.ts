@@ -52,6 +52,8 @@ export * from './components/sidebar/tree/debug/DebugVariablesSection';
 export * from './components/sidebar/tree/debug/VariableSectionItem';
 export * from './components/sidebar/tree/debug/CallStackItem';
 export * from './components/sidebar/tree/debug/DebugCallStackSection';
+export * from './components/sidebar/tree/debug/WatchSection';
+export * from './components/sidebar/tree/debug/WatchSectionItem';
 export * from './components/sidebar/extensions/ExtensionsViewSection';
 export * from './components/sidebar/extensions/ExtensionsViewItem';
 export { ScmView, ScmProvider, ScmChange } from './components/sidebar/scm/ScmView';

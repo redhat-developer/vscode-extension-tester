@@ -377,6 +377,19 @@ const sideBar = {
 		label: By.className('monaco-highlighted-label'),
 		text: By.className('state label monaco-count-badge long'),
 	},
+	WatchSection: {
+		predicate: async (section: ViewSection) => (await section.getTitle()).toLowerCase() === 'watch',
+		input: By.css('input'),
+		addExpression: 'Add Expression',
+		refresh: 'Refresh',
+		removeAll: 'Remove All Expressions',
+		collapseAll: 'Collapse All',
+	},
+	WatchSectionItem: {
+		label: By.className('monaco-highlighted-label'),
+		value: By.xpath(`.//*[contains(@class, 'value ') and starts-with(@class, 'value ')]`),
+		remove: 'Remove Expression',
+	},
 	ExtensionsViewSection: {
 		items: By.className('monaco-list-rows'),
 		itemRow: By.className('monaco-list-row'),

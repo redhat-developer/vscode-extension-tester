@@ -379,6 +379,19 @@ export interface Locators {
 		label: By;
 		text: By;
 	};
+	WatchSection: {
+		predicate: WebElementFunction<ViewSection, boolean>;
+		input: By;
+		addExpression: string;
+		refresh: string;
+		removeAll: string;
+		collapseAll: string;
+	};
+	WatchSectionItem: {
+		label: By;
+		value: By;
+		remove: string;
+	};
 	ExtensionsViewSection: {
 		items: By;
 		itemRow: By;

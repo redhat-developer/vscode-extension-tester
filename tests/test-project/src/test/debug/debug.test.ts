@@ -30,6 +30,7 @@ import {
 	TextEditor,
 	until,
 	VSBrowser,
+	WatchSection,
 	WebDriver,
 	Workbench,
 } from 'vscode-extension-tester';
@@ -98,6 +99,7 @@ describe('Debugging', function () {
 		let driver: WebDriver;
 		let breakpoint!: Breakpoint;
 		let callStack: DebugCallStackSection;
+		let watchSection: WatchSection;
 
 		before(async function () {
 			editor = (await new EditorView().openEditor('test.js')) as TextEditor;
@@ -291,6 +293,60 @@ describe('Debugging', function () {
 			await item?.setVariableValue('42');
 			item = await getNumVariable(view, this.timeout() - 2000);
 			expect(await item?.getVariableValue()).equals('42');
+			await item
+				?.getDriver()
+				.actions()
+				.move({ x: Math.ceil(0), y: Math.ceil(0) })
+				.click()
+				.perform(); // dismiss hover to prevent errors in next tests
+		});
+
+		it('WatchSection.getWatchSection', async function () {
+			watchSection = await view.getWatchSection();
+			expect(watchSection).not.undefined;
+		});
+
+		it('WatchSection.getVisibleItems', async function () {
+			const items = await watchSection.getVisibleItems();
+			expect(items.length).equals(0);
+		});
+
+		it('WatchSection.addItem', async function () {
+			await watchSection.addItem('num');
+			await watchSection.addItem('bool');
+			await watchSection.addItem('line');
+
+			const items = await watchSection.getVisibleItems();
+			expect(items.length).equals(3);
+		});
+
+		it('WatchSectionItem.getLabel', async function () {
+			const items = await watchSection.getVisibleItems();
+			expect(await items.at(0)?.getLabel()).to.contain('num');
+			expect(await items.at(1)?.getLabel()).to.contain('bool');
+			expect(await items.at(2)?.getLabel()).to.contain('line');
+		});
+
+		it('WatchSectionItem.getValue', async function () {
+			const items = await watchSection.getVisibleItems();
+			expect(await items.at(0)?.getValue()).to.contain('42');
+			expect(await items.at(1)?.getValue()).to.contain('false');
+			expect(await items.at(2)?.getValue()).to.contain("'line'");
+		});
+
+		it('WatchSectionItem.remove', async function () {
+			let items = await watchSection.getVisibleItems();
+			await items.at(0)?.remove();
+			items = await watchSection.getVisibleItems();
+			expect(items.length).equals(2);
+			expect(await items.at(0)?.getLabel()).to.contain('bool');
+			expect(await items.at(1)?.getLabel()).to.contain('line');
+		});
+
+		it('WatchSection.removeAllExpressions', async function () {
+			await watchSection.removeAllExpressions();
+			const items = await watchSection.getVisibleItems();
+			expect(items.length).equals(0);
 		});
 
 		it('CallStack: getCallStackSection', async function () {

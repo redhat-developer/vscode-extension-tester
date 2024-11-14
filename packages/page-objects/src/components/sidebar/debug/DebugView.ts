@@ -19,6 +19,7 @@ import { SideBarView } from '../SideBarView';
 import { DebugBreakpointSection } from '../tree/debug/DebugBreakpointSection';
 import { DebugCallStackSection } from '../tree/debug/DebugCallStackSection';
 import { DebugVariableSection } from '../tree/debug/DebugVariablesSection';
+import { WatchSection } from '../tree/debug/WatchSection';
 
 /**
  * Page object representing the Run/Debug view in the side bar
@@ -99,5 +100,14 @@ export class DebugView extends SideBarView {
 	async getCallStackSection(): Promise<DebugCallStackSection> {
 		const content = this.getContent();
 		return content.getSection(DebugCallStackSection.locators.DebugCallStackSection.predicate, DebugCallStackSection);
+	}
+
+	/**
+	 * Get Watch section
+	 * @returns WatchSection page object
+	 */
+	async getWatchSection(): Promise<WatchSection> {
+		const content = this.getContent();
+		return content.getSection(WatchSection.locators.WatchSection.predicate, WatchSection);
 	}
 }
