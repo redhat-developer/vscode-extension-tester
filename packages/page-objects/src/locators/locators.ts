@@ -504,6 +504,8 @@ export interface Locators {
 		title: By;
 		backButton: By;
 		multiSelectIndex: (index: number) => By;
+		button: By;
+		buttonLabel: string;
 	};
 	InputBox: {
 		constructor: By;
