@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { By, Locator, WebElement, error } from 'selenium-webdriver';
+import { Locator, WebElement, error } from 'selenium-webdriver';
 import { AbstractElement } from '../AbstractElement';
 import { NotificationsCenter } from '../workbench/NotificationsCenter';
 
@@ -181,6 +181,6 @@ export class StatusBar extends AbstractElement {
 	}
 
 	private async getPartText(locator: Locator): Promise<string> {
-		return await this.findElement(locator).findElement(By.css('a')).getAttribute('innerHTML');
+		return await this.findElement(locator).findElement(StatusBar.locators.StatusBar.aTag).getAttribute('innerHTML');
 	}
 }

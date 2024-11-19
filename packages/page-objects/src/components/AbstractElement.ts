@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { WebElement, WebDriver, Locator, until, By, Key } from 'selenium-webdriver';
+import { WebElement, WebDriver, Locator, until, Key } from 'selenium-webdriver';
 import { Locators } from '../locators/locators';
 
 /**
@@ -35,7 +35,7 @@ export abstract class AbstractElement extends WebElement {
 	 * this will be used to narrow down the search for the underlying DOM element
 	 */
 	constructor(base: Locator | WebElement, enclosingItem?: WebElement | Locator) {
-		let item: WebElement = AbstractElement.driver.findElement(By.css('html'));
+		let item: WebElement = AbstractElement.driver.findElement(AbstractElement.locators.AbstractElement.tag);
 		if (!enclosingItem) {
 			enclosingItem = item;
 		}

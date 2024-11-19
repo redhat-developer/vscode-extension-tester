@@ -16,7 +16,7 @@
  */
 
 import { ContentAssist, ContextMenu, InputBox, Workbench } from '../..';
-import { By, Key, until, WebElement } from 'selenium-webdriver';
+import { Key, until, WebElement } from 'selenium-webdriver';
 import { fileURLToPath } from 'url';
 import { StatusBar } from '../statusBar/StatusBar';
 import { Editor } from './Editor';
@@ -532,7 +532,7 @@ export class TextEditor extends Editor {
 
 	async openContextMenu(): Promise<ContextMenu> {
 		await this.getDriver().actions().contextClick(this).perform();
-		const shadowRootHost = await this.enclosingItem.findElements(By.className('shadow-root-host'));
+		const shadowRootHost = await this.enclosingItem.findElements(TextEditor.locators.TextEditor.shadowRootHost);
 
 		if (shadowRootHost.length > 0) {
 			let shadowRoot;
@@ -540,7 +540,7 @@ export class TextEditor extends Editor {
 			const chromiumVersion = webdriverCapabilities.getBrowserVersion();
 			if (chromiumVersion && parseInt(chromiumVersion.split('.')[0]) >= 96) {
 				shadowRoot = await shadowRootHost[0].getShadowRoot();
-				return new ContextMenu(await shadowRoot.findElement(By.className('monaco-menu-container'))).wait();
+				return new ContextMenu(await shadowRoot.findElement(TextEditor.locators.TextEditor.monacoMenuContainer)).wait();
 			} else {
 				shadowRoot = (await this.getDriver().executeScript('return arguments[0].shadowRoot', shadowRootHost[0])) as WebElement;
 				return new ContextMenu(shadowRoot).wait();
@@ -576,7 +576,8 @@ export class TextEditor extends Editor {
 		await this.getDriver().actions().move({ origin: lineNum }).perform();
 
 		const lineOverlay = await margin.findElement(TextEditor.locators.TextEditor.lineOverlay(line));
-		const breakpointContainer = TextEditor.versionInfo.version >= '1.80.0' ? await this.findElement(By.className('glyph-margin-widgets')) : lineOverlay;
+		const breakpointContainer =
+			TextEditor.versionInfo.version >= '1.80.0' ? await this.findElement(TextEditor.locators.TextEditor.glyphMarginWidget) : lineOverlay;
 		const breakPoint = await breakpointContainer.findElements(TextEditor.locators.TextEditor.breakpoint.generalSelector);
 		if (breakPoint.length > 0) {
 			if (this.breakPoints.indexOf(line) !== -1) {
@@ -602,7 +603,8 @@ export class TextEditor extends Editor {
 	 */
 	async getPausedBreakpoint(): Promise<Breakpoint | undefined> {
 		const breakpointLocators = Breakpoint.locators.TextEditor.breakpoint;
-		const breakpointContainer = TextEditor.versionInfo.version >= '1.80.0' ? await this.findElement(By.className('glyph-margin-widgets')) : this;
+		const breakpointContainer =
+			TextEditor.versionInfo.version >= '1.80.0' ? await this.findElement(TextEditor.locators.TextEditor.glyphMarginWidget) : this;
 		const breakpoints = await breakpointContainer.findElements(breakpointLocators.pauseSelector);
 
 		if (breakpoints.length === 0) {
@@ -618,10 +620,10 @@ export class TextEditor extends Editor {
 		if (TextEditor.versionInfo.version >= '1.80.0') {
 			const styleTopAttr = await breakpoints[0].getCssValue('top');
 			lineElement = await this.findElement(TextEditor.locators.TextEditor.marginArea).findElement(
-				By.xpath(`.//div[contains(@style, "${styleTopAttr}")]`),
+				TextEditor.locators.TextEditor.lineElement(styleTopAttr),
 			);
 		} else {
-			lineElement = await breakpoints[0].findElement(By.xpath('./..'));
+			lineElement = await breakpoints[0].findElement(TextEditor.locators.TextEditor.elementLevelBack);
 		}
 		return new Breakpoint(breakpoints[0], lineElement);
 	}
@@ -649,7 +651,8 @@ export class TextEditor extends Editor {
 		const breakpoints: Breakpoint[] = [];
 
 		const breakpointLocators = Breakpoint.locators.TextEditor.breakpoint;
-		const breakpointContainer = TextEditor.versionInfo.version >= '1.80.0' ? await this.findElement(By.className('glyph-margin-widgets')) : this;
+		const breakpointContainer =
+			TextEditor.versionInfo.version >= '1.80.0' ? await this.findElement(TextEditor.locators.TextEditor.glyphMarginWidget) : this;
 		const breakpointsSelectors = await breakpointContainer.findElements(breakpointLocators.generalSelector);
 
 		for (const breakpointSelector of breakpointsSelectors) {
@@ -657,10 +660,10 @@ export class TextEditor extends Editor {
 			if (TextEditor.versionInfo.version >= '1.80.0') {
 				const styleTopAttr = await breakpointSelector.getCssValue('top');
 				lineElement = await this.findElement(TextEditor.locators.TextEditor.marginArea).findElement(
-					By.xpath(`.//div[contains(@style, "${styleTopAttr}")]`),
+					TextEditor.locators.TextEditor.lineElement(styleTopAttr),
 				);
 			} else {
-				lineElement = await breakpointSelector.findElement(By.xpath('./..'));
+				lineElement = await breakpointSelector.findElement(TextEditor.locators.TextEditor.elementLevelBack);
 			}
 			breakpoints.push(new Breakpoint(breakpointSelector, lineElement));
 		}
@@ -673,8 +676,8 @@ export class TextEditor extends Editor {
 	 */
 	async getCodeLenses(): Promise<CodeLens[]> {
 		const lenses: CodeLens[] = [];
-		const widgets = await this.findElement(By.className('contentWidgets'));
-		const items = await widgets.findElements(By.xpath(`.//span[contains(@widgetid, 'codelens.widget')]/a[@id]`));
+		const widgets = await this.findElement(TextEditor.locators.TextEditor.contentWidgets);
+		const items = await widgets.findElements(TextEditor.locators.TextEditor.contentWidgetsElements);
 		for (const item of items) {
 			lenses.push(await new CodeLens(item, this).wait());
 		}
@@ -716,7 +719,7 @@ class Selection extends ElementWithContextMenu {
 	async openContextMenu(): Promise<ContextMenu> {
 		const ed = this.getEnclosingElement() as TextEditor;
 		await this.getDriver().actions().contextClick(this).perform();
-		const shadowRootHost = await ed.getEnclosingElement().findElements(By.className('shadow-root-host'));
+		const shadowRootHost = await ed.getEnclosingElement().findElements(TextEditor.locators.TextEditor.shadowRootHost);
 
 		if (shadowRootHost.length > 0) {
 			let shadowRoot;
@@ -724,7 +727,7 @@ class Selection extends ElementWithContextMenu {
 			const chromiumVersion = webdriverCapabilities.getBrowserVersion();
 			if (chromiumVersion && parseInt(chromiumVersion.split('.')[0]) >= 96) {
 				shadowRoot = await shadowRootHost[0].getShadowRoot();
-				return new ContextMenu(await shadowRoot.findElement(By.className('monaco-menu-container'))).wait();
+				return new ContextMenu(await shadowRoot.findElement(TextEditor.locators.TextEditor.monacoMenuContainer)).wait();
 			} else {
 				shadowRoot = (await this.getDriver().executeScript('return arguments[0].shadowRoot', shadowRootHost[0])) as WebElement;
 				return new ContextMenu(shadowRoot).wait();
@@ -815,16 +818,14 @@ export class FindWidget extends AbstractElement {
 	 * Click 'Next match'
 	 */
 	async nextMatch(): Promise<void> {
-		const name = TextEditor.versionInfo.version < '1.59.0' ? 'Next match' : 'Next Match';
-		await this.clickButton(name, 'find');
+		await this.clickButton(FindWidget.locators.FindWidget.nextMatch, 'find');
 	}
 
 	/**
 	 * Click 'Previous match'
 	 */
 	async previousMatch(): Promise<void> {
-		const name = TextEditor.versionInfo.version < '1.59.0' ? 'Previous match' : 'Previous Match';
-		await this.clickButton(name, 'find');
+		await this.clickButton(FindWidget.locators.FindWidget.previousMatch, 'find');
 	}
 
 	/**
@@ -845,7 +846,7 @@ export class FindWidget extends AbstractElement {
 	 * Close the widget.
 	 */
 	async close(): Promise<void> {
-		const part = TextEditor.versionInfo.version >= '1,80.0' ? 'close' : 'find';
+		const part = TextEditor.versionInfo.version >= '1.80.0' ? 'close' : 'find';
 		await this.clickButton('Close', part);
 	}
 

@@ -16,7 +16,7 @@
  */
 
 import { ScmView, ScmProvider, MoreAction, ScmChange } from './ScmView';
-import { WebElement, Key, By } from 'selenium-webdriver';
+import { WebElement, Key } from 'selenium-webdriver';
 import { ContextMenu } from '../../menu/ContextMenu';
 import { ElementWithContextMenu } from '../../ElementWithContextMenu';
 import { TitleActionButton } from '../ViewTitlePart';
@@ -67,7 +67,7 @@ export class SingleScmProvider extends ScmProvider {
 		const buttons: TitleActionButton[] = [];
 
 		if (ScmProvider.versionInfo.version >= '1.93.0') {
-			const header = await view.findElement(By.xpath(`.//div[@aria-label='Source Control Section']`));
+			const header = await view.findElement(ScmView.locators.ScmView.sourceControlSection);
 			actions = await header.findElements(ScmProvider.locators.ScmView.action);
 			names = await Promise.all(actions.map(async (action) => await action.getAttribute(ScmProvider.locators.ScmView.actionLabel)));
 		} else {

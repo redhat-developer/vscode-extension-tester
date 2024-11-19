@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { By, until, WebElement } from 'selenium-webdriver';
+import { until, WebElement } from 'selenium-webdriver';
 import { ContextMenu, ViewContent, ViewItem, waitForAttributeValue, WelcomeContentSection } from '../..';
 import { AbstractElement } from '../AbstractElement';
 import { ElementWithContextMenu } from '../ElementWithContextMenu';
@@ -180,14 +180,14 @@ export abstract class ViewSection extends AbstractElement {
 		const btn = new (class extends ElementWithContextMenu {
 			async openContextMenu() {
 				await this.click();
-				const shadowRootHost = await section.findElements(By.className('shadow-root-host'));
+				const shadowRootHost = await section.findElements(ViewSection.locators.ViewSection.shadowRootHost);
 				if (shadowRootHost.length > 0) {
 					let shadowRoot;
 					const webdriverCapabilities = await (this.getDriver() as ChromiumWebDriver).getCapabilities();
 					const chromiumVersion = webdriverCapabilities.getBrowserVersion();
 					if (chromiumVersion && parseInt(chromiumVersion.split('.')[0]) >= 96) {
 						shadowRoot = await shadowRootHost[0].getShadowRoot();
-						return new ContextMenu(await shadowRoot.findElement(By.className('monaco-menu-container'))).wait();
+						return new ContextMenu(await shadowRoot.findElement(ViewSection.locators.ViewSection.monacoMenuContainer)).wait();
 					} else {
 						shadowRoot = (await this.getDriver().executeScript('return arguments[0].shadowRoot', shadowRootHost[0])) as WebElement;
 						return new ContextMenu(shadowRoot).wait();
