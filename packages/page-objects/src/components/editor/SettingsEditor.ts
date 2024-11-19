@@ -386,7 +386,7 @@ export class ArraySetting extends Setting {
 	 */
 	async add(): Promise<ArraySettingItem> {
 		// click 'Add Item' button
-		const button = await this.findElement(SettingsEditor.locators.SettingsEditor.arrayNewRow).findElement(By.className('monaco-button'));
+		const button = await this.findElement(SettingsEditor.locators.SettingsEditor.arrayNewRow).findElement(SettingsEditor.locators.SettingsEditor.button);
 		await button.click();
 		await new Promise((sleep) => setTimeout(sleep, 1_000)); // need to force some time to allow DOM rerender elements
 

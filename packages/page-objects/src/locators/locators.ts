@@ -30,6 +30,7 @@ export interface Locators {
 	AbstractElement: {
 		enabled: WebElementFunction<WebElement, boolean>;
 		selected: WebElementFunction<WebElement, boolean>;
+		tag: By;
 	};
 
 	// Activity Bar
@@ -64,6 +65,7 @@ export interface Locators {
 		globalActions: By;
 		action: (label: string) => By;
 		closeAction: By;
+		openTabElement: (title: string) => By;
 	};
 	BottomBarViews: {
 		actionsContainer: (label: string) => By;
@@ -154,6 +156,13 @@ export interface Locators {
 		debugHint: By;
 		selection: By;
 		findWidget: By;
+		shadowRootHost: By;
+		monacoMenuContainer: By;
+		glyphMarginWidget: By;
+		lineElement: (styleTopAttr: string) => By;
+		contentWidgets: By;
+		contentWidgetsElements: By;
+		elementLevelBack: By;
 	};
 	FindWidget: {
 		toggleReplace: By;
@@ -164,6 +173,8 @@ export interface Locators {
 		content: By;
 		button: (title: string) => By;
 		checkbox: (title: string) => By;
+		nextMatch: string;
+		previousMatch: string;
 	};
 	ContentAssist: {
 		constructor: By;
@@ -204,6 +215,7 @@ export interface Locators {
 		arraySettingItem: {
 			btnConstructor: (label: string) => By;
 		};
+		button: By;
 	};
 	DiffEditor: {
 		originalEditor: By;
@@ -235,6 +247,10 @@ export interface Locators {
 		moreInfoContainer: By;
 		moreInfo: By;
 		moreInfoElements: By;
+	};
+	EditorAction: {
+		shadowRootHost: By;
+		monacoMenuContainer: By;
 	};
 
 	// Menus
@@ -293,6 +309,8 @@ export interface Locators {
 		level: string;
 		index: string;
 		welcomeContent: By;
+		shadowRootHost: By;
+		monacoMenuContainer: By;
 	};
 	TreeItem: {
 		actions: By;
@@ -433,6 +451,9 @@ export interface Locators {
 		multiProviderItem: By;
 		itemLevel: (level: number) => By;
 		itemIndex: (index: number) => By;
+		shadowRootHost: By;
+		monacoMenuContainer: By;
+		sourceControlSection: By;
 	};
 	DebugView: {
 		launchCombo: By;
@@ -458,6 +479,7 @@ export interface Locators {
 		bell: By;
 		item: By;
 		itemTitle: string;
+		aTag: By;
 	};
 
 	// Workbench

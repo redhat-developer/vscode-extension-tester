@@ -16,7 +16,7 @@
  */
 
 import { EditorGroup } from './EditorView';
-import { By, ContextMenu, Key, WebElement } from '../..';
+import { ContextMenu, Key, WebElement } from '../..';
 import { ElementWithContextMenu } from '../ElementWithContextMenu';
 import { ChromiumWebDriver } from 'selenium-webdriver/chromium';
 
@@ -36,7 +36,7 @@ export class EditorAction extends ElementWithContextMenu {
 export class EditorActionDropdown extends EditorAction {
 	async open(): Promise<ContextMenu> {
 		await this.click();
-		const shadowRootHost = await this.enclosingItem.findElements(By.className('shadow-root-host'));
+		const shadowRootHost = await this.enclosingItem.findElements(EditorAction.locators.EditorAction.shadowRootHost);
 		const actions = this.getDriver().actions();
 		await actions.clear();
 		await actions.sendKeys(Key.ESCAPE).perform();
@@ -51,7 +51,7 @@ export class EditorActionDropdown extends EditorAction {
 			const chromiumVersion = webdriverCapabilities.getBrowserVersion();
 			if (chromiumVersion && parseInt(chromiumVersion.split('.')[0]) >= 96) {
 				shadowRoot = await shadowRootHost[0].getShadowRoot();
-				return new ContextMenu(await shadowRoot.findElement(By.className('monaco-menu-container'))).wait();
+				return new ContextMenu(await shadowRoot.findElement(EditorAction.locators.EditorAction.monacoMenuContainer)).wait();
 			} else {
 				shadowRoot = (await this.getDriver().executeScript('return arguments[0].shadowRoot', shadowRootHost[0])) as WebElement;
 				return new ContextMenu(shadowRoot).wait();

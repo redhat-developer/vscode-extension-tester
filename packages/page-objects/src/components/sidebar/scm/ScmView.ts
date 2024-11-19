@@ -16,7 +16,7 @@
  */
 
 import { SideBarView } from '../SideBarView';
-import { WebElement, Key, By } from 'selenium-webdriver';
+import { WebElement, Key } from 'selenium-webdriver';
 import { AbstractElement } from '../../AbstractElement';
 import { ContextMenu } from '../../..';
 import { ElementWithContextMenu } from '../../ElementWithContextMenu';
@@ -277,7 +277,7 @@ export class MoreAction extends ElementWithContextMenu {
 
 	async openContextMenu(): Promise<ContextMenu> {
 		await this.click();
-		const shadowRootHost = await this.enclosingItem.findElements(By.className('shadow-root-host'));
+		const shadowRootHost = await this.enclosingItem.findElements(ScmView.locators.ScmView.shadowRootHost);
 		const actions = this.getDriver().actions();
 		await actions.clear();
 		await actions.sendKeys(Key.ESCAPE).perform();
@@ -292,7 +292,7 @@ export class MoreAction extends ElementWithContextMenu {
 			const chromiumVersion = webdriverCapabilities.getBrowserVersion();
 			if (chromiumVersion && parseInt(chromiumVersion.split('.')[0]) >= 96) {
 				shadowRoot = await shadowRootHost[0].getShadowRoot();
-				return new ContextMenu(await shadowRoot.findElement(By.className('monaco-menu-container'))).wait();
+				return new ContextMenu(await shadowRoot.findElement(ScmView.locators.ScmView.monacoMenuContainer)).wait();
 			} else {
 				shadowRoot = (await this.getDriver().executeScript('return arguments[0].shadowRoot', shadowRootHost[0])) as WebElement;
 				return new ContextMenu(shadowRoot).wait();

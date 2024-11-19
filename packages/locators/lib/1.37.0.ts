@@ -22,6 +22,7 @@ const abstractElement = {
 	AbstractElement: {
 		enabled: hasNotClass('disabled'),
 		selected: hasAttribute('aria-selected', 'true'),
+		tag: By.css('html'),
 	},
 };
 
@@ -58,6 +59,7 @@ const bottomBar = {
 		globalActions: By.className('title-actions'),
 		action: (label: string) => By.xpath(`.//a[starts-with(@title, '${label}')]`),
 		closeAction: By.className('codicon-panel-close'),
+		openTabElement: (title: string) => By.xpath(`.//a[starts-with(@aria-label, '${title}')]`),
 	},
 	BottomBarViews: {
 		actionsContainer: (label: string) => By.xpath(`.//ul[@aria-label='${label}']`),
@@ -149,6 +151,13 @@ const editor = {
 		debugHint: By.className('codicon-debug-hint'),
 		selection: By.className('cslr selected-text top-left-radius bottom-left-radius top-right-radius bottom-right-radius'),
 		findWidget: By.className('find-widget'),
+		shadowRootHost: By.className('shadow-root-host'),
+		monacoMenuContainer: By.className('monaco-menu-container'),
+		glyphMarginWidget: By.className('glyph-margin-widgets'),
+		lineElement: (styleTopAttr: string) => By.xpath(`.//div[contains(@style, "${styleTopAttr}")]`),
+		contentWidgets: By.className('contentWidgets'),
+		contentWidgetsElements: By.xpath(`.//span[contains(@widgetid, 'codelens.widget')]/a[@id]`),
+		elementLevelBack: By.xpath('./..'),
 	},
 	FindWidget: {
 		toggleReplace: By.xpath(`.//div[@title="Toggle Replace mode"]`),
@@ -159,6 +168,9 @@ const editor = {
 		content: By.className('mirror'),
 		button: (title: string) => By.xpath(`.//div[@role='button' and starts-with(@title, "${title}")]`),
 		checkbox: (title: string) => By.xpath(`.//div[@role='checkbox' and starts-with(@title, "${title}")]`),
+		nextMatch: 'Next match',
+		previousMatch: 'Previous match',
+		closePart: 'find',
 	},
 	ContentAssist: {
 		constructor: By.className('suggest-widget'),
@@ -200,6 +212,7 @@ const editor = {
 		arraySettingItem: {
 			btnConstructor: (label: string) => By.xpath(`.//a[contains(@role, 'button') and text()='${label}']`),
 		},
+		button: By.className('monaco-button'),
 	},
 	DiffEditor: {
 		originalEditor: By.className('original-in-monaco-diff-editor'),
@@ -231,6 +244,10 @@ const editor = {
 		moreInfoContainer: By.className('more-info'),
 		moreInfo: By.className('more-info-entry'),
 		moreInfoElements: By.xpath('./*'),
+	},
+	EditorAction: {
+		shadowRootHost: By.className('shadow-root-host'),
+		monacoMenuContainer: By.className('monaco-menu-container'),
 	},
 };
 
@@ -291,6 +308,8 @@ const sideBar = {
 		level: 'aria-level',
 		index: 'data-index',
 		welcomeContent: By.className('welcome-view'),
+		shadowRootHost: By.className('shadow-root-host'),
+		monacoMenuContainer: By.className('monaco-menu-container'),
 	},
 	TreeItem: {
 		actions: By.className('actions-container'),
@@ -431,6 +450,9 @@ const sideBar = {
 		multiProviderItem: By.xpath(`.//div[@role='treeitem' and @aria-level='1']`),
 		itemLevel: (level: number) => By.xpath(`.//div[@role='treeitem' and @aria-level='${level}']`),
 		itemIndex: (index: number) => By.xpath(`.//div[@role='treeitem' and @data-index='${index}']`),
+		shadowRootHost: By.className('shadow-root-host'),
+		monacoMenuContainer: By.className('monaco-menu-container'),
+		sourceControlSection: By.xpath(`.//div[@aria-label='Source Control Section']`),
 	},
 	DebugView: {
 		launchCombo: By.className('start-debug-action-item'),
@@ -453,6 +475,7 @@ const statusBar = {
 		bell: By.id('status.notifications'),
 		item: By.className('statusbar-item'),
 		itemTitle: 'aria-label',
+		aTag: By.css('a'),
 	},
 };
 

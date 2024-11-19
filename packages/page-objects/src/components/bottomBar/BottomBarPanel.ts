@@ -16,7 +16,7 @@
  */
 
 import { AbstractElement } from '../AbstractElement';
-import { By, until, WebElement } from 'selenium-webdriver';
+import { until, WebElement } from 'selenium-webdriver';
 import { ProblemsView, OutputView, DebugConsoleView, TerminalView, EditorView, Workbench } from '../..';
 
 /**
@@ -112,7 +112,7 @@ export class BottomBarPanel extends AbstractElement {
 			if (tabs.length > 0) {
 				await tabs[0].click();
 			} else {
-				const label = await tabContainer.findElement(By.xpath(`.//a[starts-with(@aria-label, '${title}')]`));
+				const label = await tabContainer.findElement(BottomBarPanel.locators.BottomBarPanel.openTabElement(title));
 				await label.click();
 			}
 		} catch (err) {
