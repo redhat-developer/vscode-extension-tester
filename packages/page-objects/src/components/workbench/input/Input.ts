@@ -16,8 +16,8 @@
  */
 
 import { AbstractElement } from '../../AbstractElement';
-import { Key } from 'selenium-webdriver';
-import { QuickOpenBox } from '../../..';
+import { Key, WebElement } from 'selenium-webdriver';
+import { NullAttributeError, QuickOpenBox } from '../../..';
 
 /**
  * Abstract page object for input fields
@@ -291,5 +291,52 @@ export class QuickPickItem extends AbstractElement {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Retrieve the actions on QuickPickItem.
+	 * @returns Promise resolving to array of QuickInputAction objects.
+	 */
+	async getActions(): Promise<QuickInputAction[]> {
+		const actions: QuickInputAction[] = [];
+		const elements = await this.findElements(Input.locators.Input.button);
+		for (const element of elements) {
+			actions.push(await new QuickInputAction(element, this).wait());
+		}
+		return actions;
+	}
+
+	/**
+	 * Retrieve the specific action on QuickPickItem.
+	 * @param label Name of QuickPickItem.
+	 * @returns Promise resolving QuickInputAction if item exists or undefined.
+	 */
+	async getAction(label: string): Promise<QuickInputAction | undefined> {
+		const actions = await this.getActions();
+		for (const action of actions) {
+			if ((await action.getLabel()) === label) {
+				return action;
+			}
+		}
+	}
+}
+
+/**
+ * Action bound to a QuickPickItem.
+ */
+export class QuickInputAction extends AbstractElement {
+	constructor(element: WebElement, viewPart: QuickPickItem) {
+		super(element, viewPart);
+	}
+
+	/**
+	 * Get label of the action button.
+	 */
+	async getLabel(): Promise<string> {
+		const value = await this.getAttribute(Input.locators.ViewSection.buttonLabel);
+		if (value === null) {
+			throw new NullAttributeError(`${this.constructor.name}.getLabel returned null`);
+		}
+		return value;
 	}
 }

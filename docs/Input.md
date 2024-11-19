@@ -114,4 +114,19 @@ const text = await pick.getText();
 const index = pick.getIndex();
 // select (click) the item (recommend to use input.selectQuickPick() if possible)
 await pick.select();
+// get action button(s)
+const buttons = await pick.getActions();
+const button = await pick.getAction("name");
+```
+
+### QuickInputAction
+
+![quickInputAction](./images/quickInputAction.png)
+
+Page object retrieved when calling `getAction` or `getActions` representing Quick Input Actions.
+
+```typescript
+// get label
+const label = await button.getLabel();
+const label1 = await((await buttons).at(1)).getLabel();
 ```

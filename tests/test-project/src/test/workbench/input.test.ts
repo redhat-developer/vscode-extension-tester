@@ -122,6 +122,23 @@ describe('QuickPickItem', () => {
 		const desc = await pick.getDescription();
 		expect(desc).has.string('Test Description');
 	});
+
+	it('getActions works', async function () {
+		const prompt = await new Workbench().openCommandPrompt();
+		await prompt.setText(`>Extension Test Command`);
+		item = (await prompt.getQuickPicks())[0];
+		expect((await item.getActions()).length).equals(1);
+	});
+
+	it('getLabel of Action Button works', async function () {
+		const button = await (await item.getActions()).at(0);
+		expect(await button?.getLabel()).to.contain('Configure Keybinding');
+	});
+
+	it('getAction works', async function () {
+		const button = await item.getAction('Configure Keybinding');
+		expect(button).not.undefined;
+	});
 });
 
 describe('InputBox', () => {

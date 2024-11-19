@@ -505,6 +505,8 @@ const input = {
 		title: By.className('quick-input-title'),
 		backButton: By.className('codicon-quick-input-back'),
 		multiSelectIndex: (index: number) => By.xpath(`.//div[@role='treeitem' and @data-index='${index}']`),
+		button: By.xpath(`.//a[@role='button']`),
+		buttonLabel: 'title',
 	},
 	InputBox: {
 		constructor: By.className('quick-input-widget'),
