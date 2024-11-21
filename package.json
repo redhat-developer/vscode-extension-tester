@@ -28,7 +28,7 @@
     "@types/clone-deep": "^4.0.4",
     "@types/fs-extra": "^11.0.4",
     "@types/js-yaml": "^4.0.9",
-    "@types/mocha": "^10.0.9",
+    "@types/mocha": "^10.0.10",
     "@types/node": "^22.9.1",
     "@types/selenium-webdriver": "^4.1.27",
     "@types/targz": "^1.0.4",
