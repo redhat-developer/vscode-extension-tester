@@ -82,7 +82,7 @@ describe('SideBarView', () => {
 
 		before(async function () {
 			this.timeout(15000);
-			await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-folder'));
+			await VSBrowser.instance.openResources({ path: path.resolve(__dirname, '..', '..', '..', 'resources', 'test-folder') });
 			view = await ((await new ActivityBar().getViewControl('Explorer')) as ViewControl).openView();
 			await new Promise((res) => {
 				setTimeout(res, 1000);
