@@ -39,9 +39,9 @@
 
 ### Requirements
 
-| NodeJS                                                                                                                                                                                | Visual Studio Code                                                                                                                            | Operating System                                                                                                                                                                                                                                      |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| <table style="text-align:center;"> <tr><th>20.x.x</th><th>LTS</th><th>Latest</th></tr><tr><td>✅</td><td>❓</td><td>❓</td></tr><tr><td colspan="3">❓ Best-effort</td></tr> </table> | <table style="text-align:center;"> <tr><th>min</th><th>-</th><th>max</th></tr><tr><td>1.93.x</td><td>1.94.x</td><td>1.95.x</td></tr> </table> | <table style="text-align:center;"> <tr><th>Linux</th><th>Windows</th><th>macOS</th></tr><tr><td>✅</td><td>✅</td><td>⚠️</td></tr><tr><td colspan="3">⚠️ [Known Issues](KNOWN_ISSUES.md#macos-known-limitations-of-native-objects)</td></tr> </table> |
+| NodeJS                                                                                                                                                                                    | Visual Studio Code                                                                                                                            | Operating System                                                                                                                                                                                                                                         |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <table style="text-align:center;"> <tr><th>20.x.x</th><th>LTS</th><th>Latest</th></tr><tr><td>✅</td><td>✅❓</td><td>✅❓</td></tr><tr><td colspan="3">❓ Best-effort</td></tr> </table> | <table style="text-align:center;"> <tr><th>min</th><th>-</th><th>max</th></tr><tr><td>1.93.x</td><td>1.94.x</td><td>1.95.x</td></tr> </table> | <table style="text-align:center;"> <tr><th>Linux</th><th>Windows</th><th>macOS</th></tr><tr><td>✅</td><td>✅</td><td>✅ ⚠️</td></tr><tr><td colspan="3">⚠️ [Known Issues](KNOWN_ISSUES.md#macos-known-limitations-of-native-objects)</td></tr> </table> |
 
 #### NodeJS Support Policy
 
@@ -54,7 +54,7 @@ ExTester is aiming same support for [NodeJS releases](https://nodejs.org/en/abou
 Simply install our package into your extension `devDependencies` to get started:
 
 ```npm
-npm install --save-dev vscode-extension-tester@latest
+npm install --save-dev vscode-extension-tester
 ```
 
 Make sure to check out the 🔗 [Documentation](../../wiki) for detailed instructions.
