@@ -19,11 +19,11 @@
 
 ### Features
 
-- ⭐ Download a test instance of Visual Studio Code.
-- ⭐ Download the appropriate version of ChromeDriver.
-- ⭐ Pack and Install your extension into downloaded VS Code instance.
-- ⭐ Launch the VS Code instance using Selenium WebDriver.
-- ⭐ Run your tests.
+- ⬇️ Download a test instance of <b>Visual Studio Code</b>.
+- ⬇️ Download the appropriate version of <b>ChromeDriver</b>.
+- 📦 <b>Pack</b> and <b>Install</b> your extension into downloaded VS Code instance.
+- 🚀 <b>Launch</b> the <b>VS Code</b> instance using Selenium WebDriver.
+- 🔥 <b>Run</b> your <b>tests</b>.
 
 ## Requirements
 
@@ -34,7 +34,7 @@ For more information please visit our 🔗 [project repository](https://github.c
 Simply install our package into your extension `devDependencies` to get started:
 
 ```npm
-npm install --save-dev vscode-extension-tester@latest
+npm install --save-dev vscode-extension-tester
 ```
 
 Make sure to check out the 🔗 [Documentation](../../../../wiki) for detailed instructions.
