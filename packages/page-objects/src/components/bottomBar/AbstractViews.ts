@@ -76,7 +76,7 @@ export abstract class ChannelView extends ElementWithContextMenu {
  * View with channel selection and text area
  */
 export abstract class TextView extends ChannelView {
-	protected declare actionsLabel: string;
+	declare protected actionsLabel: string;
 
 	/**
 	 * Get all text from the currently open channel
