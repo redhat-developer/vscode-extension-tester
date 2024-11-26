@@ -128,5 +128,5 @@ Page object retrieved when calling `getAction` or `getActions` representing Quic
 ```typescript
 // get label
 const label = await button.getLabel();
-const label1 = await((await buttons).at(1)).getLabel();
+const label1 = await (await buttons).at(1).getLabel();
 ```
