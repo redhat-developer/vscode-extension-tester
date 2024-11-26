@@ -6,3 +6,4 @@ test-extensions/**
 **/tsconfig.json
 resources/**
 ../../**
+out/test/**
