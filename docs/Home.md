@@ -45,7 +45,7 @@ Since 4.2.0, the most convenient way to open files and folders is the `openResou
 It is recommended to use absolute paths, relative paths are based on process' cwd.
 
 ```typescript
-await VSBrowser.openResources(`${path/to/folder1}`, ${path/to/file1}, ${path/to/folder2})
+await VSBrowser.instance.openResources(`${path/to/folder1}`, ${path/to/file1}, ${path/to/folder2})
 ```
 
 ### Using Dialogs
