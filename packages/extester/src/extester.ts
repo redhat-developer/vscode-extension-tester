@@ -22,6 +22,7 @@ import * as path from 'path';
 import * as os from 'os';
 import { URL } from 'url';
 import pjson from '../package.json';
+import { globSync } from 'glob';
 
 export { ReleaseQuality };
 export { MochaOptions } from 'mocha';
@@ -102,25 +103,60 @@ export class ExTester {
 		let target = vsixFile;
 		if (vsixFile) {
 			try {
+				// Attempt to handle vsixFile as a URL
 				const uri = new URL(vsixFile);
-				if (!(process.platform === 'win32' && /^\w:/.test(uri.protocol))) {
-					target = path.basename(vsixFile);
+				target = await this.code.downloadExtension(uri.toString());
+				this.code.installExtension(target);
+			} catch (urlError) {
+				//Convert Windows-style paths to Unix-style for glob
+				const normalizedPattern = vsixFile.replace(/\\/g, '/');
+				const vsixFiles = globSync(normalizedPattern);
+
+				if (vsixFiles.length === 0) {
+					throw new Error(`No VSIX files found matching pattern: ${vsixFile}`);
 				}
-			} catch (err) {
-				if (!fs.existsSync(vsixFile)) {
-					throw new Error(`File ${vsixFile} does not exist`);
+
+				for (const file of vsixFiles) {
+					try {
+						const normalizedPath = path.normalize(file);
+						const target = await this.processVsixFile(normalizedPath);
+						this.code.installExtension(target);
+					} catch (error) {
+						console.error(`Error installing ${file}:`, error);
+					}
 				}
-			}
-			if (target !== vsixFile) {
-				target = await this.code.downloadExtension(vsixFile);
 			}
 		} else {
 			await this.code.packageExtension(useYarn);
+			this.code.installExtension(target);
 		}
-		this.code.installExtension(target);
+
 		if (installDependencies) {
 			this.code.installDependencies();
 		}
+	}
+
+	/**
+	 * Processes a given VSIX file path or URL to validate and return the appropriate value.
+	 *
+	 * @param filePath The file path or URL of the VSIX file to process.
+	 * @returns Resolves to the processed file path or base name if the input is a valid URL.
+	 */
+	private async processVsixFile(filePath: string): Promise<string> {
+		console.log(`Processing VSIX file: ${filePath}`);
+		try {
+			const uri = new URL(filePath);
+			console.log(`Parsed URI: ${uri}`);
+			if (!(process.platform === 'win32' && /^[a-zA-Z]:/.test(uri.protocol))) {
+				return path.basename(filePath);
+			}
+		} catch {
+			console.log(`File is not a valid URL. Checking existence: ${filePath}`);
+			await fs.stat(filePath).catch(() => {
+				throw new Error(`File ${filePath} does not exist.`);
+			});
+		}
+		return filePath;
 	}
 
 	/**
