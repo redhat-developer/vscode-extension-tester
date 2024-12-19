@@ -26,7 +26,7 @@
 </p>
 
 <p align="center">
-<b>ExTester</b>: Your Essential UI Testing Companion for <a href="https://code.visualstudio.com/">Visual Studio Code</a> Extensions!<br>Seamlessly execute UI tests with <a href="https://www.npmjs.com/package/selenium-webdriver">Selenium WebDriver</a>, ensuring robustness and reliability in your extension development journey. Simplify UI testing for your VS Code extensions and elevate the quality of your user interface effortlessly. Dive into efficient testing with ExTester today!
+<b>ExTester</b>: Your Essential UI Testing Companion for <a href="https://code.visualstudio.com/">Visual Studio Code</a> Extensions!<br>Seamlessly execute UI tests with <a href="https://www.npmjs.com/package/selenium-webdriver">Selenium WebDriver</a>, ensuring robustness and reliability in your extension development journey. Simplify UI testing for your VS Code extensions and elevate the quality of your user interface effortlessly. Dive into efficient testing with ExTester today! dummy change
 </p><br/>
 
 ### Features
