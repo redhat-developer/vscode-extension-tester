@@ -24,10 +24,12 @@ describe('DiffEditor', async () => {
 
 	before(async function () {
 		this.timeout(250000);
-		await VSBrowser.instance.openResources(
-			path.resolve(__dirname, '..', '..', '..', 'resources', 'test-file-a.txt'),
-			path.resolve(__dirname, '..', '..', '..', 'resources', 'test-file-b.txt'),
-		);
+		await VSBrowser.instance.openResources({
+			path: [
+				path.resolve(__dirname, '..', '..', '..', 'resources', 'test-file-a.txt'),
+				path.resolve(__dirname, '..', '..', '..', 'resources', 'test-file-b.txt'),
+			],
+		});
 		await new EditorView().openEditor('test-file-b.txt');
 		await new Workbench().executeCommand('File: Compare Active File With...');
 		let quickOpen: QuickOpenBox | InputBox;

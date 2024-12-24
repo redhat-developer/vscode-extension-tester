@@ -201,8 +201,8 @@ export class CodeUtil {
 	 * Open files/folders in running vscode
 	 * @param paths vararg paths to files or folders to open
 	 */
-	open(...paths: string[]): void {
-		const segments = paths.map((f) => `"${f}"`).join(' ');
+	open(paths: string | string[]): void {
+		const segments = typeof paths === 'string' ? paths : paths.map((f) => `"${f}"`).join(' ');
 		const command = `${this.getCliInitCommand()} -r ${segments} --user-data-dir="${path.join(this.downloadFolder, 'settings')}"`;
 		childProcess.execSync(command);
 	}

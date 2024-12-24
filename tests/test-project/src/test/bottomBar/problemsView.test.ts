@@ -26,7 +26,7 @@ describe('ProblemsView', function () {
 
 	before(async function () {
 		this.timeout(25000);
-		await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-file.ts'));
+		await VSBrowser.instance.openResources({ path: path.resolve(__dirname, '..', '..', '..', 'resources', 'test-file.ts'), delay: 3_000 });
 
 		bar = new BottomBarPanel();
 		await bar.toggle(true);
