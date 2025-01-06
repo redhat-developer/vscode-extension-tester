@@ -15,7 +15,7 @@ You can get individual values using following functions:
 ```typescript
 await extensionEditor.getName();
 
-await extensionEditor.getVersion();
+await extensionEditor.getVersion(); // For VS Code 1.96+ it is required to use 'extensionEditorDetailsSection.getVersion()' instead
 
 await extensionEditor.getPublisher();
 

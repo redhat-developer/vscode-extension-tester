@@ -34,6 +34,7 @@ export class ExtensionEditorView extends Editor {
 	/**
 	 * Get version of extension.
 	 * @returns Promise resolving version of extension.
+	 * @deprecated It is no more actual for VS Code 1.96+. Version can accessed using ExtensionEditorDetailsSection.
 	 */
 	async getVersion(): Promise<string> {
 		const name = await this.findElement(ExtensionEditorView.locators.ExtensionEditorView.version);
