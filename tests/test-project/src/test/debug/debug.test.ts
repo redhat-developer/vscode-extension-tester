@@ -48,9 +48,9 @@ describe('Debugging', function () {
 	before(async function () {
 		this.timeout(30000);
 		const browser = VSBrowser.instance;
-		await browser.openResources(folder);
+		await browser.openResources({ path: folder });
 		await browser.driver.sleep(5000);
-		await browser.openResources(path.join(folder, 'test.js'));
+		await browser.openResources({ path: path.join(folder, 'test.js') });
 		await browser.driver.sleep(5000);
 		view = (await (await new ActivityBar().getViewControl('Run'))?.openView()) as DebugView;
 

@@ -38,7 +38,7 @@ describe('ContentAssist', async function () {
 
 	before(async () => {
 		this.timeout(30000);
-		await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-file.ts'));
+		await VSBrowser.instance.openResources({ path: path.resolve(__dirname, '..', '..', '..', 'resources', 'test-file.ts') });
 		await VSBrowser.instance.waitForWorkbench();
 		await new Promise((res) => setTimeout(res, 2000));
 		const ew = new EditorView();
@@ -191,7 +191,7 @@ describe('TextEditor', function () {
 				let ew: EditorView;
 
 				beforeEach(async function () {
-					await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', param.file));
+					await VSBrowser.instance.openResources({ path: path.resolve(__dirname, '..', '..', '..', 'resources', param.file) });
 					ew = new EditorView();
 					await ew.getDriver().wait(
 						async function () {
