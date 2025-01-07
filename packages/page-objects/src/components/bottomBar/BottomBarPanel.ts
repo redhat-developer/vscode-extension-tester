@@ -104,7 +104,13 @@ export class BottomBarPanel extends AbstractElement {
 		await this.resize(BottomBarPanel.locators.BottomBarPanel.restore);
 	}
 
-	private async openTab(title: string) {
+	/**
+	 * Opens (or focuses) a tab in the bottom bar panel by its title.
+	 *
+	 * @param title The exact name of the tab to be opened or focused.
+	 * @returns A promise that resolves when the tab is opened or focused.
+	 */
+	public async openTab(title: string) {
 		await this.toggle(true);
 		const tabContainer = await this.findElement(BottomBarPanel.locators.BottomBarPanel.tabContainer);
 		try {

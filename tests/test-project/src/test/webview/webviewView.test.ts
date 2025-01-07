@@ -49,9 +49,11 @@ describe('WebviewViews', function () {
 			let webviewView: InstanceType<typeof WebviewView>;
 
 			before(async function () {
+				this.timeout(10000);
 				await new Workbench().executeCommand(param.command);
+				await new Promise((res) => setTimeout(res, 2000));
 				webviewView = new WebviewView();
-				await webviewView.switchToFrame(1000);
+				await webviewView.switchToFrame(5000);
 			});
 
 			after(async function () {

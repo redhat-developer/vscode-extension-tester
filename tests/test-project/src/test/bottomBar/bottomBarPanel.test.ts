@@ -16,12 +16,16 @@
  */
 
 import { expect } from 'chai';
-import { BottomBarPanel, WebElement, Workbench, ViewControl, ActivityBar } from 'vscode-extension-tester';
+import path from 'path';
+import { BottomBarPanel, WebElement, Workbench, ViewControl, ActivityBar, WebviewView, By, VSBrowser } from 'vscode-extension-tester';
 
 describe('BottomBarPanel', function () {
 	let panel: BottomBarPanel;
 
 	before(async function () {
+		const browser = VSBrowser.instance;
+		await browser.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'debug-project'));
+
 		panel = new BottomBarPanel();
 		await (await new Workbench().openNotificationsCenter()).clearAllNotifications();
 		await ((await new ActivityBar().getViewControl('Explorer')) as ViewControl).closeView();
@@ -75,6 +79,16 @@ describe('BottomBarPanel', function () {
 	it('can open terminal view', async function () {
 		const view = await panel.openTerminalView();
 		expect(await view.isDisplayed()).is.true;
+	});
+
+	it('can switch tabs using openTab', async function () {
+		panel = new BottomBarPanel();
+		await panel.openTab('My Panel');
+		const webviewView = new WebviewView();
+		await webviewView.switchToFrame(5000);
+		const element = await webviewView.findWebElement(By.css('h1'));
+		expect(await element.getText()).has.string('Shopping List');
+		await webviewView.switchBack();
 	});
 });
 
