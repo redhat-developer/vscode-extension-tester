@@ -63,8 +63,8 @@ export class ExtensionEditorDetailsSection extends ExtensionEditorView {
 
 		for (const entry of moreInfoInContainer) {
 			const elmnts = await entry.findElements(ExtensionEditorDetailsSection.locators.ExtensionEditorDetailsSection.moreInfoElements);
-			const name = await (await elmnts.at(0))?.getText();
-			const value = await (await elmnts.at(1))?.getText();
+			const name = await elmnts.at(0)?.getText();
+			const value = await elmnts.at(1)?.getText();
 			if (name !== undefined && value !== undefined) {
 				moreInfo[name] = value;
 			}
@@ -88,5 +88,14 @@ export class ExtensionEditorDetailsSection extends ExtensionEditorView {
 	 */
 	async getReadme(): Promise<WebView> {
 		throw Error('Not implemented yet.');
+	}
+
+	/**
+	 * Get version of extension.
+	 * @returns Promise resolving version of extension.
+	 */
+	async getVersion(): Promise<string> {
+		const moreInfo = await this.getMoreInfo();
+		return moreInfo['Version'];
 	}
 }

@@ -1,3 +1,4 @@
 {
-  "window.title": "${activeEditorShort}${separator}folder: ${rootPath}"
+  "window.title": "${activeEditorShort}${separator}folder: ${rootPath}",
+  "window.zoomLevel": -1
 }

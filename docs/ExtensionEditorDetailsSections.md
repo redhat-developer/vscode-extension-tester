@@ -17,6 +17,8 @@ await extensionEditorDetails.getResources();
 
 await extensionEditorDetails.getMoreInfo();
 
+await extensionEditorDetails.getVersion(); // For VS Code 1.96+
+
 await extensionEditorDetails.getMoreInfoItem("Identifier");
 
 await extensionEditorDetails.getReadme(); // currently not supported (Blocked by https://github.com/redhat-developer/vscode-extension-tester/issues/1492)

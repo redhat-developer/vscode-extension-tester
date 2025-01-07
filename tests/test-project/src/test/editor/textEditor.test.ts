@@ -65,12 +65,12 @@ describe('ContentAssist', async function () {
 	beforeEach(async () => {
 		this.timeout(8000);
 		assist = (await editor.toggleContentAssist(true)) as ContentAssist;
-		await new Promise((res) => setTimeout(res, 2000));
+		await new Promise((res) => setTimeout(res, 2500));
 	});
 
 	afterEach(async function () {
 		await editor.toggleContentAssist(false);
-		await new Promise((res) => setTimeout(res, 1000));
+		await new Promise((res) => setTimeout(res, 1500));
 	});
 
 	after(async function () {
@@ -93,7 +93,7 @@ describe('ContentAssist', async function () {
 	}).timeout(15000);
 
 	it('hasItem finds items beyond visible range', async function () {
-		const exists = await assist.hasItem('CSSRule');
+		const exists = await assist.hasItem('Error');
 		expect(exists).is.true;
 	}).timeout(15000);
 });

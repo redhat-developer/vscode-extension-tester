@@ -27,8 +27,11 @@ import {
 	ViewControl,
 	VSBrowser,
 	WebDriver,
+	Workbench,
+	BottomBarPanel,
 } from 'vscode-extension-tester';
 import * as pjson from '../../../package.json';
+import * as path from 'path';
 
 describe('Extension Editor', function () {
 	let driver: WebDriver;
@@ -43,6 +46,7 @@ describe('Extension Editor', function () {
 
 	before(async function () {
 		driver = VSBrowser.instance.driver;
+		await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-folder'));
 		viewControl = (await new ActivityBar().getViewControl('Extensions')) as ViewControl;
 		extensionsView = await viewControl.openView();
 		await driver.wait(async function () {
@@ -64,6 +68,15 @@ describe('Extension Editor', function () {
 		await item.click();
 	});
 
+	// ensure clean workbench
+	before(async function () {
+		const panel = new BottomBarPanel();
+		if (await panel.isDisplayed()) {
+			await panel.toggle(false);
+		}
+		await (await new Workbench().openNotificationsCenter()).clearAllNotifications();
+	});
+
 	after(async function () {
 		await viewControl.closeView();
 		await new EditorView().closeAllEditors();
@@ -78,7 +91,7 @@ describe('Extension Editor', function () {
 			expect(await extensionEditor.getName()).equal('Test Project');
 		});
 
-		it('getVersion', async function () {
+		(VSBrowser.instance.version < '1.96.0' ? it : it.skip)('getVersion', async function () {
 			expect(await extensionEditor.getVersion()).equal('v0.1.0');
 		});
 
@@ -126,12 +139,16 @@ describe('Extension Editor', function () {
 		it('getMoreInfo', async function () {
 			const moreInfo = await extensionEditorDetails.getMoreInfo();
 			expect(moreInfo).not.to.be.undefined;
-			expect(Object.keys(moreInfo)[0]).equal('Last updated');
-			expect(Object.values(moreInfo)[1]).equal('extester.extester-test');
+			expect(Object.keys(moreInfo)).to.contain.oneOf(['Last updated', 'Last Updated']);
+			expect(Object.values(moreInfo)).to.contain('extester.extester-test');
 		});
 
 		it('getMoreInfoItem', async function () {
 			expect(await extensionEditorDetails.getMoreInfoItem('Identifier')).equal('extester.extester-test');
+		});
+
+		(VSBrowser.instance.version >= '1.96.0' ? it : it.skip)('getVersion', async function () {
+			expect(await extensionEditorDetails.getVersion()).equal('0.1.0');
 		});
 
 		// Blocked by https://github.com/redhat-developer/vscode-extension-tester/issues/1492
