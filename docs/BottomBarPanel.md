@@ -32,3 +32,9 @@ const outputView = await bottomBar.openOutputView();
 const debugConsoleView = await bottomBar.openDebugConsoleView();
 const terminalView = await bottomBar.openTerminalView();
 ```
+
+#### Open custom panel
+
+```typescript
+await bottomBar.openTab("name");
+```
