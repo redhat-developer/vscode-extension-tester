@@ -30,7 +30,7 @@
     "@types/js-yaml": "^4.0.9",
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.10.5",
-    "@types/selenium-webdriver": "^4.1.27",
+    "@types/selenium-webdriver": "^4.1.28",
     "@types/targz": "^1.0.4",
     "@types/vscode": "^1.94.0",
     "@typescript-eslint/eslint-plugin": "^8.19.1",

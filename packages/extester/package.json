@@ -59,7 +59,7 @@
   "dependencies": {
     "@redhat-developer/locators": "^1.9.0",
     "@redhat-developer/page-objects": "^1.9.0",
-    "@types/selenium-webdriver": "^4.1.27",
+    "@types/selenium-webdriver": "^4.1.28",
     "@vscode/vsce": "^3.2.1",
     "c8": "^10.1.3",
     "commander": "^13.0.0",
