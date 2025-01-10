@@ -60,3 +60,17 @@ A few page objects have had slight changes to their API. Others have had their i
   - `ViewControl` and `ActionsItem` method `getTitle` is now async, make sure to await
   - `ViewControl` and `ActionsItem` constructors were changed to take a `WebElement` directly, instead of a title
     - hopefully, no one was using these directly, but if you do, use `ActionBar#getViewControl` or `getGlobalAction` instead to get the proper object
+
+## `openResources()` Not Working on Ubuntu 24.04
+
+The `openResources()` method does not work properly on Ubuntu 24.04 due to restrictions imposed by the system's AppArmor security framework.
+
+### Workaround
+
+Run the following command to temporarily adjust the kernel parameter and bypass the restriction:
+
+```bash
+sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+```
+
+This issue is caused by AppArmor's limitation on unprivileged user namespaces, which affects certain operations in the framework. The workaround disables this restriction, allowing openResources() to function as intended. However, this change is temporary and will revert after a system reboot. To make it permanent, add the setting to `/etc/sysctl.conf`.
