@@ -14,6 +14,9 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    groups:
+      ESLint:
+        patterns: ["*eslint*"]
     open-pull-requests-limit: 20
     versioning-strategy: increase
     reviewers:
