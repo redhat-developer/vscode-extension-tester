@@ -38,7 +38,7 @@
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-define-config": "^2.1.0",
-    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-prettier": "^5.2.2",
     "lerna": "^8.1.9",
     "prettier": "3.4.2",
     "rimraf": "^6.0.1",
