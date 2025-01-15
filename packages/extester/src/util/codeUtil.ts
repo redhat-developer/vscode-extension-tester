@@ -133,19 +133,22 @@ export class CodeUtil {
 			await Download.getFile(url, path.join(this.downloadFolder, fileName), true);
 			console.log(`Downloaded VS Code into ${path.join(this.downloadFolder, fileName)}`);
 
+			const tempPrefix = path.join(this.downloadFolder, 'vscode-temp-');
 			console.log(`Unpacking VS Code into ${this.downloadFolder}`);
-			const target = await fs.mkdtemp('vscode');
-			await Unpack.unpack(path.join(this.downloadFolder, fileName), target);
-			let rootDir = target;
-			const files = await fs.readdir(target);
+			const target = await fs.mkdtemp(tempPrefix);
 
-			if (files.length === 1) {
-				rootDir = path.join(target, files[0]);
+			try {
+				await Unpack.unpack(path.join(this.downloadFolder, fileName), target);
+				let rootDir = target;
+				const files = await fs.readdir(target);
+				if (files.length === 1) {
+					rootDir = path.join(target, files[0]);
+				}
+				await fs.move(rootDir, this.codeFolder, { overwrite: true });
+				console.log('Success!');
+			} finally {
+				await fs.remove(target);
 			}
-			await fs.move(rootDir, this.codeFolder, { overwrite: true });
-			await fs.remove(target);
-
-			console.log('Success!');
 		} else {
 			console.log('VS Code exists in local cache, skipping download');
 		}
