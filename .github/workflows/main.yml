@@ -2,7 +2,7 @@ name: 🏗️ Main CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, bump-chai]
   pull_request:
     branches: [main]
   workflow_dispatch:
