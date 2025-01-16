@@ -16,8 +16,8 @@
  */
 
 import { WebElement } from 'selenium-webdriver';
-import { ActivityBar, ContextMenu } from '../..';
-import { ElementWithContextMenu } from '../ElementWithContextMenu';
+import { ActivityBar, ContextMenu } from '../../index.js';
+import { ElementWithContextMenu } from '../ElementWithContextMenu.js';
 
 /**
  * Page object representing the global action controls on the bottom of the action bar

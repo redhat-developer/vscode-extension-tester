@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-import { TreeSection } from '../TreeSection';
-import { TreeItem } from '../../../..';
+import { TreeSection } from '../TreeSection.js';
+import { TreeItem } from '../../../../index.js';
 import { Key } from 'selenium-webdriver';
-import { DefaultTreeItem } from './DefaultTreeItem';
+import { DefaultTreeItem } from './DefaultTreeItem.js';
 
 /**
  * Default view section

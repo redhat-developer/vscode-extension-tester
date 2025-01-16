@@ -15,19 +15,19 @@
  * limitations under the License.
  */
 
-import { CodeUtil, DEFAULT_RUN_OPTIONS, ReleaseQuality, RunOptions } from './util/codeUtil';
-import { DriverUtil } from './util/driverUtil';
+import { CodeUtil, DEFAULT_RUN_OPTIONS, ReleaseQuality, RunOptions } from './util/codeUtil.js';
+import { DriverUtil } from './util/driverUtil.js';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as os from 'os';
 import { URL } from 'url';
-import pjson from '../package.json';
+import pjson from '../package.json' with { type: 'json' };
 import { globSync } from 'glob';
 
 export { ReleaseQuality };
 export { MochaOptions } from 'mocha';
-export * from './browser';
-export * from './suite/mochaHooks';
+export * from './browser.js';
+export * from './suite/mochaHooks.js';
 export * from '@redhat-developer/page-objects';
 
 export interface SetupOptions {

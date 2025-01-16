@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Locators, LocatorDiff } from './locators';
+import { Locators, LocatorDiff } from './locators.js';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { compareVersions } from 'compare-versions';

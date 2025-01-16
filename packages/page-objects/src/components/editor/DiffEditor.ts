@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-import { Editor } from './Editor';
-import { TextEditor } from './TextEditor';
-import { EditorView } from './EditorView';
+import { Editor } from './Editor.js';
+import { TextEditor } from './TextEditor.js';
+import { EditorView } from './EditorView.js';
 
 /**
  * Page object representing a diff editor

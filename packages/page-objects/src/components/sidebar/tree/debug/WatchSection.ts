@@ -16,9 +16,9 @@
  */
 
 import { Key, WebElement } from 'selenium-webdriver';
-import { ViewContent } from '../../ViewContent';
-import { GenericCustomTreeSection } from '../custom/CustomTreeSection';
-import { WatchSectionItem } from './WatchSectionItem';
+import { ViewContent } from '../../ViewContent.js';
+import { GenericCustomTreeSection } from '../custom/CustomTreeSection.js';
+import { WatchSectionItem } from './WatchSectionItem.js';
 
 export class WatchSection extends GenericCustomTreeSection<WatchSectionItem> {
 	constructor(panel: WebElement, viewContent: ViewContent) {

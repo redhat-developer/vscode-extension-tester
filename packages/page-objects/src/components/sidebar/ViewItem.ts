@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-import { ElementWithContextMenu } from '../ElementWithContextMenu';
-import { AbstractElement } from '../AbstractElement';
+import { ElementWithContextMenu } from '../ElementWithContextMenu.js';
+import { AbstractElement } from '../AbstractElement.js';
 import { WebElement, By, error } from 'selenium-webdriver';
-import { NullAttributeError } from '../../errors/NullAttributeError';
+import { NullAttributeError } from '../../errors/NullAttributeError.js';
 
 /**
  * Arbitrary item in the side bar view

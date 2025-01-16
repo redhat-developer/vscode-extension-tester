@@ -17,7 +17,7 @@
 
 import { ActivityBar, ExtensionsViewSection, EditorView, ExtensionsViewItem, VSBrowser, beforeEach, ViewControl } from 'vscode-extension-tester';
 import { expect } from 'chai';
-import pjson from '../../../package.json';
+import pjson from '../../../package.json' with { type: 'json' };
 
 describe('ExtensionsView', () => {
 	let section: ExtensionsViewSection;

@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-import { AbstractElement } from '../AbstractElement';
-import { ViewTitlePart, ViewContent } from '../..';
+import { AbstractElement } from '../AbstractElement.js';
+import { ViewTitlePart, ViewContent } from '../../index.js';
 
 /**
  * Page object for the side bar view

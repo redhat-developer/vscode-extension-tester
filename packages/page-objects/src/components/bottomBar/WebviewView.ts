@@ -17,8 +17,8 @@
 
 /* eslint-disable no-redeclare */
 import { WebElement } from 'selenium-webdriver';
-import { AbstractElement } from '../AbstractElement';
-import WebviewMixin from '../WebviewMixin';
+import { AbstractElement } from '../AbstractElement.js';
+import WebviewMixin from '../WebviewMixin.js';
 
 /**
  * Page object representing a user-contributed panel implemented using a Webview.

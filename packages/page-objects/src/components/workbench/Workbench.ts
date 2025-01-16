@@ -15,19 +15,19 @@
  * limitations under the License.
  */
 
-import { AbstractElement } from '../AbstractElement';
+import { AbstractElement } from '../AbstractElement.js';
 import { WebElement, Key, until } from 'selenium-webdriver';
-import { TitleBar } from '../menu/TitleBar';
-import { SideBarView } from '../sidebar/SideBarView';
-import { ActivityBar } from '../activityBar/ActivityBar';
-import { StatusBar } from '../statusBar/StatusBar';
-import { EditorView } from '../editor/EditorView';
-import { BottomBarPanel } from '../bottomBar/BottomBarPanel';
-import { Notification, StandaloneNotification } from './Notification';
-import { NotificationsCenter } from './NotificationsCenter';
-import { QuickOpenBox } from './input/QuickOpenBox';
-import { SettingsEditor } from '../editor/SettingsEditor';
-import { InputBox } from './input/InputBox';
+import { TitleBar } from '../menu/TitleBar.js';
+import { SideBarView } from '../sidebar/SideBarView.js';
+import { ActivityBar } from '../activityBar/ActivityBar.js';
+import { StatusBar } from '../statusBar/StatusBar.js';
+import { EditorView } from '../editor/EditorView.js';
+import { BottomBarPanel } from '../bottomBar/BottomBarPanel.js';
+import { Notification, StandaloneNotification } from './Notification.js';
+import { NotificationsCenter } from './NotificationsCenter.js';
+import { QuickOpenBox } from './input/QuickOpenBox.js';
+import { SettingsEditor } from '../editor/SettingsEditor.js';
+import { InputBox } from './input/InputBox.js';
 
 /**
  * Handler for general workbench related actions

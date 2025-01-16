@@ -30,7 +30,7 @@ import {
 	Workbench,
 	BottomBarPanel,
 } from 'vscode-extension-tester';
-import * as pjson from '../../../package.json';
+import * as pjson from '../../../package.json' with { type: 'json' };
 import * as path from 'path';
 
 describe('Extension Editor', function () {

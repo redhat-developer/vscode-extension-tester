@@ -17,8 +17,8 @@
 
 /* eslint-disable no-redeclare */
 import { WebElement } from 'selenium-webdriver';
-import WebviewMixin from '../WebviewMixin';
-import { Editor } from './Editor';
+import WebviewMixin from '../WebviewMixin.js';
+import { Editor } from './Editor.js';
 
 /**
  * Page object representing an open editor containing a web view

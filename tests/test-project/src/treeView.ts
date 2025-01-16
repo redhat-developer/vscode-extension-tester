@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { ERROR_MESSAGE_COMMAND } from './extension';
+import { ERROR_MESSAGE_COMMAND } from './extension.js';
 
 /**
  * Test tree view as shown in TreeView sample extension available at

@@ -16,8 +16,8 @@
  */
 
 import { until, WebElement } from 'selenium-webdriver';
-import { AbstractElement } from '../AbstractElement';
-import { Workbench } from './Workbench';
+import { AbstractElement } from '../AbstractElement.js';
+import { Workbench } from './Workbench.js';
 
 /**
  * Page object for the Debugger Toolbar

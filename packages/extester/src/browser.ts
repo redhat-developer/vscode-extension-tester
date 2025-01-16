@@ -19,11 +19,11 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 import { compareVersions } from 'compare-versions';
 import { WebDriver, Builder, until, initPageObjects, logging, By, Browser } from '@redhat-developer/page-objects';
-import { Options, ServiceBuilder } from 'selenium-webdriver/chrome';
+import { Options, ServiceBuilder } from 'selenium-webdriver/chrome.js';
 import { getLocatorsPath } from '@redhat-developer/locators';
-import { CodeUtil, ReleaseQuality } from './util/codeUtil';
-import { DEFAULT_STORAGE_FOLDER } from './extester';
-import { DriverUtil } from './util/driverUtil';
+import { CodeUtil, ReleaseQuality } from './util/codeUtil.js';
+import { DEFAULT_STORAGE_FOLDER } from './extester.js';
+import { DriverUtil } from './util/driverUtil.js';
 
 export class VSBrowser {
 	static readonly baseVersion = '1.37.0';

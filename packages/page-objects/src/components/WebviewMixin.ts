@@ -16,7 +16,7 @@
  */
 
 import { Locator, WebElement, until } from 'selenium-webdriver';
-import { AbstractElement } from './AbstractElement';
+import { AbstractElement } from './AbstractElement.js';
 
 /**
  * Heavily inspired by https://stackoverflow.com/a/65418734

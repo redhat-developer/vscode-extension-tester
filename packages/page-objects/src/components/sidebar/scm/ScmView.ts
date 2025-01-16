@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-import { SideBarView } from '../SideBarView';
+import { SideBarView } from '../SideBarView.js';
 import { WebElement, Key } from 'selenium-webdriver';
-import { AbstractElement } from '../../AbstractElement';
-import { ContextMenu } from '../../..';
-import { ElementWithContextMenu } from '../../ElementWithContextMenu';
-import { ChromiumWebDriver } from 'selenium-webdriver/chromium';
+import { AbstractElement } from '../../AbstractElement.js';
+import { ContextMenu } from '../../../index.js';
+import { ElementWithContextMenu } from '../../ElementWithContextMenu.js';
+import { ChromiumWebDriver } from 'selenium-webdriver/chromium.js';
 
 /**
  * Page object representing the Source Control view

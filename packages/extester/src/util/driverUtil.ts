@@ -18,9 +18,9 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as childProcess from 'child_process';
-import { Unpack } from './unpack';
-import { Download } from './download';
-import { DEFAULT_STORAGE_FOLDER } from '../extester';
+import { Unpack } from './unpack.js';
+import { Download } from './download.js';
+import { DEFAULT_STORAGE_FOLDER } from '../extester.js';
 
 /**
  * Handles version checks and download of ChromeDriver

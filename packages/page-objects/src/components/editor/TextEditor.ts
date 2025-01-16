@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-import { ContentAssist, ContextMenu, InputBox, Workbench } from '../..';
+import { ContentAssist, ContextMenu, InputBox, Workbench } from '../../index.js';
 import { Key, until, WebElement } from 'selenium-webdriver';
 import { fileURLToPath } from 'url';
-import { StatusBar } from '../statusBar/StatusBar';
-import { Editor } from './Editor';
-import { ElementWithContextMenu } from '../ElementWithContextMenu';
-import { AbstractElement } from '../AbstractElement';
-import { Breakpoint } from './Breakpoint';
-import { ChromiumWebDriver } from 'selenium-webdriver/chromium';
+import { StatusBar } from '../statusBar/StatusBar.js';
+import { Editor } from './Editor.js';
+import { ElementWithContextMenu } from '../ElementWithContextMenu.js';
+import { AbstractElement } from '../AbstractElement.js';
+import { Breakpoint } from './Breakpoint.js';
+import { ChromiumWebDriver } from 'selenium-webdriver/chromium.js';
 
 export class BreakpointError extends Error {}
 

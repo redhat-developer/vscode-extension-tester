@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-import { TreeItem } from '../../ViewItem';
-import { TreeSection } from '../TreeSection';
+import { TreeItem } from '../../ViewItem.js';
+import { TreeSection } from '../TreeSection.js';
 import { WebElement } from 'selenium-webdriver';
 
 /**

@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-import { ElementWithContextMenu } from '../ElementWithContextMenu';
-import { EditorTab, EditorView, EditorGroup } from '../..';
+import { ElementWithContextMenu } from '../ElementWithContextMenu.js';
+import { EditorTab, EditorView, EditorGroup } from '../../index.js';
 import { WebElement, Locator } from 'selenium-webdriver';
 
 /**

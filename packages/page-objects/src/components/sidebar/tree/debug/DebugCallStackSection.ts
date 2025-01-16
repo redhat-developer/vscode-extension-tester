@@ -16,9 +16,9 @@
  */
 
 import { WebElement } from 'selenium-webdriver';
-import { ViewContent } from '../../ViewContent';
-import { GenericCustomTreeSection } from '../custom/CustomTreeSection';
-import { CallStackItem } from './CallStackItem';
+import { ViewContent } from '../../ViewContent.js';
+import { GenericCustomTreeSection } from '../custom/CustomTreeSection.js';
+import { CallStackItem } from './CallStackItem.js';
 
 export class DebugCallStackSection extends GenericCustomTreeSection<CallStackItem> {
 	constructor(panel: WebElement, viewContent: ViewContent) {

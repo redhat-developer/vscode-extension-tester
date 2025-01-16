@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-import { ScmView, ScmProvider, MoreAction, ScmChange } from './ScmView';
+import { ScmView, ScmProvider, MoreAction, ScmChange } from './ScmView.js';
 import { WebElement, Key } from 'selenium-webdriver';
-import { ContextMenu } from '../../menu/ContextMenu';
-import { ElementWithContextMenu } from '../../ElementWithContextMenu';
-import { TitleActionButton } from '../ViewTitlePart';
+import { ContextMenu } from '../../menu/ContextMenu.js';
+import { ElementWithContextMenu } from '../../ElementWithContextMenu.js';
+import { TitleActionButton } from '../ViewTitlePart.js';
 
 /**
  * New SCM view for code 1.47 onwards

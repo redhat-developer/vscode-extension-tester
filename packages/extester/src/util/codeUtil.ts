@@ -19,11 +19,11 @@ import * as childProcess from 'child_process';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as vsce from '@vscode/vsce';
-import { VSRunner } from '../suite/runner';
-import { Unpack } from './unpack';
+import { VSRunner } from '../suite/runner.js';
+import { Unpack } from './unpack.js';
 import { logging } from 'selenium-webdriver';
-import { Download } from './download';
-import { DEFAULT_STORAGE_FOLDER } from '../extester';
+import { Download } from './download.js';
+import { DEFAULT_STORAGE_FOLDER } from '../extester.js';
 
 export enum ReleaseQuality {
 	Stable = 'stable',

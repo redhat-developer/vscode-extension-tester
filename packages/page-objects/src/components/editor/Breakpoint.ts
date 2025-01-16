@@ -16,7 +16,7 @@
  */
 
 import { until, WebElement } from 'selenium-webdriver';
-import { AbstractElement } from '../AbstractElement';
+import { AbstractElement } from '../AbstractElement.js';
 
 export class Breakpoint extends AbstractElement {
 	constructor(

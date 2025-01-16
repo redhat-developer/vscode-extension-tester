@@ -16,9 +16,9 @@
  */
 
 import { Key } from 'selenium-webdriver';
-import { WindowControls, ContextMenu } from '../..';
-import { Menu } from './Menu';
-import { MenuItem } from './MenuItem';
+import { WindowControls, ContextMenu } from '../../index.js';
+import { Menu } from './Menu.js';
+import { MenuItem } from './MenuItem.js';
 
 /**
  * Page object representing the custom VS Code title bar

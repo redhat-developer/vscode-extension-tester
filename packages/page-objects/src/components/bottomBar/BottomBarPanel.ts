@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-import { AbstractElement } from '../AbstractElement';
+import { AbstractElement } from '../AbstractElement.js';
 import { until, WebElement } from 'selenium-webdriver';
-import { ProblemsView, OutputView, DebugConsoleView, TerminalView, EditorView, Workbench } from '../..';
+import { ProblemsView, OutputView, DebugConsoleView, TerminalView, EditorView, Workbench } from '../../index.js';
 
 /**
  * Page object for the bottom view panel

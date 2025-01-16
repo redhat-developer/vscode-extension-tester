@@ -15,17 +15,17 @@
  * limitations under the License.
  */
 
-import { VSBrowser } from '../browser';
+import { VSBrowser } from '../browser.js';
 import * as fs from 'fs-extra';
 import Mocha from 'mocha';
 import { globSync } from 'glob';
-import { CodeUtil, ReleaseQuality } from '../util/codeUtil';
+import { CodeUtil, ReleaseQuality } from '../util/codeUtil.js';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
 import sanitize from 'sanitize-filename';
 import { logging } from 'selenium-webdriver';
 import * as os from 'os';
-import { Coverage } from '../util/coverage';
+import { Coverage } from '../util/coverage.js';
 
 /**
  * Mocha runner wrapper

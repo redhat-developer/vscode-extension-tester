@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { ExtensionEditorView, WebView } from '../..';
+import { ExtensionEditorView, WebView } from '../../index.js';
 
 export class ExtensionEditorDetailsSection extends ExtensionEditorView {
 	/**

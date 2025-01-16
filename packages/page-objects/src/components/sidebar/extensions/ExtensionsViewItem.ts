@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-import { ViewItem } from '../ViewItem';
+import { ViewItem } from '../ViewItem.js';
 import { until, WebElement } from 'selenium-webdriver';
-import { ContextMenu } from '../../menu/ContextMenu';
-import { ExtensionsViewSection } from './ExtensionsViewSection';
+import { ContextMenu } from '../../menu/ContextMenu.js';
+import { ExtensionsViewSection } from './ExtensionsViewSection.js';
 
 /**
  * Page object representing an extension in the extensions view

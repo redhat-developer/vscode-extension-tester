@@ -16,8 +16,8 @@
  */
 
 import { Key, WebElement } from 'selenium-webdriver';
-import { TreeSection } from '../TreeSection';
-import { CustomTreeItem } from '../custom/CustomTreeItem';
+import { TreeSection } from '../TreeSection.js';
+import { CustomTreeItem } from '../custom/CustomTreeItem.js';
 
 export class VariableSectionItem extends CustomTreeItem {
 	constructor(element: WebElement, viewPart: TreeSection) {

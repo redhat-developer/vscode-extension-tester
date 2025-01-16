@@ -16,14 +16,14 @@
  */
 
 import { error, WebElement } from 'selenium-webdriver';
-import { TextEditor } from '../..';
-import { AbstractElement } from '../AbstractElement';
-import { ElementWithContextMenu } from '../ElementWithContextMenu';
-import { DiffEditor } from './DiffEditor';
-import { Editor } from './Editor';
-import { EditorAction, EditorActionDropdown } from './EditorAction';
-import { SettingsEditor } from './SettingsEditor';
-import { WebView } from './WebView';
+import { TextEditor } from '../../index.js';
+import { AbstractElement } from '../AbstractElement.js';
+import { ElementWithContextMenu } from '../ElementWithContextMenu.js';
+import { DiffEditor } from './DiffEditor.js';
+import { Editor } from './Editor.js';
+import { EditorAction, EditorActionDropdown } from './EditorAction.js';
+import { SettingsEditor } from './SettingsEditor.js';
+import { WebView } from './WebView.js';
 
 export class EditorTabNotFound extends Error {
 	constructor(title: string, group: number) {

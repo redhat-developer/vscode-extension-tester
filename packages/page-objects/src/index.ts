@@ -16,80 +16,80 @@
  */
 
 import { WebDriver } from 'selenium-webdriver';
-import { AbstractElement } from './components/AbstractElement';
-import { LocatorLoader } from './locators/loader';
+import { AbstractElement } from './components/AbstractElement.js';
+import { LocatorLoader } from './locators/loader.js';
 
 export * from 'selenium-webdriver';
-export * from './locators/locators';
-export * from './errors/NullAttributeError';
+export * from './locators/locators.js';
+export * from './errors/NullAttributeError.js';
 
-export * from './components/menu/Menu';
-export * from './components/menu/MenuItem';
-export * from './components/menu/TitleBar';
-export * from './components/menu/MacTitleBar';
-export * from './components/menu/ContextMenu';
-export * from './components/menu/WindowControls';
+export * from './components/menu/Menu.js';
+export * from './components/menu/MenuItem.js';
+export * from './components/menu/TitleBar.js';
+export * from './components/menu/MacTitleBar.js';
+export * from './components/menu/ContextMenu.js';
+export * from './components/menu/WindowControls.js';
 
-export * from './components/activityBar/ActivityBar';
-export * from './components/activityBar/ViewControl';
-export * from './components/activityBar/ActionsControl';
+export * from './components/activityBar/ActivityBar.js';
+export * from './components/activityBar/ViewControl.js';
+export * from './components/activityBar/ActionsControl.js';
 
-export * from './components/sidebar/SideBarView';
-export * from './components/sidebar/ViewTitlePart';
-export * from './components/sidebar/ViewContent';
-export * from './components/sidebar/ViewSection';
-export * from './components/sidebar/ViewItem';
-export * from './components/sidebar/WelcomeContent';
+export * from './components/sidebar/SideBarView.js';
+export * from './components/sidebar/ViewTitlePart.js';
+export * from './components/sidebar/ViewContent.js';
+export * from './components/sidebar/ViewSection.js';
+export * from './components/sidebar/ViewItem.js';
+export * from './components/sidebar/WelcomeContent.js';
 
-export * from './components/sidebar/tree/TreeSection';
-export * from './components/sidebar/tree/default/DefaultTreeSection';
-export * from './components/sidebar/tree/default/DefaultTreeItem';
-export * from './components/sidebar/tree/custom/CustomTreeSection';
-export * from './components/sidebar/tree/custom/CustomTreeItem';
-export * from './components/sidebar/tree/debug/DebugBreakpointSection';
-export * from './components/sidebar/tree/debug/BreakpointSectionItem';
-export * from './components/sidebar/tree/debug/DebugVariablesSection';
-export * from './components/sidebar/tree/debug/VariableSectionItem';
-export * from './components/sidebar/tree/debug/CallStackItem';
-export * from './components/sidebar/tree/debug/DebugCallStackSection';
-export * from './components/sidebar/tree/debug/WatchSection';
-export * from './components/sidebar/tree/debug/WatchSectionItem';
-export * from './components/sidebar/extensions/ExtensionsViewSection';
-export * from './components/sidebar/extensions/ExtensionsViewItem';
-export { ScmView, ScmProvider, ScmChange } from './components/sidebar/scm/ScmView';
-export * from './components/sidebar/scm/NewScmView';
-export * from './components/sidebar/debug/DebugView';
+export * from './components/sidebar/tree/TreeSection.js';
+export * from './components/sidebar/tree/default/DefaultTreeSection.js';
+export * from './components/sidebar/tree/default/DefaultTreeItem.js';
+export * from './components/sidebar/tree/custom/CustomTreeSection.js';
+export * from './components/sidebar/tree/custom/CustomTreeItem.js';
+export * from './components/sidebar/tree/debug/DebugBreakpointSection.js';
+export * from './components/sidebar/tree/debug/BreakpointSectionItem.js';
+export * from './components/sidebar/tree/debug/DebugVariablesSection.js';
+export * from './components/sidebar/tree/debug/VariableSectionItem.js';
+export * from './components/sidebar/tree/debug/CallStackItem.js';
+export * from './components/sidebar/tree/debug/DebugCallStackSection.js';
+export * from './components/sidebar/tree/debug/WatchSection.js';
+export * from './components/sidebar/tree/debug/WatchSectionItem.js';
+export * from './components/sidebar/extensions/ExtensionsViewSection.js';
+export * from './components/sidebar/extensions/ExtensionsViewItem.js';
+export { ScmView, ScmProvider, ScmChange } from './components/sidebar/scm/ScmView.js';
+export * from './components/sidebar/scm/NewScmView.js';
+export * from './components/sidebar/debug/DebugView.js';
 
-export * from './components/bottomBar/BottomBarPanel';
-export * from './components/bottomBar/ProblemsView';
-export * from './components/bottomBar/WebviewView';
-export * from './components/bottomBar/Views';
-export * from './components/statusBar/StatusBar';
+export * from './components/bottomBar/BottomBarPanel.js';
+export * from './components/bottomBar/ProblemsView.js';
+export * from './components/bottomBar/WebviewView.js';
+export * from './components/bottomBar/Views.js';
+export * from './components/statusBar/StatusBar.js';
 
-export * from './components/editor/EditorView';
-export * from './components/editor/EditorAction';
-export * from './components/editor/Breakpoint';
-export * from './components/editor/TextEditor';
-export * from './components/editor/Editor';
-export * from './components/editor/SettingsEditor';
-export * from './components/editor/DiffEditor';
-export * from './components/editor/WebView';
-export * from './components/editor/ContentAssist';
-export * from './components/editor/CustomEditor';
-export * from './components/editor/ExtensionEditorView';
-export * from './components/editor/ExtensionEditorDetailsSection';
+export * from './components/editor/EditorView.js';
+export * from './components/editor/EditorAction.js';
+export * from './components/editor/Breakpoint.js';
+export * from './components/editor/TextEditor.js';
+export * from './components/editor/Editor.js';
+export * from './components/editor/SettingsEditor.js';
+export * from './components/editor/DiffEditor.js';
+export * from './components/editor/WebView.js';
+export * from './components/editor/ContentAssist.js';
+export * from './components/editor/CustomEditor.js';
+export * from './components/editor/ExtensionEditorView.js';
+export * from './components/editor/ExtensionEditorDetailsSection.js';
 
-export { Notification, NotificationType } from './components/workbench/Notification';
-export * from './components/workbench/NotificationsCenter';
-export * from './components/workbench/input/Input';
-export * from './components/workbench/input/InputBox';
-export * from './components/workbench/input/QuickOpenBox';
-export * from './components/workbench/Workbench';
-export * from './components/workbench/DebugToolbar';
+export { Notification, NotificationType } from './components/workbench/Notification.js';
+export * from './components/workbench/NotificationsCenter.js';
+export * from './components/workbench/input/Input.js';
+export * from './components/workbench/input/InputBox.js';
+export * from './components/workbench/input/QuickOpenBox.js';
+export * from './components/workbench/Workbench.js';
+export * from './components/workbench/DebugToolbar.js';
 
-export * from './components/dialog/ModalDialog';
+export * from './components/dialog/ModalDialog.js';
 
-export * from './conditions/WaitForAttribute';
+export * from './conditions/WaitForAttribute.js';
 
 /**
  * Initialize the page objects for your tests

@@ -16,7 +16,7 @@
  */
 /* eslint-disable no-redeclare */
 import { Func } from 'mocha';
-import { VSBrowser } from '../extester';
+import { VSBrowser } from '../extester.js';
 import sanitize from 'sanitize-filename';
 
 type HookType = 'before' | 'beforeEach' | 'after' | 'afterEach';

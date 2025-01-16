@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-import { CustomTreeSection, DefaultTreeSection, ExtensionsViewSection, SideBarView, ViewSection, ViewSectionConstructor } from '../..';
+import { CustomTreeSection, DefaultTreeSection, ExtensionsViewSection, SideBarView, ViewSection, ViewSectionConstructor } from '../../index.js';
 import { WebElement, error } from 'selenium-webdriver';
-import { AbstractElement } from '../AbstractElement';
+import { AbstractElement } from '../AbstractElement.js';
 
 /**
  * Page object representing the view container of a side bar view
