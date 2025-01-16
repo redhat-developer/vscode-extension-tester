@@ -16,7 +16,7 @@
  */
 
 import { VSBrowser } from '../browser.js';
-import * as fs from 'fs-extra';
+import fs from 'fs-extra';
 import Mocha from 'mocha';
 import { globSync } from 'glob';
 import { CodeUtil, ReleaseQuality } from '../util/codeUtil.js';

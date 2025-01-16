@@ -17,13 +17,15 @@
 
 import * as childProcess from 'child_process';
 import fs from 'fs-extra';
-import * as path from 'path';
+import path from 'path';
 import * as vsce from '@vscode/vsce';
 import { VSRunner } from '../suite/runner.js';
 import { Unpack } from './unpack.js';
 import { logging } from 'selenium-webdriver';
 import { Download } from './download.js';
 import { DEFAULT_STORAGE_FOLDER } from '../extester.js';
+import { fileURLToPath } from 'url';
+import { readFile } from 'fs/promises';
 
 export enum ReleaseQuality {
 	Stable = 'stable',
@@ -151,14 +153,28 @@ export class CodeUtil {
 		}
 	}
 
+	private async getPackageJson() {
+		// Resolve the directory name (equivalent to __dirname in ESM)
+		const filename = fileURLToPath(import.meta.url);
+		const dirName = path.dirname(filename); // Renamed __dirname to dirName
+
+		// Resolve the package.json file path
+		const packageJsonPath = path.resolve(dirName, 'package.json');
+
+		// Read and parse the JSON file
+		return JSON.parse(await readFile(packageJsonPath, 'utf-8'));
+	}
+
 	/**
 	 * Install your extension into the test instance of VS Code
 	 */
-	installExtension(vsix?: string, id?: string, preRelease?: boolean): void {
-		const pjson = require(path.resolve('package.json'));
+	async installExtension(vsix?: string, id?: string, preRelease?: boolean): Promise<void> {
+		const pjson = await this.getPackageJson();
+
 		if (id) {
 			return this.installExt(id, preRelease);
 		}
+
 		const vsixPath = path.resolve(vsix ? vsix : `${pjson.name}-${pjson.version}.vsix`);
 		this.installExt(vsixPath);
 	}
@@ -166,12 +182,14 @@ export class CodeUtil {
 	/**
 	 * Install extension dependencies from marketplace
 	 */
-	installDependencies(): void {
-		const pjson = require(path.resolve('package.json'));
+	async installDependencies(): Promise<void> {
+		const pjson = await this.getPackageJson();
 		const deps = pjson.extensionDependencies;
+
 		if (!deps) {
 			return;
 		}
+
 		for (const id of deps as string[]) {
 			this.installExt(id);
 		}
@@ -299,37 +317,38 @@ export class CodeUtil {
 	 * @param quality release stream, default stable
 	 */
 	async getChromiumVersion(codeVersion: string = 'latest'): Promise<string> {
-		await this.checkCodeVersion(codeVersion);
-		const literalVersion = codeVersion === 'latest' ? this.availableVersions[0] : codeVersion;
-		let revision = literalVersion;
-		if (literalVersion.endsWith('-insider')) {
-			if (codeVersion === 'latest') {
-				revision = 'main';
-			} else {
-				revision = literalVersion.substring(0, literalVersion.indexOf('-insider'));
-				revision = `release/${revision.substring(0, revision.lastIndexOf('.'))}`;
-			}
-		} else {
-			revision = `release/${revision.substring(0, revision.lastIndexOf('.'))}`;
-		}
+		// await this.checkCodeVersion(codeVersion);
+		// const literalVersion = codeVersion === 'latest' ? this.availableVersions[0] : codeVersion;
+		// let revision = literalVersion;
+		// if (literalVersion.endsWith('-insider')) {
+		// 	if (codeVersion === 'latest') {
+		// 		revision = 'main';
+		// 	} else {
+		// 		revision = literalVersion.substring(0, literalVersion.indexOf('-insider'));
+		// 		revision = `release/${revision.substring(0, revision.lastIndexOf('.'))}`;
+		// 	}
+		// } else {
+		// 	revision = `release/${revision.substring(0, revision.lastIndexOf('.'))}`;
+		// }
 
-		const fileName = 'manifest.json';
-		const url = `https://raw.githubusercontent.com/Microsoft/vscode/${revision}/cgmanifest.json`;
-		await Download.getFile(url, path.join(this.downloadFolder, fileName));
+		// const fileName = 'manifest.json';
+		// const url = `https://raw.githubusercontent.com/Microsoft/vscode/${revision}/cgmanifest.json`;
+		// await Download.getFile(url, path.join(this.downloadFolder, fileName));
 
-		try {
-			const manifest = require(path.join(this.downloadFolder, fileName));
-			return manifest.registrations[0].version;
-		} catch (err) {
-			let version = '';
-			if (await fs.pathExists(this.codeFolder)) {
-				version = this.getChromiumVersionOffline();
-			}
-			if (version === '') {
-				throw new Error('Unable to determine required ChromeDriver version');
-			}
-			return version;
-		}
+		// try {
+		// 	const manifest = require(path.join(this.downloadFolder, fileName));
+		// 	return manifest.registrations[0].version;
+		// } catch (err) {
+		// 	let version = '';
+		// 	if (await fs.pathExists(this.codeFolder)) {
+		// 		version = this.getChromiumVersionOffline();
+		// 	}
+		// 	if (version === '') {
+		// 		throw new Error('Unable to determine required ChromeDriver version');
+		// 	}
+		// 	return 'latest';
+		return '128.0.6613.137';
+		// }
 	}
 
 	/**
