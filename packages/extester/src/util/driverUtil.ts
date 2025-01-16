@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import * as fs from 'fs-extra';
+import fs from 'fs-extra';
 import * as path from 'path';
 import * as childProcess from 'child_process';
 import { Unpack } from './unpack.js';

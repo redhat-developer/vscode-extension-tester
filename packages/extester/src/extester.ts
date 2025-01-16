@@ -17,7 +17,7 @@
 
 import { CodeUtil, DEFAULT_RUN_OPTIONS, ReleaseQuality, RunOptions } from './util/codeUtil.js';
 import { DriverUtil } from './util/driverUtil.js';
-import * as fs from 'fs-extra';
+import fs from 'fs-extra';
 import * as path from 'path';
 import * as os from 'os';
 import { URL } from 'url';

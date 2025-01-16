@@ -16,7 +16,7 @@
  */
 
 import * as childProcess from 'child_process';
-import * as fs from 'fs-extra';
+import fs from 'fs-extra';
 import * as path from 'path';
 import * as vsce from '@vscode/vsce';
 import { VSRunner } from '../suite/runner.js';

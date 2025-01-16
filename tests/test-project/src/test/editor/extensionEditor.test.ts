@@ -30,7 +30,8 @@ import {
 	Workbench,
 	BottomBarPanel,
 } from 'vscode-extension-tester';
-import * as pjson from '../../../package.json' with { type: 'json' };
+// import * as pjson from '../../../package.json' with { type: 'json' };
+import packageJson from '../../../package.json' assert { type: 'json' };
 import * as path from 'path';
 
 describe('Extension Editor', function () {
@@ -61,7 +62,8 @@ describe('Extension Editor', function () {
 		section = (await view.getContent().getSection('Installed')) as ExtensionsViewSection;
 
 		await driver.wait(async function () {
-			item = (await section.findItem(`@installed ${pjson.displayName}`)) as ExtensionsViewItem;
+			// item = (await section.findItem(`@installed ${pjson.displayName}`)) as ExtensionsViewItem;
+			item = (await section.findItem(`@installed ${packageJson.displayName}`)) as ExtensionsViewItem;
 			return item !== undefined;
 		});
 
