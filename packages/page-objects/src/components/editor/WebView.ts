@@ -16,7 +16,7 @@
  */
 
 /* eslint-disable no-redeclare */
-import { WebElement } from 'selenium-webdriver';
+import { IRectangle, WebElement } from 'selenium-webdriver';
 import WebviewMixin from '../WebviewMixin';
 import { Editor } from './Editor';
 
@@ -24,18 +24,25 @@ import { Editor } from './Editor';
  * Page object representing an open editor containing a web view
  */
 class WebViewBase extends Editor {
-	async getViewToSwitchTo(handle: string): Promise<WebElement | undefined> {
-		const handles = await this.getDriver().getAllWindowHandles();
-		for (const handle of handles) {
-			await this.getDriver().switchTo().window(handle);
+	async getViewToSwitchTo(): Promise<WebElement | undefined> {
+		const container = await this.getRect();
+		const frames = await this.getDriver().findElements(WebViewBase.locators.WebView.iframe);
 
-			if ((await this.getDriver().getTitle()).includes('Virtual Document')) {
-				await this.getDriver().switchTo().frame(0);
-				return;
+		const scoreRect = (rect: IRectangle) => {
+			const ax = Math.max(container.x, rect.x);
+			const ay = Math.max(container.y, rect.y);
+			const bx = Math.min(container.x + container.width, rect.x + rect.width);
+			const by = Math.min(container.y + container.width, rect.y + rect.height);
+			return (bx - ax) * (by - ay);
+		};
+
+		let bestRectIdx = 0;
+		for (let i = 1; i < frames.length; i++) {
+			if (scoreRect(await frames[i].getRect()) > scoreRect(await frames[bestRectIdx].getRect())) {
+				bestRectIdx = i;
 			}
 		}
-		await this.getDriver().switchTo().window(handle);
-		return await this.getDriver().findElement(WebViewBase.locators.WebView.iframe);
+		return frames[bestRectIdx];
 	}
 }
 
