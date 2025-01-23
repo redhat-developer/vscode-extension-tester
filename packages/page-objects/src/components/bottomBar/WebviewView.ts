@@ -16,7 +16,7 @@
  */
 
 /* eslint-disable no-redeclare */
-import { WebElement } from 'selenium-webdriver';
+import { IRectangle, WebElement } from 'selenium-webdriver';
 import { AbstractElement } from '../AbstractElement';
 import WebviewMixin from '../WebviewMixin';
 
@@ -28,9 +28,25 @@ class WebviewViewBase extends AbstractElement {
 		super(WebviewViewBase.locators.Workbench.constructor);
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async getViewToSwitchTo(handle: string): Promise<WebElement | undefined> {
-		return await this.getDriver().findElement(WebviewViewBase.locators.WebviewView.iframe);
+	async getViewToSwitchTo(): Promise<WebElement | undefined> {
+		const container = await this.getRect();
+		const frames = await this.getDriver().findElements(WebviewViewBase.locators.WebView.iframe);
+
+		const scoreRect = (rect: IRectangle) => {
+			const ax = Math.max(container.x, rect.x);
+			const ay = Math.max(container.y, rect.y);
+			const bx = Math.min(container.x + container.width, rect.x + rect.width);
+			const by = Math.min(container.y + container.width, rect.y + rect.height);
+			return (bx - ax) * (by - ay);
+		};
+
+		let bestRectIdx = 0;
+		for (let i = 1; i < frames.length; i++) {
+			if (scoreRect(await frames[i].getRect()) > scoreRect(await frames[bestRectIdx].getRect())) {
+				bestRectIdx = i;
+			}
+		}
+		return frames[bestRectIdx];
 	}
 }
 

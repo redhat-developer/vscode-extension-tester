@@ -48,7 +48,7 @@ describe('WebViews', function () {
 		});
 	});
 
-	describe('Several Group WebViews', function () {
+	describe('Several Grouped WebViews', function () {
 		let view: WebView;
 		let tabs: string[];
 		let editorGroups: EditorGroup[];
@@ -95,47 +95,26 @@ describe('WebViews', function () {
 			editorGroups = [group1, group2, group3];
 			tabs = [await tabsGroup1[0].getTitle(), await tabsGroup2[0].getTitle(), await tabsGroup3[0].getTitle()];
 		});
+		for (let i = 0; i < 3; i++) {
+			describe(`WebView ${i}`, function () {
+				before(async function () {
+					view = new WebView(editorGroups[i]);
+					await view.switchToFrame();
+				});
 
-		describe('First WebView', function () {
-			void switchToFrame(0);
-			void runTests(0);
-			void clean();
-		});
+				after(async function () {
+					await view.switchBack();
+				});
 
-		describe('Second WebView', async function () {
-			void switchToFrame(1);
-			void runTests(1);
-			void clean();
-		});
+				it('findWebElement works', async function () {
+					const element = await view.findWebElement(By.css('h1'));
+					expect(await element.getText()).has.string(`This is a web view with title: ${tabs[i]}`);
+				});
 
-		describe('Third WebView', async function () {
-			void switchToFrame(2);
-			void runTests(2);
-			void clean();
-		});
-
-		async function switchToFrame(index: number) {
-			before(async function () {
-				view = new WebView(editorGroups[index]);
-				await view.switchToFrame();
-			});
-		}
-
-		async function runTests(index: number) {
-			it('findWebElement works', async function () {
-				const element = await view.findWebElement(By.css('h1'));
-				expect(await element.getText()).has.string(`This is a web view with title: ${tabs[index]}`);
-			});
-
-			it('findWebElements works', async function () {
-				const elements = await view.findWebElements(By.css('h1'));
-				expect(elements.length).equals(1);
-			});
-		}
-
-		async function clean() {
-			after(async function () {
-				await view.switchBack();
+				it('findWebElements works', async function () {
+					const elements = await view.findWebElements(By.css('h1'));
+					expect(elements.length).equals(1);
+				});
 			});
 		}
 	});
@@ -170,59 +149,26 @@ describe('WebViews', function () {
 
 			tabs = await new EditorView().getOpenEditorTitles();
 		});
+		for (let i = 0; i < 3; i++) {
+			describe(`WebView ${i}`, function () {
+				before(async function () {
+					await new EditorView().openEditor(tabs[i]);
+					view = new WebView();
+					await view.switchToFrame();
+				});
+				it('findWebElement works', async function () {
+					const element = await view.findWebElement(By.css('h1'));
+					expect(await element.getText()).has.string(`This is a web view with title: ${tabs[i]}`);
+				});
 
-		describe('First WebView', function () {
-			before(async function () {
-				await new EditorView().openEditor(tabs[0]);
-			});
+				it('findWebElements works', async function () {
+					const elements = await view.findWebElements(By.css('h1'));
+					expect(elements.length).equals(1);
+				});
 
-			void switchToFrame();
-			void runTests(0);
-			void clean();
-		});
-
-		describe('Second WebView', async function () {
-			before(async function () {
-				await new EditorView().openEditor(tabs[1]);
-			});
-
-			void switchToFrame();
-			void runTests(1);
-			void clean();
-		});
-
-		describe('Third WebView', async function () {
-			before(async function () {
-				await new EditorView().openEditor(tabs[2]);
-			});
-
-			void switchToFrame();
-			void runTests(2);
-			void clean();
-		});
-
-		async function switchToFrame() {
-			before(async function () {
-				view = new WebView();
-				await view.switchToFrame();
-			});
-		}
-
-		async function runTests(index: number) {
-			it('findWebElement works', async function () {
-				const element = await view.findWebElement(By.css('h1'));
-				expect(await element.getText()).has.string(`This is a web view with title: ${tabs[index]}`);
-			});
-
-			it('findWebElements works', async function () {
-				const elements = await view.findWebElements(By.css('h1'));
-				expect(elements.length).equals(1);
-			});
-		}
-
-		async function clean() {
-			after(async function () {
-				await view.switchBack();
+				after(async function () {
+					await view.switchBack();
+				});
 			});
 		}
 	});
