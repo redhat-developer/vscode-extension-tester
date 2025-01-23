@@ -16,33 +16,18 @@
  */
 
 /* eslint-disable no-redeclare */
-import { IRectangle, WebElement } from 'selenium-webdriver';
+import { WebElement } from 'selenium-webdriver';
 import WebviewMixin from '../WebviewMixin';
 import { Editor } from './Editor';
+import { findBestContainingElement } from '../../locators/locators';
 
 /**
  * Page object representing an open editor containing a web view
  */
 class WebViewBase extends Editor {
 	async getViewToSwitchTo(): Promise<WebElement | undefined> {
-		const container = await this.getRect();
 		const frames = await this.getDriver().findElements(WebViewBase.locators.WebView.iframe);
-
-		const scoreRect = (rect: IRectangle) => {
-			const ax = Math.max(container.x, rect.x);
-			const ay = Math.max(container.y, rect.y);
-			const bx = Math.min(container.x + container.width, rect.x + rect.width);
-			const by = Math.min(container.y + container.width, rect.y + rect.height);
-			return (bx - ax) * (by - ay);
-		};
-
-		let bestRectIdx = 0;
-		for (let i = 1; i < frames.length; i++) {
-			if (scoreRect(await frames[i].getRect()) > scoreRect(await frames[bestRectIdx].getRect())) {
-				bestRectIdx = i;
-			}
-		}
-		return frames[bestRectIdx];
+		return findBestContainingElement(await this.getRect(), frames);
 	}
 }
 

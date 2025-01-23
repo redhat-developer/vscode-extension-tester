@@ -62,20 +62,12 @@ describe('WebViews', function () {
 
 			const workbench = new Workbench();
 
-			await workbench.executeCommand('Webview Test Column 1');
-			await new Promise((res) => {
-				setTimeout(res, 500);
-			});
-
-			await workbench.executeCommand('Webview Test Column 2');
-			await new Promise((res) => {
-				setTimeout(res, 500);
-			});
-
-			await workbench.executeCommand('Webview Test Column 3');
-			await new Promise((res) => {
-				setTimeout(res, 500);
-			});
+			for (let i = 0; i < 3; i++) {
+				await workbench.executeCommand(`Webview Test Column ${i + 1}`);
+				await new Promise((res) => {
+					setTimeout(res, 500);
+				});
+			}
 
 			const editorView = new EditorView();
 			const groups = await editorView.getEditorGroups();
@@ -131,21 +123,12 @@ describe('WebViews', function () {
 			this.timeout(30000);
 
 			const workbench = new Workbench();
-
-			await workbench.executeCommand('Webview Test Column 1');
-			await new Promise((res) => {
-				setTimeout(res, 500);
-			});
-
-			await workbench.executeCommand('Webview Test Column 1');
-			await new Promise((res) => {
-				setTimeout(res, 500);
-			});
-
-			await workbench.executeCommand('Webview Test Column 1');
-			await new Promise((res) => {
-				setTimeout(res, 500);
-			});
+			for (let i = 0; i < 3; i++) {
+				await workbench.executeCommand('Webview Test Column 1');
+				await new Promise((res) => {
+					setTimeout(res, 500);
+				});
+			}
 
 			tabs = await new EditorView().getOpenEditorTitles();
 		});
