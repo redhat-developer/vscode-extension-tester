@@ -620,15 +620,16 @@ export function fromText(locator?: By): (el: WebElement) => Promise<string> {
 }
 
 export async function findBestContainingElement(container: IRectangle, testElements: WebElement[]): Promise<WebElement | undefined> {
-	let areas: number[] = [];
-	for (let i = 0; i < testElements.length; i++) {
-		const rect = await testElements[i].getRect();
-		const ax = Math.max(container.x, rect.x);
-		const ay = Math.max(container.y, rect.y);
-		const bx = Math.min(container.x + container.width, rect.x + rect.width);
-		const by = Math.min(container.y + container.height, rect.y + rect.height);
-		areas.push((bx - ax) * (by - ay));
-	}
+	const areas: number[] = await Promise.all(
+		testElements.map(async (value) => {
+			const rect = await value.getRect();
+			const ax = Math.max(container.x, rect.x);
+			const ay = Math.max(container.y, rect.y);
+			const bx = Math.min(container.x + container.width, rect.x + rect.width);
+			const by = Math.min(container.y + container.height, rect.y + rect.height);
+			return (bx - ax) * (by - ay);
+		}),
+	);
 	let bestIdx: number = -1;
 	for (let i = 0; i < testElements.length; i++) {
 		if (areas[i] < 0) {
