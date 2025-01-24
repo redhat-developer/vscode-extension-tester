@@ -18,6 +18,7 @@
 import * as path from 'path';
 import { expect } from 'chai';
 import { EditorView, Workbench, DiffEditor, QuickOpenBox, InputBox, VSBrowser } from 'vscode-extension-tester';
+import { compareVersions } from 'compare-versions';
 
 describe('DiffEditor', async () => {
 	let editor: DiffEditor;
@@ -31,7 +32,7 @@ describe('DiffEditor', async () => {
 		await new EditorView().openEditor('test-file-b.txt');
 		await new Workbench().executeCommand('File: Compare Active File With...');
 		let quickOpen: QuickOpenBox | InputBox;
-		if (VSBrowser.instance.version >= '1.44.0') {
+		if (compareVersions(VSBrowser.instance.version, '1.44.0') >= 0) {
 			quickOpen = await InputBox.create();
 		} else {
 			quickOpen = await QuickOpenBox.create();

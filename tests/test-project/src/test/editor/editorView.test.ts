@@ -16,6 +16,7 @@
  */
 
 import { expect } from 'chai';
+import { compareVersions } from 'compare-versions';
 import {
 	EditorView,
 	EditorTab,
@@ -82,7 +83,7 @@ describe('EditorView', function () {
 
 		await new Workbench().executeCommand('File: Compare Active File With...');
 		let quickOpen: QuickOpenBox | InputBox;
-		if (VSBrowser.instance.version >= '1.44.0') {
+		if (compareVersions(VSBrowser.instance.version, '1.44.0') >= 0) {
 			quickOpen = await InputBox.create();
 		} else {
 			quickOpen = await QuickOpenBox.create();

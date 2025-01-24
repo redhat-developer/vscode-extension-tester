@@ -20,12 +20,13 @@ import { ContextMenu } from '../menu/ContextMenu';
 import { WebElement, Key, By } from 'selenium-webdriver';
 import { AbstractElement } from '../AbstractElement';
 import { EditorView, EditorGroup } from '../..';
+import { compareVersions } from 'compare-versions';
 
 /**
  * Page object representing the internal VS Code settings editor
  */
 export class SettingsEditor extends Editor {
-	private divider = SettingsEditor.versionInfo.version >= '1.83.0' ? '›' : ' › ';
+	private divider = compareVersions(SettingsEditor.versionInfo.version, '1.83.0') >= 0 ? '›' : ' › ';
 
 	constructor(view: EditorView | EditorGroup = new EditorView()) {
 		super(view);

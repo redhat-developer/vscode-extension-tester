@@ -24,6 +24,7 @@ import { ElementWithContextMenu } from '../ElementWithContextMenu';
 import { AbstractElement } from '../AbstractElement';
 import { Breakpoint } from './Breakpoint';
 import { ChromiumWebDriver } from 'selenium-webdriver/chromium';
+import { compareVersions } from 'compare-versions';
 
 export class BreakpointError extends Error {}
 
@@ -577,7 +578,9 @@ export class TextEditor extends Editor {
 
 		const lineOverlay = await margin.findElement(TextEditor.locators.TextEditor.lineOverlay(line));
 		const breakpointContainer =
-			TextEditor.versionInfo.version >= '1.80.0' ? await this.findElement(TextEditor.locators.TextEditor.glyphMarginWidget) : lineOverlay;
+			compareVersions(TextEditor.versionInfo.version, '1.80.0') >= 0
+				? await this.findElement(TextEditor.locators.TextEditor.glyphMarginWidget)
+				: lineOverlay;
 		const breakPoint = await breakpointContainer.findElements(TextEditor.locators.TextEditor.breakpoint.generalSelector);
 		if (breakPoint.length > 0) {
 			if (this.breakPoints.indexOf(line) !== -1) {
@@ -604,7 +607,7 @@ export class TextEditor extends Editor {
 	async getPausedBreakpoint(): Promise<Breakpoint | undefined> {
 		const breakpointLocators = Breakpoint.locators.TextEditor.breakpoint;
 		const breakpointContainer =
-			TextEditor.versionInfo.version >= '1.80.0' ? await this.findElement(TextEditor.locators.TextEditor.glyphMarginWidget) : this;
+			compareVersions(TextEditor.versionInfo.version, '1.80.0') >= 0 ? await this.findElement(TextEditor.locators.TextEditor.glyphMarginWidget) : this;
 		const breakpoints = await breakpointContainer.findElements(breakpointLocators.pauseSelector);
 
 		if (breakpoints.length === 0) {
@@ -617,7 +620,7 @@ export class TextEditor extends Editor {
 
 		// get parent
 		let lineElement: WebElement;
-		if (TextEditor.versionInfo.version >= '1.80.0') {
+		if (compareVersions(TextEditor.versionInfo.version, '1.80.0') >= 0) {
 			const styleTopAttr = await breakpoints[0].getCssValue('top');
 			lineElement = await this.findElement(TextEditor.locators.TextEditor.marginArea).findElement(
 				TextEditor.locators.TextEditor.lineElement(styleTopAttr),
@@ -652,12 +655,12 @@ export class TextEditor extends Editor {
 
 		const breakpointLocators = Breakpoint.locators.TextEditor.breakpoint;
 		const breakpointContainer =
-			TextEditor.versionInfo.version >= '1.80.0' ? await this.findElement(TextEditor.locators.TextEditor.glyphMarginWidget) : this;
+			compareVersions(TextEditor.versionInfo.version, '1.80.0') >= 0 ? await this.findElement(TextEditor.locators.TextEditor.glyphMarginWidget) : this;
 		const breakpointsSelectors = await breakpointContainer.findElements(breakpointLocators.generalSelector);
 
 		for (const breakpointSelector of breakpointsSelectors) {
 			let lineElement: WebElement;
-			if (TextEditor.versionInfo.version >= '1.80.0') {
+			if (compareVersions(TextEditor.versionInfo.version, '1.80.0') >= 0) {
 				const styleTopAttr = await breakpointSelector.getCssValue('top');
 				lineElement = await this.findElement(TextEditor.locators.TextEditor.marginArea).findElement(
 					TextEditor.locators.TextEditor.lineElement(styleTopAttr),
@@ -846,7 +849,7 @@ export class FindWidget extends AbstractElement {
 	 * Close the widget.
 	 */
 	async close(): Promise<void> {
-		const part = TextEditor.versionInfo.version >= '1.80.0' ? 'close' : 'find';
+		const part = compareVersions(TextEditor.versionInfo.version, '1.80.0') >= 0 ? 'close' : 'find';
 		await this.clickButton('Close', part);
 	}
 
