@@ -23,6 +23,7 @@ describe('WebviewViews', function () {
 		{
 			title: 'BottomBar',
 			command: 'My Panel: Focus on My Panel View View',
+			container: () => new BottomBarPanel(),
 			closePanel: true,
 			closeSection: false,
 			h1: 'Shopping List',
@@ -34,6 +35,7 @@ describe('WebviewViews', function () {
 			command: 'Explorer: Focus on My Side Panel View View',
 			closePanel: false,
 			closeSection: true,
+			container: () => new SideBarView(),
 			h1: 'Shopping Side List',
 			li0: 'Side Apple',
 			li1: 'Side Banana',
@@ -52,7 +54,7 @@ describe('WebviewViews', function () {
 				this.timeout(10000);
 				await new Workbench().executeCommand(param.command);
 				await new Promise((res) => setTimeout(res, 2000));
-				webviewView = new WebviewView();
+				webviewView = new WebviewView(param.container());
 				await webviewView.switchToFrame(5000);
 			});
 

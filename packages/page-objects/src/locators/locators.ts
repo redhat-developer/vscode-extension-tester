@@ -626,7 +626,7 @@ export async function findBestContainingElement(container: IRectangle, testEleme
 		const ax = Math.max(container.x, rect.x);
 		const ay = Math.max(container.y, rect.y);
 		const bx = Math.min(container.x + container.width, rect.x + rect.width);
-		const by = Math.min(container.y + container.width, rect.y + rect.height);
+		const by = Math.min(container.y + container.height, rect.y + rect.height);
 		areas.push((bx - ax) * (by - ay));
 	}
 	let bestIdx: number = -1;
