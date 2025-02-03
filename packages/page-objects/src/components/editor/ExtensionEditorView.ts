@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Editor, EditorGroup, EditorView } from '../..';
+import { Editor, EditorGroup, EditorView } from '../../index.js';
 
 export class ExtensionEditorView extends Editor {
 	constructor(view: EditorView | EditorGroup = new EditorView()) {

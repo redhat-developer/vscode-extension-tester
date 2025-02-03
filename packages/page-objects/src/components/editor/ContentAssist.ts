@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { TextEditor, Menu, MenuItem, DebugConsoleView } from '../..';
+import { TextEditor, Menu, MenuItem, DebugConsoleView } from '../../index.js';
 import { error, Key, WebElement } from 'selenium-webdriver';
 
 /**

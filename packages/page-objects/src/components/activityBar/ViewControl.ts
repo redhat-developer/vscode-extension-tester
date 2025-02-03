@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-import { ActivityBar, DebugView, SideBarView, ScmView } from '../..';
-import { ElementWithContextMenu } from '../ElementWithContextMenu';
+import { ActivityBar, DebugView, SideBarView, ScmView } from '../../index.js';
+import { ElementWithContextMenu } from '../ElementWithContextMenu.js';
 import { WebElement } from 'selenium-webdriver';
-import { NewScmView } from '../sidebar/scm/NewScmView';
+import { NewScmView } from '../sidebar/scm/NewScmView.js';
 
 /**
  * Page object representing a view container item in the activity bar

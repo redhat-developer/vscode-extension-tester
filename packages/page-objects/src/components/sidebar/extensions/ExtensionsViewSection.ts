@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-import { ViewSection } from '../ViewSection';
-import { ExtensionsViewItem } from './ExtensionsViewItem';
+import { ViewSection } from '../ViewSection.js';
+import { ExtensionsViewItem } from './ExtensionsViewItem.js';
 import { until, Key } from 'selenium-webdriver';
-import { ViewContent } from '../ViewContent';
+import { ViewContent } from '../ViewContent.js';
 
 /**
  * Categories of extensions to search for

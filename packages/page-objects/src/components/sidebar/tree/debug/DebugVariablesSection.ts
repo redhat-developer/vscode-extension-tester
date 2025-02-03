@@ -16,9 +16,9 @@
  */
 
 import { WebElement } from 'selenium-webdriver';
-import { ViewContent } from '../../ViewContent';
-import { GenericCustomTreeSection } from '../custom/CustomTreeSection';
-import { VariableSectionItem } from './VariableSectionItem';
+import { ViewContent } from '../../ViewContent.js';
+import { GenericCustomTreeSection } from '../custom/CustomTreeSection.js';
+import { VariableSectionItem } from './VariableSectionItem.js';
 
 export class DebugVariableSection extends GenericCustomTreeSection<VariableSectionItem> {
 	constructor(panel: WebElement, viewContent: ViewContent) {

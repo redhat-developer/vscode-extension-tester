@@ -16,9 +16,9 @@
  */
 
 import { Key, until } from 'selenium-webdriver';
-import { BottomBarPanel, ContentAssist, Workbench } from '../..';
-import { TextView, ChannelView } from './AbstractViews';
-import { ElementWithContextMenu } from '../ElementWithContextMenu';
+import { BottomBarPanel, ContentAssist, Workbench } from '../../index.js';
+import { TextView, ChannelView } from './AbstractViews.js';
+import { ElementWithContextMenu } from '../ElementWithContextMenu.js';
 
 /**
  * Output view of the bottom panel

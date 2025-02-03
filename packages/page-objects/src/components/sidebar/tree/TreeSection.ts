@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-import { ViewSection } from '../ViewSection';
-import { TreeItem } from '../ViewItem';
+import { ViewSection } from '../ViewSection.js';
+import { TreeItem } from '../ViewItem.js';
 import { error } from 'selenium-webdriver';
 
 export class TreeItemNotFoundError extends error.NoSuchElementError {

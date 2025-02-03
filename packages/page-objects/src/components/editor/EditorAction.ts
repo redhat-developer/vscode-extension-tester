@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-import { EditorGroup } from './EditorView';
-import { ContextMenu, Key, WebElement } from '../..';
-import { ElementWithContextMenu } from '../ElementWithContextMenu';
-import { ChromiumWebDriver } from 'selenium-webdriver/chromium';
+import { EditorGroup } from './EditorView.js';
+import { ContextMenu, Key, WebElement } from '../../index.js';
+import { ElementWithContextMenu } from '../ElementWithContextMenu.js';
+import { ChromiumWebDriver } from 'selenium-webdriver/chromium.js';
 
 export class EditorAction extends ElementWithContextMenu {
 	constructor(element: WebElement, parent: EditorGroup) {

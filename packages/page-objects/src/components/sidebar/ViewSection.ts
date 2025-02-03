@@ -16,10 +16,10 @@
  */
 
 import { until, WebElement } from 'selenium-webdriver';
-import { ContextMenu, ViewContent, ViewItem, waitForAttributeValue, WelcomeContentSection } from '../..';
-import { AbstractElement } from '../AbstractElement';
-import { ElementWithContextMenu } from '../ElementWithContextMenu';
-import { ChromiumWebDriver } from 'selenium-webdriver/chromium';
+import { ContextMenu, ViewContent, ViewItem, waitForAttributeValue, WelcomeContentSection } from '../../index.js';
+import { AbstractElement } from '../AbstractElement.js';
+import { ElementWithContextMenu } from '../ElementWithContextMenu.js';
+import { ChromiumWebDriver } from 'selenium-webdriver/chromium.js';
 
 export type ViewSectionConstructor<T extends ViewSection> = {
 	new (rootElement: WebElement, tree: ViewContent): T;

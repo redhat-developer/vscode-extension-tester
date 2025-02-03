@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Input, QuickPickItem } from '../../..';
+import { Input, QuickPickItem } from '../../../index.js';
 import { until } from 'selenium-webdriver';
 
 /**

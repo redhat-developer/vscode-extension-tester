@@ -17,9 +17,9 @@
  */
 
 import { program } from 'commander';
-import { ExTester } from './extester';
-import { ReleaseQuality } from './util/codeUtil';
-import pjson from '../package.json';
+import { ExTester } from './extester.js';
+import { ReleaseQuality } from './util/codeUtil.js';
+import pjson from '../package.json' with { type: 'json' };
 
 program.version(pjson.version).description('UI Test Runner for VS Code Extension');
 

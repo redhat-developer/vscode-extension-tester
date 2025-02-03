@@ -1,5 +1,6 @@
 {
   "name": "extester-test",
+  "type": "module",
   "displayName": "Test Project",
   "description": "Extension dedicated to self-testing the ExTester package",
   "icon": "icons/logo.png",

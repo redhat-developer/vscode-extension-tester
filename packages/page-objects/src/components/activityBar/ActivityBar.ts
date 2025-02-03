@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-import { ActionsControl, ViewControl } from '../..';
-import { ElementWithContextMenu } from '../ElementWithContextMenu';
+import { ActionsControl, ViewControl } from '../../index.js';
+import { ElementWithContextMenu } from '../ElementWithContextMenu.js';
 
 /**
  * Page object representing the left side activity bar in VS Code

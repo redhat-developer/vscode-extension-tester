@@ -17,7 +17,7 @@
 
 import { By, WebElement } from 'selenium-webdriver';
 import { PartialDeep } from 'type-fest';
-import { ViewSection } from '../components/sidebar/ViewSection';
+import { ViewSection } from '../components/sidebar/ViewSection.js';
 
 type WebElementFunction<E extends WebElement, T> = (element: E) => T | PromiseLike<T>;
 type LocatorAwareWebElementFunction<T> = (element: WebElement, locator: Locators) => T | PromiseLike<T>;

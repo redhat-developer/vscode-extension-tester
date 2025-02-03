@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-import { TreeSection } from '../TreeSection';
-import { TreeItem } from '../../ViewItem';
+import { TreeSection } from '../TreeSection.js';
+import { TreeItem } from '../../ViewItem.js';
 import { Key, until, WebElement } from 'selenium-webdriver';
-import { CustomTreeItem, ViewContent } from '../../../..';
+import { CustomTreeItem, ViewContent } from '../../../../index.js';
 
 export type GenericCustomTreeItemConstructor<T extends TreeItem> = {
 	new (rootElement: WebElement, tree: TreeSection): T;

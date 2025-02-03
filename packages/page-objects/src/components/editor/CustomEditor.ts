@@ -16,7 +16,7 @@
  */
 
 import { Key } from 'selenium-webdriver';
-import { Editor, InputBox, WebView } from '../..';
+import { Editor, InputBox, WebView } from '../../index.js';
 
 /**
  * Page object for custom editors

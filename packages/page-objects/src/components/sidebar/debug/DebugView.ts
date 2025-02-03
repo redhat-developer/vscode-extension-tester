@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-import { SideBarView } from '../SideBarView';
-import { DebugBreakpointSection } from '../tree/debug/DebugBreakpointSection';
-import { DebugCallStackSection } from '../tree/debug/DebugCallStackSection';
-import { DebugVariableSection } from '../tree/debug/DebugVariablesSection';
-import { WatchSection } from '../tree/debug/WatchSection';
+import { SideBarView } from '../SideBarView.js';
+import { DebugBreakpointSection } from '../tree/debug/DebugBreakpointSection.js';
+import { DebugCallStackSection } from '../tree/debug/DebugCallStackSection.js';
+import { DebugVariableSection } from '../tree/debug/DebugVariablesSection.js';
+import { WatchSection } from '../tree/debug/WatchSection.js';
 
 /**
  * Page object representing the Run/Debug view in the side bar

@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-import { AbstractElement } from '../AbstractElement';
-import { MenuItem } from './MenuItem';
+import { AbstractElement } from '../AbstractElement.js';
+import { MenuItem } from './MenuItem.js';
 
 /**
  * Abstract element representing a menu

@@ -16,7 +16,7 @@
  */
 
 import { WebElement } from 'selenium-webdriver';
-import { AbstractElement } from '../AbstractElement';
+import { AbstractElement } from '../AbstractElement.js';
 
 /**
  * Page Object for Custom Style Modal Dialogs (non-native)

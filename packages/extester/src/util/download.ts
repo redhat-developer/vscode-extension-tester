@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import * as fs from 'fs-extra';
+import fs from 'fs-extra';
 import { promisify } from 'util';
 import stream from 'stream';
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';

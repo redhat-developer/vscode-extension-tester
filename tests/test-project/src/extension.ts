@@ -1,8 +1,8 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { CatScratchEditorProvider } from './catScratchEditor';
-import { CodelensProvider } from './codelensProvider';
-import { TreeView, TreeView2 } from './treeView';
+import { CatScratchEditorProvider } from './catScratchEditor.js';
+import { CodelensProvider } from './codelensProvider.js';
+import { TreeView, TreeView2 } from './treeView.js';
 
 export const ERROR_MESSAGE_COMMAND = 'extension.errorMsg';
 

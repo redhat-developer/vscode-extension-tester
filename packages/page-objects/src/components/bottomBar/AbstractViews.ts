@@ -16,7 +16,7 @@
  */
 
 import { Key } from 'selenium-webdriver';
-import { ElementWithContextMenu } from '../ElementWithContextMenu';
+import { ElementWithContextMenu } from '../ElementWithContextMenu.js';
 
 /**
  * View with channel selector

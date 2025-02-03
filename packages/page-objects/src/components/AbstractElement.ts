@@ -16,7 +16,7 @@
  */
 
 import { WebElement, WebDriver, Locator, until, Key } from 'selenium-webdriver';
-import { Locators } from '../locators/locators';
+import { Locators } from '../locators/locators.js';
 
 /**
  * Default wrapper for webelement

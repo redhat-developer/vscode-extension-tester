@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-import { ElementWithContextMenu } from '../ElementWithContextMenu';
-import { AbstractElement } from '../AbstractElement';
-import { By, SideBarView } from '../..';
+import { ElementWithContextMenu } from '../ElementWithContextMenu.js';
+import { AbstractElement } from '../AbstractElement.js';
+import { By, SideBarView } from '../../index.js';
 
 /**
  * Page object representing the top (title) part of a side bar view

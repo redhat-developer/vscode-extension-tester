@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-import { BottomBarPanel } from '../..';
-import { AbstractElement } from '../AbstractElement';
+import { BottomBarPanel } from '../../index.js';
+import { AbstractElement } from '../AbstractElement.js';
 import { WebElement } from 'selenium-webdriver';
-import { ElementWithContextMenu } from '../ElementWithContextMenu';
+import { ElementWithContextMenu } from '../ElementWithContextMenu.js';
 
 /**
  * Problems view in the bottom panel

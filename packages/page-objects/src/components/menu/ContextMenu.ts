@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Menu, MenuItem } from '../..';
+import { Menu, MenuItem } from '../../index.js';
 import { WebElement, Key, until, error } from 'selenium-webdriver';
 
 /**

@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-import { AbstractElement } from '../../AbstractElement';
+import { AbstractElement } from '../../AbstractElement.js';
 import { Key, WebElement } from 'selenium-webdriver';
-import { NullAttributeError, QuickOpenBox } from '../../..';
+import { NullAttributeError, QuickOpenBox } from '../../../index.js';
 
 /**
  * Abstract page object for input fields

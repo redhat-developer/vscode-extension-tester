@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-import { AbstractElement } from '../AbstractElement';
-import { TitleBar } from '../..';
+import { AbstractElement } from '../AbstractElement.js';
+import { TitleBar } from '../../index.js';
 import { WebElement } from 'selenium-webdriver';
 
 /**

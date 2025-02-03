@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-import { ElementWithContextMenu } from '../ElementWithContextMenu';
-import { AbstractElement } from '../AbstractElement';
+import { ElementWithContextMenu } from '../ElementWithContextMenu.js';
+import { AbstractElement } from '../AbstractElement.js';
 import { By, until, WebElement } from 'selenium-webdriver';
 
 /**

@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-import { Editor } from './Editor';
-import { ContextMenu } from '../menu/ContextMenu';
+import { Editor } from './Editor.js';
+import { ContextMenu } from '../menu/ContextMenu.js';
 import { WebElement, Key, By } from 'selenium-webdriver';
-import { AbstractElement } from '../AbstractElement';
-import { EditorView, EditorGroup } from '../..';
+import { AbstractElement } from '../AbstractElement.js';
+import { EditorView, EditorGroup } from '../../index.js';
 
 /**
  * Page object representing the internal VS Code settings editor

@@ -15,6 +15,6 @@
  * limitations under the License.
  */
 
-import { ElementWithContextMenu } from '../../../ElementWithContextMenu';
+import { ElementWithContextMenu } from '../../../ElementWithContextMenu.js';
 
 export class SectionBreakpoint extends ElementWithContextMenu {}

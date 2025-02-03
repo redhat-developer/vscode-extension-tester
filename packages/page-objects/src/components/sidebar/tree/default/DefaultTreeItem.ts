@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-import { TreeItem } from '../../ViewItem';
-import { TreeSection } from '../TreeSection';
+import { TreeItem } from '../../ViewItem.js';
+import { TreeSection } from '../TreeSection.js';
 import { WebElement } from 'selenium-webdriver';
-import { NullAttributeError } from '../../../../errors/NullAttributeError';
+import { NullAttributeError } from '../../../../errors/NullAttributeError.js';
 
 /**
  * Default tree item base on the items in explorer view

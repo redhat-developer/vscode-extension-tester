@@ -16,9 +16,9 @@
  */
 
 import { WebElement } from 'selenium-webdriver';
-import { TreeSection } from '../TreeSection';
-import { CustomTreeItem } from '../custom/CustomTreeItem';
-import { SectionBreakpoint } from './SectionBreakpoint';
+import { TreeSection } from '../TreeSection.js';
+import { CustomTreeItem } from '../custom/CustomTreeItem.js';
+import { SectionBreakpoint } from './SectionBreakpoint.js';
 
 export class BreakpointSectionItem extends CustomTreeItem {
 	constructor(element: WebElement, viewPart: TreeSection) {

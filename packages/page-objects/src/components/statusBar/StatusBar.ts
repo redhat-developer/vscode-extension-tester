@@ -16,8 +16,8 @@
  */
 
 import { Locator, WebElement, error } from 'selenium-webdriver';
-import { AbstractElement } from '../AbstractElement';
-import { NotificationsCenter } from '../workbench/NotificationsCenter';
+import { AbstractElement } from '../AbstractElement.js';
+import { NotificationsCenter } from '../workbench/NotificationsCenter.js';
 
 /**
  * Page object for the status bar at the bottom

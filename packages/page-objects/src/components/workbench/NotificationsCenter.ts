@@ -16,8 +16,8 @@
  */
 
 import { Key } from 'selenium-webdriver';
-import { AbstractElement } from '../AbstractElement';
-import { Notification, CenterNotification, NotificationType } from './Notification';
+import { AbstractElement } from '../AbstractElement.js';
+import { Notification, CenterNotification, NotificationType } from './Notification.js';
 
 /**
  * Notifications center page object
