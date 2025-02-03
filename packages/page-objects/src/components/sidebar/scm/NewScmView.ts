@@ -20,7 +20,7 @@ import { WebElement, Key } from 'selenium-webdriver';
 import { ContextMenu } from '../../menu/ContextMenu';
 import { ElementWithContextMenu } from '../../ElementWithContextMenu';
 import { TitleActionButton } from '../ViewTitlePart';
-import { compareVersions } from 'compare-versions';
+import { satisfies } from 'compare-versions';
 
 /**
  * New SCM view for code 1.47 onwards
@@ -67,7 +67,7 @@ export class SingleScmProvider extends ScmProvider {
 		let names: string[] = [];
 		const buttons: TitleActionButton[] = [];
 
-		if (compareVersions(ScmProvider.versionInfo.version, '1.93.0') >= 0) {
+		if (satisfies(ScmProvider.versionInfo.version, '>=1.93.0')) {
 			const header = await view.findElement(ScmView.locators.ScmView.sourceControlSection);
 			actions = await header.findElements(ScmProvider.locators.ScmView.action);
 			names = await Promise.all(actions.map(async (action) => await action.getAttribute(ScmProvider.locators.ScmView.actionLabel)));
@@ -83,7 +83,7 @@ export class SingleScmProvider extends ScmProvider {
 
 		const index = names.findIndex((item) => item === title);
 		if (index > -1) {
-			if (compareVersions(ScmProvider.versionInfo.version, '1.93.0') >= 0) {
+			if (satisfies(ScmProvider.versionInfo.version, '>=1.93.0')) {
 				await actions[index].click();
 			} else {
 				await buttons[index].click();

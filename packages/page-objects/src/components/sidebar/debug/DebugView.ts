@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { compareVersions } from 'compare-versions';
+import { satisfies } from 'compare-versions';
 import { SideBarView } from '../SideBarView';
 import { DebugBreakpointSection } from '../tree/debug/DebugBreakpointSection';
 import { DebugCallStackSection } from '../tree/debug/DebugCallStackSection';
@@ -32,7 +32,7 @@ export class DebugView extends SideBarView {
 	 * @deprecated For VS Code 1.88+ this method won't be working any more
 	 */
 	async getLaunchConfiguration(): Promise<string> {
-		if (compareVersions(DebugView.versionInfo.version, '1.87.0') >= 0 && process.platform !== 'darwin') {
+		if (satisfies(DebugView.versionInfo.version, '>=1.87.0') && process.platform !== 'darwin') {
 			throw Error(
 				`DEPRECATED METHOD! The 'DebugView.getLaunchConfiguration' method is broken! Read more information in 'Known Issues > Limitations in testing with VS Code 1.87+' - https://github.com/microsoft/vscode/issues/206897.`,
 			);

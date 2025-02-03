@@ -18,7 +18,7 @@
 import { Key, WebElement } from 'selenium-webdriver';
 import { TreeSection } from '../TreeSection';
 import { CustomTreeItem } from '../custom/CustomTreeItem';
-import { compareVersions } from 'compare-versions';
+import { satisfies } from 'compare-versions';
 
 export class VariableSectionItem extends CustomTreeItem {
 	constructor(element: WebElement, viewPart: TreeSection) {
@@ -49,7 +49,7 @@ export class VariableSectionItem extends CustomTreeItem {
 	 * @deprecated For VS Code 1.88+ this method won't be working any more
 	 */
 	async getVariableNameTooltip(): Promise<string> {
-		if (compareVersions(VariableSectionItem.versionInfo.version, '1.88.0') >= 0) {
+		if (satisfies(VariableSectionItem.versionInfo.version, '>=1.88.0')) {
 			throw Error(`DEPRECATED METHOD! For VS Code 1.88+ this method won't be working any more.`);
 		}
 		const name = await this.findElement(VariableSectionItem.locators.VariableSectionItem.name.constructor);
@@ -62,7 +62,7 @@ export class VariableSectionItem extends CustomTreeItem {
 	 * @deprecated For VS Code 1.89+ this method won't be working any more
 	 */
 	async getVariableValueTooltip(): Promise<string> {
-		if (compareVersions(VariableSectionItem.versionInfo.version, '1.89.0') >= 0) {
+		if (satisfies(VariableSectionItem.versionInfo.version, '>=1.89.0')) {
 			throw Error(`DEPRECATED METHOD! For VS Code 1.89+ this method won't be working any more.`);
 		}
 		const value = await this.findElement(VariableSectionItem.locators.VariableSectionItem.value.constructor);

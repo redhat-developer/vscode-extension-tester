@@ -18,14 +18,14 @@
 import { ActivityBar, ExtensionsViewSection, EditorView, ExtensionsViewItem, VSBrowser, beforeEach, ViewControl } from 'vscode-extension-tester';
 import { expect } from 'chai';
 import pjson from '../../../package.json';
-import { compareVersions } from 'compare-versions';
+import { satisfies } from 'compare-versions';
 
 describe('ExtensionsView', () => {
 	let section: ExtensionsViewSection;
 	let item: ExtensionsViewItem;
 
 	let sectionTitle = 'Enabled';
-	if (VSBrowser.browserName === 'vscode' && compareVersions(VSBrowser.instance.version, '1.48.0') >= 0) {
+	if (VSBrowser.browserName === 'vscode' && satisfies(VSBrowser.instance.version, '>=1.48.0')) {
 		sectionTitle = 'Installed';
 	}
 

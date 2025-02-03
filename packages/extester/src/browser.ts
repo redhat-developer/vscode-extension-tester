@@ -17,7 +17,7 @@
 
 import * as path from 'path';
 import * as fs from 'fs-extra';
-import { compareVersions } from 'compare-versions';
+import { satisfies } from 'compare-versions';
 import { WebDriver, Builder, until, initPageObjects, logging, By, Browser } from '@redhat-developer/page-objects';
 import { Options, ServiceBuilder } from 'selenium-webdriver/chrome';
 import { getLocatorsPath } from '@redhat-developer/locators';
@@ -86,7 +86,7 @@ export class VSBrowser {
 			args.push(`--extensions-dir=${this.extensionsFolder}`);
 		}
 
-		if (compareVersions(this.codeVersion, '1.39.0') < 0) {
+		if (satisfies(this.codeVersion, '<1.39.0')) {
 			if (process.platform === 'win32') {
 				fs.copyFileSync(path.resolve(__dirname, '..', '..', 'resources', 'state.vscdb'), path.join(userSettings, 'globalStorage', 'state.vscdb'));
 			}
@@ -105,7 +105,7 @@ export class VSBrowser {
 
 		const driverBinary = process.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver';
 		let chromeDriverBinaryPath = path.join(this.storagePath, driverBinary);
-		if (compareVersions(this.codeVersion, '1.86.0') >= 0) {
+		if (satisfies(this.codeVersion, '>=1.86.0')) {
 			chromeDriverBinaryPath = path.join(this.storagePath, `chromedriver-${DriverUtil.getChromeDriverPlatform()}`, driverBinary);
 		}
 

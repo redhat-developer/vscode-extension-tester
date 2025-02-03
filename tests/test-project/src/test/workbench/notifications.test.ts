@@ -16,7 +16,7 @@
  */
 
 import { expect } from 'chai';
-import { compareVersions } from 'compare-versions';
+import { satisfies } from 'compare-versions';
 import { NotificationsCenter, Workbench, NotificationType, Notification, until, VSBrowser } from 'vscode-extension-tester';
 
 describe('NotificationsCenter', () => {
@@ -91,7 +91,7 @@ describe('NotificationsCenter', () => {
 		});
 
 		it('getSource returns title of origin', async function () {
-			if (compareVersions(VSBrowser.instance.version, '1.88.0') >= 0) {
+			if (satisfies(VSBrowser.instance.version, '>=1.88.0')) {
 				this.skip();
 			}
 			const source = await notification.getSource();

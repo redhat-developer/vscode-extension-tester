@@ -18,7 +18,7 @@
 import { ElementWithContextMenu } from '../ElementWithContextMenu';
 import { AbstractElement } from '../AbstractElement';
 import { By, until, WebElement } from 'selenium-webdriver';
-import { compareVersions } from 'compare-versions';
+import { satisfies } from 'compare-versions';
 
 /**
  * Available types of notifications
@@ -63,7 +63,7 @@ export abstract class Notification extends ElementWithContextMenu {
 	 * @deprecated For VS Code 1.88+ this method won't be working any more
 	 */
 	async getSource(): Promise<string> {
-		if (compareVersions(Notification.versionInfo.version, '1.88.0') >= 0) {
+		if (satisfies(Notification.versionInfo.version, '>=1.88.0')) {
 			throw Error(`DEPRECATED METHOD! For VS Code 1.88+ this method won't be working any more.`);
 		}
 		await this.expand();

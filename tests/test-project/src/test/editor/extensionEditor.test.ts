@@ -32,7 +32,7 @@ import {
 } from 'vscode-extension-tester';
 import * as pjson from '../../../package.json';
 import * as path from 'path';
-import { compareVersions } from 'compare-versions';
+import { satisfies } from 'compare-versions';
 
 describe('Extension Editor', function () {
 	let driver: WebDriver;
@@ -92,7 +92,7 @@ describe('Extension Editor', function () {
 			expect(await extensionEditor.getName()).equal('Test Project');
 		});
 
-		(compareVersions(VSBrowser.instance.version, '1.96.0') < 0 ? it : it.skip)('getVersion', async function () {
+		(satisfies(VSBrowser.instance.version, '<1.96.0') ? it : it.skip)('getVersion', async function () {
 			expect(await extensionEditor.getVersion()).equal('v0.1.0');
 		});
 
@@ -148,7 +148,7 @@ describe('Extension Editor', function () {
 			expect(await extensionEditorDetails.getMoreInfoItem('Identifier')).equal('extester.extester-test');
 		});
 
-		(compareVersions(VSBrowser.instance.version, '1.96.0') >= 0 ? it : it.skip)('getVersion', async function () {
+		(satisfies(VSBrowser.instance.version, '>=1.96.0') ? it : it.skip)('getVersion', async function () {
 			expect(await extensionEditorDetails.getVersion()).equal('0.1.0');
 		});
 

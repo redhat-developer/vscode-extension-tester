@@ -16,7 +16,7 @@
  */
 
 import { expect } from 'chai';
-import { compareVersions } from 'compare-versions';
+import { satisfies } from 'compare-versions';
 import { QuickOpenBox, Workbench, QuickPickItem, InputBox, StatusBar, EditorView, VSBrowser } from 'vscode-extension-tester';
 
 describe('QuickOpenBox', () => {
@@ -52,7 +52,7 @@ describe('QuickOpenBox', () => {
 		const holder = await input.getPlaceHolder();
 
 		let searchString = `Type '?' to get help`;
-		if (compareVersions(VSBrowser.instance.version, '1.44.0') >= 0) {
+		if (satisfies(VSBrowser.instance.version, '>=1.44.0')) {
 			searchString = 'Search files by name';
 		}
 		expect(holder).has.string(searchString);
@@ -104,7 +104,7 @@ describe('QuickPickItem', () => {
 	it('getIndex returns the index of the item', () => {
 		const index = item.getIndex();
 		let expected = 0;
-		if (compareVersions(VSBrowser.instance.version, '1.44.0') < 0) {
+		if (satisfies(VSBrowser.instance.version, '<1.44.0')) {
 			expected = 1;
 		}
 		expect(index).equals(expected);

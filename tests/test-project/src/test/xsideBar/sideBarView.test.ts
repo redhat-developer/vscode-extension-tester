@@ -33,7 +33,7 @@ import {
 	TreeItem,
 	ViewPanelAction,
 } from 'vscode-extension-tester';
-import { compareVersions } from 'compare-versions';
+import { satisfies } from 'compare-versions';
 
 describe('SideBarView', () => {
 	let view: SideBarView;
@@ -70,7 +70,7 @@ describe('SideBarView', () => {
 
 		it('getActions works', async () => {
 			const actions = await part.getActions();
-			if (compareVersions(VSBrowser.instance.version, '1.47.0') >= 0) {
+			if (satisfies(VSBrowser.instance.version, '>=1.47.0')) {
 				expect(actions).not.empty;
 			} else {
 				expect(actions).empty;

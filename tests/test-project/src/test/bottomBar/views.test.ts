@@ -18,13 +18,12 @@
 import { expect } from 'chai';
 import * as path from 'path';
 import { BottomBarPanel, OutputView, TerminalView, VSBrowser, Workbench } from 'vscode-extension-tester';
-import { compareVersions } from 'compare-versions';
+import { satisfies } from 'compare-versions';
 
 describe('Output View/Text Views', function () {
 	let panel: BottomBarPanel;
 	let view: OutputView;
-	const channelName =
-		compareVersions(VSBrowser.instance.version, '1.72.2') > 0 && compareVersions(VSBrowser.instance.version, '1.74.0') < 0 ? 'Log (Git)' : 'Git';
+	const channelName = satisfies(VSBrowser.instance.version, '>1.72.2 <1.74.0') ? 'Log (Git)' : 'Git';
 
 	before(async function () {
 		this.timeout(25000);
@@ -56,7 +55,7 @@ describe('Output View/Text Views', function () {
 	});
 
 	it('getCurrentChannel returns the selected channel name', async function () {
-		if (process.platform !== 'darwin' && compareVersions(VSBrowser.instance.version, '1.87.0') >= 0) {
+		if (process.platform !== 'darwin' && satisfies(VSBrowser.instance.version, '>=1.87.0')) {
 			this.skip();
 		}
 		const channel = await view.getCurrentChannel();
@@ -65,7 +64,7 @@ describe('Output View/Text Views', function () {
 
 	it('selectChannel works', async function () {
 		this.timeout(10000);
-		if (process.platform !== 'darwin' && compareVersions(VSBrowser.instance.version, '1.87.0') >= 0) {
+		if (process.platform !== 'darwin' && satisfies(VSBrowser.instance.version, '>=1.87.0')) {
 			this.skip();
 		}
 		await view.selectChannel('Tasks');
@@ -90,7 +89,7 @@ describe('Output View/Text Views', function () {
 
 	describe('Terminal View', function () {
 		let terminal: TerminalView;
-		let terminalName = process.platform === 'win32' ? (compareVersions(VSBrowser.instance.version, '1.53.0') >= 0 ? 'pwsh' : 'powershell') : 'bash';
+		let terminalName = process.platform === 'win32' ? (satisfies(VSBrowser.instance.version, '>=1.53.0') ? 'pwsh' : 'powershell') : 'bash';
 
 		before(async function () {
 			this.timeout(15_000);

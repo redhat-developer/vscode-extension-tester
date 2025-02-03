@@ -28,7 +28,7 @@ import { NotificationsCenter } from './NotificationsCenter';
 import { QuickOpenBox } from './input/QuickOpenBox';
 import { SettingsEditor } from '../editor/SettingsEditor';
 import { InputBox } from './input/InputBox';
-import { compareVersions } from 'compare-versions';
+import { satisfies } from 'compare-versions';
 
 /**
  * Handler for general workbench related actions
@@ -137,7 +137,7 @@ export class Workbench extends AbstractElement {
 		const driver = this.getDriver();
 		await driver.actions().keyDown(Workbench.ctlKey).keyDown(Key.SHIFT).sendKeys('p').perform();
 
-		if (compareVersions(Workbench.versionInfo.version, '1.44.0') >= 0) {
+		if (satisfies(Workbench.versionInfo.version, '>=1.44.0')) {
 			return await InputBox.create();
 		}
 		return await QuickOpenBox.create();
