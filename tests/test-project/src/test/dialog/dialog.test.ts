@@ -16,9 +16,10 @@
  */
 
 import { expect } from 'chai';
+import { satisfies } from 'compare-versions';
 import { By, EditorView, InputBox, ModalDialog, TextEditor, until, VSBrowser, after, before, Workbench } from 'vscode-extension-tester';
 
-(VSBrowser.instance.version >= '1.50.0' && process.platform !== 'darwin' ? describe : describe.skip)('Modal Dialog', function () {
+(satisfies(VSBrowser.instance.version, '>=1.50.0') && process.platform !== 'darwin' ? describe : describe.skip)('Modal Dialog', function () {
 	let dialog: ModalDialog;
 
 	before(async () => {

@@ -17,6 +17,7 @@
 
 import { Key } from 'selenium-webdriver';
 import { ElementWithContextMenu } from '../ElementWithContextMenu';
+import { compareVersions } from 'compare-versions';
 
 /**
  * View with channel selector
@@ -52,7 +53,7 @@ export abstract class ChannelView extends ElementWithContextMenu {
 	 * @deprecated For VS Code 1.88+ this method won't be working any more
 	 */
 	async getCurrentChannel(): Promise<string> {
-		if (ChannelView.versionInfo.version >= '1.87.0' && process.platform !== 'darwin') {
+		if (compareVersions(ChannelView.versionInfo.version, '1.87.0') >= 0 && process.platform !== 'darwin') {
 			throw Error(
 				`DEPRECATED METHOD! The 'ChannelView.getCurrentChannel' method is broken! Read more information in 'Known Issues > Limitations in testing with VS Code 1.87+' - https://github.com/microsoft/vscode/issues/206897.`,
 			);

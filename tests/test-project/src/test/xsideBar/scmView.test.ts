@@ -19,8 +19,9 @@ import { ScmView, ActivityBar, ScmProvider, ScmChange, EditorView, VSBrowser, Vi
 import * as path from 'path';
 import { expect } from 'chai';
 import * as fs from 'fs-extra';
+import { satisfies } from 'compare-versions';
 
-(VSBrowser.instance.version >= '1.38.0' ? describe : describe.skip)('SCM View', () => {
+(satisfies(VSBrowser.instance.version, '>=1.38.0') ? describe : describe.skip)('SCM View', () => {
 	let view: ScmView;
 
 	before(async function () {
@@ -57,7 +58,7 @@ import * as fs from 'fs-extra';
 
 		it('getTitle works', async () => {
 			const title = await provider.getTitle();
-			if (VSBrowser.instance.version >= '1.47.0') {
+			if (satisfies(VSBrowser.instance.version, '>=1.47.0')) {
 				expect(title).equals('');
 			} else {
 				expect(title).equals('vscode-extension-tester');
@@ -66,7 +67,7 @@ import * as fs from 'fs-extra';
 
 		it('getType works', async () => {
 			const type = await provider.getType();
-			if (VSBrowser.instance.version >= '1.47.0') {
+			if (satisfies(VSBrowser.instance.version, '>=1.47.0')) {
 				expect(type).equals('');
 			} else {
 				expect(type).equals('Git');

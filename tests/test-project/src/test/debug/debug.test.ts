@@ -36,9 +36,10 @@ import {
 } from 'vscode-extension-tester';
 import * as path from 'path';
 import { expect } from 'chai';
+import { satisfies } from 'compare-versions';
 
 const line = 7;
-const varSub = VSBrowser.instance.version >= '1.91.0' ? 'num =' : 'num:';
+const varSub = satisfies(VSBrowser.instance.version, '>=1.91.0') ? 'num =' : 'num:';
 
 describe('Debugging', function () {
 	process.env.NODE = process.execPath;
@@ -70,7 +71,7 @@ describe('Debugging', function () {
 
 	describe('Debug View', () => {
 		it('getLaunchConfiguration works', async function () {
-			if (process.platform !== 'darwin' && VSBrowser.instance.version >= '1.87.0') {
+			if (process.platform !== 'darwin' && satisfies(VSBrowser.instance.version, '>=1.87.0')) {
 				this.skip();
 			}
 			const config = await view.getLaunchConfiguration();
@@ -84,7 +85,7 @@ describe('Debugging', function () {
 		});
 
 		it('selectLaunchConfiguration works', async function () {
-			if (process.platform !== 'darwin' && VSBrowser.instance.version >= '1.87.0') {
+			if (process.platform !== 'darwin' && satisfies(VSBrowser.instance.version, '>=1.87.0')) {
 				this.skip();
 			}
 			await view.selectLaunchConfiguration('Test Launch2');
@@ -272,7 +273,7 @@ describe('Debugging', function () {
 		});
 
 		it('VariableSectionItem.getVariableNameTooltip', async function () {
-			if (VSBrowser.instance.version >= '1.88.0') {
+			if (satisfies(VSBrowser.instance.version, '>=1.88.0')) {
 				this.skip();
 			}
 			const item = await getNumVariable(view, this.timeout() - 2000);
@@ -280,7 +281,7 @@ describe('Debugging', function () {
 		});
 
 		it('VariableSectionItem.getVariableValueTooltip', async function () {
-			if (VSBrowser.instance.version >= '1.89.0') {
+			if (satisfies(VSBrowser.instance.version, '>=1.89.0')) {
 				this.skip();
 			}
 			const item = await getNumVariable(view, this.timeout() - 2000);
