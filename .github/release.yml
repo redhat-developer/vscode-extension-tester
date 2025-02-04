@@ -5,16 +5,17 @@ changelog:
   categories:
     - title: 🚫 Bugs
       labels:
-        - "bug"
-      exclude:
-        labels:
-          - dependencies
+        - bug
     - title: 🚀 Features
       labels:
-        - "enhancement"
-      exclude:
-        labels:
-          - dependencies
+        - enhancement
+        - feature
+    - title: 🔧 Tasks
+      labels:
+        - task
+    - title: 🔎 Tests
+      labels:
+        - test
     - title: 📦 Dependencies
       labels:
         - dependencies
