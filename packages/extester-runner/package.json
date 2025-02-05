@@ -1,0 +1,388 @@
+{
+  "name": "extester-runner",
+  "displayName": "ExTester Runner",
+  "icon": "resources/logo.png",
+  "description": "Extension for vscode-extension-tester which allow users to run, debug, list tests directly inside VS Code.",
+  "publisher": "ExTester",
+  "preview": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/redhat-developer/vscode-extension-tester.git",
+    "directory": "packages/extester-runner"
+  },
+  "license": "Apache-2.0",
+  "version": "0.0.400",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "walkthroughs": [
+      {
+        "id": "extester-runner.gettingStarted",
+        "title": "Get started with ExTester Runner",
+        "description": "Step-by-step guide to quickly set up and start using ExTester Runner",
+        "steps": [
+          {
+            "id": "setRootOut",
+            "title": "Configure Root and Output Directories",
+            "description": "Set up your test environment by configuring two essential paths:\n\n• [Root Folder](command:workbench.action.openWorkspaceSettings?%22extesterRunner.rootFolder%22) - Where your test files are located\n• [Output Folder](command:workbench.action.openWorkspaceSettings?%22extesterRunner.outputFolder%22) - Where compiled tests are stored\n\nThese settings help ExTester Runner locate and execute your tests correctly.",
+            "media": {
+              "image": "resources/walkthroughs/setOutRoot.png",
+              "altText": "Configure Root and Output directories"
+            },
+            "completionEvents": [
+              "onCommand:workbench.action.openWorkspaceSettings"
+            ]
+          },
+          {
+            "id": "setTestFileGlob",
+            "title": "Configure Test File Pattern",
+            "description": "Set up the pattern that ExTester Runner will use to find your test files using [Test File Pattern](command:workbench.action.openWorkspaceSettings?%22extesterRunner.testFileGlob%22).",
+            "media": {
+              "image": "resources/walkthroughs/setTestFileGlob.png",
+              "altText": "Configure Test File Pattern"
+            },
+            "completionEvents": [
+              "onSettingChanged:extesterRunner.testFileGlob"
+            ]
+          },
+          {
+            "id": "setExcludeGlob",
+            "title": "Configure Excluded Paths",
+            "description": "Specify which paths should be excluded from test file searches using [Exclude Pattern](command:workbench.action.openWorkspaceSettings?%22extesterRunner.excludeGlob%22).",
+            "media": {
+              "image": "resources/walkthroughs/setExcludeGlob.png",
+              "altText": "Configure Excluded Paths"
+            },
+            "completionEvents": [
+              "onSettingChanged:extesterRunner.excludeGlob"
+            ]
+          },
+          {
+            "id": "setIgnorePathPart",
+            "title": "Customize Path Display (Optional)",
+            "description": "Improve test view readability by hiding specific path segments using [Path Display Settings](command:workbench.action.openWorkspaceSettings?%22extesterRunner.ignorePathPart%22).",
+            "media": {
+              "image": "resources/walkthroughs/setIgnorePathPart.png",
+              "altText": "Customize Path Display Settings"
+            },
+            "completionEvents": [
+              "onCommand:workbench.action.openWorkspaceSettings"
+            ]
+          },
+          {
+            "id": "additionalArgs",
+            "title": "Additional Arguments (Optional)",
+            "description": "Configure additional command line arguments to pass to ExTester using [Additional Arguments](command:workbench.action.openWorkspaceSettings?%22extesterRunner.additionalArgs%22). These arguments will be appended to the extest setup-and-run command. Learn more about available arguments in the [ExTester documentation](https://github.com/redhat-developer/vscode-extension-tester/wiki/Test-Setup#set-up-and-run-tests).",
+            "media": {
+              "image": "resources/walkthroughs/additionalArgs.png",
+              "altText": "Additional Arguments"
+            },
+            "completionEvents": [
+              "onCommand:workbench.action.openWorkspaceSettings"
+            ]
+          },
+          {
+            "id": "setOther",
+            "title": "Additional Configuration Options",
+            "description": "Discover more ways to customize ExTester Runner in the [Settings Panel](command:workbench.action.openWorkspaceSettings?%22extesterRunner%22).",
+            "media": {
+              "image": "resources/walkthroughs/setOther.png",
+              "altText": "Additional Configuration Options"
+            },
+            "completionEvents": [
+              "onCommand:workbench.action.openWorkspaceSettings"
+            ]
+          }
+        ]
+      }
+    ],
+    "taskDefinitions": [
+      {
+        "type": "extester-runner-task",
+        "required": [],
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "ExTester runner tasks definitions."
+          }
+        }
+      }
+    ],
+    "colors": [
+      {
+        "id": "extesterrunner.only",
+        "description": "The color used for the 'only' modifier.",
+        "defaults": {
+          "light": "#42A5F5",
+          "dark": "#64B5F6",
+          "highContrast": "#00BFFF"
+        }
+      },
+      {
+        "id": "extesterrunner.skip",
+        "description": "The color used for the 'skip' modifier.",
+        "defaults": {
+          "light": "#FFA726",
+          "dark": "#FFB74D",
+          "highContrast": "#FF8C00"
+        }
+      }
+    ],
+    "configuration": [
+      {
+        "title": "View",
+        "properties": {
+          "extesterRunner.testFileGlob": {
+            "type": "string",
+            "default": "**/ui-test/**/*.test.ts",
+            "scope": "resource",
+            "order": 0,
+            "markdownDescription": "Glob pattern to locate test files in the workspace. Default: `**/ui-test/**/*.test.ts`."
+          },
+          "extesterRunner.excludeGlob": {
+            "type": "string",
+            "default": "**/node_modules/**",
+            "scope": "resource",
+            "order": 1,
+            "markdownDescription": "Glob pattern to exclude specific paths from test file search. Default: `**/node_modules/**`."
+          },
+          "extesterRunner.ignorePathPart": {
+            "type": "string",
+            "scope": "resource",
+            "order": 2,
+            "markdownDescription": "Pattern to hide specific segments of folder paths in the test view. Matching parts will be removed from displayed paths."
+          }
+        }
+      },
+      {
+        "title": "Command Line",
+        "properties": {
+          "extesterRunner.outputFolder": {
+            "type": "string",
+            "scope": "resource",
+            "default": "out",
+            "order": 0,
+            "markdownDescription": "Specifies the output directory for compiled test files. Default: `out`. This setting is used to locate the JavaScript files generated from your TypeScript test files."
+          },
+          "extesterRunner.rootFolder": {
+            "type": "string",
+            "scope": "resource",
+            "order": 1,
+            "markdownDescription": "Defines the root source directory containing your TypeScript test files. Can be left empty. When specified, this path segment will be ignored when mapping from source to output directory (e.g., if root is `src` and output is `out`, `src/tests/file.ts` will map to `out/tests/file.js`)."
+          },
+          "extesterRunner.tempFolder": {
+            "type": "string",
+            "scope": "resource",
+            "order": 2,
+            "markdownDescription": "Specifies the directory for temporary files used by ExTester. If undefined, the default system temporary folder is used. This setting overrides any corresponding [environment variables](https://github.com/redhat-developer/vscode-extension-tester/wiki/Test-Setup#useful-env-variables)."
+          },
+          "extesterRunner.visualStudioCode.Version": {
+            "type": "string",
+            "default": "max",
+            "scope": "resource",
+            "order": 3,
+            "markdownDescription": "Specifies the VS Code version. Options: `max`, `min`, `latest`, or a specific version (e.g., `1.97.1`). Default: `max` (max version supported by ExTester). This setting overrides any corresponding [environment variables](https://github.com/redhat-developer/vscode-extension-tester/wiki/Test-Setup#useful-env-variables)."
+          },
+          "extesterRunner.visualStudioCode.Type": {
+            "type": "string",
+            "enum": [
+              "stable",
+              "insider"
+            ],
+            "default": "stable",
+            "scope": "resource",
+            "order": 4,
+            "markdownDescription": "Defines the VS Code distribution. Use `stable` (default) for the official, fully tested release with monthly updates, or `insider` for a preview version with daily updates and experimental features (potentially unstable). See [VS Code Insiders page](https://code.visualstudio.com/insiders/) for more info. This setting overrides any corresponding [environment variables](https://github.com/redhat-developer/vscode-extension-tester/wiki/Test-Setup#useful-env-variables)."
+          },
+          "extesterRunner.additionalArgs": {
+            "type": "array",
+            "default": [],
+            "scope": "resource",
+            "items": {
+              "type": "string"
+            },
+            "order": 5,
+            "markdownDescription": "Additional arguments for the ExTester `setup-and-run` command.\n\nSee [ExTester wiki](https://github.com/redhat-developer/vscode-extension-tester/wiki/Test-Setup#set-up-and-run-tests) for more details."
+          }
+        }
+      },
+      {
+        "title": "Logs",
+        "properties": {
+          "extesterRunner.hideEmptyLogFolders": {
+            "type": "boolean",
+            "default": true,
+            "order": 0,
+            "markdownDescription": "Hides empty log directories in the test results. If enabled (`true`), only folders containing any log files will be displayed. If disabled (`false`), all log folders, including empty ones, will be visible."
+          }
+        }
+      }
+    ],
+    "commands": [
+      {
+        "command": "extester-runner.runFile",
+        "icon": "$(play)",
+        "title": "Run File",
+        "tooltip": "Run specific test file.",
+        "category": "ExTester Runner"
+      },
+      {
+        "command": "extester-runner.runFolder",
+        "icon": "$(run-below)",
+        "title": "Run Folder",
+        "tooltip": "Run all test files inside folder.",
+        "category": "ExTester Runner"
+      },
+      {
+        "command": "extester-runner.runAll",
+        "title": "Run All Tests",
+        "icon": "$(run-all)",
+        "tooltip": "Run all tests in workspace.",
+        "category": "ExTester Runner"
+      },
+      {
+        "command": "extester-runner.refreshTests",
+        "title": "Refresh Tests",
+        "icon": "$(refresh)",
+        "tooltip": "Refresh list of tests.",
+        "category": "ExTester Runner"
+      },
+      {
+        "command": "extester-runner.refreshLogs",
+        "title": "Refresh Logs",
+        "icon": "$(refresh)",
+        "tooltip": "Refresh list of logs.",
+        "category": "ExTester Runner"
+      },
+      {
+        "command": "extester-runner.refreshScreenshots",
+        "title": "Refresh Screenshots",
+        "icon": "$(refresh)",
+        "tooltip": "Refresh list of screenshots.",
+        "category": "ExTester Runner"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "extesterRunner",
+          "title": "ExTester Runner",
+          "icon": "resources/logo.png"
+        }
+      ]
+    },
+    "views": {
+      "extesterRunner": [
+        {
+          "id": "extesterView",
+          "name": "UI Tests",
+          "initialSize": 2,
+          "icon": ""
+        },
+        {
+          "id": "extesterResourcesScreenshotsView",
+          "name": "Screenshots",
+          "initialSize": 1,
+          "icon": ""
+        },
+        {
+          "id": "extesterResourcesLogsView",
+          "name": "Logs",
+          "initialSize": 1,
+          "icon": ""
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "extester-runner.refreshTests",
+          "when": "view == extesterView",
+          "group": "navigation@1"
+        },
+        {
+          "command": "extester-runner.runAll",
+          "when": "view == extesterView && extesterRunner.hasTestFiles",
+          "group": "navigation@2"
+        },
+        {
+          "command": "extester-runner.refreshLogs",
+          "when": "view == extesterResourcesLogsView",
+          "group": "navigation@1"
+        },
+        {
+          "command": "extester-runner.refreshScreenshots",
+          "when": "view == extesterResourcesScreenshotsView",
+          "group": "navigation@1"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "extester-runner.runFolder",
+          "when": "view == extesterView && viewItem == folder",
+          "group": "inline"
+        },
+        {
+          "command": "extester-runner.runFile",
+          "when": "view == extesterView && viewItem == file",
+          "group": "inline"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "extester-runner.runFile",
+          "when": "false"
+        },
+        {
+          "command": "extester-runner.runFolder",
+          "when": "false"
+        },
+        {
+          "command": "extester-runner.runAll",
+          "when": "false"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "npm run check-types && npm run lint && node esbuild.js",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "package": "npm run check-types && npm run lint && node esbuild.js --production",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/babel__traverse": "^7.20.6",
+    "@types/mocha": "^10.0.9",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.96.0",
+    "@typescript-eslint/eslint-plugin": "^8.10.0",
+    "@typescript-eslint/parser": "^8.7.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1",
+    "esbuild": "^0.24.0",
+    "eslint": "^9.13.0",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "@babel/parser": "^7.26.7",
+    "@babel/traverse": "^7.26.7",
+    "@babel/types": "^7.26.7"
+  }
+}
