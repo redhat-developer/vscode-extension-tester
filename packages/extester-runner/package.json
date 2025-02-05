@@ -1,0 +1,229 @@
+{
+  "name": "extester-runner",
+  "displayName": "ExTester Runner",
+  "icon": "resources/logo.png",
+  "description": "Extension for vscode-extension-tester which allow users to run, debug, list tests directly inside VS Code.",
+  "publisher": "ExTester",
+  "preview": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/redhat-developer/vscode-extension-tester.git",
+    "directory": "packages/extester-runner"
+  },
+  "license": "Apache-2.0",
+  "version": "0.0.160",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "taskDefinitions": [
+      {
+        "type": "extester-runner-task",
+        "required": [],
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "ExTester runner tasks definitions."
+          }
+        }
+      }
+    ],
+    "colors": [
+      {
+        "id": "extesterrunner.only",
+        "description": "The color used for the 'only' modifier.",
+        "defaults": {
+          "light": "#42A5F5",
+          "dark": "#64B5F6",
+          "highContrast": "#00BFFF"
+        }
+      },
+      {
+        "id": "extesterrunner.skip",
+        "description": "The color used for the 'skip' modifier.",
+        "defaults": {
+          "light": "#FFA726",
+          "dark": "#FFB74D",
+          "highContrast": "#FF8C00"
+        }
+      }
+    ],
+    "configuration": [
+      {
+        "title": "View",
+        "properties": {
+          "extesterRunner.testFileGlob": {
+            "type": "string",
+            "default": "**/ui-test/**/*.test.ts",
+            "scope": "resource",
+            "markdownDescription": "Glob pattern to locate test files in the workspace. Default: `**/ui-test/**/*.test.ts`."
+          },
+          "extesterRunner.excludeGlob": {
+            "type": "string",
+            "default": "**/node_modules/**",
+            "scope": "resource",
+            "markdownDescription": "Glob pattern to exclude specific paths from test file search. Default: `**/node_modules/**`."
+          },
+          "extesterRunner.ignorePathPart": {
+            "type": "string",
+            "scope": "resource",
+            "markdownDescription": "Pattern to hide specific segments of folder paths in the test view. Matching parts will be removed from displayed paths."
+          }
+        }
+      },
+      {
+        "title": "Command Line",
+        "properties": {
+          "extesterRunner.TSConfig": {
+            "type": "string",
+            "scope": "resource",
+            "default": "tsconfig.json",
+            "markdownDescription": "Specifies the TypeScript configuration file used for compilation. Default: `tsconfig.json`. This setting is used to determine `outDir` and `rootDir` from the TypeScript project configuration."
+          },
+          "extesterRunner.outFolder": {
+            "type": "string",
+            "scope": "resource",
+            "markdownDescription": "Defines the output directory (`outDir`) where compiled JavaScript files are stored after TypeScript transpilation. If not explicitly set, the value is derived from `tsconfig.json` (if available). If `outDir` is undefined in both, `out` is used."
+          },
+          "extesterRunner.rootFolder": {
+            "type": "string",
+            "scope": "resource",
+            "markdownDescription": "Specifies the root directory (`rootDir`) of the TypeScript source files. If not explicitly set, the value is derived from `tsconfig.json` (if available). If `rootDir` is undefined, TypeScript infers it automatically."
+          },
+          "extesterRunner.visualStudioCode.Version": {
+            "type": "string",
+            "default": "max",
+            "scope": "resource",
+            "markdownDescription": "Specifies the VS Code version. Options: `max`, `min`, `latest`, or a specific version (e.g., `1.97.1`). Default: `max` (max version supported by ExTester). This setting overrides any corresponding [environment variables](https://github.com/redhat-developer/vscode-extension-tester/wiki/Test-Setup#useful-env-variables)."
+          },
+          "extesterRunner.visualStudioCode.Type": {
+            "type": "string",
+            "enum": [
+              "stable",
+              "insider"
+            ],
+            "default": "stable",
+            "scope": "resource",
+            "markdownDescription": "Defines the VS Code distribution. Use `stable` (default) for the official, fully tested release with monthly updates, or `insider` for a preview version with daily updates and experimental features (potentially unstable). See [VS Code Insiders page](https://code.visualstudio.com/insiders/) for more info. This setting overrides any corresponding [environment variables](https://github.com/redhat-developer/vscode-extension-tester/wiki/Test-Setup#useful-env-variables)."
+          },
+          "extesterRunner.additionalArgs": {
+            "type": "array",
+            "markdownDescription": "Additional arguments for the ExTester `setup-and-run` command.\n\nSee [ExTester wiki](https://github.com/redhat-developer/vscode-extension-tester/wiki/Test-Setup#set-up-and-run-tests) for more details.",
+            "default": [],
+            "scope": "resource",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    ],
+    "commands": [
+      {
+        "command": "extester-runner.refreshTests",
+        "title": "Refresh Tests",
+        "icon": "$(refresh)",
+        "tooltip": "Refresh list of tests."
+      },
+      {
+        "command": "extester-runner.runFile",
+        "icon": "$(play)",
+        "title": "Run File",
+        "tooltip": "Run specific test file."
+      },
+      {
+        "command": "extester-runner.runAll",
+        "title": "Run All Tests",
+        "icon": "$(run-all)",
+        "tooltip": "Run all tests in workspace."
+      },
+      {
+        "command": "extester-runner.runFolder",
+        "icon": "$(run-below)",
+        "title": "Run Folder",
+        "tooltip": "Run all test files inside folder."
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "extesterRunner",
+          "title": "ExTester Runner",
+          "icon": "resources/logo.png"
+        }
+      ]
+    },
+    "views": {
+      "extesterRunner": [
+        {
+          "id": "extesterView",
+          "name": "UI Tests"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "extester-runner.refreshTests",
+          "when": "view == extesterView",
+          "group": "navigation@1"
+        },
+        {
+          "command": "extester-runner.runAll",
+          "when": "view == extesterView && extesterRunner.hasTestFiles",
+          "group": "navigation@2"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "extester-runner.runFolder",
+          "when": "view == extesterView && viewItem == folder",
+          "group": "inline"
+        },
+        {
+          "command": "extester-runner.runFile",
+          "when": "view == extesterView && viewItem == file",
+          "group": "inline"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "npm run check-types && npm run lint && node esbuild.js",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "package": "npm run check-types && npm run lint && node esbuild.js --production",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/babel__traverse": "^7.20.6",
+    "@types/mocha": "^10.0.9",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.96.0",
+    "@typescript-eslint/eslint-plugin": "^8.10.0",
+    "@typescript-eslint/parser": "^8.7.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1",
+    "esbuild": "^0.24.0",
+    "eslint": "^9.13.0",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "@babel/parser": "^7.26.7",
+    "@babel/traverse": "^7.26.7",
+    "@babel/types": "^7.26.7"
+  }
+}
