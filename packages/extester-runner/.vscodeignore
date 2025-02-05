@@ -1,0 +1,14 @@
+# Ignore unnecessary files
+node_modules/**
+.vscode/
+.git/
+.github/
+tests/
+src/
+out/
+dist/**/*.map
+esbuild.js
+eslint.config.mjs
+tsconfig.json
+../**
+../../**
