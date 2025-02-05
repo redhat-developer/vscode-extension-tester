@@ -1,0 +1,105 @@
+** UI Tests view **
+ExTester Runner view is available
+Folder structure from explorer is available inside Test Explorer
+    - only folders with with at least one test matching pattern are listed
+    - if no folder nor file is available, info message is showed inside TreeView
+Folders contains test files matching prescription
+Folders are listed with icon folder in white color
+Files inside folder are parsed
+Files are listed with icon file in white color
+Clicking on filename opens file in editor on line 0
+Test structure (describe, it) is available for individual files
+    - if file don't have any describe or it, expand button is not available
+    - if describe or it has variable (like ${foo}) inside name, this variable is processed as string
+Describes are listed with icon bracket in white color
+    - if modifier skip is present, icon has (x) and orange color and name contains [skip]
+    - if modifier only is present, icon has dot and blue color and name contains [only]
+    - if describe doesn't have any describe or it, expand button is not available
+It are listed with icon variable in white color
+    - if modifier skip is present icon has orange color and name contains [skip]
+    - if modifier only is present, icon has blue color and name contains [only]
+Inherit for modifier is working as following: 
+    - if describe has modifier skip, all it's inside are shown in orange color but don't have [skip] in test name
+    - if describe has modifier skip, all it's inside are shown in blue color but don't have [only] in test name
+    - own modifier of it inside this scope has priority (overrides the describe one)
+Clicking on describe or it opens editor on line of occurrence
+Collapse All button is available
+    - if no folder nor file is present, button is not clickable
+Clicking on Collapse All button actually collapse all folders and files
+New file matching pattern is created, explorer will update itself
+File matching pattern is deleted, explorer will update itself
+File matching pattern is Changed, explorer will update itself
+Clicking on Refresh Test buttons will update explorer manually
+Run All button is available
+    - if no folder nor file is present, button is not available
+Each folder has Run Folder button available on hover
+Each file has Run File button available on hover
+Run All button executes all tests
+Run Folder button executes all tests inside folder
+Run File button executes only one file
+
+** Logs view **
+Folder structure from logs is available inside
+    - all folders are listed
+    - empty folders don't have expand button
+    - if no folder nor file is available, info message is showed inside TreeView
+Clicking on filename opens file in editor on line 0
+If new file/folder is created, explorer will update itself
+If file/folder is deleted, explorer will update itself
+If file/folder is changed, explorer will update itself
+Clicking on Refresh Test buttons will update explorer manually
+Collapse All button is available
+    - if no folder nor file is present, button is not clickable [TODO]
+
+** Screenshots view **
+Screenshots structure from logs is available inside
+    - if no screenshot is available, info message is showed inside TreeView
+Clicking on filename opens screenshot
+If new screenshot is created, explorer will update itself
+If screenshot is deleted, explorer will update itself
+If screenshot is changed, explorer will update itself
+Clicking on Refresh Screenshots buttons will update explorer manually
+
+** Settings ** 
+Settings are split into two categories - View Settings and Command Line Settings
+View settings:
+    Exclude glob is excluding path from test file search
+    Ignore Path Part removes part of string from folders (/src/test/abcd can be presented as abcd only)
+    Test File Glob specifies prescription for file searching
+Command Line Settings:
+    Adding additional args will add this arguments to setup-and-run command
+        - they're added "as it is" so it's recommended to add single quotes to paths
+    Out folder is used for test execution
+        - value is used to create path for running tests
+        - 'out' is default value
+    Root folder specifies root directory
+        - may be undefinde
+        - basically it's the part removed from path of .ts file while creating output .js path
+    Temp Folder: 
+        - if empty, default TMP_DIR location is used
+        - if env. variable is set, then it's used (but this part is handled by ExTester, not by Runner!)
+        - if there's path, then it's used
+    VS Code type changes type used for execution
+    VS Code version changes version used for execution
+Logs View settings:
+    Hide Empty Log Folders:
+        - when active, only folders with content are showed in Logs view
+Walkthrought: 
+    Configure Root and Output Directories
+        - links leads to relative workspace setting
+    Configure Test File Pattern
+        - links leads to relative workspace setting
+    Configure Excluded Paths
+        - links leads to relative workspace setting
+    Customize Path Display
+        - links leads to relative workspace setting
+    Additional Arguments
+        - links leads to relative workspace setting
+    Addiutional Configuration Options
+        - links leads to relative workspace setting
+
+** Issues **
+Walkthrought is automatically showed only at first install, when extension is reinstalled, no walkthrought is showed (but it's accesible manually).
+
+** To improve **
+Configuration of root and out can be read from tsconfig.json. 
