@@ -29,7 +29,7 @@ export class Unpack {
 						src: input.toString(),
 						dest: target.toString(),
 					},
-					(err: string | Error | null) => {
+					(err: string | Error | null | undefined) => {
 						if (err) {
 							const errWho = err instanceof Error ? err : new Error(err);
 							reject(errWho);
