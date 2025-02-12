@@ -25,6 +25,9 @@ const contents = await welcome.getContents();
 // get all buttons
 const btns = await welcome.getButtons();
 
+// get specific button
+const btn = await welcome.getButton("title");
+
 // get paragraphs as strings in a list
 const text = await welcome.getTextSections();
 ```

@@ -77,6 +77,22 @@ export class WelcomeContentSection extends AbstractElement {
 		);
 	}
 
+	/**
+	 * Returns a specific button from the welcome view that matches the given title.
+	 * @param title The title of the button to search for.
+	 * @returns A `WelcomeContentButton` if found, otherwise `undefined`.
+	 */
+	public async getButton(title: string): Promise<WelcomeContentButton | undefined> {
+		const buttons = await this.getButtons();
+		for (const elem of buttons) {
+			const button = new WelcomeContentButton(elem, this);
+			if ((await button.getTitle()) === title) {
+				return button;
+			}
+		}
+		return undefined;
+	}
+
 	/** Finds all buttons in the welcome content */
 	public async getButtons(): Promise<WelcomeContentButton[]> {
 		return (await this.findElements(WelcomeContentSection.locators.WelcomeContent.button)).map((elem) => new WelcomeContentButton(elem, this));

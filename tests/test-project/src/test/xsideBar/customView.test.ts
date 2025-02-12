@@ -158,10 +158,10 @@ describe('CustomTreeSection', () => {
 	describe('WelcomeContentButton', () => {
 		it('takeAction executes the command', async function () {
 			this.timeout(10000);
-			const buttons = await ((await emptyViewSection.findWelcomeContent()) as WelcomeContentSection).getButtons();
-			await buttons[0].click();
-
 			await new Promise((res) => setTimeout(res, 500));
+			const button = await ((await emptyViewSection.findWelcomeContent()) as WelcomeContentSection).getButton('Add stuff into this View');
+			expect(button).to.be.not.be.undefined;
+			await button?.click();
 			expect(await emptyViewSection.findWelcomeContent()).to.equal(undefined);
 		});
 	});
