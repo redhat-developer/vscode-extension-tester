@@ -301,6 +301,7 @@ const sideBar = {
 		titleText: 'textContent',
 		header: By.className('panel-header'),
 		headerExpanded: 'aria-expanded',
+		headerCollapseExpandButton: By.className('twisty-container'),
 		actions: By.className('actions'),
 		actionConstructor: (label: string) => By.xpath(`.//a[contains(@class, 'action-label') and @role='button' and @title='${label}']`),
 		button: By.xpath(`.//a[@role='button']`),

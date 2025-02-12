@@ -18,9 +18,9 @@ const section = await new SideBarView().getContent().getSection('workspace');
 // get the section title
 const title = section.getTitle();
 // collapse section if possible
-await section.collapse();
+await section.collapse(timeout: ms);
 // expand if possible
-await section.expand();
+await section.expand(timeout: ms);
 // find if section is expanded
 const expanded = await section.isExpanded();
 ```

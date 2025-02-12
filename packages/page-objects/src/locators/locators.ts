@@ -302,6 +302,7 @@ export interface Locators {
 		titleText: string;
 		header: By;
 		headerExpanded: string;
+		headerCollapseExpandButton: By;
 		actions: By;
 		actionConstructor: (label: string) => By;
 		button: By;

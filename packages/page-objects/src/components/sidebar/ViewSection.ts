@@ -46,14 +46,15 @@ export abstract class ViewSection extends AbstractElement {
 	 * Expand the section if collapsed
 	 * @returns Promise resolving when the section is expanded
 	 */
-	async expand(): Promise<void> {
+	async expand(timeout: number = 1_000): Promise<void> {
 		if (await this.isHeaderHidden()) {
 			return;
 		}
 		if (!(await this.isExpanded())) {
-			const panel = await this.findElement(ViewSection.locators.ViewSection.header);
-			await panel.click();
-			await this.getDriver().wait(waitForAttributeValue(panel, ViewSection.locators.ViewSection.headerExpanded, 'true'), 1000);
+			const header = await this.findElement(ViewSection.locators.ViewSection.header);
+			const collapseExpandButton = await header.findElement(ViewSection.locators.ViewSection.headerCollapseExpandButton);
+			await collapseExpandButton.click();
+			await this.getDriver().wait(waitForAttributeValue(header, ViewSection.locators.ViewSection.headerExpanded, 'true'), timeout);
 		}
 	}
 
@@ -61,14 +62,15 @@ export abstract class ViewSection extends AbstractElement {
 	 * Collapse the section if expanded
 	 * @returns Promise resolving when the section is collapsed
 	 */
-	async collapse(): Promise<void> {
+	async collapse(timeout: number = 1_000): Promise<void> {
 		if (await this.isHeaderHidden()) {
 			return;
 		}
 		if (await this.isExpanded()) {
-			const panel = await this.findElement(ViewSection.locators.ViewSection.header);
-			await panel.click();
-			await this.getDriver().wait(waitForAttributeValue(panel, ViewSection.locators.ViewSection.headerExpanded, 'false'), 1000);
+			const header = await this.findElement(ViewSection.locators.ViewSection.header);
+			const collapseExpandButton = await header.findElement(ViewSection.locators.ViewSection.headerCollapseExpandButton);
+			await collapseExpandButton.click();
+			await this.getDriver().wait(waitForAttributeValue(header, ViewSection.locators.ViewSection.headerExpanded, 'false'), timeout);
 		}
 	}
 
