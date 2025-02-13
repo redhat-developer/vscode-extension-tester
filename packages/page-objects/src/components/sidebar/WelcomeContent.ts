@@ -54,7 +54,7 @@ export class WelcomeContentButton extends AbstractElement {
 export class WelcomeContentSection extends AbstractElement {
 	/**
 	 * @param panel  The panel containing the welcome content.
-	 * @param parent  The webelement in which the welcome content is embedded.
+	 * @param parent  The webElement in which the welcome content is embedded.
 	 */
 	constructor(panel: WebElement, parent: ViewSection) {
 		super(panel, parent);
@@ -75,6 +75,21 @@ export class WelcomeContentSection extends AbstractElement {
 				}
 			}),
 		);
+	}
+
+	/**
+	 * Returns a specific button from the welcome view that matches the given title.
+	 * @param title The title of the button to search for.
+	 * @returns A `WelcomeContentButton` if found, otherwise `undefined`.
+	 */
+	public async getButton(title: string): Promise<WelcomeContentButton | undefined> {
+		const buttons = await this.getButtons();
+		for (const btn of buttons) {
+			if ((await btn.getTitle()) === title) {
+				return btn;
+			}
+		}
+		return undefined;
 	}
 
 	/** Finds all buttons in the welcome content */
