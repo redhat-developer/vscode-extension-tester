@@ -19,97 +19,121 @@ import { expect } from 'chai';
 import { BottomBarPanel, By, CustomTreeSection, EditorView, SideBarView, VSBrowser, WebviewView, Workbench } from 'vscode-extension-tester';
 
 describe('WebviewViews', function () {
-	const params = [
-		{
-			title: 'BottomBar',
-			command: 'My Panel: Focus on My Panel View View',
-			container: () => new BottomBarPanel(),
-			closePanel: true,
-			closeSection: false,
-			h1: 'Shopping List',
-			li0: 'Apple',
-			li1: 'Banana',
-		},
-		{
-			title: 'SideBar',
-			command: 'Explorer: Focus on My Side Panel View View',
-			closePanel: false,
-			closeSection: true,
-			container: () => new SideBarView(),
-			h1: 'Shopping Side List',
-			li0: 'Side Apple',
-			li1: 'Side Banana',
-		},
-	];
+	let webviewView: InstanceType<typeof WebviewView>;
+	function runTests(title: string, li: string[]) {
+		it(`Shopping List Title ${title}`, async () => {
+			const element = await webviewView.findWebElement(By.css('h1'));
+			expect(await element.getText()).has.string(title);
+		});
+
+		it(`Shopping List Equals ${li.join(', ')} `, async () => {
+			const elts = await webviewView.findWebElements(By.xpath('//div/ul/li'));
+			expect(elts.length).equals(li.length);
+			const listContent: string[] = [];
+			await Promise.all(
+				elts.map(async (elt) => {
+					listContent.push(await elt.getText());
+				}),
+			);
+			expect(listContent).to.eql(li);
+		});
+	}
+
+	async function closeBottomPanel() {
+		await VSBrowser.instance.driver.wait(
+			async function () {
+				try {
+					await new BottomBarPanel().toggle(false);
+					return true;
+				} catch (err) {
+					// Dismiss "Linux subsystem for Windows available" notification to avoid the error: "ElementClickInterceptedError"
+					const notifications = await new Workbench().getNotifications();
+					if (process.platform === 'win32' && notifications.length > 0) {
+						await notifications[0].dismiss();
+					}
+					return false;
+				}
+			},
+			10000,
+			undefined,
+			1000,
+		);
+	}
+
+	async function closeSidePanel() {
+		const section = (await new SideBarView().getContent().getSection('My Side Panel View')) as CustomTreeSection;
+		await section.collapse();
+	}
 
 	after(async function () {
 		await new EditorView().closeAllEditors();
 	});
 
-	params.forEach(function (param) {
-		describe(`${param.title} WebviewViews`, function () {
-			let webviewView: InstanceType<typeof WebviewView>;
+	describe('BottomBar WebviewViews', async () => {
+		before(async () => {
+			this.timeout(10000);
+			await new Workbench().executeCommand('My Panel: Focus on My Panel View View');
+			await new Promise((res) => setTimeout(res, 2000));
+			webviewView = new WebviewView(new BottomBarPanel());
+			await webviewView.switchToFrame(5000);
+		});
+		after(async () => {
+			await webviewView.switchBack();
+			await closeBottomPanel();
+		});
 
-			before(async function () {
-				this.timeout(10000);
-				await new Workbench().executeCommand(param.command);
-				await new Promise((res) => setTimeout(res, 2000));
-				webviewView = new WebviewView(param.container());
+		runTests('Shopping List', ['Apple', 'Banana']);
+	});
+
+	describe('Sidebar WebviewViews', function () {
+		before(async () => {
+			this.timeout(10000);
+			await new Workbench().executeCommand('Explorer: Focus on My Side Panel View View');
+			await new Promise((res) => setTimeout(res, 2000));
+			webviewView = new WebviewView(new SideBarView());
+			await webviewView.switchToFrame(5000);
+		});
+		after(async () => {
+			await webviewView.switchBack();
+			await closeSidePanel();
+		});
+
+		runTests('Shopping Side List', ['Side Apple', 'Side Banana']);
+	});
+
+	describe('Sidebar And BottomBar WebviewViews', function () {
+		before(async () => {
+			this.timeout(10000);
+			await new Workbench().executeCommand('My Panel: Focus on My Panel View View');
+			await new Workbench().executeCommand('Explorer: Focus on My Side Panel View View');
+			await new Promise((res) => setTimeout(res, 2000));
+		});
+		after(async () => {
+			await closeSidePanel();
+			await closeBottomPanel();
+		});
+
+		describe('Shopping List Sidebar', async () => {
+			before(async () => {
+				webviewView = new WebviewView(new SideBarView());
 				await webviewView.switchToFrame(5000);
 			});
 
-			after(async function () {
-				if (webviewView) {
-					await webviewView.switchBack();
-				}
-				if (param.closePanel) {
-					await VSBrowser.instance.driver.wait(
-						async function () {
-							try {
-								await new BottomBarPanel().toggle(false);
-								return true;
-							} catch (err) {
-								// Dismiss "Linux subsystem for Windows available" notification to avoid the error: "ElementClickInterceptedError"
-								const notifications = await new Workbench().getNotifications();
-								if (process.platform === 'win32' && notifications.length > 0) {
-									await notifications[0].dismiss();
-								}
-								return false;
-							}
-						},
-						10000,
-						undefined,
-						1000,
-					);
-				}
-				if (param.closeSection) {
-					const section = (await new SideBarView().getContent().getSection('My Side Panel View')) as CustomTreeSection;
-					await section.collapse();
-				}
+			after(async () => {
+				await webviewView.switchBack();
+			});
+			runTests('Shopping Side List', ['Side Apple', 'Side Banana']);
+		});
+		describe('Shopping List Bottombar', async () => {
+			before(async () => {
+				webviewView = new WebviewView(new BottomBarPanel());
+				await webviewView.switchToFrame(5000);
 			});
 
-			it('findWebElement works', async function () {
-				const element = await webviewView.findWebElement(By.css('h1'));
-				expect(await element.getText()).has.string(param.h1);
+			after(async () => {
+				await webviewView.switchBack();
 			});
-
-			it('findWebElements works', async function () {
-				const elements = await webviewView.findWebElements(By.css('li'));
-				expect(elements.length).equals(2);
-			});
-
-			it('contains Apple and Banana', async function () {
-				const elts = await webviewView.findWebElements(By.xpath('//div/ul/li'));
-				const listContent: string[] = [];
-				await Promise.all(
-					elts.map(async (elt) => {
-						listContent.push(await elt.getText());
-					}),
-				);
-				expect(listContent).to.have.length(2);
-				expect(listContent).to.contain(param.li0);
-				expect(listContent).to.contain(param.li1);
-			});
+			runTests('Shopping List', ['Apple', 'Banana']);
 		});
 	});
 });
