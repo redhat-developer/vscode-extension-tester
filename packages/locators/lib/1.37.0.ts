@@ -221,8 +221,6 @@ const editor = {
 	WebView: {
 		iframe: By.css(`iframe[class='webview ready']`),
 		activeFrame: By.id('active-frame'),
-		container: (id: string) => By.id(id),
-		attribute: 'aria-flowto',
 	},
 	ExtensionEditorView: {
 		constructor: By.className('extension-editor'),
