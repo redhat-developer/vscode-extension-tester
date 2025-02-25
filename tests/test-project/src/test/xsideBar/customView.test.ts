@@ -26,6 +26,8 @@ import {
 	ViewContent,
 	ViewControl,
 	ViewItem,
+	ViewPanelAction,
+	ViewPanelActionDropdown,
 	WelcomeContentButton,
 	WelcomeContentSection,
 	Workbench,
@@ -48,7 +50,6 @@ describe('CustomTreeSection', () => {
 		emptySection = await content.getSection('Test View 2');
 		await emptySection.expand();
 		emptyViewSection = await content.getSection('Empty View');
-		await emptyViewSection.expand();
 	});
 
 	after(async () => {
@@ -113,18 +114,30 @@ describe('CustomTreeSection', () => {
 	});
 
 	it('getAction works', async () => {
-		const action = await section.getAction('Collapse All');
+		const action = (await section.getAction('Collapse All')) as ViewPanelAction;
 		expect(await action?.getLabel()).equals('Collapse All');
 	});
 
 	it('getAction of EMPTY works', async () => {
-		const action = await emptySection.getAction('Refresh');
+		const action = (await emptySection.getAction('Refresh')) as ViewPanelAction;
 		expect(await action?.getLabel()).equals('Refresh');
 		await emptySection.collapse();
 	});
 
+	(process.platform === 'darwin' ? it.skip : it)('getAction dropdown works', async () => {
+		const action = (await section.getAction('Hello Who...')) as ViewPanelActionDropdown;
+		const menu = await action.open();
+		expect(menu).not.undefined;
+
+		await menu.select('Hello a World');
+		const infoMessage = await (await new Workbench().openNotificationsCenter()).getNotifications(NotificationType.Info);
+		expect(await infoMessage[0].getMessage()).to.equal('Hello World, Test Project!');
+		await (await new Workbench().openNotificationsCenter()).clearAllNotifications();
+	});
+
 	it('findWelcomeContent returns undefined if no WelcomeContent is present', async () => {
 		expect(await section.findWelcomeContent()).to.equal(undefined);
+		await emptyViewSection.expand();
 		expect(await emptyViewSection.findWelcomeContent()).to.not.equal(undefined);
 	});
 
@@ -280,6 +293,7 @@ describe('CustomTreeSection', () => {
 
 			it('clicking on the tree item with a command assigned, triggers the command', async () => {
 				await dItem?.click();
+				await dItem?.getDriver().sleep(1_000);
 				const errorNotification = await (await bench.openNotificationsCenter()).getNotifications(NotificationType.Error);
 				expect(errorNotification).to.have.length(1);
 				expect(await errorNotification[0].getMessage()).to.equal('This is an error!');

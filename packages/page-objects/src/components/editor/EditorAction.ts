@@ -15,52 +15,20 @@
  * limitations under the License.
  */
 
-import { EditorGroup } from './EditorView';
-import { ContextMenu, Key, WebElement } from '../..';
-import { ElementWithContextMenu } from '../ElementWithContextMenu';
-import { ChromiumWebDriver } from 'selenium-webdriver/chromium';
+import { ActionButtonElementDropdown } from '../ActionButtonElementDropdown';
 
-export class EditorAction extends ElementWithContextMenu {
-	constructor(element: WebElement, parent: EditorGroup) {
-		super(element, parent);
-	}
-
+/**
+ * Base class for editor actions that provides a common method to get the title.
+ */
+abstract class BaseEditorAction extends ActionButtonElementDropdown {
 	/**
 	 * Get text description of the action.
 	 */
 	async getTitle(): Promise<string> {
-		return await this.getAttribute(EditorAction.locators.EditorView.attribute);
+		return await this.getAttribute(BaseEditorAction.locators.EditorView.attribute);
 	}
 }
 
-export class EditorActionDropdown extends EditorAction {
-	async open(): Promise<ContextMenu> {
-		await this.click();
-		const shadowRootHost = await this.enclosingItem.findElements(EditorAction.locators.EditorAction.shadowRootHost);
-		const actions = this.getDriver().actions();
-		await actions.clear();
-		await actions.sendKeys(Key.ESCAPE).perform();
-		const webdriverCapabilities = await (this.getDriver() as ChromiumWebDriver).getCapabilities();
-		const chromiumVersion = webdriverCapabilities.getBrowserVersion();
-		if (shadowRootHost.length > 0) {
-			if ((await this.getAttribute('aria-expanded')) !== 'true') {
-				await this.click();
-			}
-			let shadowRoot;
-			const webdriverCapabilities = await (this.getDriver() as ChromiumWebDriver).getCapabilities();
-			const chromiumVersion = webdriverCapabilities.getBrowserVersion();
-			if (chromiumVersion && parseInt(chromiumVersion.split('.')[0]) >= 96) {
-				shadowRoot = await shadowRootHost[0].getShadowRoot();
-				return new ContextMenu(await shadowRoot.findElement(EditorAction.locators.EditorAction.monacoMenuContainer)).wait();
-			} else {
-				shadowRoot = (await this.getDriver().executeScript('return arguments[0].shadowRoot', shadowRootHost[0])) as WebElement;
-				return new ContextMenu(shadowRoot).wait();
-			}
-		} else if (chromiumVersion && parseInt(chromiumVersion.split('.')[0]) >= 100) {
-			await this.click();
-			const workbench = await this.getDriver().findElement(ElementWithContextMenu.locators.Workbench.constructor);
-			return new ContextMenu(workbench).wait();
-		}
-		return await super.openContextMenu();
-	}
-}
+export class EditorAction extends BaseEditorAction {}
+
+export class EditorActionDropdown extends BaseEditorAction {}
