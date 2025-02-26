@@ -1,6 +1,6 @@
 {
   "name": "@redhat-developer/page-objects",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "description": "Page Object API implementation for a VS Code editor used by ExTester framework.",
   "main": "out/index.js",
   "types": "out/index.d.ts",
