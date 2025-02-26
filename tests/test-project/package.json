@@ -103,10 +103,7 @@
       {
         "command": "testView.refresh",
         "title": "Refresh",
-        "icon": {
-          "light": "resources/icons/light/refresh.svg",
-          "dark": "resources/icons/dark/refresh.svg"
-        }
+        "icon": "$(refresh)"
       }
     ],
     "viewsContainers": {
@@ -202,10 +199,31 @@
       "view/title": [
         {
           "command": "testView.refresh",
-          "group": "navigation"
+          "group": "navigation@2",
+          "when": "view == testView || view == testView2"
+        },
+        {
+          "submenu": "extester.menu.test",
+          "group": "navigation@1",
+          "when": "view == testView"
+        }
+      ],
+      "extester.menu.test": [
+        {
+          "command": "extension.helloWorld"
+        },
+        {
+          "command": "extension.helloWorld2"
         }
       ]
-    }
+    },
+    "submenus": [
+      {
+        "id": "extester.menu.test",
+        "label": "Hello Who...",
+        "icon": "$(rocket)"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run build",

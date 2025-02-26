@@ -20,6 +20,7 @@ import { ContextMenu, ViewContent, ViewItem, waitForAttributeValue, WelcomeConte
 import { AbstractElement } from '../AbstractElement';
 import { ElementWithContextMenu } from '../ElementWithContextMenu';
 import { ChromiumWebDriver } from 'selenium-webdriver/chromium';
+import { ActionButtonElementDropdown } from '../ActionButtonElementDropdown';
 
 export type ViewSectionConstructor<T extends ViewSection> = {
 	new (rootElement: WebElement, tree: ViewContent): T;
@@ -55,6 +56,7 @@ export abstract class ViewSection extends AbstractElement {
 			const collapseExpandButton = await header.findElement(ViewSection.locators.ViewSection.headerCollapseExpandButton);
 			await collapseExpandButton.click();
 			await this.getDriver().wait(waitForAttributeValue(header, ViewSection.locators.ViewSection.headerExpanded, 'true'), timeout);
+			await this.getDriver().sleep(500);
 		}
 	}
 
@@ -71,6 +73,7 @@ export abstract class ViewSection extends AbstractElement {
 			const collapseExpandButton = await header.findElement(ViewSection.locators.ViewSection.headerCollapseExpandButton);
 			await collapseExpandButton.click();
 			await this.getDriver().wait(waitForAttributeValue(header, ViewSection.locators.ViewSection.headerExpanded, 'false'), timeout);
+			await this.getDriver().sleep(500);
 		}
 	}
 
@@ -140,18 +143,17 @@ export abstract class ViewSection extends AbstractElement {
 	 * @returns Promise resolving to array of ViewPanelAction objects
 	 */
 	async getActions(): Promise<ViewPanelAction[]> {
-		const actions: ViewPanelAction[] = [];
-
-		if (!(await this.isHeaderHidden())) {
-			const header = await this.findElement(ViewSection.locators.ViewSection.header);
-			const act = await header.findElement(ViewSection.locators.ViewSection.actions);
-			const elements = await act.findElements(ViewSection.locators.ViewSection.button);
-
-			for (const element of elements) {
-				actions.push(await new ViewPanelAction(element, this).wait());
-			}
-		}
-		return actions;
+		const actions = await this.findElement(ViewSection.locators.ViewSection.actions).findElements(ViewSection.locators.ViewSection.button);
+		return Promise.all(
+			actions.map(async (action) => {
+				const dropdown = await action.getAttribute('aria-haspopup');
+				if (dropdown) {
+					return new ViewPanelActionDropdown(action, this);
+				} else {
+					return new ViewPanelAction(action, this);
+				}
+			}),
+		);
 	}
 
 	/**
@@ -208,9 +210,10 @@ export abstract class ViewSection extends AbstractElement {
 }
 
 /**
- * Action button on the header of a view section
+ * Base class for action buttons on view sections.
+ * Provides shared functionality for both standard and dropdown actions.
  */
-export class ViewPanelAction extends AbstractElement {
+abstract class BaseViewPanelAction extends ActionButtonElementDropdown {
 	constructor(element: WebElement, viewPart: ViewSection) {
 		super(element, viewPart);
 	}
@@ -219,11 +222,19 @@ export class ViewPanelAction extends AbstractElement {
 	 * Get label of the action button
 	 */
 	async getLabel(): Promise<string> {
-		return await this.getAttribute(ViewSection.locators.ViewSection.buttonLabel);
+		return await this.getAttribute(BaseViewPanelAction.locators.ViewSection.buttonLabel);
 	}
 
-	async wait(timeout: number = 1000): Promise<this> {
-		await this.getDriver().wait(until.elementLocated(ViewSection.locators.ViewSection.actions), timeout);
+	/**
+	 * Wait for the action button to be located within a given timeout.
+	 * @param timeout Time in milliseconds (default: 1000ms)
+	 */
+	async wait(timeout: number = 1_000): Promise<this> {
+		await this.getDriver().wait(until.elementLocated(BaseViewPanelAction.locators.ViewSection.actions), timeout);
 		return this;
 	}
 }
+
+export class ViewPanelAction extends BaseViewPanelAction {}
+
+export class ViewPanelActionDropdown extends BaseViewPanelAction {}

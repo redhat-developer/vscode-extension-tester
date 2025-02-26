@@ -31,11 +31,26 @@ Section header may also contain some action buttons.
 
 ```typescript
 // get an action button by label
-const action = await section.getAction("New File");
+const action = (await section.getAction("New File")) as ViewPanelAction;
 // get all action buttons for the section
 const actions = await section.getActions();
 // click an action button
 await action.click();
+```
+
+##### Action Buttons - Dropdown
+
+![actionButtonDropdown](images/viewActions-dropdown.png)
+
+**Note:** Be aware that it is not supported on macOS. For more information see [Known Issues](https://github.com/redhat-developer/vscode-extension-tester/blob/main/KNOWN_ISSUES.md).
+
+```typescript
+// find an view action button by title
+const action = (await view.getAction("Hello Who...")) as ViewPanelActionDropdown;
+// open the dropdown for that button
+const menu = await action.open();
+// select an item from an opened context menu
+await menu.select("Hello a World");
 ```
 
 #### (Tree) Items Manipulation
