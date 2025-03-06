@@ -28,7 +28,7 @@ type Constructor<T = object> = new (...args: any[]) => T;
  * The interface that a class is required to have in order to use the Webview mixin.
  */
 interface WebviewMixable extends AbstractElement {
-	getViewToSwitchTo(handle: string): Promise<WebElement | undefined>;
+	getViewToSwitchTo(): Promise<WebElement | undefined>;
 }
 
 /**
@@ -89,7 +89,7 @@ export default function <TBase extends Constructor<WebviewMixable>>(Base: TBase)
 				this.handle = await this.getDriver().getWindowHandle();
 			}
 
-			const view = await this.getViewToSwitchTo(this.handle);
+			const view = await this.getViewToSwitchTo();
 
 			if (!view) {
 				return;
