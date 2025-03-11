@@ -224,8 +224,6 @@ export interface Locators {
 	WebView: {
 		iframe: By;
 		activeFrame: By;
-		container: (id: string) => By;
-		attribute: string;
 	};
 	ExtensionEditorView: {
 		constructor: By;
