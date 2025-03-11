@@ -413,7 +413,19 @@ export class CodeUtil {
 		if (platform === 'linux') {
 			platform += arch === 'ia32' ? '-ia32' : `-${arch}`;
 		} else if (platform === 'win32') {
-			platform += arch === 'x64' ? `-${arch}` : '';
+			switch (arch) {
+				case 'arm64': {
+					platform += '-arm64';
+					break;
+				}
+				case 'x64': {
+					platform += '-x64';
+					break;
+				}
+				default: {
+					throw new Error(`Unknown Platform: ${arch}`);
+				}
+			}
 			platform += '-archive';
 			this.cliEnv = `set ${this.cliEnv} &&`;
 		} else if (platform === 'darwin') {
