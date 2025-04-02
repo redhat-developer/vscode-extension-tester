@@ -43,7 +43,7 @@ describe('EditorView', function () {
 		await view.closeAllEditors();
 		await newUntitledFile('Untitled-1');
 		await newUntitledFile('Untitled-2');
-		await new Workbench().executeCommand('Webview Test');
+		await new Workbench().executeCommand('Webview Test Column 1');
 		await view.getDriver().sleep(2500);
 		await new Workbench().executeCommand('Open Settings UI');
 		await view.getDriver().sleep(500);
