@@ -67,7 +67,7 @@
     "find-up": "7.0.0",
     "fs-extra": "^11.3.0",
     "glob": "^11.0.1",
-    "got": "^14.4.6",
+    "got": "^14.4.7",
     "hpagent": "^1.2.0",
     "js-yaml": "^4.1.0",
     "sanitize-filename": "^1.6.3",
