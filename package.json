@@ -42,6 +42,6 @@
     "lerna": "^8.2.1",
     "prettier": "3.5.3",
     "rimraf": "^6.0.1",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.3"
   }
 }
