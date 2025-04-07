@@ -143,10 +143,11 @@ export abstract class ViewSection extends AbstractElement {
 	 * @returns Promise resolving to array of ViewPanelAction objects
 	 */
 	async getActions(): Promise<ViewPanelAction[]> {
+		await this.getDriver().actions().move({ origin: this }).perform(); // move mouse to bring auto-hided buttons visible
 		const actions = await this.findElement(ViewSection.locators.ViewSection.actions).findElements(ViewSection.locators.ViewSection.button);
 		return Promise.all(
 			actions.map(async (action) => {
-				const dropdown = await action.getAttribute('aria-haspopup');
+				const dropdown = (await action.getAttribute('aria-haspopup')) || (await action.getAttribute('aria-expanded'));
 				if (dropdown) {
 					return new ViewPanelActionDropdown(action, this);
 				} else {

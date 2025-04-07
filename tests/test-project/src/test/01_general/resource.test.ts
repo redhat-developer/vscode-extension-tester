@@ -47,16 +47,14 @@ describe('Open resource test', function () {
 
 				const index = title?.indexOf(prefix) ?? 0;
 
-				if (index > 0) {
-					let openFolderPath = title?.slice(index + prefix.length);
-					if (openFolderPath) {
-						if (openFolderPath.startsWith('~/')) {
-							openFolderPath = path.join(os.homedir(), openFolderPath.slice(2));
-						}
-
-						expect(openFolderPath.split(' ')[0]).equals(process.cwd());
-						return true;
+				let openFolderPath = title?.slice(index + prefix.length);
+				if (openFolderPath) {
+					if (openFolderPath.startsWith('~/')) {
+						openFolderPath = path.join(os.homedir(), openFolderPath.slice(2));
 					}
+
+					expect(openFolderPath.split(' ')[0]).equals(process.cwd());
+					return true;
 				}
 
 				return false;
