@@ -74,7 +74,19 @@
       },
       {
         "command": "extension.webview",
-        "title": "Webview Test"
+        "title": "Webview Test Column 1"
+      },
+      {
+        "command": "extension.webview.2",
+        "title": "Webview Test Column 2"
+      },
+      {
+        "command": "extension.webview.3",
+        "title": "Webview Test Column 3"
+      },
+      {
+        "command": "extension.webview.4",
+        "title": "Webview Test Column 4"
       },
       {
         "command": "extension.notification",

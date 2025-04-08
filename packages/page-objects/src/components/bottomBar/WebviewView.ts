@@ -16,21 +16,22 @@
  */
 
 /* eslint-disable no-redeclare */
-import { WebElement } from 'selenium-webdriver';
+import { Locator, WebElement } from 'selenium-webdriver';
 import { AbstractElement } from '../AbstractElement';
 import WebviewMixin from '../WebviewMixin';
+import { findBestContainingElement } from '../../locators/locators';
 
 /**
  * Page object representing a user-contributed panel implemented using a Webview.
  */
 class WebviewViewBase extends AbstractElement {
-	constructor() {
-		super(WebviewViewBase.locators.Workbench.constructor);
+	constructor(base: Locator | WebElement = WebviewViewBase.locators.Workbench.constructor, enclosingItem?: WebElement | Locator) {
+		super(base, enclosingItem);
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async getViewToSwitchTo(handle: string): Promise<WebElement | undefined> {
-		return await this.getDriver().findElement(WebviewViewBase.locators.WebviewView.iframe);
+	async getViewToSwitchTo(): Promise<WebElement | undefined> {
+		const frames = await this.getDriver().findElements(WebviewViewBase.locators.WebView.iframe);
+		return findBestContainingElement(await this.getRect(), frames);
 	}
 }
 

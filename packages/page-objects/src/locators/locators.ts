@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { By, WebElement } from 'selenium-webdriver';
+import { By, IRectangle, WebElement } from 'selenium-webdriver';
 import { PartialDeep } from 'type-fest';
 import { ViewSection } from '../components/sidebar/ViewSection';
 
@@ -617,4 +617,27 @@ export function fromText(locator?: By): (el: WebElement) => Promise<string> {
 		el = locator ? await el.findElement(locator) : el;
 		return await el.getText();
 	};
+}
+
+export async function findBestContainingElement(container: IRectangle, testElements: WebElement[]): Promise<WebElement | undefined> {
+	const areas: number[] = await Promise.all(
+		testElements.map(async (value) => {
+			const rect = await value.getRect();
+			const ax = Math.max(container.x, rect.x);
+			const ay = Math.max(container.y, rect.y);
+			const bx = Math.min(container.x + container.width, rect.x + rect.width);
+			const by = Math.min(container.y + container.height, rect.y + rect.height);
+			return (bx - ax) * (by - ay);
+		}),
+	);
+	let bestIdx: number = -1;
+	for (let i = 0; i < testElements.length; i++) {
+		if (areas[i] < 0) {
+			continue;
+		}
+		if (bestIdx === -1 || areas[i] > areas[bestIdx]) {
+			bestIdx = i;
+		}
+	}
+	return bestIdx === -1 ? undefined : testElements[bestIdx];
 }

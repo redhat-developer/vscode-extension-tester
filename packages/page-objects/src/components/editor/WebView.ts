@@ -19,23 +19,15 @@
 import { WebElement } from 'selenium-webdriver';
 import WebviewMixin from '../WebviewMixin';
 import { Editor } from './Editor';
+import { findBestContainingElement } from '../../locators/locators';
 
 /**
  * Page object representing an open editor containing a web view
  */
 class WebViewBase extends Editor {
-	async getViewToSwitchTo(handle: string): Promise<WebElement | undefined> {
-		const handles = await this.getDriver().getAllWindowHandles();
-		for (const handle of handles) {
-			await this.getDriver().switchTo().window(handle);
-
-			if ((await this.getDriver().getTitle()).includes('Virtual Document')) {
-				await this.getDriver().switchTo().frame(0);
-				return;
-			}
-		}
-		await this.getDriver().switchTo().window(handle);
-		return await this.getDriver().findElement(WebViewBase.locators.WebView.iframe);
+	async getViewToSwitchTo(): Promise<WebElement | undefined> {
+		const frames = await this.getDriver().findElements(WebViewBase.locators.WebView.iframe);
+		return findBestContainingElement(await this.getRect(), frames);
 	}
 }
 

@@ -24,8 +24,18 @@ export function activate(context: vscode.ExtensionContext) {
 		await vscode.window.showQuickPick([{ label: 'TestLabel', description: 'Test Description' }]);
 	});
 	const webViewCommand = vscode.commands.registerCommand('extension.webview', async () => {
-		new TestView();
+		const col: vscode.ViewColumn = (vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : undefined) || vscode.ViewColumn.One;
+		openTestView(col);
 	});
+
+	const columns: vscode.ViewColumn[] = [vscode.ViewColumn.Two, vscode.ViewColumn.Three, vscode.ViewColumn.Four];
+	for (const c of columns) {
+		const webViewCmd = vscode.commands.registerCommand(`extension.webview.${c}`, async () => {
+			openTestView(c);
+		});
+		context.subscriptions.push(webViewCmd);
+	}
+
 	const notificationCommand = vscode.commands.registerCommand('extension.notification', async () => {
 		await vscode.window.showInformationMessage('This is a notification', 'Yes', 'No');
 	});
@@ -111,58 +121,49 @@ export function deactivate() {}
 let emptyViewNoContent: boolean = true;
 const emitter = new vscode.EventEmitter<undefined>();
 
-class TestView {
-	public static readonly viewType = 'testView';
+function openTestView(viewColumn: vscode.ViewColumn) {
+	const randomWebViewTitle = 'Test WebView ' + Math.floor(Math.random() * 100);
+	const panel = vscode.window.createWebviewPanel('testView', randomWebViewTitle, viewColumn);
+	const disposables: vscode.Disposable[] = [];
 
-	private readonly _panel: vscode.WebviewPanel;
-	private _disposables: vscode.Disposable[] = [];
-	private randomWebViewTitle: string;
+	const update = (title: string) => {
+		panel.title = title;
+		panel.webview.html = `<!DOCTYPE html>
+			<html lang="en">
+			<head>
+				<meta charset="UTF-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				<title>${title}</title>
+			</head>
+			<body>
+				<h1>This is a web view with title: ${title}</h1>
+			</body>
+			</html>`;
+	};
+	update(randomWebViewTitle);
 
-	constructor() {
-		const column = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : undefined;
-
-		this.randomWebViewTitle = 'Test WebView ' + Math.floor(Math.random() * 100);
-		this._panel = vscode.window.createWebviewPanel(TestView.viewType, this.randomWebViewTitle, column || vscode.ViewColumn.One);
-		this.update(this.randomWebViewTitle);
-
-		this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-
-		this._panel.onDidChangeViewState(
-			() => {
-				if (this._panel.visible) {
-					this.update(this.randomWebViewTitle);
+	panel.onDidDispose(
+		() => {
+			while (disposables.length) {
+				const x = disposables.pop();
+				if (x) {
+					x.dispose();
 				}
-			},
-			null,
-			this._disposables,
-		);
-	}
-
-	public dispose() {
-		this._panel.dispose();
-
-		while (this._disposables.length) {
-			const x = this._disposables.pop();
-			if (x) {
-				x.dispose();
 			}
-		}
-	}
+		},
+		null,
+		disposables,
+	);
 
-	private update(title: string) {
-		this._panel.title = title;
-		this._panel.webview.html = `<!DOCTYPE html>
-		<html lang="en">
-		<head>
-			<meta charset="UTF-8">
-			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-			<title>${title}</title>
-		</head>
-		<body>
-			<h1>This is a web view with title: ${title}</h1>
-		</body>
-		</html>`;
-	}
+	panel.onDidChangeViewState(
+		() => {
+			if (panel.visible) {
+				update(randomWebViewTitle);
+			}
+		},
+		null,
+		disposables,
+	);
 }
 
 class MyPanelView implements vscode.WebviewViewProvider {
