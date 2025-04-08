@@ -26,10 +26,10 @@ describe('WebViews', function () {
 			this.timeout(8000);
 			await new Workbench().executeCommand('Webview Test Column 1');
 			await new Promise((res) => {
-				setTimeout(res, 500);
+				setTimeout(res, 1_000);
 			});
 			view = new WebView();
-			await view.switchToFrame();
+			await view.switchToFrame(5_000);
 		});
 
 		after(async function () {
@@ -65,7 +65,7 @@ describe('WebViews', function () {
 			for (let i = 0; i < 3; i++) {
 				await workbench.executeCommand(`Webview Test Column ${i + 1}`);
 				await new Promise((res) => {
-					setTimeout(res, 500);
+					setTimeout(res, 1_000);
 				});
 			}
 
@@ -91,7 +91,7 @@ describe('WebViews', function () {
 			describe(`WebView ${i}`, function () {
 				before(async function () {
 					view = new WebView(editorGroups[i]);
-					await view.switchToFrame();
+					await view.switchToFrame(5_000);
 				});
 
 				after(async function () {
@@ -126,7 +126,7 @@ describe('WebViews', function () {
 			for (let i = 0; i < 3; i++) {
 				await workbench.executeCommand('Webview Test Column 1');
 				await new Promise((res) => {
-					setTimeout(res, 500);
+					setTimeout(res, 1_000);
 				});
 			}
 
@@ -137,7 +137,7 @@ describe('WebViews', function () {
 				before(async function () {
 					await new EditorView().openEditor(tabs[i]);
 					view = new WebView();
-					await view.switchToFrame();
+					await view.switchToFrame(5_000);
 				});
 				it('findWebElement works', async function () {
 					const element = await view.findWebElement(By.css('h1'));
