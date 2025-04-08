@@ -15,7 +15,7 @@
     "directory": "tests/test-project"
   },
   "engines": {
-    "vscode": "^1.85.0"
+    "vscode": "^1.97.0"
   },
   "categories": [
     "Other",
@@ -131,27 +131,32 @@
       "explorer": [
         {
           "id": "testView",
-          "name": "Test View"
+          "name": "Test View",
+          "icon": "icons/logo.png"
         },
         {
           "id": "testView2",
-          "name": "Test View 2"
+          "name": "Test View 2",
+          "icon": "icons/logo.png"
         },
         {
           "id": "emptyView",
-          "name": "Empty View"
+          "name": "Empty View",
+          "icon": "icons/logo.png"
         },
         {
           "id": "mySidePanelView",
           "name": "My Side Panel View",
-          "type": "webview"
+          "type": "webview",
+          "icon": "icons/logo.png"
         }
       ],
       "myPanel": [
         {
           "id": "myPanelView",
           "name": "My Panel View",
-          "type": "webview"
+          "type": "webview",
+          "icon": "icons/logo.png"
         }
       ]
     },
@@ -249,8 +254,6 @@
     "ui-test:coverage": "MOCHA_GREP='order|clipboard|ExtensionsView|TitleBar' MOCHA_INVERT=true extest setup-and-run './out/test/**/*.test.js' -i -r . -e ./test-extensions --coverage"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.16",
-    "@types/vscode": "^1.85.0",
     "chai": "^4.5.0",
     "clipboard-cli": "^4.0.0",
     "clipboardy": "^4.0.0",
