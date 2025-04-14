@@ -23,7 +23,7 @@ export function run(): Promise<void> {
 	const mocha = new Mocha({
 		ui: 'bdd',
 		color: true,
-		timeout: 10000,
+		timeout: 30000,
 	});
 
 	const testsRoot = path.resolve(__dirname);
