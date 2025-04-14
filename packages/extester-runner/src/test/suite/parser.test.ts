@@ -21,8 +21,21 @@ import { parseTestFile } from '../../utils/parser';
 import { ItBlock, TestBlock } from '../../types/testTypes';
 import { Logger } from '../../logger/logger';
 import path from 'path';
+import {
+	COMPLEX_FILE,
+	MOD_ONLY,
+	MOD_SKIP,
+	MULTIPLE_ROOT_DESCRIBES,
+	SIMPLE_FILE,
+	SIMPLE_FILE_WITH_MODIFIERS,
+	SIMPLE_FILE_WITH_VARIABLES,
+	TEST_RESOURCES_PATH,
+} from '../utils/testUtils';
 
-// Create a dummy output channel that implements the vscode.OutputChannel interface.
+/**
+ * Dummy implementation of vscode.OutputChannel for testing purposes.
+ * All methods are implemented as no-ops to avoid actual output during tests.
+ */
 const dummyOutputChannel: vscode.OutputChannel = {
 	append: (value: string): void => {},
 	appendLine: (value: string): void => {},
@@ -36,7 +49,10 @@ const dummyOutputChannel: vscode.OutputChannel = {
 	name: 'dummy',
 };
 
-// Create a dummy subclass of Logger which accepts the output channel as required.
+/**
+ * Dummy implementation of Logger for testing purposes.
+ * Extends the base Logger class and overrides all logging methods as no-ops.
+ */
 class DummyLogger extends Logger {
 	constructor() {
 		// Pass the dummy output channel to the parent class constructor.
@@ -51,295 +67,472 @@ class DummyLogger extends Logger {
 // Create an instance of DummyLogger to use in tests.
 const dummyLogger = new DummyLogger();
 
+/**
+ * Helper function to assert the properties of a TestBlock.
+ * Verifies all key properties of a test suite block match expected values.
+ */
+function assertTestBlock(
+	block: TestBlock,
+	{
+		childrenLength,
+		describe,
+		itsLength,
+		line,
+		modifier,
+		parentModifier,
+		fileName,
+	}: {
+		childrenLength: number;
+		describe: string;
+		itsLength: number;
+		line: number;
+		modifier: string | null;
+		parentModifier: string | undefined;
+		fileName: string;
+	},
+) {
+	assert.strictEqual(block.children.length, childrenLength);
+	assert.strictEqual(block.describe, describe);
+	assert.ok(block.filePath.endsWith(fileName));
+	assert.strictEqual(block.its.length, itsLength);
+	assert.strictEqual(block.line, line);
+	assert.strictEqual(block.modifier, modifier);
+	assert.strictEqual(block.parentModifier, parentModifier);
+}
+
+/**
+ * Helper function to assert the properties of an ItBlock.
+ * Verifies all key properties of a test case block match expected values.
+ */
+function assertItBlock(
+	testCase: ItBlock,
+	{
+		name,
+		line,
+		modifier,
+		parentModifier,
+		fileName,
+	}: {
+		name: string;
+		line: number;
+		modifier: string | null;
+		parentModifier: string | undefined;
+		fileName: string;
+	},
+) {
+	assert.strictEqual(testCase.name, name);
+	assert.strictEqual(testCase.describeModifier, undefined); // maybe not neccesary at all in the type structure?
+	assert.ok(testCase.filePath.endsWith(fileName));
+	assert.strictEqual(testCase.line, line);
+	assert.strictEqual(testCase.modifier, modifier);
+	assert.strictEqual(testCase.parentModifier, parentModifier);
+}
+
+/**
+ * This test suite verifies the functionality of the test file parser utility.
+ * The parser is responsible for analyzing test files and extracting their structure.
+ *
+ * Currently implemented features:
+ * 1. Detecting describe blocks and their modifiers (only, skip)
+ * 2. Finding individual test cases and their modifiers
+ * 3. Tracking line numbers and file paths for navigation
+ * 4. Maintaining parent-child relationships between test blocks
+ * 5. Parsing simple test files with single describe blocks
+ * 6. Handling nested describe blocks and their inheritance of modifiers
+ * 7. Handling test files with multiple describe blocks at different nesting levels
+ * 8. Processing test files with various modifier combinations
+ * 9. Validating modifier inheritance between parent and child blocks
+ *
+ * To be done:
+ * 1. Proper handling of empty describe blocks
+ * 2. Processing of test files with only test cases (no describe blocks)
+ *
+ * The test suite currently focuses on basic parsing functionality with plans
+ * to expand coverage as additional features are implemented.
+ */
 describe('Parser Utility Tests', () => {
+	/**
+	 * Tests parsing of a simple test file containing:
+	 * - One describe block without modifiers
+	 * - One test case without modifiers
+	 */
 	it('Parses a simple file with one describe and one test without modifiers', async () => {
-		// Open example test.
-		const resourcePath = path.join(__dirname, '..', '..', '..', 'src', 'test', 'resources', 'simpleFile.ts');
+		// Setup: Open the test file
+		const resourcePath = path.join(TEST_RESOURCES_PATH, SIMPLE_FILE);
 		const uri = vscode.Uri.file(resourcePath);
 		const doc = await vscode.workspace.openTextDocument(uri);
 
-		// Parse the test file and load structure.
+		// Execute: Parse the test file
 		const structure = await parseTestFile(doc.uri, dummyLogger);
-		assert.strictEqual(structure.length, 1); // only one describe is expected
+		assert.strictEqual(structure.length, 1); // Verify only one describe block exists
 
-		// Check describe.
+		// Assert: Verify the describe block properties
 		const suiteBlock: TestBlock = structure[0];
-		assert.strictEqual(suiteBlock.children.length, 0); // no describes inside
-		assert.strictEqual(suiteBlock.describe, 'Simple suite without modifier');
-		assert.ok(suiteBlock.filePath.endsWith('simpleFile.ts'));
-		assert.strictEqual(suiteBlock.its.length, 1); // only one it inside
-		assert.strictEqual(suiteBlock.line, 1);
-		assert.strictEqual(suiteBlock.modifier, null);
-		assert.strictEqual(suiteBlock.parentModifier, undefined);
+		assertTestBlock(suiteBlock, {
+			childrenLength: 0,
+			describe: 'Simple suite without modifier',
+			itsLength: 1,
+			line: 1,
+			modifier: null,
+			parentModifier: undefined,
+			fileName: SIMPLE_FILE,
+		});
 
-		// Check it.
+		// Assert: Verify the test case properties
 		const testCase = suiteBlock.its[0] as unknown as ItBlock;
-		assert.strictEqual(testCase.name, 'Simple test without modifier');
-		assert.strictEqual(testCase.describeModifier, undefined); // TODO: Is it necessary to have this inside the test type structure?
-		assert.ok(testCase.filePath.endsWith('simpleFile.ts'));
-		assert.strictEqual(testCase.line, 2);
-		assert.strictEqual(testCase.modifier, null);
-		assert.strictEqual(testCase.parentModifier, undefined);
+		assertItBlock(testCase, {
+			name: 'Simple test without modifier',
+			line: 2,
+			modifier: null,
+			parentModifier: undefined,
+			fileName: SIMPLE_FILE,
+		});
 	});
 
+	/**
+	 * Tests parsing of a test file containing:
+	 * - One describe block with 'only' modifier
+	 * - One test case with 'skip' modifier
+	 */
 	it('Parses a simple file with one describe and one test with modifiers', async () => {
-		// Open example test.
-		const resourcePath = path.join(__dirname, '..', '..', '..', 'src', 'test', 'resources', 'simpleFileWithModifiers.ts');
+		// Setup: Open the test file
+		const resourcePath = path.join(TEST_RESOURCES_PATH, SIMPLE_FILE_WITH_MODIFIERS);
 		const uri = vscode.Uri.file(resourcePath);
 		const doc = await vscode.workspace.openTextDocument(uri);
 
-		// Parse the test file and load structure.
+		// Execute: Parse the test file
 		const structure = await parseTestFile(doc.uri, dummyLogger);
-		assert.strictEqual(structure.length, 1); // only one describe is expected
+		assert.strictEqual(structure.length, 1); // Verify only one describe block exists
 
-		// Check describe.
+		// Assert: Verify the describe block properties
 		const suiteBlock: TestBlock = structure[0];
-		assert.strictEqual(suiteBlock.children.length, 0); // no describes inside
-		assert.strictEqual(suiteBlock.describe, 'Simple suite with only modifier');
-		assert.ok(suiteBlock.filePath.endsWith('simpleFileWithModifiers.ts'));
-		assert.strictEqual(suiteBlock.its.length, 1); // only one it inside
-		assert.strictEqual(suiteBlock.line, 1);
-		assert.strictEqual(suiteBlock.modifier, 'only'); // only modifier
-		assert.strictEqual(suiteBlock.parentModifier, undefined);
+		assertTestBlock(suiteBlock, {
+			childrenLength: 0,
+			describe: 'Simple suite with only modifier',
+			itsLength: 1,
+			line: 1,
+			modifier: MOD_ONLY,
+			parentModifier: undefined,
+			fileName: SIMPLE_FILE_WITH_MODIFIERS,
+		});
 
-		// Check it.
+		// Assert: Verify the test case properties
 		const testCase = suiteBlock.its[0] as unknown as ItBlock;
-		assert.strictEqual(testCase.name, 'Simple test with skip modifier');
-		assert.strictEqual(testCase.describeModifier, undefined); // TODO: Is it necessary to have this inside the test type structure?
-		assert.ok(testCase.filePath.endsWith('simpleFileWithModifiers.ts'));
-		assert.strictEqual(testCase.line, 2);
-		assert.strictEqual(testCase.modifier, 'skip');
-		assert.strictEqual(testCase.parentModifier, 'only'); // parent has only modifier
+		assertItBlock(testCase, {
+			name: 'Simple test with skip modifier',
+			line: 2,
+			modifier: MOD_SKIP,
+			parentModifier: MOD_ONLY,
+			fileName: SIMPLE_FILE_WITH_MODIFIERS,
+		});
 	});
 
+	/**
+	 * Tests parsing of a test file containing:
+	 * - One describe block with variable interpolation in name
+	 * - One test case with variable interpolation in name
+	 */
 	it('Parses a simple file with variable in name', async () => {
-		// Open example test.
-		const resourcePath = path.join(__dirname, '..', '..', '..', 'src', 'test', 'resources', 'simpleFileWithVariable.ts');
+		// Setup: Open the test file
+		const resourcePath = path.join(TEST_RESOURCES_PATH, SIMPLE_FILE_WITH_VARIABLES);
 		const uri = vscode.Uri.file(resourcePath);
 		const doc = await vscode.workspace.openTextDocument(uri);
 
-		// Parse the test file and load structure.
+		// Execute: Parse the test file
 		const structure = await parseTestFile(doc.uri, dummyLogger);
-		assert.strictEqual(structure.length, 1); // only one describe is expected
+		assert.strictEqual(structure.length, 1); // Verify only one describe block exists
 
-		// Check describe.
+		// Assert: Verify the describe block properties
 		const suiteBlock: TestBlock = structure[0];
-		assert.strictEqual(suiteBlock.children.length, 0); // no describes inside
-		assert.strictEqual(suiteBlock.describe, 'Simple suite with ${variable}');
-		assert.ok(suiteBlock.filePath.endsWith('simpleFileWithVariable.ts'));
-		assert.strictEqual(suiteBlock.its.length, 1); // only one it inside
-		assert.strictEqual(suiteBlock.line, 2);
-		assert.strictEqual(suiteBlock.modifier, null); // only modifier
-		assert.strictEqual(suiteBlock.parentModifier, undefined);
+		assertTestBlock(suiteBlock, {
+			childrenLength: 0,
+			describe: 'Simple suite with ${variable}',
+			itsLength: 1,
+			line: 2,
+			modifier: null,
+			parentModifier: undefined,
+			fileName: SIMPLE_FILE_WITH_VARIABLES,
+		});
 
-		// Check it.
+		// Assert: Verify the test case properties
 		const testCase = suiteBlock.its[0] as unknown as ItBlock;
-		assert.strictEqual(testCase.name, 'Simple test with ${variable}');
-		assert.strictEqual(testCase.describeModifier, undefined); // TODO: Is it necessary to have this inside the test type structure?
-		assert.ok(testCase.filePath.endsWith('simpleFileWithVariable.ts'));
-		assert.strictEqual(testCase.line, 3);
-		assert.strictEqual(testCase.modifier, null);
-		assert.strictEqual(testCase.parentModifier, undefined); // parent has only modifier
+		assertItBlock(testCase, {
+			name: 'Simple test with ${variable}',
+			line: 3,
+			modifier: null,
+			parentModifier: undefined,
+			fileName: SIMPLE_FILE_WITH_VARIABLES,
+		});
 	});
 
+	/**
+	 * Tests parsing of a complex test file containing:
+	 * - Multiple nested describe blocks with various modifiers
+	 * - Multiple test cases with various modifiers
+	 * - Tests inheritance of modifiers from parent blocks
+	 */
 	it('Parses a complex file with huge variability of modifiers', async () => {
-		const resourcePath = path.join(__dirname, '..', '..', '..', 'src', 'test', 'resources', 'parserTestFile.ts');
+		// Setup: Open the test file
+		const resourcePath = path.join(TEST_RESOURCES_PATH, COMPLEX_FILE);
 		const uri = vscode.Uri.file(resourcePath);
 		const doc = await vscode.workspace.openTextDocument(uri);
-		const COMPLEX_FILE = 'parserTestFile.ts';
 
-		// Parse the test file and load structure.
+		// Execute: Parse the test file
 		const structure = await parseTestFile(doc.uri, dummyLogger);
-		assert.strictEqual(structure.length, 1); // only one root describe is expected
+		assert.strictEqual(structure.length, 1); // Verify only one root describe block exists
 
+		// Assert: Verify root suite block properties
 		const rootSuiteBlock: TestBlock = structure[0];
-		// root suite
-		assert.strictEqual(rootSuiteBlock.children.length, 1); // expected one child describe
-		assert.strictEqual(rootSuiteBlock.describe, 'Root suite modifier: no parentModifier: no');
-		assert.ok(rootSuiteBlock.filePath.endsWith(COMPLEX_FILE));
-		assert.strictEqual(rootSuiteBlock.its.length, 3); // three tests inside
-		assert.strictEqual(rootSuiteBlock.line, 1);
-		assert.strictEqual(rootSuiteBlock.modifier, null);
-		assert.strictEqual(rootSuiteBlock.parentModifier, undefined);
+		assertTestBlock(rootSuiteBlock, {
+			childrenLength: 1,
+			describe: 'Root suite modifier: no parentModifier: no',
+			itsLength: 3,
+			line: 1,
+			modifier: null,
+			parentModifier: undefined,
+			fileName: COMPLEX_FILE,
+		});
 
-		// root suite - its
-		const rootSuiteTest1 = rootSuiteBlock.its[0] as unknown as ItBlock;
-		assert.strictEqual(rootSuiteTest1.name, 'Root test 1 modifier: no parentModifier: no');
-		assert.strictEqual(rootSuiteTest1.describeModifier, undefined); // TODO: Is it necessary to have this inside the test type structure?
-		assert.ok(rootSuiteTest1.filePath.endsWith(COMPLEX_FILE));
-		assert.strictEqual(rootSuiteTest1.line, 2);
-		assert.strictEqual(rootSuiteTest1.modifier, null);
-		assert.strictEqual(rootSuiteTest1.parentModifier, undefined);
+		// Assert: Verify root suite test cases
+		assertItBlock(rootSuiteBlock.its[0] as unknown as ItBlock, {
+			name: 'Root test 1 modifier: no parentModifier: no',
+			line: 2,
+			modifier: null,
+			parentModifier: undefined,
+			fileName: COMPLEX_FILE,
+		});
 
-		const rootSuiteTest2 = rootSuiteBlock.its[1] as unknown as ItBlock;
-		assert.strictEqual(rootSuiteTest2.name, 'Root test 2 modifier: skip parentModifier: no');
-		assert.strictEqual(rootSuiteTest2.describeModifier, undefined); // TODO: Is it necessary to have this inside the test type structure?
-		assert.ok(rootSuiteTest2.filePath.endsWith(COMPLEX_FILE));
-		assert.strictEqual(rootSuiteTest2.line, 3);
-		assert.strictEqual(rootSuiteTest2.modifier, 'skip');
-		assert.strictEqual(rootSuiteTest2.parentModifier, undefined);
+		assertItBlock(rootSuiteBlock.its[1] as unknown as ItBlock, {
+			name: 'Root test 2 modifier: skip parentModifier: no',
+			line: 3,
+			modifier: MOD_SKIP,
+			parentModifier: undefined,
+			fileName: COMPLEX_FILE,
+		});
 
-		const rootSuiteTest3 = rootSuiteBlock.its[2] as unknown as ItBlock;
-		assert.strictEqual(rootSuiteTest3.name, 'Root test 3 modifier: only parentModifier: no');
-		assert.strictEqual(rootSuiteTest3.describeModifier, undefined); // TODO: Is it necessary to have this inside the test type structure?
-		assert.ok(rootSuiteTest3.filePath.endsWith(COMPLEX_FILE));
-		assert.strictEqual(rootSuiteTest3.line, 4);
-		assert.strictEqual(rootSuiteTest3.modifier, 'only');
-		assert.strictEqual(rootSuiteTest3.parentModifier, undefined);
+		assertItBlock(rootSuiteBlock.its[2] as unknown as ItBlock, {
+			name: 'Root test 3 modifier: only parentModifier: no',
+			line: 4,
+			modifier: MOD_ONLY,
+			parentModifier: undefined,
+			fileName: COMPLEX_FILE,
+		});
 
-		// child suite
+		// Assert: Verify child suite block properties
 		const childSuiteBlock = rootSuiteBlock.children[0] as unknown as TestBlock;
-		assert.strictEqual(childSuiteBlock.children.length, 2); // two grandchild describes
-		assert.strictEqual(childSuiteBlock.describe, 'Child suite modifier: only parentModifier: no');
-		assert.ok(childSuiteBlock.filePath.endsWith(COMPLEX_FILE));
-		assert.strictEqual(childSuiteBlock.its.length, 4); // four tests inside
-		assert.strictEqual(childSuiteBlock.line, 6);
-		assert.strictEqual(childSuiteBlock.modifier, 'only'); // modifier: only
-		assert.strictEqual(childSuiteBlock.parentModifier, undefined); // parentModifier: no
+		assertTestBlock(childSuiteBlock, {
+			childrenLength: 2,
+			describe: 'Child suite modifier: only parentModifier: no',
+			itsLength: 4,
+			line: 6,
+			modifier: MOD_ONLY,
+			parentModifier: undefined,
+			fileName: COMPLEX_FILE,
+		});
 
-		// child suite - its
-		const childSuiteTest1 = childSuiteBlock.its[0] as unknown as ItBlock;
-		assert.strictEqual(childSuiteTest1.name, 'Child test 1 modifier: no parentModifier: only');
-		assert.strictEqual(childSuiteTest1.describeModifier, undefined); // TODO: Is it necessary to have this inside the test type structure?
-		assert.ok(childSuiteTest1.filePath.endsWith(COMPLEX_FILE));
-		assert.strictEqual(childSuiteTest1.line, 7);
-		assert.strictEqual(childSuiteTest1.modifier, null);
-		assert.strictEqual(childSuiteTest1.parentModifier, 'only');
+		// Assert: Verify child suite test cases
+		assertItBlock(childSuiteBlock.its[0] as unknown as ItBlock, {
+			name: 'Child test 1 modifier: no parentModifier: only',
+			line: 7,
+			modifier: null,
+			parentModifier: MOD_ONLY,
+			fileName: COMPLEX_FILE,
+		});
 
-		const childSuiteTest2 = childSuiteBlock.its[1] as unknown as ItBlock;
-		assert.strictEqual(childSuiteTest2.name, 'Child test 2 modifier: skip parentModifier: only');
-		assert.strictEqual(childSuiteTest2.describeModifier, undefined); // TODO: Is it necessary to have this inside the test type structure?
-		assert.ok(childSuiteTest2.filePath.endsWith(COMPLEX_FILE));
-		assert.strictEqual(childSuiteTest2.line, 8);
-		assert.strictEqual(childSuiteTest2.modifier, 'skip');
-		assert.strictEqual(childSuiteTest2.parentModifier, 'only');
+		assertItBlock(childSuiteBlock.its[1] as unknown as ItBlock, {
+			name: 'Child test 2 modifier: skip parentModifier: only',
+			line: 8,
+			modifier: MOD_SKIP,
+			parentModifier: MOD_ONLY,
+			fileName: COMPLEX_FILE,
+		});
 
-		const childSuiteTest3 = childSuiteBlock.its[2] as unknown as ItBlock;
-		assert.strictEqual(childSuiteTest3.name, 'Child test 3 modifier: no parentModifier: only');
-		assert.strictEqual(childSuiteTest3.describeModifier, undefined); // TODO: Is it necessary to have this inside the test type structure?
-		assert.ok(childSuiteTest3.filePath.endsWith(COMPLEX_FILE));
-		assert.strictEqual(childSuiteTest3.line, 9);
-		assert.strictEqual(childSuiteTest3.modifier, null);
-		assert.strictEqual(childSuiteTest3.parentModifier, 'only');
+		assertItBlock(childSuiteBlock.its[2] as unknown as ItBlock, {
+			name: 'Child test 3 modifier: no parentModifier: only',
+			line: 9,
+			modifier: null,
+			parentModifier: MOD_ONLY,
+			fileName: COMPLEX_FILE,
+		});
 
-		const childSuiteTest4 = childSuiteBlock.its[3] as unknown as ItBlock;
-		assert.strictEqual(childSuiteTest4.name, 'Child test 4 modifier: only parentModifier: only');
-		assert.strictEqual(childSuiteTest4.describeModifier, undefined); // TODO: Is it necessary to have this inside the test type structure?
-		assert.ok(childSuiteTest4.filePath.endsWith(COMPLEX_FILE));
-		assert.strictEqual(childSuiteTest4.line, 10);
-		assert.strictEqual(childSuiteTest4.modifier, 'only');
-		assert.strictEqual(childSuiteTest4.parentModifier, 'only');
+		assertItBlock(childSuiteBlock.its[3] as unknown as ItBlock, {
+			name: 'Child test 4 modifier: only parentModifier: only',
+			line: 10,
+			modifier: MOD_ONLY,
+			parentModifier: MOD_ONLY,
+			fileName: COMPLEX_FILE,
+		});
 
-		// grandchild suite 1
+		// Assert: Verify first grandchild suite block properties
 		const grandchildSuiteBlock1 = childSuiteBlock.children[0] as unknown as TestBlock;
-		assert.strictEqual(grandchildSuiteBlock1.children.length, 0);
-		assert.strictEqual(grandchildSuiteBlock1.describe, 'Grandchild suite 1 modifier: no parentModifier: only');
-		assert.ok(grandchildSuiteBlock1.filePath.endsWith(COMPLEX_FILE));
-		assert.strictEqual(grandchildSuiteBlock1.its.length, 5);
-		assert.strictEqual(grandchildSuiteBlock1.line, 12);
-		assert.strictEqual(grandchildSuiteBlock1.modifier, null);
-		assert.strictEqual(grandchildSuiteBlock1.parentModifier, 'only');
+		assertTestBlock(grandchildSuiteBlock1, {
+			childrenLength: 0,
+			describe: 'Grandchild suite 1 modifier: no parentModifier: only',
+			itsLength: 5,
+			line: 12,
+			modifier: null,
+			parentModifier: MOD_ONLY,
+			fileName: COMPLEX_FILE,
+		});
 
-		// grandchild suite 1 its
-		const grandchildSuite1Test1 = grandchildSuiteBlock1.its[0] as unknown as ItBlock;
-		assert.strictEqual(grandchildSuite1Test1.name, 'Grandchild suite 1 test 1 modifier: no parentModifier: only');
-		assert.strictEqual(grandchildSuite1Test1.describeModifier, undefined); // TODO: Is it necessary to have this inside the test type structure?
-		assert.ok(grandchildSuite1Test1.filePath.endsWith(COMPLEX_FILE));
-		assert.strictEqual(grandchildSuite1Test1.line, 13);
-		assert.strictEqual(grandchildSuite1Test1.modifier, null);
-		assert.strictEqual(grandchildSuite1Test1.parentModifier, 'only');
+		// Assert: Verify first grandchild suite test cases
+		assertItBlock(grandchildSuiteBlock1.its[0] as unknown as ItBlock, {
+			name: 'Grandchild suite 1 test 1 modifier: no parentModifier: only',
+			line: 13,
+			modifier: null,
+			parentModifier: MOD_ONLY,
+			fileName: COMPLEX_FILE,
+		});
 
-		const grandchildSuite1Test2 = grandchildSuiteBlock1.its[1] as unknown as ItBlock;
-		assert.strictEqual(grandchildSuite1Test2.name, 'Grandchild suite 1 test 2 modifier: skip parentModifier: only');
-		assert.strictEqual(grandchildSuite1Test2.describeModifier, undefined); // TODO: Is it necessary to have this inside the test type structure?
-		assert.ok(grandchildSuite1Test2.filePath.endsWith(COMPLEX_FILE));
-		assert.strictEqual(grandchildSuite1Test2.line, 14);
-		assert.strictEqual(grandchildSuite1Test2.modifier, 'skip');
-		assert.strictEqual(grandchildSuite1Test2.parentModifier, 'only');
+		assertItBlock(grandchildSuiteBlock1.its[1] as unknown as ItBlock, {
+			name: 'Grandchild suite 1 test 2 modifier: skip parentModifier: only',
+			line: 14,
+			modifier: MOD_SKIP,
+			parentModifier: MOD_ONLY,
+			fileName: COMPLEX_FILE,
+		});
 
-		const grandchildSuite1Test3 = grandchildSuiteBlock1.its[2] as unknown as ItBlock;
-		assert.strictEqual(grandchildSuite1Test3.name, 'Grandchild suite 1 test 3 modifier: no parentModifier: only');
-		assert.strictEqual(grandchildSuite1Test3.describeModifier, undefined); // TODO: Is it necessary to have this inside the test type structure?
-		assert.ok(grandchildSuite1Test3.filePath.endsWith(COMPLEX_FILE));
-		assert.strictEqual(grandchildSuite1Test3.line, 15);
-		assert.strictEqual(grandchildSuite1Test3.modifier, null);
-		assert.strictEqual(grandchildSuite1Test3.parentModifier, 'only');
+		assertItBlock(grandchildSuiteBlock1.its[2] as unknown as ItBlock, {
+			name: 'Grandchild suite 1 test 3 modifier: no parentModifier: only',
+			line: 15,
+			modifier: null,
+			parentModifier: MOD_ONLY,
+			fileName: COMPLEX_FILE,
+		});
 
-		const grandchildSuite1Test4 = grandchildSuiteBlock1.its[3] as unknown as ItBlock;
-		assert.strictEqual(grandchildSuite1Test4.name, 'Grandchild suite 1 test 4 modifier: only parentModifier: only');
-		assert.strictEqual(grandchildSuite1Test4.describeModifier, undefined); // TODO: Is it necessary to have this inside the test type structure?
-		assert.ok(grandchildSuite1Test4.filePath.endsWith(COMPLEX_FILE));
-		assert.strictEqual(grandchildSuite1Test4.line, 16);
-		assert.strictEqual(grandchildSuite1Test4.modifier, 'only');
-		assert.strictEqual(grandchildSuite1Test4.parentModifier, 'only');
+		assertItBlock(grandchildSuiteBlock1.its[3] as unknown as ItBlock, {
+			name: 'Grandchild suite 1 test 4 modifier: only parentModifier: only',
+			line: 16,
+			modifier: MOD_ONLY,
+			parentModifier: MOD_ONLY,
+			fileName: COMPLEX_FILE,
+		});
 
-		const grandchildSuite1Test5 = grandchildSuiteBlock1.its[4] as unknown as ItBlock;
-		assert.strictEqual(grandchildSuite1Test5.name, 'Grandchild suite 1 test 5 modifier: no parentModifier: only');
-		assert.strictEqual(grandchildSuite1Test5.describeModifier, undefined); // TODO: Is it necessary to have this inside the test type structure?
-		assert.ok(grandchildSuite1Test5.filePath.endsWith(COMPLEX_FILE));
-		assert.strictEqual(grandchildSuite1Test5.line, 17);
-		assert.strictEqual(grandchildSuite1Test5.modifier, null);
-		assert.strictEqual(grandchildSuite1Test5.parentModifier, 'only');
+		assertItBlock(grandchildSuiteBlock1.its[4] as unknown as ItBlock, {
+			name: 'Grandchild suite 1 test 5 modifier: no parentModifier: only',
+			line: 17,
+			modifier: null,
+			parentModifier: MOD_ONLY,
+			fileName: COMPLEX_FILE,
+		});
 
-		// grandchild suite 2
+		// Assert: Verify second grandchild suite block properties
 		const grandchildSuiteBlock2 = childSuiteBlock.children[1] as unknown as TestBlock;
-		assert.strictEqual(grandchildSuiteBlock2.children.length, 0);
-		assert.strictEqual(grandchildSuiteBlock2.describe, 'Grandchild suite 2 modifier: skip parentModifier: only');
-		assert.ok(grandchildSuiteBlock2.filePath.endsWith(COMPLEX_FILE));
-		assert.strictEqual(grandchildSuiteBlock2.its.length, 6);
-		assert.strictEqual(grandchildSuiteBlock2.line, 20);
-		assert.strictEqual(grandchildSuiteBlock2.modifier, 'skip');
-		assert.strictEqual(grandchildSuiteBlock2.parentModifier, 'only');
+		assertTestBlock(grandchildSuiteBlock2, {
+			childrenLength: 0,
+			describe: 'Grandchild suite 2 modifier: skip parentModifier: only',
+			itsLength: 6,
+			line: 20,
+			modifier: MOD_SKIP,
+			parentModifier: MOD_ONLY,
+			fileName: COMPLEX_FILE,
+		});
 
-		// grandchild suite 2 its
-		const grandchildSuite2Test1 = grandchildSuiteBlock2.its[0] as unknown as ItBlock;
-		assert.strictEqual(grandchildSuite2Test1.name, 'Grandchild suite 2 test 1 modifier: no parentModifier: skip');
-		assert.strictEqual(grandchildSuite2Test1.describeModifier, undefined); // TODO: Is it necessary to have this inside the test type structure?
-		assert.ok(grandchildSuite2Test1.filePath.endsWith(COMPLEX_FILE));
-		assert.strictEqual(grandchildSuite2Test1.line, 21);
-		assert.strictEqual(grandchildSuite2Test1.modifier, null);
-		assert.strictEqual(grandchildSuite2Test1.parentModifier, 'skip');
+		// Assert: Verify second grandchild suite test cases
+		assertItBlock(grandchildSuiteBlock2.its[0] as unknown as ItBlock, {
+			name: 'Grandchild suite 2 test 1 modifier: no parentModifier: skip',
+			line: 21,
+			modifier: null,
+			parentModifier: MOD_SKIP,
+			fileName: COMPLEX_FILE,
+		});
 
-		const grandchildSuite2Test2 = grandchildSuiteBlock2.its[1] as unknown as ItBlock;
-		assert.strictEqual(grandchildSuite2Test2.name, 'Grandchild suite 2 test 2 modifier: skip parentModifier: skip');
-		assert.strictEqual(grandchildSuite2Test2.describeModifier, undefined); // TODO: Is it necessary to have this inside the test type structure?
-		assert.ok(grandchildSuite2Test2.filePath.endsWith(COMPLEX_FILE));
-		assert.strictEqual(grandchildSuite2Test2.line, 22);
-		assert.strictEqual(grandchildSuite2Test2.modifier, 'skip');
-		assert.strictEqual(grandchildSuite2Test2.parentModifier, 'skip');
+		assertItBlock(grandchildSuiteBlock2.its[1] as unknown as ItBlock, {
+			name: 'Grandchild suite 2 test 2 modifier: skip parentModifier: skip',
+			line: 22,
+			modifier: MOD_SKIP,
+			parentModifier: MOD_SKIP,
+			fileName: COMPLEX_FILE,
+		});
 
-		const grandchildSuite2Test3 = grandchildSuiteBlock2.its[2] as unknown as ItBlock;
-		assert.strictEqual(grandchildSuite2Test3.name, 'Grandchild suite 2 test 3 modifier: no parentModifier: skip');
-		assert.strictEqual(grandchildSuite2Test3.describeModifier, undefined); // TODO: Is it necessary to have this inside the test type structure?
-		assert.ok(grandchildSuite2Test3.filePath.endsWith(COMPLEX_FILE));
-		assert.strictEqual(grandchildSuite2Test3.line, 23);
-		assert.strictEqual(grandchildSuite2Test3.modifier, null);
-		assert.strictEqual(grandchildSuite2Test3.parentModifier, 'skip');
+		assertItBlock(grandchildSuiteBlock2.its[2] as unknown as ItBlock, {
+			name: 'Grandchild suite 2 test 3 modifier: no parentModifier: skip',
+			line: 23,
+			modifier: null,
+			parentModifier: MOD_SKIP,
+			fileName: COMPLEX_FILE,
+		});
 
-		const grandchildSuite2Test4 = grandchildSuiteBlock2.its[3] as unknown as ItBlock;
-		assert.strictEqual(grandchildSuite2Test4.name, 'Grandchild suite 2 test 4 modifier: only parentModifier: skip');
-		assert.strictEqual(grandchildSuite2Test4.describeModifier, undefined); // TODO: Is it necessary to have this inside the test type structure?
-		assert.ok(grandchildSuite2Test4.filePath.endsWith(COMPLEX_FILE));
-		assert.strictEqual(grandchildSuite2Test4.line, 24);
-		assert.strictEqual(grandchildSuite2Test4.modifier, 'only');
-		assert.strictEqual(grandchildSuite2Test4.parentModifier, 'skip');
+		assertItBlock(grandchildSuiteBlock2.its[3] as unknown as ItBlock, {
+			name: 'Grandchild suite 2 test 4 modifier: only parentModifier: skip',
+			line: 24,
+			modifier: MOD_ONLY,
+			parentModifier: MOD_SKIP,
+			fileName: COMPLEX_FILE,
+		});
 
-		const grandchildSuite2Test5 = grandchildSuiteBlock2.its[4] as unknown as ItBlock;
-		assert.strictEqual(grandchildSuite2Test5.name, 'Grandchild suite 2 test 5 modifier: no parentModifier: skip');
-		assert.strictEqual(grandchildSuite2Test5.describeModifier, undefined); // TODO: Is it necessary to have this inside the test type structure?
-		assert.ok(grandchildSuite2Test5.filePath.endsWith(COMPLEX_FILE));
-		assert.strictEqual(grandchildSuite2Test5.line, 25);
-		assert.strictEqual(grandchildSuite2Test5.modifier, null);
-		assert.strictEqual(grandchildSuite2Test5.parentModifier, 'skip');
+		assertItBlock(grandchildSuiteBlock2.its[4] as unknown as ItBlock, {
+			name: 'Grandchild suite 2 test 5 modifier: no parentModifier: skip',
+			line: 25,
+			modifier: null,
+			parentModifier: MOD_SKIP,
+			fileName: COMPLEX_FILE,
+		});
 
-		const grandchildSuite2Test6 = grandchildSuiteBlock2.its[5] as unknown as ItBlock;
-		assert.strictEqual(grandchildSuite2Test6.name, 'Grandchild suite 2 test 6 modifier: no parentModifier: skip');
-		assert.strictEqual(grandchildSuite2Test6.describeModifier, undefined); // TODO: Is it necessary to have this inside the test type structure?
-		assert.ok(grandchildSuite2Test6.filePath.endsWith(COMPLEX_FILE));
-		assert.strictEqual(grandchildSuite2Test6.line, 26);
-		assert.strictEqual(grandchildSuite2Test6.modifier, null);
-		assert.strictEqual(grandchildSuite2Test6.parentModifier, 'skip');
+		assertItBlock(grandchildSuiteBlock2.its[5] as unknown as ItBlock, {
+			name: 'Grandchild suite 2 test 6 modifier: no parentModifier: skip',
+			line: 26,
+			modifier: null,
+			parentModifier: MOD_SKIP,
+			fileName: COMPLEX_FILE,
+		});
+	});
+
+	/**
+	 * Tests parsing of a test file containing:
+	 * - Multiple root-level describe blocks
+	 * - Each describe block contains one test case
+	 */
+	it('Parses a file with more than one root describe', async () => {
+		// Setup: Open the test file
+		const resourcePath = path.join(TEST_RESOURCES_PATH, MULTIPLE_ROOT_DESCRIBES);
+		const uri = vscode.Uri.file(resourcePath);
+		const doc = await vscode.workspace.openTextDocument(uri);
+
+		// Execute: Parse the test file
+		const structure = await parseTestFile(doc.uri, dummyLogger);
+		assert.strictEqual(structure.length, 2); // Verify two root describe blocks exist
+
+		// Assert: Verify first root suite block properties
+		const suiteBlock1: TestBlock = structure[0];
+		assertTestBlock(suiteBlock1, {
+			childrenLength: 0,
+			describe: 'Root suite 1',
+			itsLength: 1,
+			line: 1,
+			modifier: null,
+			parentModifier: undefined,
+			fileName: MULTIPLE_ROOT_DESCRIBES,
+		});
+
+		// Assert: Verify first root suite test case
+		assertItBlock(suiteBlock1.its[0] as unknown as ItBlock, {
+			name: 'Root suite 1 test 1',
+			line: 2,
+			modifier: null,
+			parentModifier: undefined,
+			fileName: MULTIPLE_ROOT_DESCRIBES,
+		});
+
+		// Assert: Verify second root suite block properties
+		const suiteBlock2: TestBlock = structure[1];
+		assertTestBlock(suiteBlock2, {
+			childrenLength: 0,
+			describe: 'Root suite 2',
+			itsLength: 1,
+			line: 5,
+			modifier: null,
+			parentModifier: undefined,
+			fileName: MULTIPLE_ROOT_DESCRIBES,
+		});
+
+		// Assert: Verify second root suite test case
+		assertItBlock(suiteBlock2.its[0] as unknown as ItBlock, {
+			name: 'Root suite 2 test 1',
+			line: 6,
+			modifier: null,
+			parentModifier: undefined,
+			fileName: MULTIPLE_ROOT_DESCRIBES,
+		});
 	});
 });
-
-// TODO: More than one root describe
