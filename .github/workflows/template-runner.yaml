@@ -1,0 +1,60 @@
+name: 📄 Runner CI - template
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+      nodejs:
+        required: false
+        default: "20.x"
+        type: string
+      code_type:
+        required: false
+        default: "stable"
+        type: string
+
+jobs:
+  test:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+      fail-fast: false
+
+    env:
+      CODE_TYPE: ${{ inputs.code_type }}
+      CODE_VERSION: ${{ inputs.version }}
+      TEST_RESOURCES: test-resources
+
+    steps:
+      - name: 👷🏻 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.nodejs }}
+          cache: npm
+
+      - name: 🔧 Install
+        run: npm ci
+
+      - name: 🔧 Build
+        run: npm run build
+
+      - name: ✨ Code Formatter - Prettier
+        run: npx prettier . --check
+
+      - name: 🔧 Install - ExTester Runner
+        run: npm install --workspace=extester-runner
+
+      - name: 🔍 Run Unit Tests (macOS, windows)
+        if: ${{ ! startsWith(matrix.os, 'ubuntu') }}
+        run: npm run test:runner:unit
+
+      - name: 🔍 Run Unit Tests (linux)
+        if: ${{ startsWith(matrix.os, 'ubuntu') }}
+        run: xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' npm run test:runner:unit

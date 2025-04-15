@@ -2,9 +2,9 @@ name: 🏗️ Main CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, extester-runner] # TODO remove 'extester-runner' branch before merge
   pull_request:
-    branches: [main]
+    branches: [main, extester-runner] # TODO remove 'extester-runner' branch before merge
   workflow_dispatch:
 
 concurrency:
@@ -22,22 +22,31 @@ jobs:
     with:
       version: ${{ matrix.version }}
 
+  runner:
+    name: extester-runner
+    strategy:
+      fail-fast: false
+    uses: ./.github/workflows/template-runner.yaml
+    with:
+      version: max
+
   check:
     if: always()
     runs-on: ubuntu-latest
     name: 🚦 Status Check
-    needs: [test]
+    needs: [test, runner]
     steps:
       - name: ℹ️ Test Matrix Result
         run: |
-          echo result = ${{ needs.test.result }}
+          echo Main Test result = ${{ needs.test.result }}
+          echo Runner Test result = ${{ needs.runner.result }}
       - name: ✅ Status Check - success
-        if: ${{ needs.test.result == 'success' }}
+        if: ${{ needs.test.result == 'success' }} && ${{ needs.runner.result == 'success' }}
         run: |
           echo "All tests successfully completed!"
           exit 0
       - name: ❌ Status Check - failure
-        if: ${{ needs.test.result != 'success' }}
+        if: ${{ needs.test.result != 'success' }} && ${{ needs.runner.result != 'success' }}
         run: |
           echo "Status Check failed!"
           exit 1
