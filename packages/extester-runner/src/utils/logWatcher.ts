@@ -53,21 +53,21 @@ export function createLogsWatcher(context: vscode.ExtensionContext, logsDataProv
 	/**
 	 * Event listener for file creation.
 	 */
-	watcher.onDidCreate((uri) => {
+	watcher.onDidCreate(() => {
 		logsDataProvider.refresh();
 	});
 
 	/**
 	 * Event listener for file deletion.
 	 */
-	watcher.onDidChange((uri) => {
+	watcher.onDidChange(() => {
 		logsDataProvider.refresh();
 	});
 
 	/**
 	 * Event listener for file modification.
 	 */
-	watcher.onDidDelete((uri) => {
+	watcher.onDidDelete(() => {
 		logsDataProvider.refresh();
 	});
 
