@@ -5,6 +5,7 @@
   "description": "Extension for vscode-extension-tester which allow users to run, debug, list tests directly inside VS Code.",
   "publisher": "ExTester",
   "preview": true,
+  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/redhat-developer/vscode-extension-tester.git",

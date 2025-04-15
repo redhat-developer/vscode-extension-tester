@@ -1,0 +1,93 @@
+name: 🚀 Publish ExTester Runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Version tag to publish (runner-vX.X.X)"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔖 Show input tag
+        run: echo "Publishing version ${{ github.event.inputs.tag }}"
+
+      - name: ✅ Validate tag format
+        run: |
+          TAG=${{ github.event.inputs.tag }}
+          if [[ ! "$TAG" =~ ^runner-v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid tag format: $TAG. Use format like 'runner-v1.2.3'"
+            exit 1
+          fi
+
+      - name: ✅ Verify Git tag exists
+        run: |
+          git fetch --tags
+          if ! git rev-parse "refs/tags/${{ github.event.inputs.tag }}" >/dev/null 2>&1; then
+            echo "❌ Tag '${{ github.event.inputs.tag }}' does not exist!"
+            exit 1
+          fi
+
+      - name: ✅ Ensure tag matches package.json version
+        working-directory: packages/extester-runner
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          TAG=${{ github.event.inputs.tag }}
+          TAG_VERSION=${TAG#runner-v}
+          echo "Package version: $PKG_VERSION"
+          echo "Input tag version: $TAG_VERSION"
+          if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
+            echo "❌ Tag version ($TAG_VERSION) does not match package.json version ($PKG_VERSION)!"
+            exit 1
+          fi
+
+      - name: 👷🏻 Checkout the tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag }}
+
+      - name: ⚙️ Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 📦 Install vsce
+        run: npm install -g @vscode/vsce
+
+      - name: 🔧 Install
+        run: npm ci
+
+      - name: 🔧 Build
+        run: npm run build
+
+      - name: 🛠 Extract version from a tag
+        id: version
+        run: echo "VERSION=${{ github.event.inputs.tag }}" | sed 's/^runner-v//' >> $GITHUB_OUTPUT
+
+      - name: 🛠 Package extension
+        working-directory: packages/extester-runner
+        run: vsce package -o extester-runner-${{ steps.version.outputs.VERSION }}.vsix
+
+      - name: 🧾 Inspect packaged contents
+        working-directory: packages/extester-runner
+        run: vsce ls extester-runner-${{ steps.version.outputs.VERSION }}.vsix
+
+      - name: 🚀 Publish to Marketplace
+        working-directory: packages/extester-runner
+        run: vsce publish --pat ${{ secrets.VSCODE_TOKEN }} --packagePath extester-runner-${{ steps.version.outputs.VERSION }}.vsix
+
+      - name: 💾 Upload VSIX
+        uses: actions/upload-artifact@v4
+        with:
+          name: extester-runner-${{ steps.version.outputs.VERSION }}.vsix
+          path: "packages/extester-runner/extester-runner-${{ steps.version.outputs.VERSION }}.vsix"
+
+      - name: 📣 Add summary
+        run: |
+          echo "### ✅ Published \`extester-runner-${{ steps.version.outputs.VERSION }}.vsix\` to Marketplace" >> $GITHUB_STEP_SUMMARY
