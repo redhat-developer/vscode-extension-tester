@@ -1,0 +1,54 @@
+name: 📦 ExTester Runner VSIX
+
+on:
+  push:
+    branches: [main, extester-runner] # TODO remove 'extester-runner' branch before merge
+    paths:
+      - packages/extester-runner/**
+  pull_request:
+    branches: [main, extester-runner] # TODO remove 'extester-runner' branch before merge
+    paths:
+      - packages/extester-runner/**
+
+jobs:
+  runner-snapshot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 👷🏻 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 📦 Install vsce
+        run: npm install -g @vscode/vsce
+
+      - name: 🔧 Install
+        run: npm ci
+
+      - name: 🔧 Build
+        run: npm run build --workspace=extester-runner
+
+      - name: 🛠 Read version from package.json
+        id: version
+        working-directory: packages/extester-runner
+        run: |
+          VERSION=$(node -p 'require("./package.json").version')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: 🛠 Package extension
+        working-directory: packages/extester-runner
+        run: vsce package -o extester-runner-${{ steps.version.outputs.version }}.vsix
+
+      - name: 🧾 Inspect packaged contents
+        working-directory: packages/extester-runner
+        run: vsce ls extester-runner-${{ steps.version.outputs.version }}.vsix
+
+      - name: 💾 Upload VSIX
+        uses: actions/upload-artifact@v4
+        with:
+          name: extester-runner-${{ steps.version.outputs.version }}.vsix
+          path: packages/extester-runner/extester-runner-${{ steps.version.outputs.version }}.vsix
