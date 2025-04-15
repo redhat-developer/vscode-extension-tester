@@ -359,7 +359,7 @@
     "watch": "tsc -watch -p ./",
     "compile": "tsc -p ./ && npm run lint",
     "lint": "eslint --fix --fix-type layout src",
-    "test": "vscode-test"
+    "test": "npm run compile && node ./out/test/runTest.js"
   },
   "devDependencies": {
     "@types/babel__traverse": "^7.20.7",
