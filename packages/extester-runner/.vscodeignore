@@ -1,5 +1,4 @@
 # Ignore unnecessary files
-node_modules/**
 .vscode/
 .vscode-test/
 .git/
