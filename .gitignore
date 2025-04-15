@@ -4,3 +4,4 @@ node_modules/
 tests/test-project/coverage/
 *.vsix
 dist/
+.vscode-test/
