@@ -8,7 +8,7 @@ on:
         required: true
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-and-publish:
@@ -60,6 +60,9 @@ jobs:
       - name: 📦 Install vsce
         run: npm install -g @vscode/vsce
 
+      - name: 📦 Install GitHub CLI
+        run: sudo apt-get install gh -y
+
       - name: 🔧 Install
         run: npm ci
 
@@ -82,12 +85,65 @@ jobs:
         working-directory: packages/extester-runner
         run: vsce publish --pat ${{ secrets.VSCODE_TOKEN }} --packagePath extester-runner-${{ steps.version.outputs.VERSION }}.vsix
 
+      - name: 📣 Add summary
+        run: |
+          echo "### ✅ Published \`extester-runner-${{ steps.version.outputs.VERSION }}.vsix\` to Marketplace" >> $GITHUB_STEP_SUMMARY
+
       - name: 💾 Upload VSIX
         uses: actions/upload-artifact@v4
         with:
           name: extester-runner-${{ steps.version.outputs.VERSION }}.vsix
           path: "packages/extester-runner/extester-runner-${{ steps.version.outputs.VERSION }}.vsix"
 
-      - name: 📣 Add summary
+      - name: 📝 Generate changelog
+        id: changelog
         run: |
-          echo "### ✅ Published \`extester-runner-${{ steps.version.outputs.VERSION }}.vsix\` to Marketplace" >> $GITHUB_STEP_SUMMARY
+          TAG=${{ github.event.inputs.tag }}
+          VERSION=${TAG#runner-v}
+          PREV_TAG=$(git tag --list "runner-v*" --sort=-creatordate | grep -v "$TAG" | head -n 1)
+
+          echo "Comparing changes from $PREV_TAG to $TAG in packages/extester-runner"
+
+          git fetch --unshallow || true
+
+          LOG=$(git log "$PREV_TAG..$TAG" -- packages/extester-runner --pretty=format:'%s (%h)')
+
+          format_section() {
+            local pattern="$1"
+            local title="$2"
+            local content=$(echo "$LOG" | grep -iE "^$pattern" || true)
+            if [[ -n "$content" ]]; then
+              echo "### $title"
+              echo "$content"
+              echo ""
+            fi
+          }
+
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+
+          format_section 'feat|feature' "🚀 Features"
+          format_section 'fix' "🚫 Bugs"
+          format_section 'test' "🔎 Tests"
+          format_section 'chore|refactor|internal' "🔧 Maintenance"
+          format_section 'deps|dependencies' "📦 Dependencies"
+
+          # Catch-all for anything else
+          OTHER=$(echo "$LOG" | grep -vE '^(feat|feature|fix|test|chore|refactor|internal|deps|dependencies)' || true)
+          if [[ -n "$OTHER" ]]; then
+            echo "### 🧼 Other Changes"
+            echo "$OTHER"
+            echo ""
+          fi
+
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: 🚀 Publish GitHub Release with VSIX
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: packages/extester-runner
+        run: |
+          TAG=${{ github.event.inputs.tag }}
+          gh release create "$TAG" --clobber \
+            --title "ExTester Runner v${{ steps.version.outputs.VERSION }}" \
+            --notes "${{ steps.changelog.outputs.changelog }}" \
+            "extester-runner-${{ steps.version.outputs.VERSION }}.vsix"
