@@ -36,7 +36,7 @@ export function registerViewCommands(context: vscode.ExtensionContext, treeDataP
 	context.subscriptions.push(
 		vscode.commands.registerCommand('extester-runner.refreshTests', async () => {
 			logger.debug('Command triggered: extester-runner.refreshTests');
-			treeDataProvider.refresh();
+			await treeDataProvider.refresh();
 		}),
 	);
 }

@@ -50,7 +50,7 @@ export class ExtesterTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 	constructor(logger: Logger) {
 		this.logger = logger;
 		this.logger.debug('Initial tests tree provider constructed.');
-		this.refresh(); // necessary to load initial data
+		void this.refresh(); // necessary to load initial data
 	}
 
 	/**
