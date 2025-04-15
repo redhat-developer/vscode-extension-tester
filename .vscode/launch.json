@@ -73,6 +73,14 @@
       "args": ["--extensionDevelopmentPath=${workspaceFolder}/tests/test-project"],
       "outFiles": ["${workspaceFolder}/tests/test-project/out/**/*.js"],
       "preLaunchTask": "npm: watch"
+    },
+    {
+      "name": "Launch ExTesterRunner",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}/packages/extester-runner"],
+      "outFiles": ["${workspaceFolder}/packages/extester-runner/out/**/*.js"],
+      "preLaunchTask": "npm: watch"
     }
   ]
 }

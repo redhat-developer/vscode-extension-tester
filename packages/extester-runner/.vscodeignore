@@ -5,8 +5,7 @@ node_modules/**
 .github/
 tests/
 src/
-out/
-dist/**/*.map
+out/**/*.map
 esbuild.js
 eslint.config.mjs
 tsconfig.json
