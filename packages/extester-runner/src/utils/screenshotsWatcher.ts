@@ -53,21 +53,21 @@ export function createScreenshotsWatcher(context: vscode.ExtensionContext, scree
 	/**
 	 * Event listener for file creation.
 	 */
-	watcher.onDidCreate((uri) => {
+	watcher.onDidCreate(() => {
 		screenshotsDataProvider.refresh();
 	});
 
 	/**
 	 * Event listener for file deletion.
 	 */
-	watcher.onDidChange((uri) => {
+	watcher.onDidChange(() => {
 		screenshotsDataProvider.refresh();
 	});
 
 	/**
 	 * Event listener for file modification.
 	 */
-	watcher.onDidDelete((uri) => {
+	watcher.onDidDelete(() => {
 		screenshotsDataProvider.refresh();
 	});
 

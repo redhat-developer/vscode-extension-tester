@@ -77,7 +77,7 @@ export async function parseTestFile(uri: vscode.Uri, logger: Logger): Promise<Te
 			// handle `describe` blocks
 			if (functionName === 'describe') {
 				const firstArg = path.node.arguments[0];
-				const describeName = extractTestName(t.isExpression(firstArg) ? firstArg : undefined, 'Unnamed Describe', logger);
+				const describeName = extractTestName(t.isExpression(firstArg) ? firstArg : undefined, 'Unnamed Describe');
 
 				const lastElement = stack.length > 0 ? stack[stack.length - 1] : null;
 				let parentDescribeModifier = lastElement?.modifier ?? lastElement?.parentModifier;
@@ -107,7 +107,7 @@ export async function parseTestFile(uri: vscode.Uri, logger: Logger): Promise<Te
 			// handle `it` blocks
 			if (functionName === 'it') {
 				const itArg = path.node.arguments[0];
-				const itName = extractTestName(t.isExpression(itArg) ? itArg : undefined, 'Unnamed It', logger);
+				const itName = extractTestName(t.isExpression(itArg) ? itArg : undefined, 'Unnamed It');
 
 				const lastElement = stack.length > 0 ? stack[stack.length - 1] : null;
 				let parentDescribeModifier = lastElement?.modifier ?? lastElement?.parentModifier;
@@ -164,10 +164,9 @@ export async function parseTestFile(uri: vscode.Uri, logger: Logger): Promise<Te
  *
  * @param {t.Expression | undefined} node - The AST node containing the test name.
  * @param {string} defaultName - The default name to use if extraction fails.
- * @param {Logger} logger - The logging utility for debugging.
  * @returns {string} - The extracted test name or the default name if extraction fails.
  */
-function extractTestName(node: t.Expression | undefined, defaultName: string, logger: Logger): string {
+function extractTestName(node: t.Expression | undefined, defaultName: string): string {
 	if (t.isStringLiteral(node)) {
 		return node.value; // regular string
 	} else if (t.isTemplateLiteral(node)) {
