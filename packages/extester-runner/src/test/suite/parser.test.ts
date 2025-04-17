@@ -121,7 +121,7 @@ function assertItBlock(
 	},
 ) {
 	assert.strictEqual(testCase.name, name);
-	assert.strictEqual(testCase.describeModifier, undefined); // maybe not neccesary at all in the type structure?
+	assert.strictEqual(testCase.describeModifier, undefined); // maybe not necessary at all in the type structure?
 	assert.ok(testCase.filePath.endsWith(fileName));
 	assert.strictEqual(testCase.line, line);
 	assert.strictEqual(testCase.modifier, modifier);
