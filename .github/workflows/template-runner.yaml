@@ -58,3 +58,11 @@ jobs:
       - name: 🔍 Run Unit Tests (linux)
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
         run: xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' npm run test:runner:unit
+
+      - name: 🔍 Run UI Tests (macOS, windows)
+        if: ${{ ! startsWith(matrix.os, 'ubuntu') }}
+        run: npm run test:runner:ui
+
+      - name: 🔍 Run UI Tests (linux)
+        if: ${{ startsWith(matrix.os, 'ubuntu') }}
+        run: xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' npm run test:runner:ui
