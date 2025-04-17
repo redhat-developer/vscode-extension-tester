@@ -67,7 +67,7 @@ const dummyLogger = new DummyLogger();
  * 3. Test compatibility with various test file patterns and globs
  * 4. Verify correct processing of additional command-line arguments
  * 5. Check proper handling of different temporary storage locations
- * 
+ *
  * Each test case uses a unique combination of these parameters to maximize test coverage
  * and catch potential edge cases in the task execution logic.
  */
