@@ -16,6 +16,7 @@
  */
 
 import * as path from 'path';
+import * as fs from 'fs';
 import * as os from 'os';
 import { downloadAndUnzipVSCode, runTests } from '@vscode/test-electron';
 
@@ -25,6 +26,10 @@ async function main() {
 		// Passed to `--extensionDevelopmentPath`
 		const extensionDevelopmentPath = path.resolve(__dirname, '../../');
 		console.log(`extensionDevelopmentPath = ${extensionDevelopmentPath}`);
+
+		const testWorkspace = path.resolve(__dirname, '../../', 'src/test/resources/testing-workspace');
+		console.log(`testWorkspace = ${testWorkspace}`);
+		fs.mkdirSync(testWorkspace);
 
 		// The path to the extension test runner script
 		// Passed to --extensionTestsPath
@@ -41,8 +46,10 @@ async function main() {
 			vscodeExecutablePath,
 			extensionDevelopmentPath,
 			extensionTestsPath,
-			launchArgs: ['--disable-workspace-trust', '--user-data-dir', `${os.tmpdir()}/.vscode-test`],
+			launchArgs: [testWorkspace, '--disable-workspace-trust', '--user-data-dir', `${os.tmpdir()}/.vscode-test`],
 		});
+
+		fs.rmSync(testWorkspace, { recursive: true, force: true });
 	} catch (err) {
 		console.error(err);
 		console.error('Failed to run tests');
