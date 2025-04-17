@@ -6,3 +6,5 @@ tests/test-project/coverage/
 dist/
 .vscode-test/
 .DS_Store
+test-resources
+.test-extensions

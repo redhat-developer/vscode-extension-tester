@@ -362,7 +362,7 @@
     "lint": "eslint --fix --fix-type layout src",
     "compile-tests": "tsc -p . --outDir out",
     "test": "npm run compile && node ./out/test/runTest.js",
-    "ui-test": "extest setup-and-run ./out/ui-test/*.test.js"
+    "ui-test": "extest setup-and-run ./out/ui-test/*.test.js --uninstall_extension --extensions_dir .test-extensions"
   },
   "devDependencies": {
     "@types/babel__traverse": "^7.20.7",
