@@ -73,15 +73,6 @@ const dummyLogger = new DummyLogger();
  * and catch potential edge cases in the task execution logic.
  */
 describe('Task Command Generation', () => {
-	// Ensure we have a workspace folder for tasks (simulate a workspace with a temp folder)
-	before(async () => {
-		if (!vscode.workspace.workspaceFolders) {
-			// If tests are run without an open folder, open the current directory as workspace
-			const folderUri = vscode.Uri.file(path.resolve(__dirname));
-			await vscode.workspace.updateWorkspaceFolders(0, 0, { uri: folderUri });
-		}
-	});
-
 	/**
 	 * Tests the RunFileTask command generation:
 	 * - Verifies correct output path mapping from source to compiled files
