@@ -11,3 +11,5 @@ eslint.config.mjs
 tsconfig.json
 ../**
 ../../**
+test-resources
+.test-extensions
