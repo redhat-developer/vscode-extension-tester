@@ -16,7 +16,9 @@
     "build:changed": "lerna run build --since main",
     "test": "npm run ui-test --workspace=extester-test",
     "test:coverage": "npm run ui-test:coverage --workspace=extester-test",
-    "test:build": "npm run build:changed && npm install --workspace=extester-test && npm test"
+    "test:build": "npm run build:changed && npm install --workspace=extester-test && npm test",
+    "test:runner:unit": "npm test --workspace=extester-runner",
+    "test:runner:ui": "npm run ui-test --workspace=extester-runner"
   },
   "workspaces": [
     "packages/*",
@@ -35,6 +37,7 @@
     "@types/vscode": "^1.97.0",
     "@typescript-eslint/eslint-plugin": "^8.29.1",
     "@typescript-eslint/parser": "^8.29.1",
+    "@vscode/vsce": "^3.3.2",
     "eslint": "^9.24.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-define-config": "^2.1.0",

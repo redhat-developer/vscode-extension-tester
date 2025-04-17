@@ -50,7 +50,7 @@ export function createFileWatcher(context: vscode.ExtensionContext, treeDataProv
 	 */
 	watcher.onDidCreate((uri) => {
 		logger.debug(`FileWatcher: Relevant file created: ${uri.fsPath}`);
-		treeDataProvider.refresh();
+		void treeDataProvider.refresh();
 	});
 
 	/**
@@ -58,7 +58,7 @@ export function createFileWatcher(context: vscode.ExtensionContext, treeDataProv
 	 */
 	watcher.onDidChange((uri) => {
 		logger.debug(`FileWatcher: Relevant file changed: ${uri.fsPath}`);
-		treeDataProvider.refresh();
+		void treeDataProvider.refresh();
 	});
 
 	/**
@@ -66,7 +66,7 @@ export function createFileWatcher(context: vscode.ExtensionContext, treeDataProv
 	 */
 	watcher.onDidDelete((uri) => {
 		logger.debug(`FileWatcher: Relevant file deleted: ${uri.fsPath}`);
-		treeDataProvider.refresh();
+		void treeDataProvider.refresh();
 	});
 
 	// Register the watcher for automatic disposal when the extension is deactivated.

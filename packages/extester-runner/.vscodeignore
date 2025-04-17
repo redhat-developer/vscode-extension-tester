@@ -1,14 +1,15 @@
 # Ignore unnecessary files
-node_modules/**
 .vscode/
+.vscode-test/
 .git/
 .github/
 tests/
 src/
-out/
-dist/**/*.map
+out/**/*.map
 esbuild.js
 eslint.config.mjs
 tsconfig.json
 ../**
 ../../**
+test-resources
+.test-extensions

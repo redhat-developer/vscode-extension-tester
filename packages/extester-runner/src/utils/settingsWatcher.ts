@@ -47,7 +47,7 @@ export function settingsWatcher(
 		vscode.workspace.onDidChangeConfiguration((event) => {
 			if (event.affectsConfiguration('extesterRunner')) {
 				logger.debug('SettingsWacther: Setting was changed, refreshing views.');
-				treeDataProvider.refresh();
+				void treeDataProvider.refresh();
 				logsDataProvider.refresh();
 				screenshotsDataProvider.refresh();
 

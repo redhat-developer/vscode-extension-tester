@@ -1,0 +1,149 @@
+name: 🚀 Publish ExTester Runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Version tag to publish (runner-vX.X.X)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔖 Show input tag
+        run: echo "Publishing version ${{ github.event.inputs.tag }}"
+
+      - name: ✅ Validate tag format
+        run: |
+          TAG=${{ github.event.inputs.tag }}
+          if [[ ! "$TAG" =~ ^runner-v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid tag format: $TAG. Use format like 'runner-v1.2.3'"
+            exit 1
+          fi
+
+      - name: ✅ Verify Git tag exists
+        run: |
+          git fetch --tags
+          if ! git rev-parse "refs/tags/${{ github.event.inputs.tag }}" >/dev/null 2>&1; then
+            echo "❌ Tag '${{ github.event.inputs.tag }}' does not exist!"
+            exit 1
+          fi
+
+      - name: ✅ Ensure tag matches package.json version
+        working-directory: packages/extester-runner
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          TAG=${{ github.event.inputs.tag }}
+          TAG_VERSION=${TAG#runner-v}
+          echo "Package version: $PKG_VERSION"
+          echo "Input tag version: $TAG_VERSION"
+          if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
+            echo "❌ Tag version ($TAG_VERSION) does not match package.json version ($PKG_VERSION)!"
+            exit 1
+          fi
+
+      - name: 👷🏻 Checkout the tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag }}
+
+      - name: ⚙️ Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 📦 Install vsce
+        run: npm install -g @vscode/vsce
+
+      - name: 📦 Install GitHub CLI
+        run: sudo apt-get install gh -y
+
+      - name: 🔧 Install
+        run: npm ci
+
+      - name: 🔧 Build
+        run: npm run build
+
+      - name: 🛠 Extract version from a tag
+        id: version
+        run: echo "VERSION=${{ github.event.inputs.tag }}" | sed 's/^runner-v//' >> $GITHUB_OUTPUT
+
+      - name: 🛠 Package extension
+        working-directory: packages/extester-runner
+        run: vsce package -o extester-runner-${{ steps.version.outputs.VERSION }}.vsix
+
+      - name: 🧾 Inspect packaged contents
+        working-directory: packages/extester-runner
+        run: vsce ls extester-runner-${{ steps.version.outputs.VERSION }}.vsix
+
+      - name: 🚀 Publish to Marketplace
+        working-directory: packages/extester-runner
+        run: vsce publish --pat ${{ secrets.VSCODE_TOKEN }} --packagePath extester-runner-${{ steps.version.outputs.VERSION }}.vsix
+
+      - name: 📣 Add summary
+        run: |
+          echo "### ✅ Published \`extester-runner-${{ steps.version.outputs.VERSION }}.vsix\` to Marketplace" >> $GITHUB_STEP_SUMMARY
+
+      - name: 💾 Upload VSIX
+        uses: actions/upload-artifact@v4
+        with:
+          name: extester-runner-${{ steps.version.outputs.VERSION }}.vsix
+          path: "packages/extester-runner/extester-runner-${{ steps.version.outputs.VERSION }}.vsix"
+
+      - name: 📝 Generate changelog
+        id: changelog
+        run: |
+          TAG=${{ github.event.inputs.tag }}
+          VERSION=${TAG#runner-v}
+          PREV_TAG=$(git tag --list "runner-v*" --sort=-creatordate | grep -v "$TAG" | head -n 1)
+
+          echo "Comparing changes from $PREV_TAG to $TAG in packages/extester-runner"
+
+          git fetch --unshallow || true
+
+          LOG=$(git log "$PREV_TAG..$TAG" -- packages/extester-runner --pretty=format:'%s (%h)')
+
+          format_section() {
+            local pattern="$1"
+            local title="$2"
+            local content=$(echo "$LOG" | grep -iE "^$pattern" || true)
+            if [[ -n "$content" ]]; then
+              echo "### $title"
+              echo "$content"
+              echo ""
+            fi
+          }
+
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+
+          format_section 'feat|feature' "🚀 Features"
+          format_section 'fix' "🚫 Bugs"
+          format_section 'test' "🔎 Tests"
+          format_section 'chore|refactor|internal' "🔧 Maintenance"
+          format_section 'deps|dependencies' "📦 Dependencies"
+
+          # Catch-all for anything else
+          OTHER=$(echo "$LOG" | grep -vE '^(feat|feature|fix|test|chore|refactor|internal|deps|dependencies)' || true)
+          if [[ -n "$OTHER" ]]; then
+            echo "### 🧼 Other Changes"
+            echo "$OTHER"
+            echo ""
+          fi
+
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: 🚀 Publish GitHub Release with VSIX
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: packages/extester-runner
+        run: |
+          TAG=${{ github.event.inputs.tag }}
+          gh release create "$TAG" --clobber \
+            --title "ExTester Runner v${{ steps.version.outputs.VERSION }}" \
+            --notes "${{ steps.changelog.outputs.changelog }}" \
+            "extester-runner-${{ steps.version.outputs.VERSION }}.vsix"
