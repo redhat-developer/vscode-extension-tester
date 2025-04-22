@@ -67,7 +67,8 @@ export class RunAllTestsTask extends TestRunner {
 		const testFileGlob = configuration.get<string>('testFileGlob') || '**/ui-test/**/*.test.ts';
 		logger.debug(`RunAllTask: Using glob pattern: ${testFileGlob}`);
 		const testFileGlobSegments = testFileGlob.split(/[\/\\]/).filter(Boolean);
-		const testFilePattern = testFileGlobSegments[testFileGlobSegments.length - 1].replace(/\.ts$/, '.js');
+		const testFilePattern = testFileGlobSegments.pop()!.replace(/\.ts$/, '.js');
+
 		logger.debug(`RunAllTask: Test file pattern: ${testFilePattern}`);
 
 		// Split paths into segments.
@@ -124,20 +125,20 @@ export class RunAllTestsTask extends TestRunner {
  * @returns If no common path exists or the input is empty, returns an empty string.
  */
 function getCommonPath(paths: string[]): string {
-	if (paths.length === 0) {
+	if (!paths.length) {
 		return '';
 	}
-
-	const splitPaths = paths.map((p) => p.split('/'));
-	const firstPath = splitPaths[0];
-	let commonParts: string[] = [];
-
-	for (let i = 0; i < firstPath.length; i++) {
-		if (splitPaths.every((parts) => parts[i] === firstPath[i])) {
-			commonParts.push(firstPath[i]);
+	// split on either / or \
+	const splitPaths = paths.map((p) => p.split(/[\/\\]/));
+	const first = splitPaths[0];
+	let common: string[] = [];
+	for (let i = 0; i < first.length; i++) {
+		if (splitPaths.every((sp) => sp[i] === first[i])) {
+			common.push(first[i]);
 		} else {
 			break;
 		}
 	}
-	return commonParts.join('/');
+	// join back with the platform’s own separator
+	return common.join(path.sep);
 }
