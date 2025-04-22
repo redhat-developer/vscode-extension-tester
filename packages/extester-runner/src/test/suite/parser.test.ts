@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -38,12 +37,12 @@ import {
  * All methods are implemented as no-ops to avoid actual output during tests.
  */
 const dummyOutputChannel: vscode.OutputChannel = {
-	append: (value: string): void => {},
-	appendLine: (value: string): void => {},
+	append: (): void => {},
+	appendLine: (): void => {},
 	clear: (): void => {},
-	replace: (value: string): void => {},
-	show: function (arg?: vscode.ViewColumn | boolean, preserveFocus?: boolean): void {
-		// No-op implementation: ignore arguments.
+	replace: (): void => {},
+	show: function (): void {
+		// no-op implementation
 	},
 	hide: (): void => {},
 	dispose: (): void => {},
@@ -60,9 +59,9 @@ class DummyLogger extends Logger {
 		super(dummyOutputChannel);
 	}
 	// Override the logging methods to no-op implementations.
-	debug(message?: any, ...optionalParams: any[]): void {}
-	info(message?: any, ...optionalParams: any[]): void {}
-	error(message?: any, ...optionalParams: any[]): void {}
+	debug(): void {}
+	info(): void {}
+	error(): void {}
 }
 
 // Create an instance of DummyLogger to use in tests.
