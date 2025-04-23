@@ -13,9 +13,6 @@ concurrency:
 
 jobs:
   runner:
-    name: extester-runner
-    strategy:
-      fail-fast: false
     uses: ./.github/workflows/template-runner.yaml
     with:
       version: max
