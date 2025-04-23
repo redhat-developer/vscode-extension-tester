@@ -47,10 +47,21 @@ export class ExtesterTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 	 *
 	 * @param {Logger} logger - The logging utility for debugging and tracking file operations.
 	 */
-	constructor(logger: Logger) {
+	private constructor(logger: Logger) {
 		this.logger = logger;
 		this.logger.debug('Initial tests tree provider constructed.');
-		void this.refresh(); // necessary to load initial data
+	}
+
+	/**
+	 * Creates and initializes a new instance of ExtesterTreeProvider.
+	 *
+	 * @param {Logger} logger - The logging utility for debugging and tracking file operations.
+	 * @returns {Promise<ExtesterTreeProvider>} - A promise that resolves to the initialized provider.
+	 */
+	static async create(logger: Logger): Promise<ExtesterTreeProvider> {
+		const provider = new ExtesterTreeProvider(logger);
+		await provider.refresh();
+		return provider;
 	}
 
 	/**

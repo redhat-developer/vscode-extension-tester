@@ -59,9 +59,15 @@ class DummyLogger extends Logger {
 		super(dummyOutputChannel);
 	}
 	// Override the logging methods to no-op implementations.
-	debug(): void {}
-	info(): void {}
-	error(): void {}
+	debug(): void {
+		// empty debug method since we don't want to output logs during tests
+	}
+	info(): void {
+		// empty info method since we don't want to output logs during tests
+	}
+	error(): void {
+		// empty error method since we don't want to output logs during tests
+	}
 }
 
 // Create an instance of DummyLogger to use in tests.

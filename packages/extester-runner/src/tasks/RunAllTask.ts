@@ -129,7 +129,7 @@ function getCommonPath(paths: string[]): string {
 		return '';
 	}
 	// split on either / or \
-	const splitPaths = paths.map((p) => p.split(/[\/\\]/));
+	const splitPaths = paths.map((p) => p.split(/[/\\]/));
 	const first = splitPaths[0];
 	let common: string[] = [];
 	for (let i = 0; i < first.length; i++) {
@@ -139,6 +139,6 @@ function getCommonPath(paths: string[]): string {
 			break;
 		}
 	}
-	// join back with the platform’s own separator
+	// join back with the platform's own separator
 	return common.join(path.sep);
 }
