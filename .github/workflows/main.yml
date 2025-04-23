@@ -48,12 +48,12 @@ jobs:
           echo Main Test result = ${{ needs.test.result }}
           echo Runner Test result = ${{ needs.runner.result }}
       - name: ✅ Status Check - success
-        if: ${{ needs.test.result == 'success' }} && ${{ needs.runner.result == 'success' }}
+        if: ${{ needs.test.result == 'success' }} && ${{ needs.runner.test.result == 'success' }}
         run: |
           echo "All tests successfully completed!"
           exit 0
       - name: ❌ Status Check - failure
-        if: ${{ needs.test.result != 'success' }} || ${{ needs.runner.result != 'success' }}
+        if: ${{ needs.test.result != 'success' }} || ${{ needs.runner.test.result != 'success' }}
         run: |
           echo "Status Check failed!"
           exit 1
