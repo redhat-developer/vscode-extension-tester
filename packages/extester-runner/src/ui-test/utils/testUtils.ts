@@ -60,6 +60,7 @@ export async function extensionIsActivated(displayName: string): Promise<boolean
 			return false;
 		}
 	} catch (err) {
+		console.error('Error checking extension activation status:', err);
 		return false;
 	}
 }

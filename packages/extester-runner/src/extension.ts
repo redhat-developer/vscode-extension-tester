@@ -51,7 +51,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	// Register the tree views:
 	// test view
-	const treeDataProvider = new ExtesterTreeProvider(logger);
+	const treeDataProvider = await ExtesterTreeProvider.create(logger);
 	logger.debug('Registering test tree view.');
 	vscode.window.createTreeView('extesterView', {
 		treeDataProvider: treeDataProvider,
