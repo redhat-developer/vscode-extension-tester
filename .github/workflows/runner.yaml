@@ -1,10 +1,6 @@
 name: 🏗️ Runner CI
 
 on:
-  push:
-    branches: [main, extester-runner] # TODO remove 'extester-runner' branch before merge
-    paths:
-      - packages/extester-runner/**
   pull_request:
     branches: [main, extester-runner] # TODO remove 'extester-runner' branch before merge
     paths:
