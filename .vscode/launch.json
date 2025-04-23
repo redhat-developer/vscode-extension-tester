@@ -70,7 +70,7 @@
       "name": "Launch Test Extension",
       "type": "extensionHost",
       "request": "launch",
-      "args": ["--disable-extensions","--extensionDevelopmentPath=${workspaceFolder}/tests/test-project"],
+      "args": ["--disable-extensions", "--extensionDevelopmentPath=${workspaceFolder}/tests/test-project"],
       "outFiles": ["${workspaceFolder}/tests/test-project/out/**/*.js"],
       "preLaunchTask": "npm: watch"
     },
@@ -78,7 +78,7 @@
       "name": "Launch ExTester Runner",
       "type": "extensionHost",
       "request": "launch",
-      "args": ["--disable-extensions","--extensionDevelopmentPath=${workspaceFolder}/packages/extester-runner"],
+      "args": ["--disable-extensions", "--extensionDevelopmentPath=${workspaceFolder}/packages/extester-runner"],
       "outFiles": ["${workspaceFolder}/packages/extester-runner/out/**/*.js"],
       "preLaunchTask": "npm: watch"
     }
