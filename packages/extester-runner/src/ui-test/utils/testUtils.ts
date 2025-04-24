@@ -4,9 +4,34 @@ import { ActivityBar, By, ExtensionsViewItem, ExtensionsViewSection, WebDriver }
 export const RESOURCES: string = path.resolve('src', 'ui-test', 'resources');
 export const EXAMPLE_PROJECT: string = path.join(RESOURCES, 'example-project');
 
+// actions
+export const CREATE_LOG_FILE = 'createLog.test.ts';
+export const CREATE_SCREENSHOT_FILE = 'createScreenshot.test.ts';
+
+// parser
+export const COMPLEX_FILE = 'complexFile.test.ts';
+export const MULTIPLE_ROOT_DESCRIBES = 'multipleRootDescribes.test.ts';
+export const SIMPLE_FILE = 'simpleFile.test.ts';
+export const SIMPLE_FILE_WITH_MODIFIERS = 'simpleFileWithModifiers.test.ts';
+export const SIMPLE_FILE_WITH_VARIABLES = 'simpleFileWithVariable.test.ts';
+
 export const EXTESTER_RUNNER = 'ExTester Runner';
 
+// view
+export const TEST_FILE_GLOB_SETTINGS_ID = 'extesterRunner.testFileGlob';
+export const EXCLUDE_GLOB_SETTINGS_ID = 'extesterRunner.excludeGlob';
+export const IGNORE_PATH_PART_SETTINGS_ID = 'extesterRunner.ignorePathPart';
+
+// command line
+export const OUTPUT_FOLDER_SETTINGS_ID = 'extesterRunner.outputFolder';
+export const ROOT_FOLDER_SETTINGS_ID = 'extesterRunner.rootFolder';
 export const TEMP_FOLDER_SETTINGS_ID = 'extesterRunner.tempFolder';
+export const VSCODE_VERSION_SETTING_ID = 'extesterRunner.visualStudioCode.Version';
+export const VSCODE_TYPE_SETTING_ID = 'extesterRunner.visualStudioCode.Type';
+export const ADDITIONAL_ARGS_SETTINGS_ID = 'extesterRunner.additionalArgs';
+
+// logs
+export const HIDE_EMPTY_LOGS_FOLDERS_SETTINGS_ID = 'extesterRunner.hideEmptyLogFolders';
 
 export const TESTS_VIEW = 'UI Tests';
 export const TESTS_VIEW_NO_TESTS = 'No tests';
