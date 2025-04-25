@@ -28,7 +28,7 @@ import * as pjson from '../../package.json';
 
 /**
  * Main test suite for ExTester Runner extension verification
- * 
+ *
  * This suite contains tests that verify the basic functionality and installation
  * status of the ExTester Runner extension. It uses the VS Code Extension Tester
  * framework to interact with the VS Code UI and verify extension properties.
@@ -49,7 +49,7 @@ describe('ExTester Runner', function () {
 
 	/**
 	 * Test suite for verifying extension installation and metadata
-	 * 
+	 *
 	 * This suite focuses on verifying that the extension is properly installed
 	 * and displays the correct information in the VS Code Extensions view.
 	 */
