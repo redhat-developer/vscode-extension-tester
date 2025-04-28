@@ -52,7 +52,7 @@ describe('Parser test suite', function () {
 
 	/**
 	 * Helper function to update the test file glob setting
-	 * 
+	 *
 	 * @param value The new value for the test file glob setting
 	 */
 	async function updateSettings(value: string): Promise<void> {
@@ -297,7 +297,7 @@ describe('Parser test suite', function () {
 	/**
 	 * Verifies parsing of a complex test file with nested describe blocks and various modifiers
 	 * Tests that complex test structures are correctly displayed in the tree view
-	 * 
+	 *
 	 * @note This test is currently skipped as the content is too large to fit on the test screen
 	 */
 	it.skip('complexFile.test.ts', async function () {
