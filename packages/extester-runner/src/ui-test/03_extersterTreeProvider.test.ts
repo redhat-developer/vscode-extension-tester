@@ -14,9 +14,9 @@ import { expect } from 'chai';
 
 // Constants for test values
 const TEST_FILE_GLOB = '**/parser/*.test.ts';
-const PARSER_FOLDER = 'src/parser';
+const PARSER_FOLDER = process.platform === 'win32' ? 'src\\parser' : 'src/parser';
 
-(process.platform === 'win32' ? describe.skip : describe)('Parser test suite', function () {
+describe('Parser test suite', function () {
 	let originalTestFileGlobValue: string;
 	this.timeout(60000);
 
