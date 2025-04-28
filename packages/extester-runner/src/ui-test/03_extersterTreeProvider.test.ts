@@ -1,3 +1,26 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License", destination); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This test suite verifies the functionality of the ExTester Tree Provider.
+ * It performs UI-based tests to ensure that the test files are properly parsed
+ * and displayed in the VS Code test explorer tree view.
+ */
+
 import { EditorView, VSBrowser, Workbench, ActivityBar, DefaultTreeSection } from 'vscode-extension-tester';
 import {
 	EXAMPLE_PROJECT,
@@ -16,11 +39,22 @@ import { expect } from 'chai';
 const TEST_FILE_GLOB = '**/parser/*.test.ts';
 const PARSER_FOLDER = process.platform === 'win32' ? 'src\\parser' : 'src/parser';
 
+/**
+ * Main test suite for ExTester Tree Provider verification
+ *
+ * This suite contains tests that verify the proper parsing and display of test files
+ * in the VS Code test explorer tree view. It tests various test file structures including
+ * simple tests, tests with modifiers, tests with variables, and complex nested test structures.
+ */
 describe('Parser test suite', function () {
 	let originalTestFileGlobValue: string;
 	this.timeout(60000);
 
-	// Helper function to update settings
+	/**
+	 * Helper function to update the test file glob setting
+	 *
+	 * @param value The new value for the test file glob setting
+	 */
 	async function updateSettings(value: string): Promise<void> {
 		const workbench = new Workbench();
 		const settingsEditor = await workbench.openSettings();
@@ -32,6 +66,10 @@ describe('Parser test suite', function () {
 		await settingControl.setValue(value);
 	}
 
+	/**
+	 * Setup function that runs before all tests
+	 * Configures the test file glob setting and opens the example project
+	 */
 	before(async function () {
 		this.timeout(30000);
 		await updateSettings(TEST_FILE_GLOB);
@@ -43,11 +81,19 @@ describe('Parser test suite', function () {
 		await browser.openResources(EXAMPLE_PROJECT);
 	});
 
+	/**
+	 * Cleanup function that runs after all tests
+	 * Restores the original test file glob setting
+	 */
 	after(async function () {
 		this.timeout(15000);
 		await updateSettings(originalTestFileGlobValue);
 	});
 
+	/**
+	 * Verifies parsing of a simple test file with no modifiers
+	 * Tests that the describe and it blocks are correctly displayed in the tree view
+	 */
 	it('simpleFile.test.ts', async function () {
 		const EXPECTED_DESCRIBE = 'Simple suite without modifier';
 		const EXPECTED_TEST = 'Simple test without modifier';
@@ -91,6 +137,10 @@ describe('Parser test suite', function () {
 		assert.strictEqual(firstItLabel.trim(), EXPECTED_TEST);
 	});
 
+	/**
+	 * Verifies parsing of a test file with modifiers
+	 * Tests that the describe.only and it.skip modifiers are correctly displayed in the tree view
+	 */
 	it('simpleFileWithModifier.test.ts', async function () {
 		const EXPECTED_DESCRIBE = 'Simple suite with only modifier [only]';
 		const EXPECTED_TEST = 'Simple test with skip modifier [skip]';
@@ -134,6 +184,10 @@ describe('Parser test suite', function () {
 		assert.strictEqual(firstItLabel.trim(), EXPECTED_TEST);
 	});
 
+	/**
+	 * Verifies parsing of a test file with variables
+	 * Tests that variables in describe and it blocks are correctly displayed in the tree view
+	 */
 	it('simpleFileWithVariable.test.ts', async function () {
 		const EXPECTED_DESCRIBE = 'Simple suite with ${variable}';
 		const EXPECTED_TEST = 'Simple test with ${variable}';
@@ -177,6 +231,10 @@ describe('Parser test suite', function () {
 		assert.strictEqual(firstItLabel.trim(), EXPECTED_TEST);
 	});
 
+	/**
+	 * Verifies parsing of a test file with multiple root describe blocks
+	 * Tests that multiple root-level describe blocks are correctly displayed in the tree view
+	 */
 	it('multipleRootDescribe.test.ts', async function () {
 		const EXPECTED_DESCRIBE_1 = 'Root suite 1';
 		const EXPECTED_TEST_1 = 'Root suite 1 test 1';
@@ -205,7 +263,7 @@ describe('Parser test suite', function () {
 		const item = await tree.findItem(MULTIPLE_ROOT_DESCRIBES);
 		await item?.expand();
 
-		// Verify describe block
+		// Verify describe blocks
 		const describes = await item?.getChildren();
 		assert.ok(describes?.length === 2, `${MULTIPLE_ROOT_DESCRIBES} should have exactly two describes`);
 
@@ -222,8 +280,6 @@ describe('Parser test suite', function () {
 		const firstDesribeFirstItLabel = await firstDesribeFirstIt.getLabel();
 		assert.strictEqual(firstDesribeFirstItLabel.trim(), EXPECTED_TEST_1);
 
-		// first describe second test
-
 		// second describe
 		const secondDescribe = describes[1];
 		const secondDescribeLabel = await secondDescribe.getLabel();
@@ -238,7 +294,12 @@ describe('Parser test suite', function () {
 		assert.strictEqual(secondDescribeFirstItLabel.trim(), EXPECTED_TEST_2);
 	});
 
-	// skipping as the content is so big that won't fit on test screen and results as test failure -> to be fixed
+	/**
+	 * Verifies parsing of a complex test file with nested describe blocks and various modifiers
+	 * Tests that complex test structures are correctly displayed in the tree view
+	 *
+	 * @note This test is currently skipped as the content is too large to fit on the test screen
+	 */
 	it.skip('complexFile.test.ts', async function () {
 		// Setup test view
 		const runnerView = await (await new ActivityBar().getViewControl(EXTESTER_RUNNER))?.openView();
