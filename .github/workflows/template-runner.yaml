@@ -51,6 +51,10 @@ jobs:
       - name: 🔧 Install - ExTester Runner
         run: npm install --workspace=extester-runner
 
+      - name: ⚙️ Allow unprivileged user namespace (ubuntu)
+        if: ${{ startsWith(matrix.os, 'ubuntu') }}
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
       - name: 🔍 Run Unit Tests (macOS, windows)
         if: ${{ ! startsWith(matrix.os, 'ubuntu') }}
         run: npm run test:runner:unit
