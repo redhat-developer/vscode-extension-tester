@@ -72,13 +72,13 @@ describe('Parser test suite', function () {
 	 */
 	before(async function () {
 		this.timeout(30000);
-		await updateSettings(TEST_FILE_GLOB);
-
-		const editorView = new EditorView();
-		await editorView.closeAllEditors();
 
 		const browser = VSBrowser.instance;
 		await browser.openResources(EXAMPLE_PROJECT);
+
+		await updateSettings(TEST_FILE_GLOB);
+		const editorView = new EditorView();
+		await editorView.closeAllEditors();
 	});
 
 	/**
