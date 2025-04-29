@@ -1,17 +1,11 @@
 {
-  "compilerOptions": {
-    "target": "ES2020",
-    "module": "commonjs",
-    "lib": ["ES2020"],
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "outDir": "out",
-    "rootDir": "src",
-    "sourceMap": true,
-    "declaration": true
-  },
-  "include": ["src"],
-  "exclude": ["node_modules", "out"]
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "rootDir": "src",
+        "outDir": "out",
+        "strict": true,
+        "esModuleInterop": true
+    },
+    "include": ["src/**/*"],
 }
