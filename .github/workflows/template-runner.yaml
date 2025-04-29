@@ -51,6 +51,12 @@ jobs:
       - name: 🔧 Install - ExTester Runner
         run: npm install --workspace=extester-runner
 
+      - name: 🔧 Install - Example Project
+        run: |
+          cd packages/extester-runner/src/ui-test/resources/example-project
+          npm install
+          cd ${{ github.workspace }}
+
       - name: ⚙️ Allow unprivileged user namespace (ubuntu)
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
         run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0

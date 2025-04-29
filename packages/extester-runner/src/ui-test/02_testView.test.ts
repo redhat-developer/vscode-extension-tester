@@ -41,6 +41,7 @@ import { assert } from 'chai';
 let originalValue: string | boolean | undefined; // Stores the original value of the temp folder setting
 
 /**
+ * / /TODO :TOHLE JE POTREBA DAT DDOVNITR
  * Setup function that runs before all tests
  * Configures a temporary folder for test data and ensures a clean editor state
  */
