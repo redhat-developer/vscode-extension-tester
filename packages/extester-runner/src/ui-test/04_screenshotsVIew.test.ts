@@ -22,12 +22,7 @@
  */
 
 import * as assert from 'assert';
-import {
-	TreeItem,
-	ViewSection,
-	VSBrowser,
-	WebDriver
-} from 'vscode-extension-tester';
+import { TreeItem, ViewSection, VSBrowser, WebDriver } from 'vscode-extension-tester';
 import {
 	ACTIONS_FOLDER,
 	EXAMPLE_PROJECT,
@@ -39,7 +34,7 @@ import {
 	TEST_FILE_GLOB_SETTINGS_DEFAULT,
 	TEST_FILE_GLOB_SETTINGS_ID,
 	updateSettings,
-	waitUntilTerminalHasText
+	waitUntilTerminalHasText,
 } from './utils/testUtils';
 import path from 'path';
 import fs from 'fs';
@@ -59,7 +54,7 @@ describe.skip('Screenshots view test suite', function () {
 
 	/**
 	 * Initializes the test environment before running the suite.
-	 * @description Sets up the necessary configuration including:
+	 * Sets up the necessary configuration including:
 	 * - Opening the example project
 	 * - Configuring test file glob pattern
 	 * - Setting root and output folders
@@ -81,7 +76,7 @@ describe.skip('Screenshots view test suite', function () {
 
 	/**
 	 * Cleans up the test environment after the suite completes.
-	 * @description Resets all settings to their default values and removes the temporary test folder.
+	 * Resets all settings to their default values and removes the temporary test folder.
 	 */
 	after(async function () {
 		this.timeout(30000);
@@ -100,7 +95,7 @@ describe.skip('Screenshots view test suite', function () {
 
 	/**
 	 * Verifies the correct display when no screenshots are present in the test view.
-	 * @description Tests that the screenshots view properly displays a message when no screenshots are available.
+	 * Tests that the screenshots view properly displays a message when no screenshots are available.
 	 */
 	it('no screenshot avialble', async function () {
 		let section: ViewSection;
@@ -114,7 +109,7 @@ describe.skip('Screenshots view test suite', function () {
 
 	/**
 	 * Tests the process of creating and displaying screenshots in the test view.
-	 * @description Verifies that screenshots can be created and are properly displayed in the screenshots view.
+	 * Verifies that screenshots can be created and are properly displayed in the screenshots view.
 	 * @steps
 	 * 1. Opens the actions folder in the test view
 	 * 2. Locates and interacts with createScreenshot.test.ts

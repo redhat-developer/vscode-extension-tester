@@ -1,8 +1,7 @@
 {
-    "require": ["ts-node/register"],
-    "timeout": 120000,
-    "recursive": true,
-    "spec": "src/**/*.test.ts",
-    "reporter": "spec"
-  }
-  
+  "require": ["ts-node/register"],
+  "timeout": 120000,
+  "recursive": true,
+  "spec": "src/**/*.test.ts",
+  "reporter": "spec"
+}
