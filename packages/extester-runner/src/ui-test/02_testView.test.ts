@@ -21,9 +21,8 @@
  * contain the correct elements, and show appropriate messages when no data is present.
  */
 
-import { ActivityBar, EditorView, ViewSection, Workbench } from 'vscode-extension-tester';
+import { ViewSection } from 'vscode-extension-tester';
 import {
-	EXTESTER_RUNNER,
 	SCREENSHOTS_VIEW,
 	SCREENSHOTS_VIEW_NO_SCREENSHOTS,
 	TESTS_VIEW_NO_TESTS,
@@ -35,212 +34,182 @@ import {
 	SCREENSHOTS_VIEW_REFRESH_BTN,
 	LOGS_VIEW_REFRESH_BTN,
 	TEMP_FOLDER_SETTINGS_ID,
+	getSection,
+	updateSettings,
 } from './utils/testUtils';
 import { assert } from 'chai';
 
-let originalValue: string | boolean | undefined; // Stores the original value of the temp folder setting
-
 /**
- * / /TODO :TOHLE JE POTREBA DAT DDOVNITR
- * Setup function that runs before all tests
- * Configures a temporary folder for test data and ensures a clean editor state
+ * Test suite for empty views
+ * Verifies the correct display and functionality of all views when no data is present
  */
-before(async function () {
-	this.timeout(10000);
-
-	const workbench = new Workbench();
-	const settingsEditor = await workbench.openSettings();
-	const setting = await settingsEditor.findSettingByID(TEMP_FOLDER_SETTINGS_ID);
-	const testValue = `temp-${Math.random().toString(36).substring(2, 10)}`; // random folder for empty logs and screenshots
-
-	if (setting) {
-		originalValue = await setting.getValue();
-		await setting.setValue(testValue);
-	} else {
-		throw new Error('Setting not found');
-	}
-
-	const editorView = new EditorView();
-	await editorView.closeAllEditors();
-});
-
-/**
- * Cleanup function that runs after all tests
- * Restores the original temp folder setting and ensures a clean editor state
- */
-after(async function () {
-	this.timeout(10000);
-
-	if (originalValue) {
-		const workbench = new Workbench();
-		const settingsEditor = await workbench.openSettings();
-		const setting = await settingsEditor.findSettingByID(TEMP_FOLDER_SETTINGS_ID);
-
-		await setting.setValue(originalValue);
-
-		const editorView = new EditorView();
-		await editorView.closeAllEditors();
-	}
-});
-
-/**
- * Test suite for the Tests view
- * Verifies the correct display and functionality of the Tests view panel
- */
-describe('UI Tests view', function () {
-	let section: ViewSection;
-
+describe('Empty View Tests', function () {
 	/**
-	 * Setup function that runs before each test in this suite
-	 * Retrieves the Tests view section
+	 * Setup function that runs before all tests
+	 * Configures a temporary folder for test data and ensures a clean editor state
 	 */
 	before(async function () {
-		section = await getSection(0);
+		this.timeout(10000);
+		const testValue = `temp-${Math.random().toString(36).substring(2, 10)}`; // random folder for empty logs and screenshots
+		await updateSettings(TEMP_FOLDER_SETTINGS_ID, testValue);
 	});
 
 	/**
-	 * Verifies that the Tests view has the correct title
+	 * Cleanup function that runs after all tests
+	 * Restores the original temp folder setting and ensures a clean editor state
 	 */
-	it('has right title', async function () {
-		const title = await section.getTitle();
-		assert.equal(title, TESTS_VIEW);
+	after(async function () {
+		this.timeout(10000);
+		await updateSettings(TEMP_FOLDER_SETTINGS_ID, ' ');
 	});
 
 	/**
-	 * Verifies that the Tests view shows the correct message when no tests are present
+	 * Test suite for the Tests view
+	 * Verifies the correct display and functionality of the Tests view panel
 	 */
-	it('shows no tests message', async function () {
-		const visibleItems = await section.getVisibleItems();
-		assert.equal(visibleItems.length, 1);
+	describe('UI Tests view', function () {
+		let section: ViewSection;
 
-		const item = visibleItems[0];
-		assert.equal(await item.getText(), TESTS_VIEW_NO_TESTS);
+		/**
+		 * Setup function that runs before each test in this suite
+		 * Retrieves the Tests view section
+		 */
+		before(async function () {
+			section = await getSection(0);
+		});
+
+		/**
+		 * Verifies that the Tests view has the correct title
+		 */
+		it('has right title', async function () {
+			const title = await section.getTitle();
+			assert.equal(title, TESTS_VIEW);
+		});
+
+		/**
+		 * Verifies that the Tests view shows the correct message when no tests are present
+		 */
+		it('shows no tests message', async function () {
+			const visibleItems = await section.getVisibleItems();
+			assert.equal(visibleItems.length, 1);
+
+			const item = visibleItems[0];
+			assert.equal(await item.getText(), TESTS_VIEW_NO_TESTS);
+		});
+
+		/**
+		 * Verifies that the Tests view has the correct action buttons with proper labels and states
+		 */
+		it('action buttons are correct', async function () {
+			const actions = await section.getActions();
+			assert.equal(actions.length, 2);
+
+			const [refreshBtn, collapseBtn] = actions;
+
+			assert.equal(await refreshBtn.getLabel(), TEST_VIEW_REFRESH_BTN);
+			assert.equal(await refreshBtn.isEnabled(), true);
+
+			assert.equal(await collapseBtn.getLabel(), COLLAPSE_ALL_BTN);
+			assert.equal(await collapseBtn.isEnabled(), false);
+		});
 	});
 
 	/**
-	 * Verifies that the Tests view has the correct action buttons with proper labels and states
+	 * Test suite for the Screenshots view
+	 * Verifies the correct display and functionality of the Screenshots view panel
 	 */
-	it('action buttons are correct', async function () {
-		const actions = await section.getActions();
-		assert.equal(actions.length, 2);
+	describe('Screenshots view', function () {
+		let section: ViewSection;
 
-		const [refreshBtn, collapseBtn] = actions;
+		/**
+		 * Setup function that runs before each test in this suite
+		 * Retrieves the Screenshots view section
+		 */
+		before(async function () {
+			section = await getSection(1);
+		});
 
-		assert.equal(await refreshBtn.getLabel(), TEST_VIEW_REFRESH_BTN);
-		assert.equal(await refreshBtn.isEnabled(), true);
+		/**
+		 * Verifies that the Screenshots view has the correct title
+		 */
+		it('has right title', async function () {
+			const title = await section.getTitle();
+			assert.equal(title, SCREENSHOTS_VIEW);
+		});
 
-		assert.equal(await collapseBtn.getLabel(), COLLAPSE_ALL_BTN);
-		assert.equal(await collapseBtn.isEnabled(), false);
+		/**
+		 * Verifies that the Screenshots view shows the correct message when no screenshots are present
+		 */
+		it('shows no tests message', async function () {
+			const visibleItems = await section.getVisibleItems();
+			assert.equal(visibleItems.length, 1);
+
+			const item = visibleItems[0];
+			assert.equal(await item.getText(), SCREENSHOTS_VIEW_NO_SCREENSHOTS);
+		});
+
+		/**
+		 * Verifies that the Screenshots view has the correct action buttons with proper labels and states
+		 */
+		it('action buttons are correct', async function () {
+			const actions = await section.getActions();
+			assert.equal(actions.length, 1);
+
+			const [refreshBtn] = actions;
+
+			assert.equal(await refreshBtn.getLabel(), SCREENSHOTS_VIEW_REFRESH_BTN);
+			assert.equal(await refreshBtn.isEnabled(), true);
+		});
+	});
+
+	/**
+	 * Test suite for the Logs view
+	 * Verifies the correct display and functionality of the Logs view panel
+	 */
+	describe('Logs view', function () {
+		let section: ViewSection;
+
+		/**
+		 * Setup function that runs before each test in this suite
+		 * Retrieves the Logs view section
+		 */
+		before(async function () {
+			section = await getSection(2);
+		});
+
+		/**
+		 * Verifies that the Logs view has the correct title
+		 */
+		it('has right title', async function () {
+			const title = await section.getTitle();
+			assert.equal(title, LOGS_VIEW);
+		});
+
+		/**
+		 * Verifies that the Logs view shows the correct message when no logs are present
+		 */
+		it('shows no tests message', async function () {
+			const visibleItems = await section.getVisibleItems();
+			assert.equal(visibleItems.length, 1);
+
+			const item = visibleItems[0];
+			assert.equal(await item.getText(), LOGS_VIEW_NO_LOGS);
+		});
+
+		/**
+		 * Verifies that the Logs view has the correct action buttons with proper labels and states
+		 */
+		it('action buttons are correct', async function () {
+			const actions = await section.getActions();
+			assert.equal(actions.length, 2);
+
+			const [refreshBtn, collapseBtn] = actions;
+
+			assert.equal(await refreshBtn.getLabel(), LOGS_VIEW_REFRESH_BTN);
+			assert.equal(await refreshBtn.isEnabled(), true);
+
+			assert.equal(await collapseBtn.getLabel(), COLLAPSE_ALL_BTN);
+			assert.equal(await collapseBtn.isEnabled(), false);
+		});
 	});
 });
-
-/**
- * Test suite for the Screenshots view
- * Verifies the correct display and functionality of the Screenshots view panel
- */
-describe('Screenshots view', function () {
-	let section: ViewSection;
-
-	/**
-	 * Setup function that runs before each test in this suite
-	 * Retrieves the Screenshots view section
-	 */
-	before(async function () {
-		section = await getSection(1);
-	});
-
-	/**
-	 * Verifies that the Screenshots view has the correct title
-	 */
-	it('has right title', async function () {
-		const title = await section.getTitle();
-		assert.equal(title, SCREENSHOTS_VIEW);
-	});
-
-	/**
-	 * Verifies that the Screenshots view shows the correct message when no screenshots are present
-	 */
-	it('shows no tests message', async function () {
-		const visibleItems = await section.getVisibleItems();
-		assert.equal(visibleItems.length, 1);
-
-		const item = visibleItems[0];
-		assert.equal(await item.getText(), SCREENSHOTS_VIEW_NO_SCREENSHOTS);
-	});
-
-	/**
-	 * Verifies that the Screenshots view has the correct action buttons with proper labels and states
-	 */
-	it('action buttons are correct', async function () {
-		const actions = await section.getActions();
-		assert.equal(actions.length, 1);
-
-		const [refreshBtn] = actions;
-
-		assert.equal(await refreshBtn.getLabel(), SCREENSHOTS_VIEW_REFRESH_BTN);
-		assert.equal(await refreshBtn.isEnabled(), true);
-	});
-});
-
-/**
- * Test suite for the Logs view
- * Verifies the correct display and functionality of the Logs view panel
- */
-describe('Logs view', function () {
-	let section: ViewSection;
-
-	/**
-	 * Setup function that runs before each test in this suite
-	 * Retrieves the Logs view section
-	 */
-	before(async function () {
-		section = await getSection(2);
-	});
-
-	/**
-	 * Verifies that the Logs view has the correct title
-	 */
-	it('has right title', async function () {
-		const title = await section.getTitle();
-		assert.equal(title, LOGS_VIEW);
-	});
-
-	/**
-	 * Verifies that the Logs view shows the correct message when no logs are present
-	 */
-	it('shows no tests message', async function () {
-		const visibleItems = await section.getVisibleItems();
-		assert.equal(visibleItems.length, 1);
-
-		const item = visibleItems[0];
-		assert.equal(await item.getText(), LOGS_VIEW_NO_LOGS);
-	});
-
-	/**
-	 * Verifies that the Logs view has the correct action buttons with proper labels and states
-	 */
-	it('action buttons are correct', async function () {
-		const actions = await section.getActions();
-		assert.equal(actions.length, 2);
-
-		const [refreshBtn, collapseBtn] = actions;
-
-		assert.equal(await refreshBtn.getLabel(), LOGS_VIEW_REFRESH_BTN);
-		assert.equal(await refreshBtn.isEnabled(), true);
-
-		assert.equal(await collapseBtn.getLabel(), COLLAPSE_ALL_BTN);
-		assert.equal(await collapseBtn.isEnabled(), false);
-	});
-});
-
-/**
- * Helper function to retrieve a specific section from the ExTester Runner view
- * @param sectionIndex - The index of the section to retrieve
- * @returns A Promise that resolves to the requested ViewSection
- */
-async function getSection(sectionIndex: number): Promise<ViewSection> {
-	const runnerView = await (await new ActivityBar().getViewControl(EXTESTER_RUNNER))?.openView();
-	const content = await (await runnerView?.getContent())?.getSections();
-	assert.ok(content && content.length > sectionIndex, `Content section at index ${sectionIndex} is unavailable`);
-	return content[sectionIndex];
-}
