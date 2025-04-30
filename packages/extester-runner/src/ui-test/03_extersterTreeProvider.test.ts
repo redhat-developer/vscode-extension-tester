@@ -21,7 +21,7 @@
  * and displayed in the VS Code test explorer tree view.
  */
 
-import { EditorView, VSBrowser, Workbench, ActivityBar, DefaultTreeSection } from 'vscode-extension-tester';
+import { VSBrowser, ActivityBar, DefaultTreeSection } from 'vscode-extension-tester';
 import {
 	EXAMPLE_PROJECT,
 	TEST_FILE_GLOB_SETTINGS_ID,
@@ -31,13 +31,15 @@ import {
 	SIMPLE_FILE_WITH_VARIABLES,
 	MULTIPLE_ROOT_DESCRIBES,
 	COMPLEX_FILE,
+	PARSER_FOLDER,
+	updateSettings,
+	TEST_FILE_GLOB_SETTINGS_DEFAULT,
 } from './utils/testUtils';
 import * as assert from 'assert';
 import { expect } from 'chai';
 
 // Constants for test values
 const TEST_FILE_GLOB = '**/parser/*.test.ts';
-const PARSER_FOLDER = process.platform === 'win32' ? 'src\\parser' : 'src/parser';
 
 /**
  * Main test suite for ExTester Tree Provider verification
@@ -47,24 +49,7 @@ const PARSER_FOLDER = process.platform === 'win32' ? 'src\\parser' : 'src/parser
  * simple tests, tests with modifiers, tests with variables, and complex nested test structures.
  */
 describe('Parser test suite', function () {
-	let originalTestFileGlobValue: string;
 	this.timeout(60000);
-
-	/**
-	 * Helper function to update the test file glob setting
-	 *
-	 * @param value The new value for the test file glob setting
-	 */
-	async function updateSettings(value: string): Promise<void> {
-		const workbench = new Workbench();
-		const settingsEditor = await workbench.openSettings();
-		const settingControl = await settingsEditor.findSettingByID(TEST_FILE_GLOB_SETTINGS_ID);
-		if (!settingControl) {
-			throw new Error(`Setting not found: ${TEST_FILE_GLOB_SETTINGS_ID}`);
-		}
-		originalTestFileGlobValue = (await settingControl.getValue()) as string;
-		await settingControl.setValue(value);
-	}
 
 	/**
 	 * Setup function that runs before all tests
@@ -76,9 +61,7 @@ describe('Parser test suite', function () {
 		const browser = VSBrowser.instance;
 		await browser.openResources(EXAMPLE_PROJECT);
 
-		await updateSettings(TEST_FILE_GLOB);
-		const editorView = new EditorView();
-		await editorView.closeAllEditors();
+		await updateSettings(TEST_FILE_GLOB_SETTINGS_ID, TEST_FILE_GLOB);
 	});
 
 	/**
@@ -87,7 +70,7 @@ describe('Parser test suite', function () {
 	 */
 	after(async function () {
 		this.timeout(15000);
-		await updateSettings(originalTestFileGlobValue);
+		await updateSettings(TEST_FILE_GLOB_SETTINGS_ID, TEST_FILE_GLOB_SETTINGS_DEFAULT);
 	});
 
 	/**

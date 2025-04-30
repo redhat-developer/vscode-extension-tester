@@ -55,6 +55,7 @@ jobs:
         run: |
           cd packages/extester-runner/src/ui-test/resources/example-project
           npm install
+          npm run build
           cd ${{ github.workspace }}
 
       - name: ⚙️ Allow unprivileged user namespace (ubuntu)
