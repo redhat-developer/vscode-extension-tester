@@ -22,12 +22,7 @@
  */
 
 import * as assert from 'assert';
-import {
-	TreeItem,
-	ViewSection,
-	VSBrowser,
-	WebDriver
-} from 'vscode-extension-tester';
+import { TreeItem, ViewSection, VSBrowser, WebDriver } from 'vscode-extension-tester';
 import {
 	ACTIONS_FOLDER,
 	EXAMPLE_PROJECT,
@@ -39,7 +34,7 @@ import {
 	TEST_FILE_GLOB_SETTINGS_DEFAULT,
 	TEST_FILE_GLOB_SETTINGS_ID,
 	updateSettings,
-	waitUntilTerminalHasText
+	waitUntilTerminalHasText,
 } from './utils/testUtils';
 import path from 'path';
 import fs from 'fs';

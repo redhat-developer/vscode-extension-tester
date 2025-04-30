@@ -1,5 +1,16 @@
 import path from 'path';
-import { ActivityBar, BottomBarPanel, By, EditorView, ExtensionsViewItem, ExtensionsViewSection, TerminalView, ViewSection, WebDriver, Workbench } from 'vscode-extension-tester';
+import {
+	ActivityBar,
+	BottomBarPanel,
+	By,
+	EditorView,
+	ExtensionsViewItem,
+	ExtensionsViewSection,
+	TerminalView,
+	ViewSection,
+	WebDriver,
+	Workbench,
+} from 'vscode-extension-tester';
 
 export const RESOURCES: string = path.resolve('src', 'ui-test', 'resources');
 export const EXAMPLE_PROJECT: string = path.join(RESOURCES, 'example-project');
