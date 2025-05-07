@@ -20,6 +20,7 @@ import { promisify } from 'util';
 import stream from 'stream';
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
 
+const retryCount = 3;
 const httpProxyAgent = !process.env.HTTP_PROXY
 	? undefined
 	: new HttpProxyAgent({
@@ -40,6 +41,9 @@ const options = {
 		http: httpProxyAgent,
 		https: httpsProxyAgent,
 	},
+	retry: {
+		limit: retryCount,
+	},
 };
 
 export class Download {
@@ -53,6 +57,10 @@ export class Download {
 		let lastTick = 0;
 		const got = (await import('got')).default;
 		const dlStream = got.stream(uri, options);
+		// needed in order to enable retry feature:
+		dlStream.once('retry', (newRetryCount: number, error) => {
+			console.warn(`retry(${newRetryCount}): Failed getting ${uri} due to ${error}`);
+		});
 		if (progress) {
 			dlStream.on('downloadProgress', ({ transferred, total, percent }) => {
 				const currentTime = Date.now();
