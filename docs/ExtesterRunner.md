@@ -33,11 +33,10 @@ The extension integrates into VS Code's Activity Bar and provides three main vie
 
 2. **Test Execution**
 
-   - One-click test running for individual tests, test suites, or entire files
+   - One-click test running for individual files, folders or all tests
    - Supports running tests at different levels:
-     - Single test case (individual `it` block)
-     - Test suite (entire `describe` block)
      - Test file (all tests in a file)
+     - All test files in a folder
      - All tests in the workspace
    - Automatic updates of test status and results
 
