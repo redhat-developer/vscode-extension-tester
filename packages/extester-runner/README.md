@@ -24,7 +24,6 @@ The extension makes running tests incredibly simple and efficient:
 
 #### Running Tests
 
-- **Single Test**: Click the play button next to any `it()` block to run just that test
 - **Test Suite**: Click the play button next to a `describe()` block to run all tests in that suite
 - **Test File**: Click the play button next to a test file to run all tests in that file
 - **All Tests**: Click the play button at the top of the Test Explorer to run everything
@@ -76,14 +75,6 @@ Before you start using ExTester Runner, make sure you have:
 2. Open your VS Code extension project
 3. Set up your test project using the "Get Started with ExTester Runner" walkthrough in VS Code
 4. Configure the ExTester Runner settings in VS Code preferences
-5. Use the Activity Bar to access the ExTester Runner views and run tests using the provided commands or tree view actions
-
-## Configuration Files
-
-- `package.json`: Project configuration and dependencies
-- `tsconfig.json`: TypeScript configuration
-- `.mocharc.json`: Mocha test runner configuration
-- `.vscodeignore`: VS Code extension ignore patterns
 
 ## Logging
 

@@ -38,13 +38,14 @@ The extension integrates into VS Code's Activity Bar and provides three main vie
      - Test file (all tests in a file)
      - All test files in a folder
      - All tests in the workspace
-   - Automatic updates of test status and results
 
-3. **Test Results Management**
-   - Captures and displays screenshots from test runs
-   - Maintains and organizes test logs
+3. **Test, Logs and Screenshots Management**
+   - Automatic refresh of views when test files change
    - Provides quick navigation to test source code
-   - Automatic refresh of views when test files or results change
+   - Displays screenshots from test runs with automatic refresh
+   - Provides quick access to view captured screenshots
+   - Maintains and organizes test logs with refresh
+   - Enables quick opening of log files
 
 ### Configuration
 
@@ -135,6 +136,5 @@ If you prefer to configure the extension manually, you can access all settings t
 2. Open your VS Code extension project
 3. Configure the necessary settings through VS Code's settings panel
 4. Use the Activity Bar to access the ExTester Runner views
-5. Run tests using the provided commands or tree view actions
 
 The extension includes a built-in walkthrough to help users get started quickly, guiding them through the essential configuration steps.
