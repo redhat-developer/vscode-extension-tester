@@ -112,15 +112,6 @@ describe('ExTester Runner', function () {
 		});
 
 		/**
-		 * Verifies that the extension's description matches the package.json configuration
-		 * @note Skipping because the description picked is the one of the pushed extension on Marketplace and not the one of the installed locally.
-		 */
-		it.skip('Verify description', async function () {
-			const desc = await item.getDescription();
-			assert.equal(desc, `${pjson.description}`);
-		});
-
-		/**
 		 * Verifies that the extension's version matches the package.json configuration
 		 */
 		it('Verify version', async function () {
