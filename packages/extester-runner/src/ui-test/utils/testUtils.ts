@@ -11,6 +11,7 @@ import {
 	WebDriver,
 	Workbench,
 } from 'vscode-extension-tester';
+import { Logger } from '../../logger/logger';
 
 export const RESOURCES: string = path.resolve('src', 'ui-test', 'resources');
 export const EXAMPLE_PROJECT: string = path.join(RESOURCES, 'example-project');
@@ -147,7 +148,7 @@ export async function updateSettings(settingId: string, value: string): Promise<
  * @param timeout - Maximum time to wait in milliseconds (default: 120000)
  * @param interval - Time between checks in milliseconds (default: 2000)
  */
-export async function waitUntilTerminalHasText(driver: WebDriver, text: string, timeout = 120000, interval = 2000): Promise<void> {
+export async function waitUntilTerminalHasText(driver: WebDriver, logger: Logger, text: string, timeout = 120000, interval = 2000): Promise<void> {
 	await driver.sleep(interval);
 	await driver.wait(
 		async function () {
@@ -156,6 +157,7 @@ export async function waitUntilTerminalHasText(driver: WebDriver, text: string, 
 				const terminalText = await terminal.getText();
 				return terminalText.includes(text);
 			} catch (err) {
+				logger.error('Error checking terminal text: ' + err);
 				return false;
 			}
 		},
