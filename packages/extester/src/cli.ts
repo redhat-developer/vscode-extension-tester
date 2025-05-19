@@ -29,10 +29,11 @@ program
 	.option('-s, --storage <storage>', 'Use this folder for all test resources')
 	.option('-c, --code_version <version>', 'Version of VS Code to download, use `min`/`max` to download the oldest/latest VS Code supported by ExTester')
 	.option('-t, --type <type>', 'Type of VS Code release (stable/insider)')
+	.option('-n, --no_cache', 'Skip using cached version and download fresh copy without caching it', false)
 	.action(
 		withErrors(async (cmd) => {
 			const extest = new ExTester(cmd.storage, codeStream(cmd.type));
-			await extest.downloadCode(cmd.code_version);
+			await extest.downloadCode(cmd.code_version, cmd.no_cache);
 		}),
 	);
 
@@ -45,10 +46,11 @@ program
 		'Version of VS Code you want to run with the ChromeDriver, use `min`/`max` to download the oldest/latest VS Code supported by ExTester',
 	)
 	.option('-t, --type <type>', 'Type of VS Code release (stable/insider)')
+	.option('-n, --no_cache', 'Skip using cached version and download fresh copy without caching it', false)
 	.action(
 		withErrors(async (cmd) => {
 			const extest = new ExTester(cmd.storage, codeStream(cmd.type));
-			await extest.downloadChromeDriver(cmd.code_version);
+			await extest.downloadChromeDriver(cmd.code_version, cmd.no_cache);
 		}),
 	);
 
@@ -100,6 +102,7 @@ program
 	.option('-t, --type <type>', 'Type of VS Code release (stable/insider)')
 	.option('-y, --yarn', 'Use yarn to build the extension via vsce instead of npm', false)
 	.option('-i, --install_dependencies', 'Automatically install extensions your extension depends on', false)
+	.option('-n, --no_cache', 'Skip using cached version and download fresh copy without caching it', false)
 	.action(
 		withErrors(async (cmd) => {
 			const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
@@ -107,6 +110,7 @@ program
 				vscodeVersion: cmd.code_version,
 				useYarn: cmd.yarn,
 				installDependencies: cmd.install_dependencies,
+				noCache: cmd.no_cache,
 			});
 		}),
 	);
@@ -156,6 +160,7 @@ program
 	.option('-f, --offline', 'Attempt to run without internet connection, make sure to have all requirements downloaded', false)
 	.option('-C, --coverage', 'Enable code coverage using c8')
 	.option('-r, --open_resource <resources...>', 'Open resources in VS Code. Multiple files and folders can be specified.')
+	.option('-n, --no_cache', 'Skip using cached version and download fresh copy without caching it', false)
 	.action(
 		withErrors(async (testFiles, cmd) => {
 			const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir, cmd.coverage);
@@ -165,6 +170,7 @@ program
 				{
 					useYarn: cmd.yarn,
 					installDependencies: cmd.install_dependencies,
+					noCache: cmd.no_cache,
 				},
 				{
 					settings: cmd.code_settings,

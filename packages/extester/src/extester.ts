@@ -37,6 +37,8 @@ export interface SetupOptions {
 	useYarn?: boolean;
 	/** install the extension's dependencies from the marketplace. Defaults to `false`. */
 	installDependencies?: boolean;
+	/** skip using cached version and download fresh copy */
+	noCache?: boolean;
 }
 
 export const DEFAULT_SETUP_OPTIONS = {
@@ -81,9 +83,10 @@ export class ExTester {
 	/**
 	 * Download VS Code of given version and release quality stream
 	 * @param version version to download, default latest
+	 * @param noCache whether to skip using cached version
 	 */
-	async downloadCode(version: string = 'latest'): Promise<void> {
-		return await this.code.downloadVSCode(loadCodeVersion(version));
+	async downloadCode(version: string = 'latest', noCache: boolean = false): Promise<void> {
+		return await this.code.downloadVSCode(loadCodeVersion(version), noCache);
 	}
 
 	/**
@@ -170,10 +173,11 @@ export class ExTester {
 	/**
 	 * Download the matching chromedriver for a given VS Code version
 	 * @param vscodeVersion selected version of VS Code, default latest
+	 * @param noCache whether to skip using cached version
 	 */
-	async downloadChromeDriver(vscodeVersion: string = 'latest'): Promise<string> {
+	async downloadChromeDriver(vscodeVersion: string = 'latest', noCache: boolean = false): Promise<string> {
 		const chromiumVersion = await this.code.getChromiumVersion(loadCodeVersion(vscodeVersion));
-		return await this.chrome.downloadChromeDriverForChromiumVersion(chromiumVersion);
+		return await this.chrome.downloadChromeDriverForChromiumVersion(chromiumVersion, noCache);
 	}
 
 	/**
@@ -181,14 +185,17 @@ export class ExTester {
 	 * and packaging/installing extension into the test instance
 	 *
 	 * @param options Additional options for setting up the tests
+	 * @param offline whether to run in offline mode
+	 * @param cleanup whether to clean up after tests
+	 * @param noCache whether to skip using cached version
 	 */
 	async setupRequirements(options: SetupOptions = DEFAULT_SETUP_OPTIONS, offline = false, cleanup = false): Promise<void> {
-		const { useYarn, vscodeVersion, installDependencies } = options;
+		const { useYarn, vscodeVersion, installDependencies, noCache } = options;
 
 		const vscodeParsedVersion = loadCodeVersion(vscodeVersion);
 		if (!offline) {
-			await this.downloadCode(vscodeParsedVersion);
-			await this.downloadChromeDriver(vscodeParsedVersion);
+			await this.downloadCode(vscodeParsedVersion, noCache);
+			await this.downloadChromeDriver(vscodeParsedVersion, noCache);
 		} else {
 			console.log('Attempting Setup in offline mode');
 			const expectedChromeVersion = this.code.checkOfflineRequirements().split('.')[0];
