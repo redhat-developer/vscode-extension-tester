@@ -61,7 +61,7 @@ export const DEFAULT_RUN_OPTIONS = {
  * Includes downloading, unpacking, launching, and version checks.
  */
 export class CodeUtil {
-	private codeFolder: string;
+	private codeFolder!: string;
 	private downloadPlatform: string;
 	private downloadFolder: string;
 	private releaseType: ReleaseQuality;
@@ -71,6 +71,7 @@ export class CodeUtil {
 	private availableVersions: string[];
 	private extensionsFolder: string | undefined;
 	private coverage: boolean | undefined;
+	private currentVersion: string | undefined;
 
 	/**
 	 * Create an instance of code handler
@@ -84,16 +85,7 @@ export class CodeUtil {
 		this.extensionsFolder = extensionsFolder ? path.resolve(extensionsFolder) : undefined;
 		this.coverage = coverage;
 		this.releaseType = type;
-
-		if (type === ReleaseQuality.Stable) {
-			this.codeFolder = path.join(this.downloadFolder, process.platform === 'darwin' ? 'Visual Studio Code.app' : `VSCode-${this.downloadPlatform}`);
-		} else {
-			this.codeFolder = path.join(
-				this.downloadFolder,
-				process.platform === 'darwin' ? 'Visual Studio Code - Insiders.app' : `VSCode-${this.downloadPlatform}-insider`,
-			);
-		}
-		this.findExecutables();
+		this.currentVersion = undefined;
 	}
 
 	/**
@@ -114,43 +106,44 @@ export class CodeUtil {
 		await this.checkCodeVersion(version);
 
 		const literalVersion = version === 'latest' ? this.availableVersions[0] : version;
-		if (this.releaseType === ReleaseQuality.Stable && literalVersion !== this.availableVersions[0]) {
-			console.log(
-				'\x1b[33m%s\x1b[0m',
-				`\n\nWARNING: You are using the outdated VS Code version '${literalVersion}'. The latest stable version is '${this.availableVersions[0]}'.\n\n`,
-			);
-		}
+		const versionFolder = this.getVersionFolder(literalVersion);
+		
+		if (!fs.existsSync(versionFolder)) {
+			console.log(`Downloading VS Code: ${literalVersion} / ${this.releaseType}`);
+			if (!fs.existsSync(this.executablePath) || this.getExistingCodeVersion() !== literalVersion) {
+				fs.mkdirpSync(this.downloadFolder);
 
-		console.log(`Downloading VS Code: ${literalVersion} / ${this.releaseType}`);
-		if (!fs.existsSync(this.executablePath) || this.getExistingCodeVersion() !== literalVersion) {
-			fs.mkdirpSync(this.downloadFolder);
+				const url = ['https://update.code.visualstudio.com', version, this.downloadPlatform, this.releaseType].join('/');
+				const isTarGz = this.downloadPlatform.indexOf('linux') > -1;
+				const fileName = `${path.basename(url)}.${isTarGz ? 'tar.gz' : 'zip'}`;
 
-			const url = ['https://update.code.visualstudio.com', version, this.downloadPlatform, this.releaseType].join('/');
-			const isTarGz = this.downloadPlatform.indexOf('linux') > -1;
-			const fileName = `${path.basename(url)}.${isTarGz ? 'tar.gz' : 'zip'}`;
+				console.log(`Downloading VS Code from: ${url}`);
+				await Download.getFile(url, path.join(this.downloadFolder, fileName), true);
+				console.log(`Downloaded VS Code into ${path.join(this.downloadFolder, fileName)}`);
 
-			console.log(`Downloading VS Code from: ${url}`);
-			await Download.getFile(url, path.join(this.downloadFolder, fileName), true);
-			console.log(`Downloaded VS Code into ${path.join(this.downloadFolder, fileName)}`);
+				const tempPrefix = path.join(this.downloadFolder, 'vscode-temp-');
+				console.log(`Unpacking VS Code into ${this.downloadFolder}`);
+				const target = await fs.mkdtemp(tempPrefix);
 
-			const tempPrefix = path.join(this.downloadFolder, 'vscode-temp-');
-			console.log(`Unpacking VS Code into ${this.downloadFolder}`);
-			const target = await fs.mkdtemp(tempPrefix);
-
-			try {
-				await Unpack.unpack(path.join(this.downloadFolder, fileName), target);
-				let rootDir = target;
-				const files = await fs.readdir(target);
-				if (files.length === 1) {
-					rootDir = path.join(target, files[0]);
+				try {
+					await Unpack.unpack(path.join(this.downloadFolder, fileName), target);
+					let rootDir = target;
+					const files = await fs.readdir(target);
+					if (files.length === 1) {
+						rootDir = path.join(target, files[0]);
+					}
+					await fs.move(rootDir, versionFolder, { overwrite: true });
+					console.log('Success!');
+				} finally {
+					await fs.remove(target);
 				}
-				await fs.move(rootDir, this.codeFolder, { overwrite: true });
-				console.log('Success!');
-			} finally {
-				await fs.remove(target);
+			} else {
+				console.log('VS Code exists in local cache, skipping download');
 			}
+
+			this.setCurrentVersion(literalVersion);
 		} else {
-			console.log('VS Code exists in local cache, skipping download');
+			console.log(`VS Code version ${literalVersion} exists in local cache, skipping download`);
 		}
 	}
 
@@ -392,14 +385,10 @@ export class CodeUtil {
 	 * Check what VS Code version is present in the testing folder
 	 */
 	private getExistingCodeVersion(): string {
-		const command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}"`;
-		let out: Buffer;
-		try {
-			out = childProcess.execSync(`${command} -v`);
-		} catch (error) {
-			out = childProcess.execSync(`${command} --ms-enable-electron-run-as-node -v`);
+		if (!this.currentVersion) {
+			throw new Error('No VSCode version is currently set');
 		}
-		return out.toString().split('\n')[0];
+		return this.currentVersion;
 	}
 
 	/**
@@ -439,24 +428,16 @@ export class CodeUtil {
 	 * Setup paths specific to used OS
 	 */
 	private findExecutables(): void {
-		this.cliPath = path.join(this.codeFolder, 'resources', 'app', 'out', 'cli.js');
-		switch (process.platform) {
-			case 'darwin':
-				this.executablePath = path.join(this.codeFolder, 'Contents', 'MacOS', 'Electron');
-				this.cliPath = path.join(this.codeFolder, 'Contents', 'Resources', 'app', 'out', 'cli.js');
-				break;
-			case 'win32':
-				this.executablePath = path.join(this.codeFolder, 'Code.exe');
-				if (this.releaseType === ReleaseQuality.Insider) {
-					this.executablePath = path.join(this.codeFolder, 'Code - Insiders.exe');
-				}
-				break;
-			case 'linux':
-				this.executablePath = path.join(this.codeFolder, 'code');
-				if (this.releaseType === ReleaseQuality.Insider) {
-					this.executablePath = path.join(this.codeFolder, 'code-insiders');
-				}
-				break;
+		if (!this.currentVersion) {
+			throw new Error('No VSCode version is currently set');
+		}
+		
+		if (process.platform === 'darwin') {
+			this.executablePath = path.join(this.codeFolder, 'Contents', 'MacOS', 'Electron');
+			this.cliPath = path.join(this.codeFolder, 'Contents', 'Resources', 'app', 'out', 'cli.js');
+		} else {
+			this.executablePath = path.join(this.codeFolder, process.platform === 'win32' ? 'Code.exe' : 'code');
+			this.cliPath = path.join(this.codeFolder, 'resources', 'app', 'out', 'cli.js');
 		}
 	}
 
@@ -479,5 +460,18 @@ export class CodeUtil {
 		} catch (err) {
 			throw new Error(`Error parsing the settings file from ${path}:\n ${err}`);
 		}
+	}
+
+	private getVersionFolder(version: string): string {
+		const baseName = process.platform === 'darwin' 
+			? `Visual Studio Code-${version}${this.releaseType === ReleaseQuality.Insider ? '-insider' : ''}.app`
+			: `VSCode-${this.downloadPlatform}-${version}${this.releaseType === ReleaseQuality.Insider ? '-insider' : ''}`;
+		return path.join(this.downloadFolder, baseName);
+	}
+
+	private setCurrentVersion(version: string): void {
+		this.currentVersion = version;
+		this.codeFolder = this.getVersionFolder(version);
+		this.findExecutables();
 	}
 }
