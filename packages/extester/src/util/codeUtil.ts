@@ -55,6 +55,7 @@ export const DEFAULT_RUN_OPTIONS = {
 	logLevel: logging.Level.INFO,
 	offline: false,
 	resources: [],
+	noCache: false,
 };
 
 /**
@@ -110,10 +111,10 @@ export class CodeUtil {
 	 * Download and unpack VS Code for testing purposes
 	 *
 	 * @param version VS Code version to get, default latest
+	 * @param noCache whether to skip using cached version
 	 */
-	async downloadVSCode(version: string = 'latest'): Promise<void> {
+	async downloadVSCode(version: string = 'latest', noCache: boolean = false): Promise<void> {
 		await this.checkCodeVersion(version);
-
 		const literalVersion = version === 'latest' ? this.availableVersions[0] : version;
 		if (this.releaseType === ReleaseQuality.Stable && literalVersion !== this.availableVersions[0]) {
 			console.log(
@@ -123,23 +124,39 @@ export class CodeUtil {
 		}
 
 		console.log(`Downloading VS Code: ${literalVersion} / ${this.releaseType}`);
-		if (!fs.existsSync(this.executablePath) || this.getExistingCodeVersion() !== literalVersion) {
+		if (!fs.existsSync(this.executablePath) || this.getExistingCodeVersion() !== literalVersion || noCache) {
 			fs.mkdirpSync(this.downloadFolder);
 
 			const url = ['https://update.code.visualstudio.com', version, this.downloadPlatform, this.releaseType].join('/');
 			const isTarGz = this.downloadPlatform.indexOf('linux') > -1;
-			const fileName = `${path.basename(url)}.${isTarGz ? 'tar.gz' : 'zip'}`;
+			const fileExtension = isTarGz ? 'tar.gz' : 'zip';
+			let versionPart = '';
+			if (this.releaseType === ReleaseQuality.Stable) {
+				versionPart = `-${this.releaseType}`;
+			}
 
-			console.log(`Downloading VS Code from: ${url}`);
-			await Download.getFile(url, path.join(this.downloadFolder, fileName), true);
-			console.log(`Downloaded VS Code into ${path.join(this.downloadFolder, fileName)}`);
+			let fileName;
+			if (noCache) {
+				fileName = this.releaseType + '.' + fileExtension;
+			} else {
+				fileName = literalVersion + versionPart + '.' + fileExtension;
+			}
+			const zipPath = path.join(this.downloadFolder, fileName);
+
+			if (!noCache && fs.existsSync(zipPath)) {
+				console.log(`VS Code archive ${fileName} already exists in storage folder, skipping download`);
+			} else {
+				console.log(`Downloading VS Code from: ${url}`);
+				await Download.getFile(url, zipPath, true);
+				console.log(`Downloaded VS Code into ${zipPath}`);
+			}
 
 			const tempPrefix = path.join(this.downloadFolder, 'vscode-temp-');
 			console.log(`Unpacking VS Code into ${this.downloadFolder}`);
 			const target = await fs.mkdtemp(tempPrefix);
 
 			try {
-				await Unpack.unpack(path.join(this.downloadFolder, fileName), target);
+				await Unpack.unpack(zipPath, target);
 				let rootDir = target;
 				const files = await fs.readdir(target);
 				if (files.length === 1) {
@@ -147,6 +164,10 @@ export class CodeUtil {
 				}
 				await fs.move(rootDir, this.codeFolder, { overwrite: true });
 				console.log('Success!');
+				if (noCache) {
+					await fs.remove(zipPath);
+					console.log('Removed downloaded archive as --no_cache is active');
+				}
 			} finally {
 				await fs.remove(target);
 			}
