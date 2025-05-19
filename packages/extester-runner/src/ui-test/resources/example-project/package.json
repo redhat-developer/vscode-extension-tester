@@ -1,0 +1,25 @@
+{
+  "name": "extester-runner-ui-test-project",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/redhat-developer/vscode-extension-tester.git",
+    "directory": "packages/extester-runner/src/ui-test/resources/example-project"
+  },
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node out/index.js"
+  },
+  "devDependencies": {
+    "@types/chai": "^5.2.1",
+    "@types/mocha": "^10.0.10",
+    "chai": "^5.2.0",
+    "mocha": "^11.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.0.0",
+    "vscode-extension-tester": "*"
+  }
+}
