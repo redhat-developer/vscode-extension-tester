@@ -8,7 +8,7 @@ import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
 
 export default defineConfig([
 	{
-		ignores: ['**/*.test.js'],
+		ignores: ['**/*.test.js', '.eslintrc.json', '.eslintcache', './**/out', 'tests/test-project/resources'],
 	},
 	eslintPluginPrettierRecommended,
 	{

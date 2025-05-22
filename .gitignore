@@ -2,3 +2,4 @@ out/
 node_modules/
 .npmrc
 tests/test-project/coverage/
+.eslintcache
