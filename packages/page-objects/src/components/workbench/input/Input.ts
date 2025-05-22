@@ -93,7 +93,7 @@ export abstract class Input extends AbstractElement {
 	}
 
 	/**
-	 * Clear the inpur field
+	 * Clear the input field
 	 * @returns Promise resolving when the field is cleared
 	 */
 	async clear(): Promise<void> {
@@ -131,22 +131,22 @@ export abstract class Input extends AbstractElement {
 	 * @returns Promise resolving when all quick picks have been toggled to desired state
 	 */
 	async toggleAllQuickPicks(state: boolean): Promise<void> {
-		const checkboxes = await this.findElements(Input.locators.Input.quickPickSelectAll);
-		if (!checkboxes) {
+		const selectAllCheckbox = await this.findElement(Input.locators.Input.quickPickSelectAll);
+		if (!selectAllCheckbox) {
 			return;
 		}
-		if (!(await checkboxes[0].isSelected())) {
-			await checkboxes[0].click();
-		}
-		if (state === false) {
-			await checkboxes[0].click();
+		const isSelected = await selectAllCheckbox.getAttribute(Input.locators.Input.quickPickIsSelected);
+		const selected = isSelected === 'true' || (await selectAllCheckbox.isSelected());
+
+		if (selected !== state) {
+			await selectAllCheckbox.click();
 		}
 	}
 
 	/**
 	 * Scroll through the quick picks to find an item by the name or index
 	 * @param indexOrText index (number) or text (string) of the item to search by
-	 * @returns Promise resolvnig to QuickPickItem if found, to undefined otherwise
+	 * @returns Promise resolving to QuickPickItem if found, to undefined otherwise
 	 */
 	async findQuickPick(indexOrText: string | number): Promise<QuickPickItem | undefined> {
 		const input = await this.findElement(Input.locators.Input.inputBox).findElement(Input.locators.Input.input);
