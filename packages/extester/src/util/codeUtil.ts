@@ -71,6 +71,7 @@ export class CodeUtil {
 	private availableVersions: string[];
 	private extensionsFolder: string | undefined;
 	private coverage: boolean | undefined;
+	private env: NodeJS.ProcessEnv = { ...process.env };
 
 	/**
 	 * Create an instance of code handler
@@ -94,6 +95,15 @@ export class CodeUtil {
 			);
 		}
 		this.findExecutables();
+		// remove unsafe env variables from current process to avoid spam messages like:
+		// Node.js environment variables are disabled because this process is invoked by other apps.
+		// See https://github.com/microsoft/vscode/issues/204005
+		for (const key in this.env) {
+			if (key.startsWith('NODE_')) {
+				delete this.env[key];
+				console.log(`Filtered unsafe env variable ${key} when calling VS Code.`);
+			}
+		}
 	}
 
 	/**
@@ -395,9 +405,9 @@ export class CodeUtil {
 		const command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}"`;
 		let out: Buffer;
 		try {
-			out = childProcess.execSync(`${command} -v`);
+			out = childProcess.execSync(`${command} -v`, { env: this.env });
 		} catch (error) {
-			out = childProcess.execSync(`${command} --ms-enable-electron-run-as-node -v`);
+			out = childProcess.execSync(`${command} --ms-enable-electron-run-as-node -v`, { env: this.env });
 		}
 		return out.toString().split('\n')[0];
 	}
