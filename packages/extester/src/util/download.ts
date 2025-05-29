@@ -27,6 +27,7 @@ const httpProxyAgent = !process.env.HTTP_PROXY
 			proxy: process.env.HTTP_PROXY,
 		});
 
+const rejectUnauthorized = +(process.env.HTTPS_TLS_REJECT_UNAUTHORIZED ?? 1) >= 1;
 const httpsProxyAgent = !process.env.HTTPS_PROXY
 	? undefined
 	: new HttpsProxyAgent({
@@ -34,6 +35,9 @@ const httpsProxyAgent = !process.env.HTTPS_PROXY
 		});
 
 const options = {
+	https: {
+		rejectUnauthorized,
+	},
 	headers: {
 		'user-agent': 'nodejs',
 	},
