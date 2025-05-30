@@ -1,0 +1,45 @@
+---
+ci:
+  # format compatible with commitlint
+  autoupdate_commit_msg: "chore: pre-commit autoupdate"
+  autoupdate_schedule: monthly
+  autofix_commit_msg: |
+    chore: auto fixes from pre-commit.com hooks
+
+    for more information, see https://pre-commit.ci
+  skip:
+    - codecov
+    - depcheck
+    - eslint
+    - compare-devfile
+    - compare-devcontainer
+minimum_pre_commit_version: 4.0.0 # Related to https://github.com/ekalinin/nodeenv/issues/369
+repos:
+  - repo: local
+    hooks:
+      - id: eslint
+        name: eslint
+        entry: npm
+        language: system
+        args:
+          - exec
+          - --
+          - eslint
+          - --no-warn-ignored
+          - --color
+          - --format=gha
+          - --fix
+          - -v
+          - --cache
+          - --max-warnings
+          - "0"
+        pass_filenames: false
+        files: \.m?[jt]sx?$ # *.js, *.jsx, *.ts and *.tsx
+        types: [file]
+
+      - id: git-dirty
+        name: Check if git reports dirty
+        entry: git diff --exit-code
+        language: system
+        pass_filenames: false
+        always_run: true
