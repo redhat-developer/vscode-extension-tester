@@ -36,6 +36,12 @@ export class VSBrowser {
 	private releaseType: ReleaseQuality;
 	private logLevel: logging.Level;
 	private static _instance: VSBrowser;
+	private readonly _startTimestamp: string;
+
+	private formatTimestamp(date: Date): string {
+		const pad = (num: number) => num.toString().padStart(2, '0');
+		return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}T${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
+	}
 
 	constructor(codeVersion: string, releaseType: ReleaseQuality, customSettings: object = {}, logLevel: logging.Level = logging.Level.INFO) {
 		this.storagePath = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.resolve(DEFAULT_STORAGE_FOLDER);
@@ -43,8 +49,8 @@ export class VSBrowser {
 		this.customSettings = customSettings;
 		this.codeVersion = codeVersion;
 		this.releaseType = releaseType;
-
 		this.logLevel = logLevel;
+		this._startTimestamp = this.formatTimestamp(new Date());
 
 		VSBrowser._instance = this;
 	}
@@ -76,7 +82,6 @@ export class VSBrowser {
 		}
 
 		fs.mkdirpSync(path.join(userSettings, 'globalStorage'));
-		await fs.remove(path.join(this.storagePath, 'screenshots'));
 		fs.writeJSONSync(path.join(userSettings, 'settings.json'), defaultSettings);
 		console.log(`Writing code settings to ${path.join(userSettings, 'settings.json')}`);
 
@@ -180,7 +185,7 @@ export class VSBrowser {
 	 */
 	async takeScreenshot(name: string): Promise<void> {
 		const data = await this._driver.takeScreenshot();
-		const dir = path.join(this.storagePath, 'screenshots');
+		const dir = path.join(this.storagePath, 'screenshots', this._startTimestamp);
 		fs.mkdirpSync(dir);
 		fs.writeFileSync(path.join(dir, `${name}.png`), data, 'base64');
 	}
@@ -190,7 +195,7 @@ export class VSBrowser {
 	 * @returns string path to the screenshots folder
 	 */
 	getScreenshotsDir(): string {
-		return path.join(this.storagePath, 'screenshots');
+		return path.join(this.storagePath, 'screenshots', this._startTimestamp);
 	}
 
 	/**
