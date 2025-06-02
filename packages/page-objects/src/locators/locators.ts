@@ -245,6 +245,7 @@ export interface Locators {
 		moreInfoContainer: By;
 		moreInfo: By;
 		moreInfoElements: By;
+		readmeContent: By;
 	};
 	EditorAction: {
 		shadowRootHost: By;

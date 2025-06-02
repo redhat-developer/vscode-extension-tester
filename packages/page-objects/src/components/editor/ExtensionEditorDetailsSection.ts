@@ -82,12 +82,25 @@ export class ExtensionEditorDetailsSection extends ExtensionEditorView {
 		const moreInfo = await this.getMoreInfo();
 		return moreInfo[key];
 	}
-
 	/**
-	 * Blocked by https://github.com/redhat-developer/vscode-extension-tester/issues/1492
+	 * Get readme WebView element.
+	 * @returns Promise resolving WebView element containing the readme content.
 	 */
 	async getReadme(): Promise<WebView> {
-		throw Error('Not implemented yet.');
+		return new WebView();
+	}
+
+	/**
+	 * Get readme content as a string.
+	 * @returns Promise resolving the text content of the readme.
+	 */
+	async getReadmeContent(): Promise<string> {
+		const view = await this.getReadme();
+		await view.switchToFrame(5000);
+		const readmeContent = await view.findWebElement(ExtensionEditorDetailsSection.locators.ExtensionEditorDetailsSection.readmeContent);
+		const text = await readmeContent.getText();
+		await view.switchBack();
+		return text;
 	}
 
 	/**

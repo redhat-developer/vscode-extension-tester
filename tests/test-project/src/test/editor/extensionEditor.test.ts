@@ -152,7 +152,14 @@ describe('Extension Editor', function () {
 			expect(await extensionEditorDetails.getVersion()).equal('0.1.0');
 		});
 
-		// Blocked by https://github.com/redhat-developer/vscode-extension-tester/issues/1492
-		it.skip('getReadme', async function () {});
+		it('getReadme', async function () {
+			const readmeFrame = await extensionEditorDetails.getReadme();
+			expect(readmeFrame).to.not.be.null;
+		});
+
+		it('getReadmeContent', async function () {
+			const readme = await extensionEditorDetails.getReadmeContent();
+			expect(readme).contains(`ExTester - Test Project\nThis is a simple extension for a VS Code dedicated to self-testing the ExTester framework.`);
+		});
 	});
 });
