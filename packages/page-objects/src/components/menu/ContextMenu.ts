@@ -120,6 +120,18 @@ export class ContextMenuItem extends MenuItem {
 		if (await this.isNesting()) {
 			return await new ContextMenu(this).wait();
 		}
+		try {
+			if (await this.parent.isDisplayed()) {
+				const actions = this.getDriver().actions();
+				await actions.clear();
+				await this.getDriver().actions().sendKeys(Key.ESCAPE).perform();
+				await this.getDriver().wait(until.elementIsNotVisible(this));
+			}
+		} catch (err) {
+			if (!(err instanceof error.StaleElementReferenceError)) {
+				throw err;
+			}
+		}
 		return undefined;
 	}
 

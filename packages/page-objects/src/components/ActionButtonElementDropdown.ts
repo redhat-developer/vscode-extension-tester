@@ -15,18 +15,16 @@
  * limitations under the License.
  */
 
-import { ElementWithContextMenu } from './ElementWithContextMenu';
 import { ContextMenu } from './menu/ContextMenu';
-import { By, Key } from 'selenium-webdriver';
 import { AbstractElement } from './AbstractElement';
+import { By } from 'selenium-webdriver';
 
 export abstract class ActionButtonElementDropdown extends AbstractElement {
 	async open(): Promise<ContextMenu> {
 		await this.click();
-		const shadowRootHost = await this.enclosingItem.findElements(By.className('shadow-root-host'));
+		const shadowRootHost = await this.enclosingItem.findElements(ActionButtonElementDropdown.locators.ContextMenu.shadowRootHost);
 		const actions = this.getDriver().actions();
 		await actions.clear();
-		await actions.sendKeys(Key.ESCAPE).perform();
 
 		if (shadowRootHost.length > 0) {
 			if ((await this.getAttribute('aria-expanded')) !== 'true') {
@@ -35,8 +33,7 @@ export abstract class ActionButtonElementDropdown extends AbstractElement {
 			const shadowRoot = await shadowRootHost[0].getShadowRoot();
 			return new ContextMenu(await shadowRoot.findElement(By.className('monaco-menu-container'))).wait();
 		} else {
-			await this.click();
-			const workbench = await this.getDriver().findElement(ElementWithContextMenu.locators.Workbench.constructor);
+			const workbench = await this.getDriver().findElement(ActionButtonElementDropdown.locators.Workbench.constructor);
 			return new ContextMenu(workbench).wait();
 		}
 	}
