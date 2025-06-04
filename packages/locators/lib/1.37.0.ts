@@ -242,6 +242,7 @@ const editor = {
 		moreInfoContainer: By.className('more-info'),
 		moreInfo: By.className('more-info-entry'),
 		moreInfoElements: By.xpath('./*'),
+		readmeContent: By.css('body'),
 	},
 	EditorAction: {
 		shadowRootHost: By.className('shadow-root-host'),
