@@ -262,6 +262,7 @@ export interface Locators {
 		itemText: string;
 		itemNesting: By;
 		viewBlock: By;
+		shadowRootHost: By;
 	};
 	TitleBar: {
 		constructor: By;

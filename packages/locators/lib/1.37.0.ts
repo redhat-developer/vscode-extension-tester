@@ -260,6 +260,7 @@ const menu = {
 		itemText: 'aria-label',
 		itemNesting: By.className('submenu-indicator'),
 		viewBlock: By.className('context-view-block'),
+		shadowRootHost: By.className('shadow-root-host'),
 	},
 	TitleBar: {
 		constructor: By.id('workbench.parts.titlebar'),
