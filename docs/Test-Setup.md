@@ -31,6 +31,7 @@ Options:
   -s, --storage <storage>       # Use this folder for all test resources
   -c, --code_version <version>  # Version of VS Code to download
   -t, --type <type>             # Type of VS Code release (stable/insider)
+  -n, --no_cache                # Disable caching of VS Code download (default: false)
   -h, --help                    # output usage information
 ```
 
@@ -47,6 +48,7 @@ Options:
   -s, --storage <storage>       # Use this folder for all test resources
   -c, --code_version <version>  # Version of VS Code you want to run with the ChromeDriver
   -t, --type <type>             # Type of VS Code release (stable/insider)
+  -n, --no_cache                # Disable caching of ChromeDriver download (default: false)
   -h, --help                    # display help for command
 ```
 
@@ -102,6 +104,7 @@ Options:
   -t, --type <type>                            # Type of VS Code release (stable/insider)
   -y, --yarn                                   # Use yarn to build the extension via vsce instead of npm (default: false)
   -i, --install_dependencies                   # Automatically install extensions your extension depends on (default: false)
+  -n, --no_cache                               # Disable caching of VS Code and ChromeDriver downloads (default: false)
   -h, --help                                   # display help for command
 ```
 
@@ -150,8 +153,33 @@ Options:
   -l, --log_level <level>                      # Log messages from webdriver with a given level (default: "Info")
   -f, --offline                                # Attempt to run without internet connection, make sure to have all requirements downloaded (default: false)
   -C, --coverage                               # Enable code coverage using c8
+  -n, --no_cache                               # Disable caching of VS Code and ChromeDriver downloads (default: false)
   -h, --help                                   # display help for command
 ```
+
+### Caching Behavior
+
+The ExTester implements a caching mechanism for both VS Code and ChromeDriver downloads to improve performance and reduce bandwidth usage. Here's how it works:
+
+#### Default Caching Behavior
+
+1. **Resource Caching**:
+   - When downloading, archives are saved with version-specific names (e.g., `1.84.2-stable.zip` for VS Code, `114.0.5735.90-chromedriver_win32.zip` for ChromeDriver)
+   - Before downloading, the system checks if a matching version exists in the cache
+   - If found in cache, the download is skipped and the cached archive is unpacked
+   - The archive is preserved for future use
+
+#### Using --no_cache
+
+When the `--no_cache` option is enabled:
+
+1. **Resource Behavior**:
+   - Always downloads a fresh copy of the archive
+   - Saves it with a generic filename (e.g., `stable.zip` for VS Code, `chromedriver_win32.zip` for ChromeDriver)
+   - After unpacking, the downloaded archive is removed
+   - Note: If a version is already unpacked, it will be reused even with --no_cache to avoid unnecessary unpacking
+
+> **NOTE:** `Unpacked` refers to the extracted VS Code and ChromeDriver executables that are ready to run, stored separately from their downloaded archives. This is a critical distinction to understand when working with ExTester's caching system.
 
 ## Using the API
 
@@ -165,6 +193,8 @@ export interface SetupOptions {
   useYarn?: boolean;
   /** install the extension's dependencies from the marketplace. Defaults to `false`. */
   installDependencies?: boolean;
+  /** disable caching of VS Code and ChromeDriver downloads */
+  noCache?: boolean;
 }
 export declare const DEFAULT_SETUP_OPTIONS: {
   vscodeVersion: string;

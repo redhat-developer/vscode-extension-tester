@@ -40,19 +40,20 @@ export class DriverUtil {
 	 * Find a matching ChromeDriver version for a given Chromium version and download it.
 	 * @param chromiumVersion version of Chromium to match the ChromeDriver against
 	 */
-	async downloadChromeDriverForChromiumVersion(chromiumVersion: string): Promise<string> {
+	async downloadChromeDriverForChromiumVersion(chromiumVersion: string, noCache: boolean = false): Promise<string> {
 		const version = await this.getChromeDriverVersion(chromiumVersion);
-		return await this.downloadChromeDriver(version);
+		return await this.downloadChromeDriver(version, noCache);
 	}
 
 	/**
 	 * Download a given version ChromeDriver
 	 * @param version version to download
 	 */
-	async downloadChromeDriver(version: string): Promise<string> {
+	async downloadChromeDriver(version: string, noCache: boolean = false): Promise<string> {
 		const url = this.getChromeDriverURL(version);
 		const driverBinary = this.getChromeDriverBinaryPath(version);
-		if (fs.existsSync(driverBinary)) {
+
+		if (!noCache && fs.existsSync(driverBinary)) {
 			let localVersion = '';
 			try {
 				localVersion = await this.getLocalDriverVersion(version);
@@ -64,17 +65,28 @@ export class DriverUtil {
 				return '';
 			}
 		}
-		fs.mkdirpSync(this.downloadFolder);
 
-		const fileName = path.join(this.downloadFolder, path.basename(url));
-		console.log(`Downloading ChromeDriver ${version} from: ${url}`);
-		await Download.getFile(url, fileName, true);
+		fs.mkdirpSync(this.downloadFolder);
+		const fileName = path.join(this.downloadFolder, noCache ? `${path.basename(url)}` : `${version}-${path.basename(url)}`);
+		if (!noCache && fs.existsSync(fileName)) {
+			console.log(`ChromeDriver ${version} exists in storage folder, skipping download`);
+		} else {
+			console.log(`Downloading ChromeDriver ${version} from: ${url}`);
+			await Download.getFile(url, fileName, true);
+		}
 
 		console.log(`Unpacking ChromeDriver ${version} into ${this.downloadFolder}`);
 		await Unpack.unpack(fileName, this.downloadFolder);
+
 		if (process.platform !== 'win32') {
 			fs.chmodSync(driverBinary, 0o755);
 		}
+
+		if (noCache) {
+			await fs.remove(fileName);
+			console.log('Removed downloaded archive as --no_cache is active');
+		}
+
 		console.log('Success!');
 		return driverBinary;
 	}
