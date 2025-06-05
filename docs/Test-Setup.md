@@ -19,9 +19,9 @@ The ExTester offers both CLI and API to perform all the setup actions. That way 
 - `EXTENSION_DEV_PATH` - The [developer extension](https://vscode-docs.readthedocs.io/en/stable/extensions/debugging-extensions/) that is loaded under development.
 - `HTTPS_TLS_REJECT_UNAUTHORIZED ` - Disable TLS check when downloading VSCode and Chromium driver. '0' is disabled and '1' is enabled, this setting aligns with [`NODE_TLS_REJECT_UNAUTHORIZED`](https://nodejs.org/api/cli.html#node_tls_reject_unauthorizedvalue).
 
-```shell
+  ```shell
   export HTTPS_TLS_REJECT_UNAUTHORIZED="0"
-```
+  ```
 
 ## Using the CLI
 
