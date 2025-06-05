@@ -14,6 +14,15 @@ The ExTester offers both CLI and API to perform all the setup actions. That way 
   export TEST_RESOURCES="./test-folder"
   ```
 
+- `HTTP_PROXY` - can be used to route http request over a prox for downloading VSCode and Chromium driver.
+- `EXTENSIONS_FOLDER` - configuring the [extension path](https://code.visualstudio.com/docs/configure/extensions/extension-marketplace#_where-are-extensions-installed) where extensions are installed/loaded.
+- `EXTENSION_DEV_PATH` - The [developer extension](https://vscode-docs.readthedocs.io/en/stable/extensions/debugging-extensions/) that is loaded under development.
+- `HTTPS_TLS_REJECT_UNAUTHORIZED ` - Disable TLS check when downloading VSCode and Chromium driver. '0' is disabled and '1' is enabled, this setting aligns with [`NODE_TLS_REJECT_UNAUTHORIZED`](https://nodejs.org/api/cli.html#node_tls_reject_unauthorizedvalue).
+
+```shell
+  export HTTPS_TLS_REJECT_UNAUTHORIZED="0"
+```
+
 ## Using the CLI
 
 All the CLI actions are available with the command `extest` which is available to your npm scripts once the package is installed. The default storage folder for all test resources is a `$TMPDIR/test-resources`.
