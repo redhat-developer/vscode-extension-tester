@@ -196,6 +196,31 @@ describe('InputBox', () => {
 	});
 });
 
+describe('InputBox - works for path', () => {
+	let input: InputBox;
+
+	before(async function () {
+		this.timeout(10000);
+		await new Workbench().executeCommand('File: Open Folder...');
+		input = await InputBox.create();
+	});
+
+	after(async () => {
+		await new EditorView().closeAllEditors();
+	});
+
+	it('findQuickPick works', async function () {
+		const quickpick = await input.findQuickPick('test-folder');
+		expect(quickpick).to.not.be.undefined;
+	});
+
+	it('selectQuickPick works', async function () {
+		await input.selectQuickPick('test-folder');
+		const quickpick2 = await input.findQuickPick('foolder');
+		expect(quickpick2).to.not.be.undefined;
+	});
+});
+
 describe('Multiple selection input', () => {
 	let input: InputBox;
 

@@ -18,6 +18,7 @@
 import { AbstractElement } from '../../AbstractElement';
 import { Key, WebElement } from 'selenium-webdriver';
 import { NullAttributeError, QuickOpenBox } from '../../..';
+import { sep } from 'path';
 
 /**
  * Abstract page object for input fields
@@ -224,7 +225,16 @@ export abstract class Input extends AbstractElement {
 	private async resetPosition(): Promise<void> {
 		const text = await this.getText();
 		await this.clear();
-		await this.setText(text);
+
+		// handle path as path, not as text - use platform-specific separator
+		const hasTrailingSeparator = text.endsWith(sep);
+		if (hasTrailingSeparator) {
+			await this.setText(text.slice(0, -1));
+			const input = await this.findElement(Input.locators.Input.inputBox).findElement(Input.locators.Input.input);
+			await input.sendKeys(sep);
+		} else {
+			await this.setText(text);
+		}
 	}
 }
 
