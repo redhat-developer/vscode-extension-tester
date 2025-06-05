@@ -24,6 +24,7 @@ import { Unpack } from './unpack';
 import { logging } from 'selenium-webdriver';
 import { Download } from './download';
 import { DEFAULT_STORAGE_FOLDER } from '../extester';
+import { satisfies } from 'compare-versions';
 
 export enum ReleaseQuality {
 	Stable = 'stable',
@@ -182,7 +183,7 @@ export class CodeUtil {
 
 	private getCliInitCommand(): string {
 		const cli = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}"`;
-		if (this.getExistingCodeVersion() >= '1.86.0') {
+		if (satisfies(this.getExistingCodeVersion(), '>=1.86.0')) {
 			return cli;
 		} else {
 			return `${cli} --ms-enable-electron-run-as-node`;
