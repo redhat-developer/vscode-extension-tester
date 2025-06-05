@@ -103,7 +103,6 @@ export class CodeUtil {
 		for (const key in this.env) {
 			if (key.startsWith('NODE_')) {
 				delete this.env[key];
-				console.log(`Filtered unsafe env variable ${key} when calling VS Code.`);
 			}
 		}
 	}
