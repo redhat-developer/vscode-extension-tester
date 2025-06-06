@@ -94,9 +94,6 @@ export class VSRunner {
 				await browser.start(binPath);
 				await browser.openResources(...resources);
 				await browser.waitForWorkbench();
-				await new Promise((res) => {
-					setTimeout(res, 3000);
-				});
 				console.log(`Browser ready in ${Date.now() - start} ms`);
 				console.log('Launching tests...');
 			});

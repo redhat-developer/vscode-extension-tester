@@ -68,8 +68,7 @@ export class SingleScmProvider extends ScmProvider {
 		const buttons: TitleActionButton[] = [];
 
 		if (satisfies(ScmProvider.versionInfo.version, '>=1.93.0')) {
-			const header = await view.findElement(ScmView.locators.ScmView.sourceControlSection);
-			actions = await header.findElements(ScmProvider.locators.ScmView.action);
+			actions = await this.getProviderHeaderActions(view);
 			names = await Promise.all(actions.map(async (action) => await action.getAttribute(ScmProvider.locators.ScmView.actionLabel)));
 		} else {
 			const titlePart = view.getTitlePart();
@@ -84,6 +83,7 @@ export class SingleScmProvider extends ScmProvider {
 		const index = names.findIndex((item) => item === title);
 		if (index > -1) {
 			if (satisfies(ScmProvider.versionInfo.version, '>=1.93.0')) {
+				actions = await this.getProviderHeaderActions(view);
 				await actions[index].click();
 			} else {
 				await buttons[index].click();
@@ -91,6 +91,13 @@ export class SingleScmProvider extends ScmProvider {
 			return true;
 		}
 		return false;
+	}
+
+	private async getProviderHeaderActions(view: NewScmView): Promise<WebElement[]> {
+		const header = await view.findElement(ScmView.locators.ScmView.sourceControlSection);
+		await this.getDriver().actions().move({ origin: header }).perform();
+		await this.getDriver().sleep(1_000);
+		return await header.findElements(ScmProvider.locators.ScmView.action);
 	}
 
 	async openMoreActions(): Promise<ContextMenu> {

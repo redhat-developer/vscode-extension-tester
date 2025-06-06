@@ -38,14 +38,34 @@ Find documentation about the Page Object APIs: [[Page-Object-APIs]].
 
 ## Opening Files and Folders
 
-Opening files and folders is basic functionality of VS Code.
+Opening files and folders is a fundamental part of automating interactions in VS Code. Since version **4.2.0**, the recommended approach is to use the `openResources` method provided by the `VSBrowser` API.
 
-Since 4.2.0, the most convenient way to open files and folders is the `openResources` method in `VSBrowser`. Use it to open potentially multiple folders or files at the same time (method also waits for workbench to refresh). Files are opened in the editor, single folder will be opened directly in the explorer, multiple folders will be opened as a multi-workspace.
+### `openResources(...args: (string | (() => void | Promise<any>))[]): Promise<void>`
 
-It is recommended to use absolute paths, relative paths are based on process' cwd.
+This method allows you to open one or more files and folders, **and optionally wait for additional conditions** once the workbench is loaded. It automatically waits for the workbench to be ready after opening resources.
 
-```typescript
-await VSBrowser.instance.openResources(`${path/to/folder1}`, ${path/to/file1}, ${path/to/folder2})
+- **Single folder**: Opens the folder in the explorer.
+- **Multiple folders**: Opens a multi-root workspace.
+- **Files**: Opens each file in a new editor tab.
+- **Wait function** _(optional)_: Can be passed as the last argument (sync or async) and will be executed after the workbench is ready.
+
+> **Tip:** Use **absolute paths** to avoid issues. Relative paths are resolved based on the current working directory (`process.cwd()`).
+
+### Example
+
+```ts
+import * as path from "path";
+import { VSBrowser } from "vscode-extension-tester";
+
+await VSBrowser.instance.openResources(
+  path.resolve(__dirname, "workspace/folder1"),
+  path.resolve(__dirname, "workspace/file1.ts"),
+  path.resolve(__dirname, "workspace/folder2"),
+  async () => {
+    // Optional: Wait for your custom UI element or state
+    await new Promise((res) => setTimeout(res, 3000));
+  },
+);
 ```
 
 ### Using Dialogs
