@@ -100,8 +100,5 @@ describe('Extension Test Suite', () => {
 		const outputChannel = vscode.window.createOutputChannel('ExTester Runner');
 		assert.ok(outputChannel, 'Output channel should be created');
 		assert.strictEqual(outputChannel.name, 'ExTester Runner', 'Output channel name should match');
-
-		// clean up
-		outputChannel.dispose();
 	});
 });
