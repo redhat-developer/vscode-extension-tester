@@ -148,18 +148,42 @@ export class VSBrowser {
 	}
 
 	/**
-	 * Waits until parts of the workbench are loaded
+	 * Waits for the VS Code workbench UI to be fully loaded and optionally performs
+	 * an additional async or sync check after the workbench appears.
+	 *
+	 * This method waits for the presence of the `.monaco-workbench` element within the specified timeout.
+	 * If a WebDriver error occurs (e.g. flaky startup), it retries after a short delay.
+	 * Additionally, a follow-up function (`waitForFn`) can be passed to perform custom
+	 * readiness checks (e.g. for UI elements, extensions, or custom content).
+	 *
+	 * @param timeout - Maximum time in milliseconds to wait for the workbench to appear (default: 30,000 ms).
+	 * @param waitForFn - Optional function (sync or async) to be executed after the workbench is located.
+	 *
+	 * @throws If the workbench is not found in time and no recoverable WebDriver error occurred.
+	 *
+	 * @example
+	 * // Wait for the workbench with default timeout
+	 * await waitForWorkbench();
+	 *
+	 * @example
+	 * // Wait for the workbench and ensure a custom UI element is present
+	 * await waitForWorkbench(10000, async () => {
+	 *   await driver.wait(until.elementLocated(By.id('my-element')), 5000);
+	 * });
 	 */
-	async waitForWorkbench(timeout = 30000): Promise<void> {
+	async waitForWorkbench(timeout: number = 30_000, waitForFn?: () => void | Promise<any>): Promise<void> {
 		// Workaround/patch for https://github.com/redhat-developer/vscode-extension-tester/issues/466
 		try {
 			await this._driver.wait(until.elementLocated(By.className('monaco-workbench')), timeout, `Workbench was not loaded properly after ${timeout} ms.`);
 		} catch (err) {
 			if ((err as Error).name === 'WebDriverError') {
-				await new Promise((res) => setTimeout(res, 3000));
+				await new Promise((res) => setTimeout(res, 3_000));
 			} else {
 				throw err;
 			}
+		}
+		if (waitForFn) {
+			await waitForFn();
 		}
 	}
 
@@ -199,19 +223,35 @@ export class VSBrowser {
 	}
 
 	/**
-	 * Open folder(s) or file(s) in the current instance of vscode.
+	 * Opens one or more resources in the editor and optionally performs a follow-up action.
 	 *
-	 * @param paths path(s) of folder(s)/files(s) to open as varargs
-	 * @returns Promise resolving when all selected resources are opened and the workbench reloads
+	 * This method accepts a variable number of arguments. All string arguments are interpreted
+	 * as resource paths to be opened. Optionally, a single callback function (synchronous or asynchronous)
+	 * can be provided as the last argument. This callback will be invoked after all resources have been opened.
+	 *
+	 * @param args - A list of file paths to open followed optionally by a callback function.
+	 *               The callback can be either synchronous or asynchronous.
+	 *
+	 * @example
+	 * // Open two files
+	 * await openResources('file1.ts', 'file2.ts');
+	 *
+	 * @example
+	 * // Open one file and then wait for a condition
+	 * await openResources('file1.ts', async () => {
+	 *   await waitForElementToLoad();
+	 * });
 	 */
-	async openResources(...paths: string[]): Promise<void> {
+	async openResources(...args: (string | (() => void | Promise<any>))[]): Promise<void> {
+		const paths = args.filter((arg) => typeof arg === 'string');
+		const waitForFn = args.find((arg) => typeof arg === 'function') as (() => void | Promise<any>) | undefined;
+
 		if (paths.length === 0) {
 			return;
 		}
 
 		const code = new CodeUtil(this.storagePath, this.releaseType, this.extensionsFolder);
 		code.open(...paths);
-		await new Promise((res) => setTimeout(res, 3000));
-		await this.waitForWorkbench();
+		await this.waitForWorkbench(undefined, waitForFn);
 	}
 }

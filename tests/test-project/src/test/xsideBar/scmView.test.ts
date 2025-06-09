@@ -30,9 +30,7 @@ import { satisfies } from 'compare-versions';
 		await VSBrowser.instance.openResources(path.resolve('..', '..'));
 		await VSBrowser.instance.waitForWorkbench();
 		view = (await ((await new ActivityBar().getViewControl('Source Control')) as ViewControl).openView()) as ScmView;
-		await new Promise((res) => {
-			setTimeout(res, 2000);
-		});
+		await view.getDriver().sleep(5_000); // wait until scm changes are loaded
 	});
 
 	after(() => {
@@ -116,7 +114,7 @@ import { satisfies } from 'compare-versions';
 				expect(label).has.string('testfile');
 			});
 
-			it('getDescritption works', async () => {
+			it('getDescription works', async () => {
 				const desc = await change.getDescription();
 				expect(desc).has.string('');
 			});
