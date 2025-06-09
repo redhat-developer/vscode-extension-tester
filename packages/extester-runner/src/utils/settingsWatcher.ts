@@ -46,19 +46,19 @@ export function settingsWatcher(
 	context.subscriptions.push(
 		vscode.workspace.onDidChangeConfiguration((event) => {
 			if (event.affectsConfiguration('extesterRunner')) {
-				logger.debug('SettingsWacther: Setting was changed, refreshing views.');
+				logger.debug('SettingsWatcher: Setting was changed, refreshing views.');
 				void treeDataProvider.refresh();
 				logsDataProvider.refresh();
 				screenshotsDataProvider.refresh();
 
 				if (event.affectsConfiguration('extesterRunner.tempFolder')) {
-					logger.info('SettingsWacther: tempFolder setting changed — resetting screenshots and logs watcher');
+					logger.info('SettingsWatcher: tempFolder setting changed — resetting screenshots and logs watcher');
 					createScreenshotsWatcher(context, screenshotsDataProvider, logger);
 					createLogsWatcher(context, logsDataProvider, logger);
 				}
 
 				if (event.affectsConfiguration('extesterRunner.testFileGlob')) {
-					logger.info('SettingsWacther: testFileGlob setting changed — resetting file watcher');
+					logger.info('SettingsWatcher: testFileGlob setting changed — resetting file watcher');
 					createFileWatcher(context, treeDataProvider, logger);
 				}
 			}

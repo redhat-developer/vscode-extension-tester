@@ -37,10 +37,10 @@ let watcher: vscode.FileSystemWatcher | undefined;
 export function createScreenshotsWatcher(context: vscode.ExtensionContext, screenshotsDataProvider: ScreenshotsTreeProvider, logger: Logger) {
 	if (watcher) {
 		watcher.dispose();
-		logger.debug('ScreenshotsWacther: Disposed previous screenshots watcher.');
+		logger.debug('ScreenshotsWatcher: Disposed previous screenshots watcher.');
 	}
 
-	logger.debug('ScreenshotsWacther: Creating screenshots system watcher');
+	logger.debug('ScreenshotsWatcher: Creating screenshots system watcher');
 
 	const configuration = vscode.workspace.getConfiguration('extesterRunner');
 	const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
@@ -59,11 +59,11 @@ export function createScreenshotsWatcher(context: vscode.ExtensionContext, scree
 	const screenshotsDirectory = path.join(baseTempDir, 'screenshots');
 
 	if (!fs.existsSync(screenshotsDirectory)) {
-		logger.error(`ScreenshotsWacther: Screenshots directory does not exist: ${screenshotsDirectory}`);
+		logger.error(`ScreenshotsWatcher: Screenshots directory does not exist: ${screenshotsDirectory}`);
 		return;
 	}
 
-	logger.info(`ScreenshotsWacther: Watching screenshots directory: ${screenshotsDirectory}`);
+	logger.info(`ScreenshotsWatcher: Watching screenshots directory: ${screenshotsDirectory}`);
 
 	watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(screenshotsDirectory, '**/*'));
 
