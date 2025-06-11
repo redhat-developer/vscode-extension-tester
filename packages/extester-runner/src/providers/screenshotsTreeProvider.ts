@@ -103,16 +103,39 @@ export class ScreenshotsTreeProvider implements vscode.TreeDataProvider<Screensh
 
 		if (!fs.existsSync(dirPath)) {
 			this.logger.debug(`Directory does not exist: ${dirPath}`);
-			return [new ScreenshotsResourcesItem('No screenshots', '')];
+			return [new ScreenshotsResourcesItem('No screenshots', '', false)];
 		}
 
 		const files = await fs.promises.readdir(dirPath);
 
 		if (files.length === 0) {
-			return [new ScreenshotsResourcesItem('No screenshots', '')];
+			return [new ScreenshotsResourcesItem('No screenshots', '', false)];
 		}
 
-		return files.map((file) => new ScreenshotsResourcesItem(file, path.join(dirPath, file)));
+		const items: ScreenshotsResourcesItem[] = [];
+
+		for (const file of files) {
+			const fullPath = path.join(dirPath, file);
+			const stat = await fs.promises.stat(fullPath);
+
+			if (stat.isDirectory()) {
+				// This is a timestamp folder
+				items.push(new ScreenshotsResourcesItem(file, fullPath, true));
+			} else if (stat.isFile()) {
+				// This is a screenshot file
+				items.push(new ScreenshotsResourcesItem(file, fullPath, false));
+			}
+		}
+
+		// Sort directories first, then files
+		items.sort((a, b) => {
+			if (a.isDirectory !== b.isDirectory) {
+				return a.isDirectory ? -1 : 1;
+			}
+			return a.label.localeCompare(b.label);
+		});
+
+		return items;
 	}
 }
 
@@ -124,23 +147,34 @@ class ScreenshotsResourcesItem extends vscode.TreeItem {
 	 * Creates an instance of the `ScreenshotsResourcesItem`
 	 * @param {string} label - The label displayed in the tree view.
 	 * @param {string} filePath - The file path associated with this item.
+	 * @param {boolean} isDirectory - Indicates whether this item represents a directory.
 	 */
 	constructor(
 		public readonly label: string,
 		public readonly filePath: string,
+		public readonly isDirectory: boolean,
 	) {
-		super(label, vscode.TreeItemCollapsibleState.None);
+		super(label, isDirectory ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None);
 
 		if (filePath) {
 			this.tooltip = filePath;
 			this.resourceUri = vscode.Uri.file(filePath);
-			this.iconPath = vscode.ThemeIcon.File;
 
-			this.command = {
-				command: 'vscode.open',
-				title: 'Open Test Resource',
-				arguments: [vscode.Uri.file(filePath)],
-			};
+			if (isDirectory) {
+				// This is a timestamp folder
+				this.iconPath = vscode.ThemeIcon.Folder;
+				this.contextValue = 'screenshotFolder';
+			} else {
+				// This is a screenshot file
+				this.iconPath = vscode.ThemeIcon.File;
+				this.contextValue = 'screenshotFile';
+
+				this.command = {
+					command: 'vscode.open',
+					title: 'Open Screenshot',
+					arguments: [vscode.Uri.file(filePath)],
+				};
+			}
 		} else {
 			// placeholder item
 			this.iconPath = new vscode.ThemeIcon('warning');
