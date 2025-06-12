@@ -29,7 +29,7 @@
     "@types/fs-extra": "^11.0.4",
     "@types/js-yaml": "^4.0.9",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^22.15.30",
+    "@types/node": "^24.0.1",
     "@types/selenium-webdriver": "^4.1.28",
     "@types/targz": "^1.0.5",
     "@types/vscode": "^1.97.0",
