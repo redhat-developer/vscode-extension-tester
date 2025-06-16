@@ -184,14 +184,22 @@ export class EditorView extends AbstractElement {
 	 * Get editor action of a select editor group, search by title or predicate
 	 * @param predicateOrTitle title or predicate to be used in search process
 	 * @param groupIndex zero based index of the editor group (leftmost group has index 0), default 0
+	 * @param timeout timeout in milliseconds to wait for the action to appear, default 5000
 	 * @returns promise resolving to EditorAction object if found, undefined otherwise
 	 */
 	async getAction(
 		predicateOrTitle: string | ((action: EditorAction) => boolean | PromiseLike<boolean>),
 		groupIndex: number = 0,
+		timeout: number = 5000
 	): Promise<EditorAction | undefined> {
-		const group = await this.getEditorGroup(groupIndex);
-		return group.getAction(predicateOrTitle);
+		return this.getDriver().wait(
+			async () => {
+				const group = await this.getEditorGroup(groupIndex);
+				return group.getAction(predicateOrTitle);
+			},
+			timeout,
+			`Expected action - '${predicateOrTitle}' was not found.`,
+		);
 	}
 }
 
