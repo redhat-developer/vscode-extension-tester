@@ -180,7 +180,7 @@ describe('SideBarView', () => {
 				expect(await action.getLabel()).equals('Refresh Explorer');
 			});
 
-			(process.platform === 'darwin' ? it.skip : it)('moreActions works', async () => {
+			(process.platform === 'darwin' && satisfies(VSBrowser.instance.version, '<1.101.0') ? it.skip : it)('moreActions works', async () => {
 				const outline = await content.getSection('Outline');
 				await outline.expand();
 				await outline.getDriver().actions().move({ origin: outline }).perform();

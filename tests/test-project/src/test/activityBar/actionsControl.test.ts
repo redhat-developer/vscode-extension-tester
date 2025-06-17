@@ -16,9 +16,10 @@
  */
 
 import { expect } from 'chai';
-import { ActivityBar, ActionsControl } from 'vscode-extension-tester';
+import { satisfies } from 'compare-versions';
+import { ActivityBar, ActionsControl, VSBrowser } from 'vscode-extension-tester';
 
-(process.platform === 'darwin' ? describe.skip : describe)('ActionsControl', () => {
+(process.platform === 'darwin' && satisfies(VSBrowser.instance.version, '<1.101.0') ? describe.skip : describe)('ActionsControl', () => {
 	let bar: ActivityBar;
 	let control: ActionsControl | undefined;
 

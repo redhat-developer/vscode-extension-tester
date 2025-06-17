@@ -16,6 +16,7 @@
  */
 
 import { expect } from 'chai';
+import { satisfies } from 'compare-versions';
 import {
 	ActivityBar,
 	CustomTreeItem,
@@ -124,7 +125,7 @@ describe('CustomTreeSection', () => {
 		await emptySection.collapse();
 	});
 
-	(process.platform === 'darwin' ? it.skip : it)('getAction dropdown works', async () => {
+	(process.platform === 'darwin' && satisfies(VSBrowser.instance.version, '<1.101.0') ? it.skip : it)('getAction dropdown works', async () => {
 		const action = (await section.getAction('Hello Who...')) as ViewPanelActionDropdown;
 		const menu = await action.open();
 		expect(menu).not.undefined;
