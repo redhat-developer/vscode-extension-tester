@@ -19,7 +19,7 @@ import { WebElement, WebDriver, Locator, until, Key } from 'selenium-webdriver';
 import { Locators } from '../locators/locators';
 
 /**
- * Default wrapper for webelement
+ * Default wrapper for webElement
  */
 export abstract class AbstractElement extends WebElement {
 	public static readonly ctlKey = process.platform === 'darwin' ? Key.COMMAND : Key.CONTROL;
@@ -30,7 +30,7 @@ export abstract class AbstractElement extends WebElement {
 
 	/**
 	 * Constructs a new element from a Locator or an existing WebElement
-	 * @param base WebDriver compatible Locator for the given element or a reference to an existing WeBelement
+	 * @param base WebDriver compatible Locator for the given element or a reference to an existing WebElement
 	 * @param enclosingItem Locator or a WebElement reference to an element containing the element being constructed
 	 * this will be used to narrow down the search for the underlying DOM element
 	 */

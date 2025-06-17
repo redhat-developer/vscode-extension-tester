@@ -137,7 +137,7 @@ describe('EditorView', function () {
 		expect(editorAction).not.undefined;
 	});
 
-	(process.platform === 'darwin' ? it.skip : it)('Editor getAction dropdown', async function () {
+	(process.platform === 'darwin' && satisfies(VSBrowser.instance.version, '<1.101.0') ? it.skip : it)('Editor getAction dropdown', async function () {
 		this.timeout(15_000);
 		await new EditorView().openEditor('Untitled-2');
 		const editorAction = (await view.getAction('Run or Debug...')) as EditorActionDropdown;

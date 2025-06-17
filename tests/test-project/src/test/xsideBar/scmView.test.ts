@@ -84,7 +84,7 @@ import { satisfies } from 'compare-versions';
 			expect(action).to.be.true;
 		});
 
-		(process.platform === 'darwin' ? it.skip : it)('openMoreActions works', async () => {
+		(process.platform === 'darwin' && satisfies(VSBrowser.instance.version, '<1.101.0') ? it.skip : it)('openMoreActions works', async () => {
 			const menu = await provider.openMoreActions();
 			expect(menu).not.undefined;
 			await menu.close();
