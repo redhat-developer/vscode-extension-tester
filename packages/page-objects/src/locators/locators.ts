@@ -106,6 +106,7 @@ export interface Locators {
 		constructor: By;
 		actionsLabel: string;
 		optionByName: (name: string) => By;
+		currentChannelAttribute: string;
 	};
 	WebviewView: {
 		iframe: By;

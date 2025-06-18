@@ -100,6 +100,7 @@ const bottomBar = {
 		constructor: By.id('workbench.panel.output'),
 		actionsLabel: 'Output actions',
 		optionByName: (name: string) => By.xpath(`.//option[@value='${name}']`),
+		currentChannelAttribute: 'title',
 	},
 	WebviewView: {
 		iframe: By.xpath(`//div[not(@class)]/iframe[@class='webview ready' and not(@data-parent-flow-to-element-id)]`),

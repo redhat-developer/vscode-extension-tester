@@ -29,6 +29,12 @@ export class OutputView extends TextView {
 		this.actionsLabel = OutputView.locators.OutputView.actionsLabel;
 	}
 
+	protected async reinitialize(): Promise<this> {
+		const panel = this.enclosingItem as BottomBarPanel;
+		const view = await panel.openOutputView();
+		return view as this;
+	}
+
 	/**
 	 * Select a channel using the selector combo
 	 * @param name name of the channel to open
