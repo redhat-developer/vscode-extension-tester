@@ -31,5 +31,8 @@ export const diff: LocatorDiff = {
 		BottomBarViews: {
 			textArea: By.className('native-edit-context'),
 		},
+		DebugView: {
+			launchSelectAttribute: 'value',
+		},
 	},
 };

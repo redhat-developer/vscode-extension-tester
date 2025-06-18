@@ -460,6 +460,7 @@ export interface Locators {
 	DebugView: {
 		launchCombo: By;
 		launchSelect: By;
+		launchSelectAttribute: string;
 		launchOption: By;
 		optionByName: (name: string) => By;
 		startButton: By;

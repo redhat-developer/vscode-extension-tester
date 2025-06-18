@@ -459,6 +459,7 @@ const sideBar = {
 	DebugView: {
 		launchCombo: By.className('start-debug-action-item'),
 		launchSelect: By.css('select'),
+		launchSelectAttribute: 'title',
 		launchOption: By.css('option'),
 		optionByName: (name: string) => By.xpath(`.//option[@value='${name}']`),
 		startButton: By.className('codicon-debug-start'),
