@@ -39,7 +39,7 @@ export class DebugView extends SideBarView {
 		}
 		const action = await this.getTitlePart().findElement(DebugView.locators.DebugView.launchCombo);
 		const combo = await action.findElement(DebugView.locators.DebugView.launchSelect);
-		return await combo.getAttribute('title');
+		return await combo.getAttribute(DebugView.locators.DebugView.launchSelectAttribute);
 	}
 
 	/**

@@ -53,6 +53,12 @@ export class DebugConsoleView extends ElementWithContextMenu {
 		super(DebugConsoleView.locators.DebugConsoleView.constructor, panel);
 	}
 
+	protected async reinitialize(): Promise<this> {
+		const panel = this.enclosingItem as BottomBarPanel;
+		const view = await panel.openDebugConsoleView();
+		return view as this;
+	}
+
 	/**
 	 * Clear the console of all text
 	 */
@@ -66,9 +72,11 @@ export class DebugConsoleView extends ElementWithContextMenu {
 	 * @param expression expression in form of a string
 	 */
 	async setExpression(expression: string): Promise<void> {
-		const textarea = await this.findElement(DebugConsoleView.locators.BottomBarViews.textArea);
-		await textarea.clear();
-		await textarea.sendKeys(expression);
+		await this.withRecovery(async (self) => {
+			const textarea = await self.findElement(DebugConsoleView.locators.BottomBarViews.textArea);
+			await textarea.sendKeys(Key.chord(DebugConsoleView.ctlKey, 'a'));
+			await textarea.sendKeys(expression);
+		});
 	}
 
 	/**
@@ -79,11 +87,13 @@ export class DebugConsoleView extends ElementWithContextMenu {
 	 * @param expression expression to evaluate. To use existing contents of the debug console text area instead, don't define this argument
 	 */
 	async evaluateExpression(expression?: string): Promise<void> {
-		const textarea = await this.findElement(DebugConsoleView.locators.BottomBarViews.textArea);
-		if (expression) {
-			await this.setExpression(expression);
-		}
-		await textarea.sendKeys(Key.ENTER);
+		await this.withRecovery(async (self) => {
+			const textarea = await self.findElement(DebugConsoleView.locators.BottomBarViews.textArea);
+			if (expression) {
+				await self.setExpression(expression);
+			}
+			await textarea.sendKeys(Key.ENTER);
+		});
 	}
 
 	/**
