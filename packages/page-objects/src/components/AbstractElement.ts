@@ -85,4 +85,27 @@ export abstract class AbstractElement extends WebElement {
 		AbstractElement.driver = driver;
 		AbstractElement.versionInfo = { version: version, browser: browser };
 	}
+
+	async withRecovery<T>(fn: (self: this) => Promise<T>): Promise<T> {
+		try {
+			return await fn(this);
+		} catch (err: any) {
+			if (
+				err.name === 'StaleElementReferenceError' ||
+				err.name === 'ElementNotInteractableError' ||
+				/element.*(detached|not interactable)/i.test(err.message)
+			) {
+				// TODO remove console log
+				console.warn(`🔁 Recovery triggered for ${this.constructor.name}: ${err.message}`);
+				const reinit = await this.reinitialize();
+				return await fn(reinit);
+			}
+			throw err;
+		}
+	}
+
+	protected async reinitialize(): Promise<this> {
+		// Implement generic fallback if possible — otherwise force override in subclasses
+		throw new Error(`reinitialize() not implemented in ${this.constructor.name}`);
+	}
 }
