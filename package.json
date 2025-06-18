@@ -32,7 +32,7 @@
     "@types/node": "^22.15.30",
     "@types/selenium-webdriver": "^4.1.28",
     "@types/targz": "^1.0.5",
-    "@types/vscode": "^1.97.0",
+    "@types/vscode": "^1.101.0",
     "@typescript-eslint/eslint-plugin": "^8.34.1",
     "@typescript-eslint/parser": "^8.32.1",
     "eslint": "^9.29.0",
