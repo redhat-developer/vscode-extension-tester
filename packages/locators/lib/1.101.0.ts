@@ -28,5 +28,8 @@ export const diff: LocatorDiff = {
 		OutputView: {
 			currentChannelAttribute: 'value',
 		},
+		BottomBarViews: {
+			textArea: By.className('native-edit-context'),
+		},
 	},
 };
