@@ -53,7 +53,7 @@
   ],
   "supportedVersions": {
     "vscode-min": "1.99.1",
-    "vscode-max": "1.101.0",
+    "vscode-max": "1.101.2",
     "nodejs": "20"
   },
   "dependencies": {
