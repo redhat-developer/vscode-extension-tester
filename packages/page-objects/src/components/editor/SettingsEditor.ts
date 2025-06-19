@@ -19,7 +19,7 @@ import { Editor } from './Editor';
 import { ContextMenu } from '../menu/ContextMenu';
 import { WebElement, Key, By } from 'selenium-webdriver';
 import { AbstractElement } from '../AbstractElement';
-import { EditorView, EditorGroup } from '../..';
+import { EditorView, EditorGroup, Workbench } from '../..';
 import { satisfies } from 'compare-versions';
 
 /**
@@ -30,6 +30,15 @@ export class SettingsEditor extends Editor {
 
 	constructor(view: EditorView | EditorGroup = new EditorView()) {
 		super(view);
+	}
+
+	protected async reinitialize(): Promise<this> {
+		const reopened = await new Workbench().openSettings();
+		// Check if we got the same type back
+		if (!(reopened instanceof (this.constructor as any))) {
+			throw new Error(`Reopened editor is not the same type as original.`);
+		}
+		return reopened as this;
 	}
 
 	/**
@@ -45,12 +54,14 @@ export class SettingsEditor extends Editor {
 	 * @returns Promise resolving to a Setting object if found, undefined otherwise
 	 */
 	async findSetting(title: string, ...categories: string[]): Promise<Setting> {
-		const category = categories.join(this.divider);
-		const searchBox = await this.findElement(SettingsEditor.locators.Editor.inputArea);
-		await searchBox.sendKeys(Key.chord(SettingsEditor.ctlKey, 'a'));
-		await searchBox.sendKeys(`${category}>${title}`);
+		return this.withRecovery(async (self) => {
+			const category = categories.join(self.divider);
+			const searchBox = await self.findElement(SettingsEditor.locators.Editor.inputArea);
+			await searchBox.sendKeys(Key.chord(SettingsEditor.ctlKey, 'a'));
+			await searchBox.sendKeys(`${category}>${title}`);
 
-		return await this._getSettingItem(title, category);
+			return await self._getSettingItem(title, category);
+		});
 	}
 
 	/**
