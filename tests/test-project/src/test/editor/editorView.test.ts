@@ -147,8 +147,11 @@ describe('EditorView', function () {
 			await menu.select('Hello a World');
 
 			const center = await new Workbench().openNotificationsCenter();
-			const notifications = await center.getNotifications(NotificationType.Any);
+			await center.getDriver().wait(async function () {
+				return (await center.getNotifications(NotificationType.Any)).length > 1;
+			}, 5_000);
 
+			const notifications = await center.getNotifications(NotificationType.Any);
 			expect(await notifications.at(0)?.getText()).is.equal('Hello World, Test Project!');
 
 			await center.clearAllNotifications();
