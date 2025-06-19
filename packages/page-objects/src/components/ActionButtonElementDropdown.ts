@@ -22,6 +22,7 @@ import { By } from 'selenium-webdriver';
 export abstract class ActionButtonElementDropdown extends AbstractElement {
 	async open(): Promise<ContextMenu> {
 		await this.click();
+		await this.getDriver().sleep(500);
 		const shadowRootHost = await this.enclosingItem.findElements(ActionButtonElementDropdown.locators.ContextMenu.shadowRootHost);
 		const actions = this.getDriver().actions();
 		await actions.clear();
@@ -29,6 +30,7 @@ export abstract class ActionButtonElementDropdown extends AbstractElement {
 		if (shadowRootHost.length > 0) {
 			if ((await this.getAttribute('aria-expanded')) !== 'true') {
 				await this.click();
+				await this.getDriver().sleep(500);
 			}
 			const shadowRoot = await shadowRootHost[0].getShadowRoot();
 			return new ContextMenu(await shadowRoot.findElement(By.className('monaco-menu-container'))).wait();
