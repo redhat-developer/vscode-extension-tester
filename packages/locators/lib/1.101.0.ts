@@ -15,27 +15,24 @@
  * limitations under the License.
  */
 
-import { expect } from 'chai';
-import { satisfies } from 'compare-versions';
-import { ActivityBar, ActionsControl, VSBrowser } from 'vscode-extension-tester';
+import { By, LocatorDiff } from '@redhat-developer/page-objects';
 
-(process.platform === 'darwin' && satisfies(VSBrowser.instance.version, '<1.101.0') ? describe.skip : describe)('ActionsControl', () => {
-	let bar: ActivityBar;
-	let control: ActionsControl | undefined;
-
-	before(async function () {
-		bar = new ActivityBar();
-		control = await bar.getGlobalAction('Manage');
-	});
-
-	it('openActionsMenu displays context menu', async () => {
-		const menu = await control?.openActionMenu();
-		expect(await menu?.isDisplayed()).is.true;
-		await menu?.close();
-	});
-
-	it('getTitle returns the action container label', async () => {
-		const title = await control?.getTitle();
-		expect(title).equals('Manage');
-	});
-});
+export const diff: LocatorDiff = {
+	locators: {
+		Editor: {
+			inputArea: By.className('native-edit-context'),
+		},
+		ExtensionsViewSection: {
+			searchBox: By.className('native-edit-context'),
+		},
+		OutputView: {
+			currentChannelAttribute: 'value',
+		},
+		BottomBarViews: {
+			textArea: By.className('native-edit-context'),
+		},
+		DebugView: {
+			launchSelectAttribute: 'value',
+		},
+	},
+};

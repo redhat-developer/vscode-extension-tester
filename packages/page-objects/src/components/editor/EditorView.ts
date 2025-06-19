@@ -190,7 +190,7 @@ export class EditorView extends AbstractElement {
 	async getAction(
 		predicateOrTitle: string | ((action: EditorAction) => boolean | PromiseLike<boolean>),
 		groupIndex: number = 0,
-		timeout: number = 5000
+		timeout: number = 5000,
 	): Promise<EditorAction | undefined> {
 		return this.getDriver().wait(
 			async () => {

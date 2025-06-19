@@ -27,6 +27,18 @@ export abstract class Editor extends ElementWithContextMenu {
 		super(base, view);
 	}
 
+	protected async reinitialize(): Promise<this> {
+		const editorView = this.enclosingItem as EditorView;
+		const title = await this.getTitle();
+		const reopened = await editorView.openEditor(title);
+
+		// Check if we got the same type back
+		if (!(reopened instanceof (this.constructor as any))) {
+			throw new Error(`Reopened editor is not the same type as original.`);
+		}
+		return reopened as this;
+	}
+
 	/**
 	 * Get title/name of the open editor
 	 */

@@ -16,7 +16,8 @@
  */
 
 import { expect } from 'chai';
-import { ActivityBar } from 'vscode-extension-tester';
+import { satisfies } from 'compare-versions';
+import { ActivityBar, VSBrowser } from 'vscode-extension-tester';
 
 describe('ActivityBar', () => {
 	let bar: ActivityBar;
@@ -55,7 +56,7 @@ describe('ActivityBar', () => {
 		expect(action).undefined;
 	});
 
-	(process.platform === 'darwin' ? it.skip : it)('openContextMenu shows context menu', async () => {
+	(process.platform === 'darwin' && satisfies(VSBrowser.instance.version, '<1.101.0') ? it.skip : it)('openContextMenu shows context menu', async () => {
 		const menu = await bar.openContextMenu();
 		expect(await menu.isDisplayed()).is.true;
 		await menu.close();

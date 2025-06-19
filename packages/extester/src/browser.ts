@@ -64,6 +64,7 @@ export class VSBrowser {
 		if (fs.existsSync(userSettings)) {
 			fs.removeSync(path.join(this.storagePath, 'settings'));
 		}
+
 		let defaultSettings = {
 			'workbench.editor.enablePreview': false,
 			'workbench.startupEditor': 'none',
@@ -75,6 +76,7 @@ export class VSBrowser {
 			'security.workspace.trust.enabled': false,
 			'files.simpleDialog.enable': true,
 			'terminal.integrated.copyOnSelection': true,
+			...(satisfies(this.codeVersion, '>=1.101.0') ? { 'window.menuStyle': 'custom' } : {}),
 		};
 		if (Object.keys(this.customSettings).length > 0) {
 			console.log('Detected user defined code settings');

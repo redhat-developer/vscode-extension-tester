@@ -106,6 +106,7 @@ export interface Locators {
 		constructor: By;
 		actionsLabel: string;
 		optionByName: (name: string) => By;
+		currentChannelAttribute: string;
 	};
 	WebviewView: {
 		iframe: By;
@@ -459,6 +460,7 @@ export interface Locators {
 	DebugView: {
 		launchCombo: By;
 		launchSelect: By;
+		launchSelectAttribute: string;
 		launchOption: By;
 		optionByName: (name: string) => By;
 		startButton: By;

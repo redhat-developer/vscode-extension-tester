@@ -31,6 +31,7 @@ import {
 	afterEach,
 	beforeEach,
 } from 'vscode-extension-tester';
+import { satisfies } from 'compare-versions';
 
 describe('ContentAssist', async function () {
 	let assist: ContentAssist;
@@ -175,7 +176,7 @@ describe('TextEditor', function () {
 		expect(await tab.getTitle()).equals(await editor.getTitle());
 	});
 
-	(process.platform === 'darwin' ? it.skip : it)('formatDocument works', async function () {
+	(process.platform === 'darwin' && satisfies(VSBrowser.instance.version, '<1.101.0') ? it.skip : it)('formatDocument works', async function () {
 		expect(await editor.formatDocument()).not.to.throw;
 	});
 
@@ -276,7 +277,7 @@ describe('TextEditor', function () {
 			}
 		});
 
-		(process.platform === 'darwin' ? it.skip : it)('getSelection works', async function () {
+		(process.platform === 'darwin' && satisfies(VSBrowser.instance.version, '<1.101.0') ? it.skip : it)('getSelection works', async function () {
 			await editor.selectText('cline');
 			const selection = await editor.getSelection();
 
