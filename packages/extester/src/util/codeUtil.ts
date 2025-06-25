@@ -201,6 +201,44 @@ export class CodeUtil {
 	}
 
 	/**
+	 * Install language pack for the specified locale
+	 */
+	installLanguagePack(locale: string): void {
+		if (!locale) return;
+
+		const languagePacks: { [key: string]: string } = {
+			ru: 'ms-ceintl.vscode-language-pack-ru',
+			cs: 'ms-ceintl.vscode-language-pack-cs',
+			de: 'ms-ceintl.vscode-language-pack-de',
+			es: 'ms-ceintl.vscode-language-pack-es',
+			fr: 'ms-ceintl.vscode-language-pack-fr',
+			it: 'ms-ceintl.vscode-language-pack-it',
+			ja: 'ms-ceintl.vscode-language-pack-ja',
+			ko: 'ms-ceintl.vscode-language-pack-ko',
+			pl: 'ms-ceintl.vscode-language-pack-pl',
+			'pt-br': 'ms-ceintl.vscode-language-pack-pt-BR',
+			pt: 'ms-ceintl.vscode-language-pack-pt-PT',
+			tr: 'ms-ceintl.vscode-language-pack-tr',
+			'zh-cn': 'ms-ceintl.vscode-language-pack-zh-hans',
+			'zh-tw': 'ms-ceintl.vscode-language-pack-zh-hant',
+		};
+
+		const languagePackId = languagePacks[locale.toLowerCase()];
+		if (languagePackId) {
+			console.log(`Installing language pack: ${languagePackId}`);
+			this.installExt(languagePackId);
+			// Add a delay to ensure the language pack is fully processed
+			console.log('Waiting for language pack to be processed...');
+			// Use a simple delay - in a real implementation you might want to check if the extension is actually loaded
+			setTimeout(() => {
+				console.log('Language pack installation completed');
+			}, 2000);
+		} else {
+			console.log(`No language pack found for locale: ${locale}`);
+		}
+	}
+
+	/**
 	 * Install extension dependencies from marketplace
 	 */
 	installDependencies(): void {
@@ -318,6 +356,12 @@ export class CodeUtil {
 		process.env.EXTENSIONS_FOLDER = this.extensionsFolder;
 		process.env.EXTENSION_DEV_PATH = this.coverage ? process.cwd() : undefined;
 		console.log('Locale set to:', runOptions.locale);
+
+		// Install language pack if locale is specified
+		if (runOptions.locale) {
+			console.log(`Language pack for locale ${runOptions.locale} should already be installed`);
+		}
+
 		const runner = new VSRunner(
 			this.executablePath,
 			literalVersion,

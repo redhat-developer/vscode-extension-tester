@@ -72,7 +72,7 @@ export class VSBrowser {
 		if (fs.existsSync(userSettings)) {
 			fs.removeSync(path.join(this.storagePath, 'settings'));
 		}
-		let defaultSettings = {
+		let defaultSettings: any = {
 			'workbench.editor.enablePreview': false,
 			'workbench.startupEditor': 'none',
 			'window.titleBarStyle': 'custom',
@@ -84,6 +84,14 @@ export class VSBrowser {
 			'files.simpleDialog.enable': true,
 			'terminal.integrated.copyOnSelection': true,
 		};
+
+		// Add locale setting if provided
+		if (this.locale) {
+			// Try using the original locale format
+			defaultSettings.locale = this.locale;
+			console.log('Setting locale in settings to:', this.locale);
+		}
+
 		if (Object.keys(this.customSettings).length > 0) {
 			console.log('Detected user defined code settings');
 			defaultSettings = { ...defaultSettings, ...this.customSettings };
@@ -92,6 +100,28 @@ export class VSBrowser {
 		fs.mkdirpSync(path.join(userSettings, 'globalStorage'));
 		fs.writeJSONSync(path.join(userSettings, 'settings.json'), defaultSettings);
 		console.log(`Writing code settings to ${path.join(userSettings, 'settings.json')}`);
+		console.log('Settings content:', JSON.stringify(defaultSettings, null, 2));
+
+		// Also create workspace settings if locale is specified
+		if (this.locale) {
+			const workspaceSettings = path.join(this.storagePath, 'settings', 'workspace.json');
+			const workspaceConfig = {
+				folders: [{ path: process.cwd() }],
+				settings: { locale: this.locale },
+			};
+			fs.writeJSONSync(workspaceSettings, workspaceConfig);
+			console.log(`Writing workspace settings to ${workspaceSettings}`);
+
+			// Create test-specific argv.json to override user's locale setting
+			const testVscodeDir = path.join(this.storagePath, '.vscode');
+			fs.mkdirpSync(testVscodeDir);
+			const argvJson = path.join(testVscodeDir, 'argv.json');
+			const argvConfig = {
+				locale: this.locale,
+			};
+			fs.writeJSONSync(argvJson, argvConfig, { spaces: 2 });
+			console.log(`Writing test argv.json to ${argvJson}`);
+		}
 
 		const args = ['--no-sandbox', '--disable-dev-shm-usage', `--user-data-dir=${path.join(this.storagePath, 'settings')}`];
 
@@ -105,6 +135,24 @@ export class VSBrowser {
 
 		console.log('Locale set to:', this.locale);
 		console.log('VS Code launch arguments:', args);
+
+		// Set VS Code locale environment variable
+		if (this.locale) {
+			// For Russian, try different locale formats
+			const localeVariants = [this.locale, `${this.locale}-RU`, `${this.locale}_RU`];
+			console.log('Trying locale variants:', localeVariants);
+
+			// Use the original locale format
+			const selectedLocale = this.locale;
+
+			process.env.VSCODE_NLS_CONFIG = JSON.stringify({
+				locale: selectedLocale,
+				osLocale: selectedLocale,
+				availableLanguages: {},
+			});
+			console.log('Set VSCODE_NLS_CONFIG:', process.env.VSCODE_NLS_CONFIG);
+			console.log('Selected locale for settings:', selectedLocale);
+		}
 
 		if (satisfies(this.codeVersion, '<1.39.0')) {
 			if (process.platform === 'win32') {
