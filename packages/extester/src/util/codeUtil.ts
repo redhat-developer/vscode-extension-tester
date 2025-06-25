@@ -46,6 +46,8 @@ export interface RunOptions {
 	offline?: boolean;
 	/** list of resources to be opened by VS Code */
 	resources: string[];
+	// tbd
+	locale: string;
 }
 
 /** defaults for the [[RunOptions]] */
@@ -55,7 +57,8 @@ export const DEFAULT_RUN_OPTIONS = {
 	logLevel: logging.Level.INFO,
 	offline: false,
 	resources: [],
-	noCache: false,
+	noCache: false, // what about this?
+	locale: '',
 };
 
 /**
@@ -314,6 +317,7 @@ export class CodeUtil {
 		process.env.TEST_RESOURCES = this.downloadFolder;
 		process.env.EXTENSIONS_FOLDER = this.extensionsFolder;
 		process.env.EXTENSION_DEV_PATH = this.coverage ? process.cwd() : undefined;
+		console.log('Locale set to:', runOptions.locale);
 		const runner = new VSRunner(
 			this.executablePath,
 			literalVersion,
@@ -321,6 +325,7 @@ export class CodeUtil {
 			runOptions.cleanup,
 			this.releaseType,
 			runOptions.config,
+			runOptions.locale,
 		);
 		return await runner.runTests(testFilesPattern, this, runOptions.logLevel, runOptions.resources);
 	}

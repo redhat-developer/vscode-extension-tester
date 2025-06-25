@@ -37,19 +37,27 @@ export class VSBrowser {
 	private logLevel: logging.Level;
 	private static _instance: VSBrowser;
 	private readonly _startTimestamp: string;
+	private locale: string;
 
 	private formatTimestamp(date: Date): string {
 		const pad = (num: number) => num.toString().padStart(2, '0');
 		return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}T${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
 	}
 
-	constructor(codeVersion: string, releaseType: ReleaseQuality, customSettings: object = {}, logLevel: logging.Level = logging.Level.INFO) {
+	constructor(
+		codeVersion: string,
+		releaseType: ReleaseQuality,
+		customSettings: object = {},
+		logLevel: logging.Level = logging.Level.INFO,
+		locale: string = '',
+	) {
 		this.storagePath = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.resolve(DEFAULT_STORAGE_FOLDER);
 		this.extensionsFolder = process.env.EXTENSIONS_FOLDER ? process.env.EXTENSIONS_FOLDER : undefined;
 		this.customSettings = customSettings;
 		this.codeVersion = codeVersion;
 		this.releaseType = releaseType;
 		this.logLevel = logLevel;
+		this.locale = locale;
 		this._startTimestamp = this.formatTimestamp(new Date());
 
 		VSBrowser._instance = this;
@@ -90,6 +98,13 @@ export class VSBrowser {
 		if (this.extensionsFolder) {
 			args.push(`--extensions-dir=${this.extensionsFolder}`);
 		}
+
+		if (this.locale) {
+			args.push(`--locale=${this.locale}`);
+		}
+
+		console.log('Locale set to:', this.locale);
+		console.log('VS Code launch arguments:', args);
 
 		if (satisfies(this.codeVersion, '<1.39.0')) {
 			if (process.platform === 'win32') {

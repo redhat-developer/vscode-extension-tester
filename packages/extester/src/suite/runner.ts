@@ -38,8 +38,18 @@ export class VSRunner {
 	private cleanup: boolean;
 	private tmpLink = path.join(os.tmpdir(), 'extest-code');
 	private releaseType: ReleaseQuality;
+	private locale: string;
+	private logLevel: logging.Level;
 
-	constructor(bin: string, codeVersion: string, customSettings: object = {}, cleanup: boolean = false, releaseType: ReleaseQuality, config?: string) {
+	constructor(
+		bin: string,
+		codeVersion: string,
+		customSettings: object = {},
+		cleanup: boolean = false,
+		releaseType: ReleaseQuality,
+		config?: string,
+		locale?: string,
+	) {
 		const conf = this.loadConfig(config);
 		this.mocha = new Mocha(conf);
 		this.chromeBin = bin;
@@ -47,6 +57,8 @@ export class VSRunner {
 		this.codeVersion = codeVersion;
 		this.cleanup = cleanup;
 		this.releaseType = releaseType;
+		this.locale = locale || '';
+		this.logLevel = logging.Level.INFO;
 	}
 
 	/**
@@ -56,9 +68,11 @@ export class VSRunner {
 	 * @return The exit code of the mocha process
 	 */
 	runTests(testFilesPattern: string[], code: CodeUtil, logLevel: logging.Level = logging.Level.INFO, resources: string[]): Promise<number> {
+		this.logLevel = logLevel;
 		return new Promise((resolve) => {
 			const self = this;
-			const browser: VSBrowser = new VSBrowser(this.codeVersion, this.releaseType, this.customSettings, logLevel);
+			console.log('VSRunner locale:', this.locale);
+			const browser: VSBrowser = new VSBrowser(this.codeVersion, this.releaseType, this.customSettings, this.logLevel, this.locale);
 			let coverage: Coverage | undefined;
 
 			const testFiles = new Set<string>();
