@@ -129,6 +129,7 @@ program
 	.option('-f, --offline', 'Attempt to run without internet connection, make sure to have all requirements downloaded', false)
 	.option('-C, --coverage', 'Enable code coverage using c8')
 	.option('-r, --open_resource <resources...>', 'Open resources in VS Code. Multiple files and folders can be specified.')
+	.option('-L, --locale <locale>', 'to be defined')
 	.action(
 		withErrors(async (testFiles, cmd) => {
 			const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir, cmd.coverage);
@@ -161,6 +162,7 @@ program
 	.option('-C, --coverage', 'Enable code coverage using c8')
 	.option('-r, --open_resource <resources...>', 'Open resources in VS Code. Multiple files and folders can be specified.')
 	.option('-n, --no_cache', 'Skip using cached version and download fresh copy without caching it', false)
+	.option('-L, --locale <locale>', 'to be defined')
 	.action(
 		withErrors(async (testFiles, cmd) => {
 			const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir, cmd.coverage);
