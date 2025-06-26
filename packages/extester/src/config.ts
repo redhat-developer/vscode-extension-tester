@@ -117,7 +117,7 @@ function resolveGlobPattern(baseDir: string, pattern: string): string {
 	}
 	// Split at the last path separator before the first glob character so that the
 	// directory boundary is preserved and re-attached with a forward slash.
-	const globChars = /[*?{!(|@+\[]/;
+	const globChars = /[*?{!(|@+[]/;
 	const firstGlob = pattern.search(globChars);
 	if (firstGlob === -1) {
 		// No glob characters — treat as a plain path, but normalise separators.
