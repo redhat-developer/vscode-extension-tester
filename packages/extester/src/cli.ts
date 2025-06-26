@@ -141,6 +141,7 @@ program
 				logLevel: cmd.log_level,
 				offline: cmd.offline,
 				resources: cmd.open_resource ?? [],
+				locale: cmd.locale,
 			});
 		}),
 	);
@@ -162,7 +163,7 @@ program
 	.option('-C, --coverage', 'Enable code coverage using c8')
 	.option('-r, --open_resource <resources...>', 'Open resources in VS Code. Multiple files and folders can be specified.')
 	.option('-n, --no_cache', 'Skip using cached version and download fresh copy without caching it', false)
-	.option('-L, --locale <locale>', 'to be defined')
+	.option('-L, --locale <locale>', 'to be defined22')
 	.action(
 		withErrors(async (testFiles, cmd) => {
 			const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir, cmd.coverage);
@@ -180,6 +181,7 @@ program
 					config: cmd.mocha_config,
 					logLevel: cmd.log_level,
 					resources: cmd.open_resource ?? [],
+					locale: cmd.locale,
 				},
 			);
 		}),

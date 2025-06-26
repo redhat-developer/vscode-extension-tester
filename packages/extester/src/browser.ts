@@ -35,6 +35,7 @@ export class VSBrowser {
 	private codeVersion: string;
 	private releaseType: ReleaseQuality;
 	private logLevel: logging.Level;
+	private locale: string;
 	private static _instance: VSBrowser;
 	private readonly _startTimestamp: string;
 
@@ -43,13 +44,20 @@ export class VSBrowser {
 		return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}T${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
 	}
 
-	constructor(codeVersion: string, releaseType: ReleaseQuality, customSettings: object = {}, logLevel: logging.Level = logging.Level.INFO) {
+	constructor(
+		codeVersion: string,
+		releaseType: ReleaseQuality,
+		customSettings: object = {},
+		logLevel: logging.Level = logging.Level.INFO,
+		locale: string = '',
+	) {
 		this.storagePath = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.resolve(DEFAULT_STORAGE_FOLDER);
 		this.extensionsFolder = process.env.EXTENSIONS_FOLDER ? process.env.EXTENSIONS_FOLDER : undefined;
 		this.customSettings = customSettings;
 		this.codeVersion = codeVersion;
 		this.releaseType = releaseType;
 		this.logLevel = logLevel;
+		this.locale = locale;
 		this._startTimestamp = this.formatTimestamp(new Date());
 
 		VSBrowser._instance = this;
@@ -87,7 +95,12 @@ export class VSBrowser {
 		fs.writeJSONSync(path.join(userSettings, 'settings.json'), defaultSettings);
 		console.log(`Writing code settings to ${path.join(userSettings, 'settings.json')}`);
 
-		const args = ['--no-sandbox', '--disable-dev-shm-usage', `--user-data-dir=${path.join(this.storagePath, 'settings')}`];
+		const args = ['--no-sandbox', '--disable-dev-shm-usage', `--user-data-dir=${path.join(this.storagePath, 'settings')}`]; // sem pridam locale
+
+		if (this.locale) {
+			console.log('locale is in args with value ' + this.locale);
+			args.push(`--locale ${this.locale}`);
+		}
 
 		if (this.extensionsFolder) {
 			args.push(`--extensions-dir=${this.extensionsFolder}`);
@@ -102,9 +115,13 @@ export class VSBrowser {
 			args.push(`--extensionDevelopmentPath=${process.env.EXTENSION_DEV_PATH}`);
 		}
 
+		console.log('args', args);
+
 		let options = new Options().setChromeBinaryPath(codePath).addArguments(...args) as any;
 		options['options_'].windowTypes = ['webview'];
 		options = options as Options;
+
+		console.log('options', options);
 
 		const prefs = new logging.Preferences();
 		prefs.setLevel(logging.Type.DRIVER, this.logLevel);
@@ -117,6 +134,9 @@ export class VSBrowser {
 		}
 
 		console.log('Launching browser...');
+		// Print the full launch command for debugging
+		console.log('Launching VS Code with command:', `"${codePath}" ${args.join(' ')}`);
+
 		this._driver = await new Builder()
 			.setChromeService(new ServiceBuilder(chromeDriverBinaryPath))
 			.forBrowser(Browser.CHROME)

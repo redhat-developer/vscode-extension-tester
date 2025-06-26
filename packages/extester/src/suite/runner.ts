@@ -38,8 +38,17 @@ export class VSRunner {
 	private cleanup: boolean;
 	private tmpLink = path.join(os.tmpdir(), 'extest-code');
 	private releaseType: ReleaseQuality;
+	private locale: string | undefined;
 
-	constructor(bin: string, codeVersion: string, customSettings: object = {}, cleanup: boolean = false, releaseType: ReleaseQuality, config?: string) {
+	constructor(
+		bin: string,
+		codeVersion: string,
+		customSettings: object = {},
+		cleanup: boolean = false,
+		releaseType: ReleaseQuality,
+		config?: string,
+		locale?: string,
+	) {
 		const conf = this.loadConfig(config);
 		this.mocha = new Mocha(conf);
 		this.chromeBin = bin;
@@ -47,6 +56,7 @@ export class VSRunner {
 		this.codeVersion = codeVersion;
 		this.cleanup = cleanup;
 		this.releaseType = releaseType;
+		this.locale = locale;
 	}
 
 	/**
@@ -58,7 +68,7 @@ export class VSRunner {
 	runTests(testFilesPattern: string[], code: CodeUtil, logLevel: logging.Level = logging.Level.INFO, resources: string[]): Promise<number> {
 		return new Promise((resolve) => {
 			const self = this;
-			const browser: VSBrowser = new VSBrowser(this.codeVersion, this.releaseType, this.customSettings, logLevel);
+			const browser: VSBrowser = new VSBrowser(this.codeVersion, this.releaseType, this.customSettings, logLevel, this.locale);
 			let coverage: Coverage | undefined;
 
 			const testFiles = new Set<string>();
