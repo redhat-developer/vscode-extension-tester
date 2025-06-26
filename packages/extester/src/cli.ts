@@ -203,6 +203,7 @@ program
 				offline: cmd.offline || run.offline,
 				resources: cmd.open_resource ?? run.resources ?? [],
 				customPageObjects: customPageObjectsPath ? { locatorsPath: customPageObjectsPath } : undefined,
+				locale: cmd.locale,
 			});
 		}),
 	);
@@ -256,6 +257,7 @@ program
 					logLevel: cmd.log_level ?? run.logLevel,
 					resources: cmd.open_resource ?? run.resources ?? [],
 					customPageObjects: customPageObjectsPath ? { locatorsPath: customPageObjectsPath } : undefined,
+					locale: cmd.locale,
 				},
 			);
 		}),
@@ -288,7 +290,7 @@ function codeStream(stream: string | undefined) {
 	if (!type && envType) {
 		type = envType;
 	}
-	if (type && type.toLowerCase() === 'insider') {
+	if (type?.toLowerCase() === 'insider') {
 		return ReleaseQuality.Insider;
 	}
 	return ReleaseQuality.Stable;

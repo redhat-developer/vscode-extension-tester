@@ -58,6 +58,8 @@ export interface RunOptions {
 	resources: string[];
 	/** custom page objects locator contribution to load at startup */
 	customPageObjects?: CustomPageObjectsOptions;
+	/** tbd */
+	locale?: string;
 }
 
 /** defaults for the [[RunOptions]] */
@@ -67,7 +69,7 @@ export const DEFAULT_RUN_OPTIONS = {
 	logLevel: logging.Level.INFO,
 	offline: false,
 	resources: [],
-	noCache: false,
+	noCache: false, //???
 };
 
 /**
@@ -348,6 +350,7 @@ export class CodeUtil {
 			runOptions.customPageObjects,
 			this.parseSettings(runOptions.settings ?? DEFAULT_RUN_OPTIONS.settings),
 			runOptions.cleanup,
+			runOptions.locale,
 		);
 		return await runner.runTests(testFilesPattern, this, runOptions.resources, runOptions.logLevel);
 	}

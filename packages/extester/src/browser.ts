@@ -36,6 +36,7 @@ export class VSBrowser {
 	private releaseType: ReleaseQuality;
 	private logLevel: logging.Level;
 	private customPageObjects?: CustomPageObjectsOptions;
+	private locale: string;
 	private static _instance: VSBrowser;
 	private readonly _startTimestamp: string;
 
@@ -50,6 +51,7 @@ export class VSBrowser {
 		customSettings: object = {},
 		logLevel: logging.Level = logging.Level.INFO,
 		customPageObjects?: CustomPageObjectsOptions,
+		locale: string = '',
 	) {
 		this.storagePath = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.resolve(DEFAULT_STORAGE_FOLDER);
 		this.extensionsFolder = process.env.EXTENSIONS_FOLDER ? process.env.EXTENSIONS_FOLDER : undefined;
@@ -58,6 +60,7 @@ export class VSBrowser {
 		this.releaseType = releaseType;
 		this.logLevel = logLevel;
 		this.customPageObjects = customPageObjects;
+		this.locale = locale;
 		this._startTimestamp = this.formatTimestamp(new Date());
 
 		VSBrowser._instance = this;
@@ -108,7 +111,12 @@ export class VSBrowser {
 		fs.writeJSONSync(path.join(userSettings, 'settings.json'), defaultSettings);
 		console.log(`Writing code settings to ${path.join(userSettings, 'settings.json')}`);
 
-		const args = ['--no-sandbox', '--disable-dev-shm-usage', `--user-data-dir=${path.join(this.storagePath, 'settings')}`];
+		const args = ['--no-sandbox', '--disable-dev-shm-usage', `--user-data-dir=${path.join(this.storagePath, 'settings')}`]; // sem pridam locale
+
+		if (this.locale) {
+			console.log('locale is in args with value ' + this.locale);
+			args.push(`--locale ${this.locale}`);
+		}
 
 		if (this.extensionsFolder) {
 			args.push(`--extensions-dir=${this.extensionsFolder}`);
@@ -125,8 +133,12 @@ export class VSBrowser {
 
 		const extraArgs = ['--skip-welcome', '--skip-sessions-welcome', '--skip-release-notes'];
 		let options = new Options().setChromeBinaryPath(codePath).addArguments(...args, ...extraArgs) as any;
+		console.log('args', args);
+
 		options['options_'].windowTypes = ['webview'];
 		options = options as Options;
+
+		console.log('options', options);
 
 		const prefs = new logging.Preferences();
 		prefs.setLevel(logging.Type.DRIVER, this.logLevel);
@@ -140,6 +152,9 @@ export class VSBrowser {
 
 		const chromeDriverLog = path.join(this.storagePath, 'chromedriver.log');
 		console.log(`Launching browser... (ChromeDriver log: ${chromeDriverLog})`);
+		// Print the full launch command for debugging
+		console.log('Launching VS Code with command:', `"${codePath}" ${args.join(' ')}`);
+
 		this._driver = await new Builder()
 			.setChromeService(new ServiceBuilder(chromeDriverBinaryPath).loggingTo(chromeDriverLog).enableVerboseLogging())
 			.forBrowser(Browser.CHROME)
