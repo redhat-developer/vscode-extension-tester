@@ -46,6 +46,8 @@ export interface RunOptions {
 	offline?: boolean;
 	/** list of resources to be opened by VS Code */
 	resources: string[];
+	/** tbd */
+	locale?: string;
 }
 
 /** defaults for the [[RunOptions]] */
@@ -55,7 +57,7 @@ export const DEFAULT_RUN_OPTIONS = {
 	logLevel: logging.Level.INFO,
 	offline: false,
 	resources: [],
-	noCache: false,
+	noCache: false, //???
 };
 
 /**
@@ -321,6 +323,7 @@ export class CodeUtil {
 			runOptions.cleanup,
 			this.releaseType,
 			runOptions.config,
+			runOptions.locale,
 		);
 		return await runner.runTests(testFilesPattern, this, runOptions.logLevel, runOptions.resources);
 	}
