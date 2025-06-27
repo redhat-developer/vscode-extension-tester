@@ -51,6 +51,9 @@ jobs:
       - name: 🔧 Install - Test Project
         run: npm install --workspace=extester-test
 
+      - name: 🔧 Install RU langauge pack
+        run: code --install-extension ms-ceintl.vscode-language-pack-ru
+
       - name: 🔍 Run Tests (macOS, windows)
         if: ${{ ! startsWith(matrix.os, 'ubuntu') }}
         run: npm test
