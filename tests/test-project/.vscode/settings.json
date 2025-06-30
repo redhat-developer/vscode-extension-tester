@@ -1,4 +1,7 @@
 {
   "window.title": "${activeEditorShort}${separator}folder: ${rootPath}",
-  "window.zoomLevel": -1
+  "window.zoomLevel": -1,
+  "git.openRepositoryInParentFolders": "never",
+  "redhat.telemetry.enabled": false,
+  "extensions.ignoreRecommendations": true
 }
