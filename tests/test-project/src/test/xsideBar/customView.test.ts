@@ -261,16 +261,12 @@ describe('CustomTreeSection', () => {
 			let bench: Workbench;
 
 			before(async function () {
+				const view = await ((await new ActivityBar().getViewControl('Explorer')) as ViewControl).openView();
+				await view.getDriver().sleep(1_000);
+				content = view.getContent();
+				section = await content.getSection('Test View');
 				dItem = await section.findItem('d');
 				bench = new Workbench();
-			});
-
-			beforeEach(async function () {
-				try {
-					await (await bench.openNotificationsCenter()).clearAllNotifications();
-				} catch (error) {
-					// do nothing
-				}
 			});
 
 			afterEach(async () => {
