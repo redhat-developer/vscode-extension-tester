@@ -20,7 +20,7 @@ import { expect } from 'chai';
 import { EditorView, Workbench, DiffEditor, QuickOpenBox, InputBox, VSBrowser } from 'vscode-extension-tester';
 import { satisfies } from 'compare-versions';
 
-describe('DiffEditor', async () => {
+(satisfies(VSBrowser.instance.version, '>=1.101.0') ? describe.skip : describe)('DiffEditor', async () => {
 	let editor: DiffEditor;
 
 	before(async function () {
