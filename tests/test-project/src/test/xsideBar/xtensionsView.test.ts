@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { ActivityBar, ExtensionsViewSection, EditorView, ExtensionsViewItem, VSBrowser, beforeEach, ViewControl } from 'vscode-extension-tester';
+import { ActivityBar, ExtensionsViewSection, EditorView, ExtensionsViewItem, VSBrowser, ViewControl } from 'vscode-extension-tester';
 import { expect } from 'chai';
 import pjson from '../../../package.json';
 import { satisfies } from 'compare-versions';
@@ -30,11 +30,7 @@ describe('ExtensionsView', () => {
 	}
 
 	before(async () => {
-		const view = await ((await new ActivityBar().getViewControl('Extensions')) as ViewControl).openView();
-		await view.getDriver().wait(async function () {
-			return (await view.getContent().getSections()).length > 0;
-		});
-		section = (await view.getContent().getSection(sectionTitle)) as ExtensionsViewSection;
+		section = await getSection();
 	});
 
 	after(async function () {
@@ -63,6 +59,8 @@ describe('ExtensionsView', () => {
 
 	describe('ExtensionsViewItem', async () => {
 		beforeEach(async function () {
+			this.timeout(30000);
+			section = await getSection();
 			await section.getDriver().wait(async function () {
 				item = (await section.findItem(`@installed ${pjson.displayName}`)) as ExtensionsViewItem;
 				return item !== undefined;
@@ -104,4 +102,12 @@ describe('ExtensionsView', () => {
 			await menu.close();
 		});
 	});
+
+	async function getSection(): Promise<ExtensionsViewSection> {
+		const view = await ((await new ActivityBar().getViewControl('Extensions')) as ViewControl).openView();
+		await view.getDriver().wait(async function () {
+			return (await view.getContent().getSections()).length > 0;
+		});
+		return (await view.getContent().getSection(sectionTitle)) as ExtensionsViewSection;
+	}
 });
