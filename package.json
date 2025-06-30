@@ -23,7 +23,7 @@
     "tests/*"
   ],
   "devDependencies": {
-    "@stylistic/eslint-plugin": "^5.0.0",
+    "@stylistic/eslint-plugin": "^5.1.0",
     "@types/chai": "^4.3.20",
     "@types/clone-deep": "^4.0.4",
     "@types/fs-extra": "^11.0.4",
@@ -35,7 +35,7 @@
     "@types/vscode": "^1.97.0",
     "@typescript-eslint/eslint-plugin": "^8.35.0",
     "@typescript-eslint/parser": "^8.32.1",
-    "eslint": "^9.29.0",
+    "eslint": "^9.30.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-define-config": "^2.1.0",
     "eslint-plugin-prettier": "^5.5.1",
