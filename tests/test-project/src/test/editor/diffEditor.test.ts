@@ -28,6 +28,9 @@ import { satisfies } from 'compare-versions';
 		await VSBrowser.instance.openResources(
 			path.resolve(__dirname, '..', '..', '..', 'resources', 'test-file-a.txt'),
 			path.resolve(__dirname, '..', '..', '..', 'resources', 'test-file-b.txt'),
+			async () => {
+				await VSBrowser.instance.driver.sleep(3_000);
+			},
 		);
 		await new EditorView().openEditor('test-file-b.txt');
 		await new Workbench().executeCommand('File: Compare Active File With...');

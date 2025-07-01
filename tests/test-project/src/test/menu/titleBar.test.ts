@@ -24,11 +24,14 @@ import { ActivityBar, TitleBar, ContextMenu, TitleBarItem, EditorView, VSBrowser
 
 	before(async function () {
 		this.timeout(30000);
-		await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-folder'));
-		await VSBrowser.instance.driver.sleep(5000);
+		await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-folder'), async () => {
+			await VSBrowser.instance.driver.sleep(3_000);
+		});
 		bar = new TitleBar();
 
-		await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-folder', 'foo'));
+		await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-folder', 'foo'), async () => {
+			await VSBrowser.instance.driver.sleep(3_000);
+		});
 
 		// workspace cleanup before tests
 		await new EditorView().closeAllEditors();

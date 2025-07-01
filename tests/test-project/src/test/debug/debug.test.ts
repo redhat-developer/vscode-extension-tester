@@ -49,10 +49,12 @@ describe('Debugging', function () {
 	before(async function () {
 		this.timeout(30000);
 		const browser = VSBrowser.instance;
-		await browser.openResources(folder);
-		await browser.driver.sleep(5000);
-		await browser.openResources(path.join(folder, 'test.js'));
-		await browser.driver.sleep(5000);
+		await browser.openResources(folder, async () => {
+			await browser.driver.sleep(3_000);
+		});
+		await browser.openResources(path.join(folder, 'test.js'), async () => {
+			await browser.driver.sleep(3_000);
+		});
 		view = (await (await new ActivityBar().getViewControl('Run'))?.openView()) as DebugView;
 
 		// clear notifications center which causes flaky tests from VS Code version 1.75.x

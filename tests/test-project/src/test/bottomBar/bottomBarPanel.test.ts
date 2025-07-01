@@ -24,7 +24,9 @@ describe('BottomBarPanel', function () {
 
 	before(async function () {
 		const browser = VSBrowser.instance;
-		await browser.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'debug-project'));
+		await browser.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'debug-project'), async () => {
+			await browser.driver.sleep(3_000);
+		});
 
 		panel = new BottomBarPanel();
 		await (await new Workbench().openNotificationsCenter()).clearAllNotifications();
