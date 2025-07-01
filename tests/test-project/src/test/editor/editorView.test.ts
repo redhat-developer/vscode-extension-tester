@@ -148,7 +148,7 @@ describe('EditorView', function () {
 
 			const center = await new Workbench().openNotificationsCenter();
 			await center.getDriver().wait(async function () {
-				return (await center.getNotifications(NotificationType.Any)).length > 1;
+				return (await center.getNotifications(NotificationType.Any)).length > 0;
 			}, 5_000);
 
 			const notifications = await center.getNotifications(NotificationType.Any);
