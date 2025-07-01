@@ -95,8 +95,6 @@ export abstract class AbstractElement extends WebElement {
 				err.name === 'ElementNotInteractableError' ||
 				/element.*(detached|not interactable)/i.test(err.message)
 			) {
-				// TODO remove console log
-				console.warn(`🔁 Recovery triggered for ${this.constructor.name}: ${err.message}`);
 				const reinit = await this.reinitialize();
 				return await fn(reinit);
 			}
