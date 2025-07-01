@@ -83,7 +83,9 @@ describe('SideBarView', () => {
 
 		before(async function () {
 			this.timeout(15000);
-			await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-folder'));
+			await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-folder'), async () => {
+				await VSBrowser.instance.driver.sleep(3_000);
+			});
 			view = await ((await new ActivityBar().getViewControl('Explorer')) as ViewControl).openView();
 			await new Promise((res) => {
 				setTimeout(res, 1000);
@@ -180,7 +182,7 @@ describe('SideBarView', () => {
 				expect(await action.getLabel()).equals('Refresh Explorer');
 			});
 
-			(process.platform === 'darwin' ? it.skip : it)('moreActions works', async () => {
+			(process.platform === 'darwin' && satisfies(VSBrowser.instance.version, '<1.101.0') ? it.skip : it)('moreActions works', async () => {
 				const outline = await content.getSection('Outline');
 				await outline.expand();
 				await outline.getDriver().actions().move({ origin: outline }).perform();

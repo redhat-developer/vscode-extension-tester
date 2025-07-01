@@ -25,8 +25,9 @@ import * as path from 'path';
 
 	before(async () => {
 		this.timeout(30000);
-		await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-folder'));
-		await VSBrowser.instance.driver.sleep(5000);
+		await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-folder'), async () => {
+			await VSBrowser.instance.driver.sleep(3_000);
+		});
 	});
 
 	beforeEach(async function () {

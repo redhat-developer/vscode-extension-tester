@@ -16,6 +16,7 @@
  */
 
 import { expect } from 'chai';
+import { satisfies } from 'compare-versions';
 import {
 	ActivityBar,
 	CustomTreeItem,
@@ -124,7 +125,7 @@ describe('CustomTreeSection', () => {
 		await emptySection.collapse();
 	});
 
-	(process.platform === 'darwin' ? it.skip : it)('getAction dropdown works', async () => {
+	(process.platform === 'darwin' && satisfies(VSBrowser.instance.version, '<1.101.0') ? it.skip : it)('getAction dropdown works', async () => {
 		const action = (await section.getAction('Hello Who...')) as ViewPanelActionDropdown;
 		const menu = await action.open();
 		expect(menu).not.undefined;
@@ -170,11 +171,12 @@ describe('CustomTreeSection', () => {
 
 	describe('WelcomeContentButton', () => {
 		it('takeAction executes the command', async function () {
-			this.timeout(10000);
+			this.timeout(10_000);
 			await new Promise((res) => setTimeout(res, 500));
 			const button = await ((await emptyViewSection.findWelcomeContent()) as WelcomeContentSection).getButton('Add stuff into this View');
 			expect(button).to.be.not.be.undefined;
 			await button?.click();
+			await new Promise((res) => setTimeout(res, 1_000));
 			expect(await emptyViewSection.findWelcomeContent()).to.equal(undefined);
 		});
 	});
@@ -260,16 +262,12 @@ describe('CustomTreeSection', () => {
 			let bench: Workbench;
 
 			before(async function () {
+				const view = await ((await new ActivityBar().getViewControl('Explorer')) as ViewControl).openView();
+				await view.getDriver().sleep(1_000);
+				content = view.getContent();
+				section = await content.getSection('Test View');
 				dItem = await section.findItem('d');
 				bench = new Workbench();
-			});
-
-			beforeEach(async function () {
-				try {
-					await (await bench.openNotificationsCenter()).clearAllNotifications();
-				} catch (error) {
-					// do nothing
-				}
 			});
 
 			afterEach(async () => {

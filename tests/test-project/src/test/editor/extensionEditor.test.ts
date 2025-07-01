@@ -47,7 +47,9 @@ describe('Extension Editor', function () {
 
 	before(async function () {
 		driver = VSBrowser.instance.driver;
-		await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-folder'));
+		await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-folder'), async () => {
+			await driver.sleep(3_000);
+		});
 		viewControl = (await new ActivityBar().getViewControl('Extensions')) as ViewControl;
 		extensionsView = await viewControl.openView();
 		await driver.wait(async function () {

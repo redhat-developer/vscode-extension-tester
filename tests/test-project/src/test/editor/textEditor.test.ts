@@ -31,6 +31,7 @@ import {
 	afterEach,
 	beforeEach,
 } from 'vscode-extension-tester';
+import { satisfies } from 'compare-versions';
 
 describe('ContentAssist', async function () {
 	let assist: ContentAssist;
@@ -38,7 +39,9 @@ describe('ContentAssist', async function () {
 
 	before(async () => {
 		this.timeout(30000);
-		await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-file.ts'));
+		await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-file.ts'), async () => {
+			await VSBrowser.instance.driver.sleep(3_000);
+		});
 		await VSBrowser.instance.waitForWorkbench();
 		await new Promise((res) => setTimeout(res, 2000));
 		const ew = new EditorView();
@@ -175,7 +178,7 @@ describe('TextEditor', function () {
 		expect(await tab.getTitle()).equals(await editor.getTitle());
 	});
 
-	(process.platform === 'darwin' ? it.skip : it)('formatDocument works', async function () {
+	(process.platform === 'darwin' && satisfies(VSBrowser.instance.version, '<1.101.0') ? it.skip : it)('formatDocument works', async function () {
 		expect(await editor.formatDocument()).not.to.throw;
 	});
 
@@ -191,7 +194,9 @@ describe('TextEditor', function () {
 				let ew: EditorView;
 
 				beforeEach(async function () {
-					await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', param.file));
+					await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', param.file), async () => {
+						await VSBrowser.instance.driver.sleep(3_000);
+					});
 					ew = new EditorView();
 					await ew.getDriver().wait(
 						async function () {
@@ -276,7 +281,7 @@ describe('TextEditor', function () {
 			}
 		});
 
-		(process.platform === 'darwin' ? it.skip : it)('getSelection works', async function () {
+		(process.platform === 'darwin' && satisfies(VSBrowser.instance.version, '<1.101.0') ? it.skip : it)('getSelection works', async function () {
 			await editor.selectText('cline');
 			const selection = await editor.getSelection();
 

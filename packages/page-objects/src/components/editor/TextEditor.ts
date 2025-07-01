@@ -88,32 +88,34 @@ export class TextEditor extends Editor {
 	 * @returns Promise resolving to ContentAssist object when opening, void otherwise
 	 */
 	async toggleContentAssist(open: boolean): Promise<ContentAssist | void> {
-		let isHidden = true;
-		try {
-			const assist = await this.findElement(TextEditor.locators.ContentAssist.constructor);
-			const klass = await assist.getAttribute('class');
-			const visibility = await assist.getCssValue('visibility');
-			isHidden = klass.indexOf('visible') < 0 || visibility === 'hidden';
-		} catch (err) {
-			isHidden = true;
-		}
-		const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
+		return this.withRecovery(async (self) => {
+			let isHidden = true;
+			try {
+				const assist = await self.findElement(TextEditor.locators.ContentAssist.constructor);
+				const klass = await assist.getAttribute('class');
+				const visibility = await assist.getCssValue('visibility');
+				isHidden = klass.indexOf('visible') < 0 || visibility === 'hidden';
+			} catch (err) {
+				isHidden = true;
+			}
+			const inputarea = await self.findElement(TextEditor.locators.Editor.inputArea);
 
-		if (open) {
-			if (isHidden) {
-				await inputarea.sendKeys(Key.chord(Key.CONTROL, Key.SPACE));
-				await this.getDriver().wait(until.elementLocated(TextEditor.locators.ContentAssist.constructor), 2000);
+			if (open) {
+				if (isHidden) {
+					await inputarea.sendKeys(Key.chord(Key.CONTROL, Key.SPACE));
+					await self.getDriver().wait(until.elementLocated(TextEditor.locators.ContentAssist.constructor), 2000);
+				}
+				const assist = await new ContentAssist(self).wait();
+				await self.getDriver().wait(() => {
+					return assist.isLoaded();
+				}, 10000);
+				return assist;
+			} else {
+				if (!isHidden) {
+					await inputarea.sendKeys(Key.ESCAPE);
+				}
 			}
-			const assist = await new ContentAssist(this).wait();
-			await this.getDriver().wait(() => {
-				return assist.isLoaded();
-			}, 10000);
-			return assist;
-		} else {
-			if (!isHidden) {
-				await inputarea.sendKeys(Key.ESCAPE);
-			}
-		}
+		});
 	}
 
 	/**
@@ -121,23 +123,25 @@ export class TextEditor extends Editor {
 	 * @returns Promise resolving to editor text
 	 */
 	async getText(): Promise<string> {
-		const clipboard = (await import('clipboardy')).default;
-		let originalClipboard = '';
-		try {
-			originalClipboard = clipboard.readSync();
-		} catch (error) {
-			// workaround issue https://github.com/redhat-developer/vscode-extension-tester/issues/835
-			// do not fail if clipboard is empty
-		}
-		const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
-		await inputarea.sendKeys(Key.chord(TextEditor.ctlKey, 'a'), Key.chord(TextEditor.ctlKey, 'c'));
-		await new Promise((res) => setTimeout(res, 500));
-		const text = clipboard.readSync();
-		await inputarea.sendKeys(Key.UP);
-		if (originalClipboard.length > 0) {
-			clipboard.writeSync(originalClipboard);
-		}
-		return text;
+		return this.withRecovery(async (self) => {
+			const clipboard = (await import('clipboardy')).default;
+			let originalClipboard = '';
+			try {
+				originalClipboard = clipboard.readSync();
+			} catch (error) {
+				// workaround issue https://github.com/redhat-developer/vscode-extension-tester/issues/835
+				// do not fail if clipboard is empty
+			}
+			const inputarea = await self.findElement(TextEditor.locators.Editor.inputArea);
+			await inputarea.sendKeys(Key.chord(TextEditor.ctlKey, 'a'), Key.chord(TextEditor.ctlKey, 'c'));
+			await new Promise((res) => setTimeout(res, 500));
+			const text = clipboard.readSync();
+			await inputarea.sendKeys(Key.UP);
+			if (originalClipboard.length > 0) {
+				clipboard.writeSync(originalClipboard);
+			}
+			return text;
+		});
 	}
 
 	/**
@@ -171,9 +175,11 @@ export class TextEditor extends Editor {
 	 * @returns Promise resolving once the text is deleted
 	 */
 	async clearText(): Promise<void> {
-		const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
-		await inputarea.sendKeys(Key.chord(TextEditor.ctlKey, 'a'));
-		await inputarea.sendKeys(Key.BACK_SPACE);
+		return this.withRecovery(async (self) => {
+			const input = await self.findElement(TextEditor.locators.Editor.inputArea);
+			await input.sendKeys(Key.chord(TextEditor.ctlKey, 'a'));
+			await input.sendKeys(Key.BACK_SPACE);
+		});
 	}
 
 	/**
@@ -305,12 +311,12 @@ export class TextEditor extends Editor {
 		return new Selection(selection[0], this);
 	}
 
-	async openFindWidget(): Promise<FindWidget> {
+	async openFindWidget(timeout: number = 2_000): Promise<FindWidget> {
 		const actions = this.getDriver().actions();
 		await actions.clear();
 		await actions.keyDown(TextEditor.ctlKey).sendKeys('f').keyUp(TextEditor.ctlKey).perform();
-		const widget = await this.getDriver().wait(until.elementLocated(TextEditor.locators.TextEditor.findWidget), 2000);
-		await this.getDriver().wait(until.elementIsVisible(widget), 2000);
+		const widget = await this.getDriver().wait(until.elementLocated(TextEditor.locators.TextEditor.findWidget), timeout);
+		await this.getDriver().wait(until.elementIsVisible(widget), timeout);
 
 		return new FindWidget(widget, this);
 	}
@@ -760,6 +766,12 @@ export class CodeLens extends AbstractElement {
 export class FindWidget extends AbstractElement {
 	constructor(element: WebElement, editor: TextEditor) {
 		super(element, editor);
+	}
+
+	protected async reinitialize(): Promise<this> {
+		const editor = this.enclosingItem as TextEditor;
+		const widgetElement = await editor.findElement(FindWidget.locators.TextEditor.findWidget);
+		return new (this.constructor as any)(widgetElement, editor) as this;
 	}
 
 	/**

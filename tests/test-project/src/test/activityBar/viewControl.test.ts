@@ -16,7 +16,8 @@
  */
 
 import { expect } from 'chai';
-import { ActivityBar, ViewControl } from 'vscode-extension-tester';
+import { satisfies } from 'compare-versions';
+import { ActivityBar, ViewControl, VSBrowser } from 'vscode-extension-tester';
 
 describe('ViewControl', () => {
 	let bar: ActivityBar;
@@ -51,7 +52,7 @@ describe('ViewControl', () => {
 		expect(title).has.string('Explorer');
 	});
 
-	(process.platform === 'darwin' ? it.skip : it)('openContextMenu shows context menu', async () => {
+	(process.platform === 'darwin' && satisfies(VSBrowser.instance.version, '<1.101.0') ? it.skip : it)('openContextMenu shows context menu', async () => {
 		const menu = await control?.openContextMenu();
 		expect(await menu?.isDisplayed()).is.true;
 		await menu?.close();

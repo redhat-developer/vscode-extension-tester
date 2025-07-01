@@ -137,7 +137,7 @@ describe('EditorView', function () {
 		expect(editorAction).not.undefined;
 	});
 
-	(process.platform === 'darwin' ? it.skip : it)('Editor getAction dropdown', async function () {
+	(process.platform === 'darwin' && satisfies(VSBrowser.instance.version, '<1.101.0') ? it.skip : it)('Editor getAction dropdown', async function () {
 		this.timeout(15_000);
 		await new EditorView().openEditor('Untitled-2');
 		const editorAction = (await view.getAction('Run or Debug...')) as EditorActionDropdown;
@@ -147,8 +147,11 @@ describe('EditorView', function () {
 			await menu.select('Hello a World');
 
 			const center = await new Workbench().openNotificationsCenter();
-			const notifications = await center.getNotifications(NotificationType.Any);
+			await center.getDriver().wait(async function () {
+				return (await center.getNotifications(NotificationType.Any)).length > 0;
+			}, 5_000);
 
+			const notifications = await center.getNotifications(NotificationType.Any);
 			expect(await notifications.at(0)?.getText()).is.equal('Hello World, Test Project!');
 
 			await center.clearAllNotifications();

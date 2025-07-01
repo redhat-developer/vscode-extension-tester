@@ -19,7 +19,7 @@ import { WebElement, WebDriver, Locator, until, Key } from 'selenium-webdriver';
 import { Locators } from '../locators/locators';
 
 /**
- * Default wrapper for webelement
+ * Default wrapper for webElement
  */
 export abstract class AbstractElement extends WebElement {
 	public static readonly ctlKey = process.platform === 'darwin' ? Key.COMMAND : Key.CONTROL;
@@ -30,7 +30,7 @@ export abstract class AbstractElement extends WebElement {
 
 	/**
 	 * Constructs a new element from a Locator or an existing WebElement
-	 * @param base WebDriver compatible Locator for the given element or a reference to an existing WeBelement
+	 * @param base WebDriver compatible Locator for the given element or a reference to an existing WebElement
 	 * @param enclosingItem Locator or a WebElement reference to an element containing the element being constructed
 	 * this will be used to narrow down the search for the underlying DOM element
 	 */
@@ -84,5 +84,26 @@ export abstract class AbstractElement extends WebElement {
 		AbstractElement.locators = locators;
 		AbstractElement.driver = driver;
 		AbstractElement.versionInfo = { version: version, browser: browser };
+	}
+
+	async withRecovery<T>(fn: (self: this) => Promise<T>): Promise<T> {
+		try {
+			return await fn(this);
+		} catch (err: any) {
+			if (
+				err.name === 'StaleElementReferenceError' ||
+				err.name === 'ElementNotInteractableError' ||
+				/element.*(detached|not interactable)/i.test(err.message)
+			) {
+				const reinit = await this.reinitialize();
+				return await fn(reinit);
+			}
+			throw err;
+		}
+	}
+
+	protected async reinitialize(): Promise<this> {
+		// Implement generic fallback if possible — otherwise force override in subclasses
+		throw new Error(`reinitialize() not implemented in ${this.constructor.name}`);
 	}
 }

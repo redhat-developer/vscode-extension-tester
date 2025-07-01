@@ -27,7 +27,9 @@ import { satisfies } from 'compare-versions';
 	before(async function () {
 		this.timeout(15000);
 		fs.writeFileSync(path.resolve('.', 'testfile'), 'content');
-		await VSBrowser.instance.openResources(path.resolve('..', '..'));
+		await VSBrowser.instance.openResources(path.resolve('..', '..'), async () => {
+			await VSBrowser.instance.driver.sleep(3_000);
+		});
 		await VSBrowser.instance.waitForWorkbench();
 		view = (await ((await new ActivityBar().getViewControl('Source Control')) as ViewControl).openView()) as ScmView;
 		await view.getDriver().sleep(5_000); // wait until scm changes are loaded
@@ -84,7 +86,7 @@ import { satisfies } from 'compare-versions';
 			expect(action).to.be.true;
 		});
 
-		(process.platform === 'darwin' ? it.skip : it)('openMoreActions works', async () => {
+		(process.platform === 'darwin' && satisfies(VSBrowser.instance.version, '<1.101.0') ? it.skip : it)('openMoreActions works', async () => {
 			const menu = await provider.openMoreActions();
 			expect(menu).not.undefined;
 			await menu.close();

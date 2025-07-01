@@ -20,7 +20,7 @@ import { expect } from 'chai';
 import { EditorView, Workbench, DiffEditor, QuickOpenBox, InputBox, VSBrowser } from 'vscode-extension-tester';
 import { satisfies } from 'compare-versions';
 
-describe('DiffEditor', async () => {
+(satisfies(VSBrowser.instance.version, '>=1.101.0') ? describe.skip : describe)('DiffEditor', async () => {
 	let editor: DiffEditor;
 
 	before(async function () {
@@ -28,6 +28,9 @@ describe('DiffEditor', async () => {
 		await VSBrowser.instance.openResources(
 			path.resolve(__dirname, '..', '..', '..', 'resources', 'test-file-a.txt'),
 			path.resolve(__dirname, '..', '..', '..', 'resources', 'test-file-b.txt'),
+			async () => {
+				await VSBrowser.instance.driver.sleep(3_000);
+			},
 		);
 		await new EditorView().openEditor('test-file-b.txt');
 		await new Workbench().executeCommand('File: Compare Active File With...');

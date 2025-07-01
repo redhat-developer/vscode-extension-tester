@@ -59,7 +59,7 @@ export abstract class ChannelView extends ElementWithContextMenu {
 			);
 		}
 		const combo = await this.enclosingItem.findElement(ChannelView.locators.BottomBarViews.channelCombo);
-		return await combo.getAttribute('title');
+		return await combo.getAttribute(ChannelView.locators.OutputView.currentChannelAttribute);
 	}
 
 	/**
@@ -84,24 +84,26 @@ export abstract class TextView extends ChannelView {
 	 * @returns Promise resolving to the view's text
 	 */
 	async getText(): Promise<string> {
-		const clipboard = (await import('clipboardy')).default;
-		let originalClipboard = '';
-		try {
-			originalClipboard = clipboard.readSync();
-		} catch (error) {
-			// workaround issue https://github.com/redhat-developer/vscode-extension-tester/issues/835
-			// do not fail if clipboard is empty
-		}
-		const textarea = await this.findElement(ChannelView.locators.BottomBarViews.textArea);
-		await textarea.sendKeys(Key.chord(TextView.ctlKey, 'a'));
-		await textarea.sendKeys(Key.chord(TextView.ctlKey, 'c'));
-		const text = clipboard.readSync();
-		// workaround as we are getting "element click intercepted" during the send keys actions.
-		// await textarea.click();
-		if (originalClipboard.length > 0) {
-			clipboard.writeSync(originalClipboard);
-		}
-		return text;
+		return this.withRecovery(async (self) => {
+			const clipboard = (await import('clipboardy')).default;
+			let originalClipboard = '';
+			try {
+				originalClipboard = clipboard.readSync();
+			} catch (error) {
+				// workaround issue https://github.com/redhat-developer/vscode-extension-tester/issues/835
+				// do not fail if clipboard is empty
+			}
+			const textarea = await self.findElement(ChannelView.locators.BottomBarViews.textArea);
+			await textarea.sendKeys(Key.chord(TextView.ctlKey, 'a'));
+			await textarea.sendKeys(Key.chord(TextView.ctlKey, 'c'));
+			const text = clipboard.readSync();
+			// workaround as we are getting "element click intercepted" during the send keys actions.
+			// await textarea.click();
+			if (originalClipboard.length > 0) {
+				clipboard.writeSync(originalClipboard);
+			}
+			return text;
+		});
 	}
 
 	/**
