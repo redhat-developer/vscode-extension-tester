@@ -25,14 +25,12 @@ The extension integrates into VS Code's Activity Bar and provides three main vie
 ### Core Functionality
 
 1. **Test Discovery and Organization**
-
    - Automatically discovers test files based on configured glob patterns
    - Organizes tests in a hierarchical structure matching your project's folder layout
    - Supports Mocha's test structure with `describe` and `it` blocks
    - Provides visual indicators for test status and modifiers (`.only`, `.skip`)
 
 2. **Test Execution**
-
    - One-click test running for individual files, folders or all tests
    - Supports running tests at different levels:
      - Test file (all tests in a file)
@@ -52,13 +50,11 @@ The extension integrates into VS Code's Activity Bar and provides three main vie
 The extension is highly configurable through VS Code settings:
 
 1. **View Configuration**
-
    - `testFileGlob`: Pattern to locate test files (default: `**/ui-test/**/*.test.ts`)
    - `excludeGlob`: Pattern to exclude paths from test search (default: `**/node_modules/**`)
    - `ignorePathPart`: Pattern to hide specific path segments in the test view
 
 2. **Test Execution Settings**
-
    - `outputFolder`: Directory for compiled test files
    - `rootFolder`: Root source directory for test files
    - `tempFolder`: Directory for temporary test files
@@ -82,23 +78,19 @@ The extension provides a built-in walkthrough to help you get started quickly. T
 The walkthrough will guide you through the essential configuration steps:
 
 1. **Configure Root and Output Directories**
-
    - Set up your test environment by configuring:
      - Root Folder: Where your test files are located
      - Output Folder: Where compiled tests are stored
 
 2. **Configure Test File Pattern**
-
    - Set up the pattern that ExTester Runner will use to find your test files
    - Default pattern: `**/ui-test/**/*.test.ts`
 
 3. **Configure Excluded Paths**
-
    - Specify which paths should be excluded from test file searches
    - Default exclusion: `**/node_modules/**`
 
 4. **Customize Path Display (Optional)**
-
    - Improve test view readability by hiding specific path segments
 
 5. **Additional Arguments (Optional)**
@@ -113,13 +105,11 @@ If you prefer to configure the extension manually, you can access all settings t
 3. Configure the following settings:
 
 4. **View Configuration**
-
    - `testFileGlob`: Pattern to locate test files (default: `**/ui-test/**/*.test.ts`)
    - `excludeGlob`: Pattern to exclude paths from test search (default: `**/node_modules/**`)
    - `ignorePathPart`: Pattern to hide specific path segments in the test view
 
 5. **Test Execution Settings**
-
    - `outputFolder`: Directory for compiled test files
    - `rootFolder`: Root source directory for test files
    - `tempFolder`: Directory for temporary test files
