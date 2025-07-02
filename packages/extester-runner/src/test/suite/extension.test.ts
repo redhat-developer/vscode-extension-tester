@@ -21,7 +21,7 @@ import * as fs from 'fs';
 import { describe, it, before, after } from 'mocha';
 
 const EXTENSION_ID = 'extester-runner';
-const EXTENSION_PUBLISHER = 'ExTester';
+const EXTENSION_PUBLISHER = 'redhat';
 const FULL_EXTENSION_ID = `${EXTENSION_PUBLISHER}.${EXTENSION_ID}`;
 
 describe('Extension Test Suite', () => {
