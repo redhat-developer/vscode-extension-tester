@@ -3,7 +3,7 @@
   "displayName": "ExTester Runner",
   "icon": "resources/logo.png",
   "description": "Extension for vscode-extension-tester which allow users to run, debug, list tests directly inside VS Code.",
-  "publisher": "ExTester",
+  "publisher": "redhat",
   "preview": true,
   "private": true,
   "repository": {
