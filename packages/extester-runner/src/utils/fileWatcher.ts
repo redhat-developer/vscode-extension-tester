@@ -41,7 +41,7 @@ export function createFileWatcher(context: vscode.ExtensionContext, treeDataProv
 	logger.debug('FileWatcher: Creating file system watcher.');
 
 	const configuration = vscode.workspace.getConfiguration('extesterRunner');
-	const testFileGlob = configuration.get<string>('testFileGlob') || '**/*.test.ts';
+	const testFileGlob = configuration.get<string>('testFileGlob') ?? '**/*.test.ts';
 
 	watcher = vscode.workspace.createFileSystemWatcher(testFileGlob);
 

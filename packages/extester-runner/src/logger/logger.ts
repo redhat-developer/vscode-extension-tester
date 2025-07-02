@@ -24,7 +24,7 @@
 import * as vscode from 'vscode';
 
 export class Logger {
-	private outputChannel: vscode.OutputChannel;
+	private readonly outputChannel: vscode.OutputChannel;
 
 	/**
 	 * Creates an instance of the Logger.
