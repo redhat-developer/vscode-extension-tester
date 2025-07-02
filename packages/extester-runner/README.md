@@ -1,6 +1,27 @@
-# ExTester Runner
+<h1 align="center">
+  <img alt="ExTester Runner for Visual Studio Code" width="15%" height="15%" src="./resources/logo.png">
+  <p>ExTester Runner</p>
+</h1>
 
-A VS Code extension for running and managing UI tests for VS Code extensions using the ExTester framework.
+<p align="center">Extension for running and managing UI tests for VS Code extensions using the ExTester framework.</p></br>
+<p align="center">
+  <img alt="ExTester Runner View" width="95%" height="95%" src="./resources/workbench.png">
+</p>
+
+## Prerequisites
+
+Before you start using ExTester Runner, make sure you have:
+
+- A VS Code extension project that you want to test
+- Your extension's UI tests written in TypeScript using vscode-extension-tester
+- Node.js
+
+## Installation & Getting Started
+
+1. Install the extension from the VS Code marketplace
+2. Open your VS Code extension project
+3. Set up your test project using the "Get Started with ExTester Runner" walkthrough in VS Code
+4. Configure the ExTester Runner settings in VS Code preferences
 
 ## Features
 
@@ -60,21 +81,6 @@ The extension makes running tests incredibly simple and efficient:
 - `tempFolder`: Directory for test artifacts
 - `vsCodeVersion`: VS Code version for test execution
 - `vsCodeType`: VS Code build type (e.g., "Insiders" or "Stable")
-
-## Prerequisites
-
-Before you start using ExTester Runner, make sure you have:
-
-- A VS Code extension project that you want to test
-- Your extension's UI tests written in TypeScript using vscode-extension-tester
-- Node.js
-
-## Installation & Getting Started
-
-1. Install the extension from the VS Code marketplace
-2. Open your VS Code extension project
-3. Set up your test project using the "Get Started with ExTester Runner" walkthrough in VS Code
-4. Configure the ExTester Runner settings in VS Code preferences
 
 ## Logging
 
