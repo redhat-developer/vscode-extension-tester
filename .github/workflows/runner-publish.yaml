@@ -60,6 +60,9 @@ jobs:
       - name: 📦 Install vsce
         run: npm install -g @vscode/vsce
 
+      - name: 📦 Install ovsx
+        run: npm install -g ovsx
+
       - name: 📦 Install GitHub CLI
         run: sudo apt-get install gh -y
 
@@ -81,13 +84,18 @@ jobs:
         working-directory: packages/extester-runner
         run: vsce ls extester-runner-${{ steps.version.outputs.VERSION }}.vsix
 
-      - name: 🚀 Publish to Marketplace
+      - name: 🚀 Publish to VS Code Marketplace
         working-directory: packages/extester-runner
-        run: vsce publish --pat ${{ secrets.VSCODE_TOKEN }} --packagePath extester-runner-${{ steps.version.outputs.VERSION }}.vsix
+        run: vsce publish --pat ${{ secrets.VSCODE_MARKETPLACE_TOKEN }} --packagePath extester-runner-${{ steps.version.outputs.VERSION }}.vsix
+
+      - name: 🚀 Publish to Open VSX Registry
+        working-directory: packages/extester-runner
+        run: ovsx publish -p ${{ secrets.OVSX_MARKETPLACE_TOKEN }} extester-runner-${{ steps.version.outputs.VERSION }}.vsix
 
       - name: 📣 Add summary
         run: |
-          echo "### ✅ Published \`extester-runner-${{ steps.version.outputs.VERSION }}.vsix\` to Marketplace" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Published \`extester-runner-${{ steps.version.outputs.VERSION }}.vsix\` to VS Code Marketplace" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Published \`extester-runner-${{ steps.version.outputs.VERSION }}.vsix\` to Open VSX Registry" >> $GITHUB_STEP_SUMMARY
 
       - name: 💾 Upload VSIX
         uses: actions/upload-artifact@v4
