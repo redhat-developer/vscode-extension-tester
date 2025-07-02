@@ -11,6 +11,9 @@
     "url": "https://github.com/redhat-developer/vscode-extension-tester.git",
     "directory": "packages/extester-runner"
   },
+  "author": {
+    "name": "Red Hat"
+  },
   "license": "Apache-2.0",
   "version": "0.1.0",
   "engines": {
