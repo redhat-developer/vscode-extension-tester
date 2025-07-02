@@ -12,7 +12,7 @@
     "directory": "packages/extester-runner"
   },
   "license": "Apache-2.0",
-  "version": "0.0.400-SNAPSHOT",
+  "version": "0.1.0",
   "engines": {
     "vscode": "^1.96.0"
   },
