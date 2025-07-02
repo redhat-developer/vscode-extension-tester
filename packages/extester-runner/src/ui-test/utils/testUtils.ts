@@ -113,7 +113,7 @@ export async function extensionIsActivated(displayName: string): Promise<boolean
  */
 export async function getSection(sectionIndex: number): Promise<ViewSection> {
 	const runnerView = await (await new ActivityBar().getViewControl(EXTESTER_RUNNER))?.openView();
-	const content = await (await runnerView?.getContent())?.getSections();
+	const content = await runnerView?.getContent()?.getSections();
 	if (!content) {
 		throw new Error('Content sections not found');
 	}
