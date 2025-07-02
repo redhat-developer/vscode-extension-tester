@@ -44,6 +44,7 @@ describe('ExTester Runner', function () {
 	 */
 	before(async function () {
 		driver = VSBrowser.instance.driver;
+		await driver.sleep(3_000); // give vscode workbench some time to load properly
 		await waitUntilExtensionIsActivated(driver, `${pjson.displayName}`);
 	});
 

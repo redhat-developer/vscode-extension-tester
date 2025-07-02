@@ -58,7 +58,9 @@ describe('Parser test suite', function () {
 		this.timeout(30000);
 
 		const browser = VSBrowser.instance;
-		await browser.openResources(EXAMPLE_PROJECT);
+		await browser.openResources(EXAMPLE_PROJECT, async () => {
+			await browser.driver.sleep(3_000);
+		});
 
 		await updateSettings(TEST_FILE_GLOB_SETTINGS_ID, TEST_FILE_GLOB);
 	});
@@ -84,7 +86,7 @@ describe('Parser test suite', function () {
 		const runnerView = await (await new ActivityBar().getViewControl(EXTESTER_RUNNER))?.openView();
 		assert.ok(runnerView, 'Runner view not found');
 
-		const content = await runnerView.getContent();
+		const content = runnerView.getContent();
 		assert.ok(content, 'Content not found');
 
 		const sections = await content.getSections();
@@ -131,7 +133,7 @@ describe('Parser test suite', function () {
 		const runnerView = await (await new ActivityBar().getViewControl(EXTESTER_RUNNER))?.openView();
 		assert.ok(runnerView, 'Runner view not found');
 
-		const content = await runnerView.getContent();
+		const content = runnerView.getContent();
 		assert.ok(content, 'Content not found');
 
 		const sections = await content.getSections();
@@ -178,7 +180,7 @@ describe('Parser test suite', function () {
 		const runnerView = await (await new ActivityBar().getViewControl(EXTESTER_RUNNER))?.openView();
 		assert.ok(runnerView, 'Runner view not found');
 
-		const content = await runnerView.getContent();
+		const content = runnerView.getContent();
 		assert.ok(content, 'Content not found');
 
 		const sections = await content.getSections();
@@ -227,7 +229,7 @@ describe('Parser test suite', function () {
 		const runnerView = await (await new ActivityBar().getViewControl(EXTESTER_RUNNER))?.openView();
 		assert.ok(runnerView, 'Runner view not found');
 
-		const content = await runnerView.getContent();
+		const content = runnerView.getContent();
 		assert.ok(content, 'Content not found');
 
 		const sections = await content.getSections();
@@ -255,12 +257,12 @@ describe('Parser test suite', function () {
 		assert.strictEqual(firstDescribeLabel.trim(), EXPECTED_DESCRIBE_1);
 
 		// first describe first test
-		const firstDesribeIts = await firstDescribe.getChildren();
-		assert.ok(firstDesribeIts?.length === 1, 'First describe should have exactly one it');
+		const firstDescribeIts = await firstDescribe.getChildren();
+		assert.ok(firstDescribeIts?.length === 1, 'First describe should have exactly one it');
 
-		const firstDesribeFirstIt = firstDesribeIts[0];
-		const firstDesribeFirstItLabel = await firstDesribeFirstIt.getLabel();
-		assert.strictEqual(firstDesribeFirstItLabel.trim(), EXPECTED_TEST_1);
+		const firstDescribeFirstIt = firstDescribeIts[0];
+		const firstDescribeFirstItLabel = await firstDescribeFirstIt.getLabel();
+		assert.strictEqual(firstDescribeFirstItLabel.trim(), EXPECTED_TEST_1);
 
 		// second describe
 		const secondDescribe = describes[1];
