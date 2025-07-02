@@ -22,6 +22,8 @@ import { TestBlock } from '../types/testTypes';
 import { TreeItem } from '../types/treeItem';
 import { Logger } from '../logger/logger';
 
+type TreeDataType = TreeItem | undefined | void;
+
 /**
  * Provides test file and test structure data for the ExTester test explorer tree view.
  *
@@ -33,14 +35,14 @@ import { Logger } from '../logger/logger';
  */
 export class ExtesterTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 	// Event emitter to signal when the tree data needs to be refreshed..
-	private _onDidChangeTreeData: vscode.EventEmitter<TreeItem | undefined | void> = new vscode.EventEmitter<TreeItem | undefined | void>();
-	readonly onDidChangeTreeData: vscode.Event<TreeItem | undefined | void> = this._onDidChangeTreeData.event;
+	private readonly _onDidChangeTreeData: vscode.EventEmitter<TreeDataType> = new vscode.EventEmitter<TreeDataType>();
+	readonly onDidChangeTreeData: vscode.Event<TreeDataType> = this._onDidChangeTreeData.event;
 
 	private files: vscode.Uri[] = []; // stores test files found in the workspace
-	private parsedFiles: Map<string, TestBlock[]> = new Map(); // cache for parsed file contents
+	private readonly parsedFiles: Map<string, TestBlock[]> = new Map(); // cache for parsed file contents
 	private hasTestFiles: boolean = false; // flag to track if any test files are found
 
-	private logger: Logger;
+	private readonly logger: Logger;
 
 	/**
 	 * Creates an instance of the `ExtesterTreeProvider`.
@@ -121,11 +123,11 @@ export class ExtesterTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 			// Return top-level folders.
 			const folderMap = this.groupFilesByFolder();
 			let folders = Array.from(folderMap.keys()).map((folder) => {
-				const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || '';
+				const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? '';
 				const folderPath = path.join(workspaceFolder, folder);
 
 				const configuration = vscode.workspace.getConfiguration('extesterRunner');
-				const ignorePathPart = configuration.get<string>('ignorePathPart') || '';
+				const ignorePathPart = configuration.get<string>('ignorePathPart') ?? '';
 				const displayName = folder.startsWith(ignorePathPart) ? folder.substring(ignorePathPart.length) : folder;
 
 				const treeItem = new TreeItem(displayName, vscode.TreeItemCollapsibleState.Collapsed, true, undefined, undefined, folderPath);
@@ -135,15 +137,15 @@ export class ExtesterTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 
 			// Sort folders alphabetically.
 			return folders.sort((a, b) => {
-				const labelA = typeof a.label === 'string' ? a.label : a.label?.label || '';
-				const labelB = typeof b.label === 'string' ? b.label : b.label?.label || '';
+				const labelA = typeof a.label === 'string' ? a.label : (a.label?.label ?? '');
+				const labelB = typeof b.label === 'string' ? b.label : (b.label?.label ?? '');
 				return labelA.localeCompare(labelB);
 			});
 		} else if (element.isFolder && typeof element.label === 'string') {
-			const actualFolderName = element.id || element.label; // if display name is not same (setting for hiding part of path is used)
+			const actualFolderName = element.id ?? element.label; // if display name is not same (setting for hiding part of path is used)
 			const folderMap = this.groupFilesByFolder();
-			const files = folderMap.get(actualFolderName) || [];
-			const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || '';
+			const files = folderMap.get(actualFolderName) ?? [];
+			const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? '';
 
 			let fileItems = await Promise.all(
 				files.map(async (file) => {
@@ -161,8 +163,8 @@ export class ExtesterTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 
 			// Sort files alphabetically.
 			return fileItems.sort((a, b) => {
-				const labelA = typeof a.label === 'string' ? a.label : a.label?.label || '';
-				const labelB = typeof b.label === 'string' ? b.label : b.label?.label || '';
+				const labelA = typeof a.label === 'string' ? a.label : (a.label?.label ?? '');
+				const labelB = typeof b.label === 'string' ? b.label : (b.label?.label ?? '');
 				return labelA.localeCompare(labelB);
 			});
 		} else if (!element.isFolder && element.filePath) {
@@ -184,8 +186,8 @@ export class ExtesterTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 		try {
 			this.logger.debug('Looking for test files.');
 			const configuration = vscode.workspace.getConfiguration('extesterRunner');
-			const testFileGlob = configuration.get<string>('testFileGlob') || '**/*.test.ts';
-			const excludeGlob = configuration.get<string>('excludeGlob') || '**/node_modules/**';
+			const testFileGlob = configuration.get<string>('testFileGlob') ?? '**/*.test.ts';
+			const excludeGlob = configuration.get<string>('excludeGlob') ?? '**/node_modules/**';
 
 			const files = await vscode.workspace.findFiles(testFileGlob, excludeGlob);
 			this.files = files;
@@ -210,7 +212,7 @@ export class ExtesterTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 	 */
 	private groupFilesByFolder(): Map<string, string[]> {
 		const folderMap = new Map<string, string[]>();
-		const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || '';
+		const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? '';
 
 		this.files.forEach((fileUri) => {
 			const relativePath = path.relative(workspaceFolder, fileUri.fsPath);

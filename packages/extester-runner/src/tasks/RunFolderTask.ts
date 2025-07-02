@@ -49,7 +49,7 @@ export class RunFolderTask extends TestRunner {
 		}
 
 		// Get configuration values.
-		const outputFolder = configuration.get<string>('outputFolder') || 'out';
+		const outputFolder = configuration.get<string>('outputFolder') ?? 'out';
 		const rootFolder = configuration.get<string>('rootFolder');
 		const tempDirSettings = configuration.get<string>('tempFolder');
 		logger.info(`RunFolderTask: outputFolder: ${outputFolder}, rootFolder: ${rootFolder}`);
@@ -61,13 +61,13 @@ export class RunFolderTask extends TestRunner {
 		const relativePath = path.relative(workspaceFolder, folderPath);
 
 		// Get test file pattern from configuration.
-		const testFileGlob = configuration.get<string>('testFileGlob') || '**/ui-test/**/*.test.ts';
+		const testFileGlob = configuration.get<string>('testFileGlob') ?? '**/ui-test/**/*.test.ts';
 		logger.debug(`RunFolderTask: Using glob pattern: ${testFileGlob}`);
 
 		// Split paths into segments.
-		const outputSegments = outputFolder.split(/[\/\\]/).filter(Boolean);
-		const rootSegments = rootFolder ? rootFolder.split(/[\/\\]/).filter(Boolean) : [];
-		const relativeSegments = relativePath.split(/[\/\\]/).filter(Boolean);
+		const outputSegments = outputFolder.split(/[/\\]/).filter(Boolean);
+		const rootSegments = rootFolder ? rootFolder.split(/[/\\]/).filter(Boolean) : [];
+		const relativeSegments = relativePath.split(/[/\\]/).filter(Boolean);
 		logger.debug(
 			`RunFolderTask: Path segments - Output: ${JSON.stringify(outputSegments)}, Root: ${JSON.stringify(rootSegments)}, Relative: ${JSON.stringify(relativeSegments)}`,
 		);
@@ -77,7 +77,7 @@ export class RunFolderTask extends TestRunner {
 			rootSegments.length > 0 ? rootSegments.reduce((count, segment, i) => (relativeSegments[i] === segment ? count + 1 : count), 0) : 0;
 
 		// Build final path for test execution.
-		const testFileGlobSegments = testFileGlob.split(/[\/\\]/).filter(Boolean);
+		const testFileGlobSegments = testFileGlob.split(/[/\\]/).filter(Boolean);
 		const testFilePattern = testFileGlobSegments[testFileGlobSegments.length - 1].replace(/\.ts$/, '.js');
 
 		const finalPath = path.join(workspaceFolder, outputFolder, ...relativeSegments.slice(matchingSegmentsCount), testFilePattern);
@@ -89,8 +89,8 @@ export class RunFolderTask extends TestRunner {
 		const versionArgs = visualStudioCodeVersion ? ['--code_version', visualStudioCodeVersion] : [];
 		const visualStudioCodeType = configuration.get<string>('visualStudioCode.Type');
 		const typeArgs = visualStudioCodeType ? ['--type', visualStudioCodeType] : [];
-		const additionalArgs = configuration.get<string[]>('additionalArgs', []) || [];
-		const processedArgs = additionalArgs.flatMap((arg) => arg.match(/(?:[^\s"]+|"[^"]*")+/g) || []);
+		const additionalArgs = configuration.get<string[]>('additionalArgs', []) ?? [];
+		const processedArgs = additionalArgs.flatMap((arg) => arg.match(/(?:[^\s"]+|"[^"]*")+/g) ?? []);
 
 		// Create and execute shell command.
 		const shellExecution = new ShellExecution('npx', [

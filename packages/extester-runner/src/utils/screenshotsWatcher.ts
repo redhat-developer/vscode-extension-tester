@@ -48,12 +48,12 @@ export function createScreenshotsWatcher(context: vscode.ExtensionContext, scree
 	const tempDirSettings = configuration.get<string>('tempFolder')?.trim();
 	const envTempDir = process.env.TEST_RESOURCES?.trim();
 
-	let baseTempDir: string | undefined = tempDirSettings || envTempDir;
+	let baseTempDir: string | undefined = tempDirSettings ?? envTempDir;
 
 	if (baseTempDir && baseTempDir.length > 0) {
-		baseTempDir = path.isAbsolute(baseTempDir) ? baseTempDir : path.join(workspaceFolder || '', baseTempDir);
+		baseTempDir = path.isAbsolute(baseTempDir) ? baseTempDir : path.join(workspaceFolder ?? '', baseTempDir);
 	} else {
-		baseTempDir = path.join(process.env.TMPDIR || process.env.TEMP || '/tmp', 'test-resources');
+		baseTempDir = path.join(process.env.TMPDIR ?? process.env.TEMP ?? '/tmp', 'test-resources');
 	}
 
 	const screenshotsDirectory = path.join(baseTempDir, 'screenshots');

@@ -50,7 +50,7 @@ export class RunAllTestsTask extends TestRunner {
 		}
 
 		// Get configuration values.
-		const outputFolder = configuration.get<string>('outputFolder') || 'out';
+		const outputFolder = configuration.get<string>('outputFolder') ?? 'out';
 		const rootFolder = configuration.get<string>('rootFolder');
 		const tempDirSettings = configuration.get<string>('tempFolder');
 		logger.debug(`RunAllTask: outputFolder: ${outputFolder}, rootFolder: ${rootFolder}`);
@@ -60,21 +60,21 @@ export class RunAllTestsTask extends TestRunner {
 		// Find common path and convert to relative path.
 		const commonPath = getCommonPath(allFilesAbsolutePaths);
 		const relativePath = path.relative(workspaceFolder, commonPath);
-		const segments = relativePath.split(/[\/\\]/).filter(Boolean);
+		const segments = relativePath.split(/[/\\]/).filter(Boolean);
 		logger.debug('RunAllTask: Common relative path segments: ' + JSON.stringify(segments));
 
 		// Get test file pattern from configuration.
-		const testFileGlob = configuration.get<string>('testFileGlob') || '**/ui-test/**/*.test.ts';
+		const testFileGlob = configuration.get<string>('testFileGlob') ?? '**/ui-test/**/*.test.ts';
 		logger.debug(`RunAllTask: Using glob pattern: ${testFileGlob}`);
-		const testFileGlobSegments = testFileGlob.split(/[\/\\]/).filter(Boolean);
+		const testFileGlobSegments = testFileGlob.split(/[/\\]/).filter(Boolean);
 		const testFilePattern = testFileGlobSegments.pop()!.replace(/\.ts$/, '.js');
 
 		logger.debug(`RunAllTask: Test file pattern: ${testFilePattern}`);
 
 		// Split paths into segments.
-		const outputSegments = outputFolder.split(/[\/\\]/).filter(Boolean);
-		const rootSegments = rootFolder ? rootFolder.split(/[\/\\]/).filter(Boolean) : [];
-		const relativeSegments = relativePath.split(/[\/\\]/).filter(Boolean);
+		const outputSegments = outputFolder.split(/[/\\]/).filter(Boolean);
+		const rootSegments = rootFolder ? rootFolder.split(/[/\\]/).filter(Boolean) : [];
+		const relativeSegments = relativePath.split(/[/\\]/).filter(Boolean);
 		logger.debug(
 			`RunAllTask: Path segments - Output: ${JSON.stringify(outputSegments)}, Root: ${JSON.stringify(rootSegments)}, Relative: ${JSON.stringify(relativeSegments)}`,
 		);
@@ -93,8 +93,8 @@ export class RunAllTestsTask extends TestRunner {
 		const versionArgs = visualStudioCodeVersion ? ['--code_version', visualStudioCodeVersion] : [];
 		const visualStudioCodeType = configuration.get<string>('visualStudioCode.Type');
 		const typeArgs = visualStudioCodeType ? ['--type', visualStudioCodeType] : [];
-		const additionalArgs = configuration.get<string[]>('additionalArgs', []) || [];
-		const processedArgs = additionalArgs.flatMap((arg) => arg.match(/(?:[^\s"]+|"[^"]*")+/g) || []);
+		const additionalArgs = configuration.get<string[]>('additionalArgs', []) ?? [];
+		const processedArgs = additionalArgs.flatMap((arg) => arg.match(/(?:[^\s"]+|"[^"]*")+/g) ?? []);
 
 		// Create and execute shell command.
 		const shellExecution = new ShellExecution('npx', [

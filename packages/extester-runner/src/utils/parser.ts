@@ -72,7 +72,7 @@ export async function parseTestFile(uri: vscode.Uri, logger: Logger): Promise<Te
 			}
 
 			// get line of occurrence
-			const line = path.node.loc?.start.line || 0;
+			const line = path.node.loc?.start.line ?? 0;
 
 			// handle `describe` blocks
 			if (functionName === 'describe') {

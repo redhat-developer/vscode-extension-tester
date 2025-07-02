@@ -29,10 +29,10 @@ import { Logger } from '../logger/logger';
  *  - Updating the logs tree view when changes occur.
  */
 export class LogsTreeProvider implements vscode.TreeDataProvider<LogsResourcesItem> {
-	private _onDidChangeTreeData = new vscode.EventEmitter<LogsResourcesItem | undefined>();
+	private readonly _onDidChangeTreeData = new vscode.EventEmitter<LogsResourcesItem | undefined>();
 	readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
-	private logger: Logger;
+	private readonly logger: Logger;
 
 	/**
 	 * Creates an instance of the `LogsTreeProvider`.
@@ -68,12 +68,12 @@ export class LogsTreeProvider implements vscode.TreeDataProvider<LogsResourcesIt
 		const tempDirSettings = configuration.get<string>('tempFolder')?.trim();
 		const envTempDir = process.env.TEST_RESOURCES?.trim();
 
-		let baseTempDir: string | undefined = tempDirSettings || envTempDir;
+		let baseTempDir: string | undefined = tempDirSettings ?? envTempDir;
 
 		if (baseTempDir && baseTempDir.length > 0) {
-			baseTempDir = path.isAbsolute(baseTempDir) ? baseTempDir : path.join(workspaceFolder || '', baseTempDir);
+			baseTempDir = path.isAbsolute(baseTempDir) ? baseTempDir : path.join(workspaceFolder ?? '', baseTempDir);
 		} else {
-			baseTempDir = path.join(process.env.TMPDIR || require('os').tmpdir(), 'test-resources');
+			baseTempDir = path.join(process.env.TMPDIR ?? require('os').tmpdir(), 'test-resources');
 		}
 
 		const finalPath = path.join(baseTempDir, 'settings', 'logs');
@@ -106,7 +106,6 @@ export class LogsTreeProvider implements vscode.TreeDataProvider<LogsResourcesIt
 
 		if (!fs.existsSync(dirPath)) {
 			this.logger.debug(`Directory does not exist: ${dirPath}`);
-			// return [];
 			return [new LogsResourcesItem('No logs', '', false, true)];
 		}
 

@@ -49,7 +49,7 @@ export class RunFileTask extends TestRunner {
 		}
 
 		// Get configuration values.
-		const outputFolder = configuration.get<string>('outputFolder') || 'out';
+		const outputFolder = configuration.get<string>('outputFolder') ?? 'out';
 		const rootFolder = configuration.get<string>('rootFolder');
 		const tempDirSettings = configuration.get<string>('tempFolder');
 		logger.info(`RunFileTask: outputFolder: ${outputFolder}, rootFolder: ${rootFolder}`);
@@ -61,9 +61,9 @@ export class RunFileTask extends TestRunner {
 		const relativePath = path.relative(workspaceFolder, filePath);
 
 		// Split paths into segments.
-		const outputSegments = outputFolder.split(/[\/\\]/).filter(Boolean);
-		const rootSegments = rootFolder ? rootFolder.split(/[\/\\]/).filter(Boolean) : [];
-		const relativeSegments = relativePath.split(/[\/\\]/).filter(Boolean);
+		const outputSegments = outputFolder.split(/[/\\]/).filter(Boolean);
+		const rootSegments = rootFolder ? rootFolder.split(/[/\\]/).filter(Boolean) : [];
+		const relativeSegments = relativePath.split(/[/\\]/).filter(Boolean);
 		logger.debug(
 			`RunFileTask: Path segments - Output: ${JSON.stringify(outputSegments)}, Root: ${JSON.stringify(rootSegments)}, Relative: ${JSON.stringify(relativeSegments)}`,
 		);
@@ -86,8 +86,8 @@ export class RunFileTask extends TestRunner {
 		const versionArgs = visualStudioCodeVersion ? ['--code_version', visualStudioCodeVersion] : [];
 		const visualStudioCodeType = configuration.get<string>('visualStudioCode.Type');
 		const typeArgs = visualStudioCodeType ? ['--type', visualStudioCodeType] : [];
-		const additionalArgs = configuration.get<string[]>('additionalArgs', []) || [];
-		const processedArgs = additionalArgs.flatMap((arg) => arg.match(/(?:[^\s"]+|"[^"]*")+/g) || []);
+		const additionalArgs = configuration.get<string[]>('additionalArgs', []) ?? [];
+		const processedArgs = additionalArgs.flatMap((arg) => arg.match(/(?:[^\s"]+|"[^"]*")+/g) ?? []);
 
 		// Create and execute shell command.
 		const shellExecution = new ShellExecution('npx', [
