@@ -2,11 +2,11 @@ name: 📦 ExTester Runner VSIX
 
 on:
   push:
-    branches: [main, extester-runner] # TODO remove 'extester-runner' branch before merge
+    branches: [main]
     paths:
       - packages/extester-runner/**
   pull_request:
-    branches: [main, extester-runner] # TODO remove 'extester-runner' branch before merge
+    branches: [main]
     paths:
       - packages/extester-runner/**
   workflow_dispatch:
