@@ -3,7 +3,7 @@
   <p>ExTester Runner</p>
 </h1>
 
-<p align="center">Extension for running and managing UI tests for VS Code extensions using the ExTester framework.</p></br>
+<p align="center">Extension for running and managing UI tests for VS Code extensions using the <a href="https://www.npmjs.com/package/vscode-extension-tester">ExTester</a> framework.</p></br>
 <p align="center">
   <img alt="ExTester Runner View" width="95%" height="95%" src="./resources/workbench.png">
 </p>
@@ -12,16 +12,16 @@
 
 Before you start using ExTester Runner, make sure you have:
 
-- A VS Code extension project that you want to test
+- A VS Code extension project you want to test
 - Your extension's UI tests written in TypeScript using vscode-extension-tester
 - Node.js
 
 ## Installation & Getting Started
 
-1. Install the extension from the VS Code marketplace
+1. Install the extension from the [VS Code marketplace](https://marketplace.visualstudio.com/items?itemName=redhat.extester-runner) or [Open VSX Registry](https://open-vsx.org/extension/redhat/extester-runner)
 2. Open your VS Code extension project
-3. Set up your test project using the "Get Started with ExTester Runner" walkthrough in VS Code
-4. Configure the ExTester Runner settings in VS Code preferences
+3. Set up your test project using the `Get Started with ExTester Runner` walkthrough in VS Code
+4. Configure the **ExTester Runner** extension in VS Code (workspace) settings
 
 ## Features
 
@@ -84,7 +84,7 @@ The extension makes running tests incredibly simple and efficient:
 
 ## Logging
 
-The extension provides detailed logging through the "ExTester Runner" output channel, including:
+The extension provides detailed logging through the **ExTester Runner** output channel, including:
 
 - Test execution status
 - File discovery information
