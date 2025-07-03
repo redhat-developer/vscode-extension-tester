@@ -6,6 +6,10 @@ on:
       tag:
         description: "Version tag to publish (runner-vX.X.X)"
         required: true
+      skipPublish:
+        description: "Skip publish into marketplaces step"
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -77,7 +81,10 @@ jobs:
 
       - name: 🛠 Extract version from a tag
         id: version
-        run: echo "VERSION=${{ github.event.inputs.tag }}" | sed 's/^runner-v//' >> $GITHUB_OUTPUT
+        run: |
+          TAG=${{ github.event.inputs.tag }}
+          VER=$(echo "$TAG" | sed 's/^runner-v//')
+          echo "VERSION=$VER" >> $GITHUB_OUTPUT
 
       - name: 🛠 Package extension
         working-directory: packages/extester-runner
@@ -88,17 +95,20 @@ jobs:
         run: vsce ls extester-runner-${{ steps.version.outputs.VERSION }}.vsix
 
       - name: 🚀 Publish to VS Code Marketplace
+        if: ${{ github.event.inputs.skipPublish != 'true' }}
         working-directory: packages/extester-runner
         run: vsce publish --pat ${{ secrets.VSCODE_MARKETPLACE_TOKEN }} --packagePath extester-runner-${{ steps.version.outputs.VERSION }}.vsix
 
       - name: 🚀 Publish to Open VSX Registry
+        if: ${{ github.event.inputs.skipPublish != 'true' }}
         working-directory: packages/extester-runner
         run: ovsx publish -p ${{ secrets.OVSX_MARKETPLACE_TOKEN }} extester-runner-${{ steps.version.outputs.VERSION }}.vsix
 
       - name: 📣 Add summary
+        if: ${{ github.event.inputs.skipPublish != 'true' }}
         run: |
-          echo "### ✅ Published \`extester-runner-${{ steps.version.outputs.VERSION }}.vsix\` to VS Code Marketplace" >> $GITHUB_STEP_SUMMARY
-          echo "### ✅ Published \`extester-runner-${{ steps.version.outputs.VERSION }}.vsix\` to Open VSX Registry" >> $GITHUB_STEP_SUMMARY
+          echo "#### ✅ Published \`extester-runner-${{ steps.version.outputs.VERSION }}.vsix\` to VS Code Marketplace" >> $GITHUB_STEP_SUMMARY
+          echo "#### ✅ Published \`extester-runner-${{ steps.version.outputs.VERSION }}.vsix\` to Open VSX Registry" >> $GITHUB_STEP_SUMMARY
 
       - name: 💾 Upload VSIX
         uses: actions/upload-artifact@v4
@@ -154,7 +164,7 @@ jobs:
         working-directory: packages/extester-runner
         run: |
           TAG=${{ github.event.inputs.tag }}
-          gh release create "$TAG" --clobber \
+          gh release create "$TAG" \
             --title "ExTester Runner v${{ steps.version.outputs.VERSION }}" \
             --notes "${{ steps.changelog.outputs.changelog }}" \
             "extester-runner-${{ steps.version.outputs.VERSION }}.vsix"
