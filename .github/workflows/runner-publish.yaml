@@ -127,7 +127,17 @@ jobs:
 
           git fetch --unshallow || true
 
-          LOG=$(git log "$PREV_TAG..$TAG" -- packages/extester-runner --pretty=format:'%s (%h)')
+          if [ -z "$PREV_TAG" ]; then
+            # No previous tag: get all commits up to this tag
+            LOG=$(git log "$TAG" -- packages/extester-runner --pretty=format:'%s (%h)')
+          else
+            # Normal case: diff between previous tag and this one
+            LOG=$(git log "$PREV_TAG..$TAG" -- packages/extester-runner --pretty=format:'%s (%h)')
+          fi
+
+          if [ -z "$LOG" ]; then
+            LOG="Initial release (first tag)"
+          fi
 
           format_section() {
             local pattern="$1"
