@@ -1,11 +1,10 @@
 <h1 align="center">
-  <img alt="ExTester Runner for Visual Studio Code" width="15%" height="15%" src="./resources/logo.png">
   <p>ExTester Runner</p>
 </h1>
 
-<p align="center">Extension for running and managing UI tests for VS Code extensions using the <a href="https://www.npmjs.com/package/vscode-extension-tester">ExTester</a> framework.</p></br>
+<p align="center">Extension for running and managing UI tests for VS Code extensions using the <a href="https://www.npmjs.com/package/vscode-extension-tester">ExTester</a> framework.</p>
 <p align="center">
-  <img alt="ExTester Runner View" width="95%" height="95%" src="./resources/workbench.png">
+  <img alt="ExTester Runner View" width="95%" height="95%" src="https://github.com/redhat-developer/vscode-extension-tester/blob/main/packages/extester-runner/resources/workbench.png?raw=true">
 </p>
 
 ## Prerequisites
