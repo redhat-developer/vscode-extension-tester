@@ -13,3 +13,4 @@ tsconfig.json
 ../../**
 test-resources
 .test-extensions
+out/*test/
