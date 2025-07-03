@@ -129,9 +129,14 @@ jobs:
           git fetch --unshallow || true
 
           if [ -z "$PREV_TAG" ]; then
-            LOG=$(git log "$TAG" -- packages/extester-runner --pretty=format:'%s (%h)')
+            # First tag: include everything reachable from it
+            LOG=$(git log "$TAG" --reverse -- packages/extester-runner --no-merges --pretty=format:'%s (%h)')
+            if [ -z "$LOG" ]; then
+              # Still empty? Fallback to full history
+              LOG=$(git log --reverse -- packages/extester-runner --no-merges --pretty=format:'%s (%h)')
+            fi
           else
-            LOG=$(git log "$PREV_TAG..$TAG" -- packages/extester-runner --pretty=format:'%s (%h)')
+            LOG=$(git log "$PREV_TAG..$TAG" -- packages/extester-runner --no-merges --pretty=format:'%s (%h)')
           fi
 
           if [ -z "$LOG" ]; then
@@ -151,11 +156,11 @@ jobs:
           }
 
           {
-            format_section 'feat|feature' "🚀 Features"
-            format_section 'fix' "🚫 Bugs"
-            format_section 'test' "🔎 Tests"
-            format_section 'chore|refactor|internal|ci|docs' "🔧 Maintenance"
-            format_section 'deps|dependencies' "📦 Dependencies"
+            format_section '^feat|^feature' "🚀 Features"
+            format_section '^fix' "🚫 Bugs"
+            format_section '^test' "🔎 Tests"
+            format_section '^chore|^refactor|^internal|^ci|^docs' "🔧 Maintenance"
+            format_section '^deps|^dependencies' "📦 Dependencies"
 
             # Other commits not matching any above
             OTHER=$(echo "$LOG" | grep -vE '^(feat|feature|fix|test|chore|refactor|internal|ci|docs|deps|dependencies)' || true)
