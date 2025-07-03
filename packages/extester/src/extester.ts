@@ -232,6 +232,10 @@ export class ExTester {
 		setupOptions: Omit<SetupOptions, 'vscodeVersion'> = DEFAULT_SETUP_OPTIONS,
 		runOptions: Omit<RunOptions, 'vscodeVersion'> = DEFAULT_RUN_OPTIONS,
 	): Promise<number> {
+		console.log('setupAndRunTests');
+		console.log('setup options:', JSON.stringify(setupOptions, null, 2));
+		console.log('run options:', JSON.stringify(runOptions, null, 2));
+
 		await this.setupRequirements({ ...setupOptions, vscodeVersion }, runOptions.offline, runOptions.cleanup);
 		return await this.runTests(testFilesPattern, {
 			...runOptions,
@@ -247,6 +251,9 @@ export class ExTester {
 	 * @returns Promise resolving to the mocha process exit code - 0 for no failures, 1 otherwise
 	 */
 	async runTests(testFilesPattern: string | string[], runOptions: RunOptions = DEFAULT_RUN_OPTIONS): Promise<number> {
+		console.log('runTests');
+		console.log('run options:', JSON.stringify(runOptions, null, 2));
+
 		runOptions.vscodeVersion = loadCodeVersion(runOptions.vscodeVersion);
 		const patterns = typeof testFilesPattern === 'string' ? [testFilesPattern] : testFilesPattern;
 		return await this.code.runTests(patterns, runOptions);
