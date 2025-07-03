@@ -26,6 +26,9 @@ jobs:
             exit 1
           fi
 
+      - name: 👷🏻 Checkout Repository
+        uses: actions/checkout@v4
+
       - name: ✅ Verify Git tag exists
         run: |
           git fetch --tags
