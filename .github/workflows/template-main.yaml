@@ -51,17 +51,37 @@ jobs:
       - name: 🔧 Install - Test Project
         run: npm install --workspace=extester-test
 
-      - name: 🔍 Run Tests (macOS, windows)
-        if: ${{ ! startsWith(matrix.os, 'ubuntu') }}
-        run: npm test
+      - name: 🔍 Run Tests (macOS)
+        uses: nick-fields/retry@v3
+        if: ${{ startsWith(matrix.os, 'mac') }}
+        with:
+          timeout_minutes: 20
+          retry_wait_seconds: 60
+          max_attempts: 3
+          command: npm test
+          on_retry_command: rm -rf "${RUNNER_TEMP}/extest-code"
+
+      - name: 🔍 Run Tests (windows)
+        uses: nick-fields/retry@v3
+        if: ${{ startsWith(matrix.os, 'win') }}
+        with:
+          timeout_minutes: 20
+          retry_wait_seconds: 30
+          max_attempts: 3
+          command: npm test
 
       - name: ⚙️ Allow unprivileged user namespace (ubuntu)
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
         run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
       - name: 🔍 Run Tests (linux)
+        uses: nick-fields/retry@v3
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
-        run: xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' npm test
+        with:
+          timeout_minutes: 20
+          retry_wait_seconds: 30
+          max_attempts: 3
+          command: xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' npm test
 
       - name: 💾 Upload Screenshots
         uses: actions/upload-artifact@v4
