@@ -118,6 +118,7 @@ jobs:
 
       - name: 📝 Generate changelog
         id: changelog
+        working-directory: packages/extester-runner
         run: |
           TAG=${{ github.event.inputs.tag }}
           VERSION=${TAG#runner-v}
@@ -128,10 +129,8 @@ jobs:
           git fetch --unshallow || true
 
           if [ -z "$PREV_TAG" ]; then
-            # No previous tag: get all commits up to this tag
             LOG=$(git log "$TAG" -- packages/extester-runner --pretty=format:'%s (%h)')
           else
-            # Normal case: diff between previous tag and this one
             LOG=$(git log "$PREV_TAG..$TAG" -- packages/extester-runner --pretty=format:'%s (%h)')
           fi
 
@@ -139,6 +138,7 @@ jobs:
             LOG="Initial release (first tag)"
           fi
 
+          # Helper to format sections
           format_section() {
             local pattern="$1"
             local title="$2"
@@ -150,23 +150,24 @@ jobs:
             fi
           }
 
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          {
+            format_section 'feat|feature' "🚀 Features"
+            format_section 'fix' "🚫 Bugs"
+            format_section 'test' "🔎 Tests"
+            format_section 'chore|refactor|internal|ci|docs' "🔧 Maintenance"
+            format_section 'deps|dependencies' "📦 Dependencies"
 
-          format_section 'feat|feature' "🚀 Features"
-          format_section 'fix' "🚫 Bugs"
-          format_section 'test' "🔎 Tests"
-          format_section 'chore|refactor|internal' "🔧 Maintenance"
-          format_section 'deps|dependencies' "📦 Dependencies"
+            # Other commits not matching any above
+            OTHER=$(echo "$LOG" | grep -vE '^(feat|feature|fix|test|chore|refactor|internal|ci|docs|deps|dependencies)' || true)
+            if [[ -n "$OTHER" ]]; then
+              echo "### 🧼 Other Changes"
+              echo "$OTHER"
+              echo ""
+            fi
+          } > CHANGELOG.md
 
-          # Catch-all for anything else
-          OTHER=$(echo "$LOG" | grep -vE '^(feat|feature|fix|test|chore|refactor|internal|deps|dependencies)' || true)
-          if [[ -n "$OTHER" ]]; then
-            echo "### 🧼 Other Changes"
-            echo "$OTHER"
-            echo ""
-          fi
-
-          echo "EOF" >> $GITHUB_OUTPUT
+          echo "Generated CHANGELOG.md:"
+          cat CHANGELOG.md
 
       - name: 🚀 Publish GitHub Release with VSIX
         env:
@@ -174,7 +175,6 @@ jobs:
         working-directory: packages/extester-runner
         run: |
           TAG=${{ github.event.inputs.tag }}
-          gh release create "$TAG" \
-            --title "ExTester Runner v${{ steps.version.outputs.VERSION }}" \
-            --notes "${{ steps.changelog.outputs.changelog }}" \
+          gh release create "$TAG" --title "ExTester Runner v${{ steps.version.outputs.VERSION }}" \
+            --notes-file CHANGELOG.md \
             "extester-runner-${{ steps.version.outputs.VERSION }}.vsix"
