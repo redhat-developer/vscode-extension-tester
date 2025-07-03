@@ -4,7 +4,7 @@
 
 <p align="center">Extension for running and managing UI tests for VS Code extensions using the <a href="https://www.npmjs.com/package/vscode-extension-tester">ExTester</a> framework.</p>
 <p align="center">
-  <img alt="ExTester Runner View" width="95%" height="95%" src="https://github.com/redhat-developer/vscode-extension-tester/blob/main/packages/extester-runner/resources/workbench.png?raw=true">
+  <img alt="ExTester Runner View" width="95%" src="https://github.com/redhat-developer/vscode-extension-tester/blob/main/packages/extester-runner/resources/workbench.png?raw=true">
 </p>
 
 ## Prerequisites
