@@ -7,7 +7,11 @@ on:
         description: "Version tag to publish (runner-vX.X.X)"
         required: true
       skipPublish:
-        description: "Skip publish into marketplaces step"
+        description: "Skip publish into marketplaces"
+        default: false
+        type: boolean
+      skipPackageJsonMatch:
+        description: "Skip tag validation with package.json (testing)"
         default: false
         type: boolean
 
@@ -22,16 +26,10 @@ jobs:
       - name: 🔖 Show input tag
         run: echo "Publishing version ${{ github.event.inputs.tag }}"
 
-      - name: ✅ Validate tag format
-        run: |
-          TAG=${{ github.event.inputs.tag }}
-          if [[ ! "$TAG" =~ ^runner-v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "❌ Invalid tag format: $TAG. Use format like 'runner-v1.2.3'"
-            exit 1
-          fi
-
       - name: 👷🏻 Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: ✅ Verify Git tag exists
         run: |
@@ -41,12 +39,22 @@ jobs:
             exit 1
           fi
 
+      - name: ✅ Validate and extract tag
+        run: |
+          TAG=${{ github.event.inputs.tag }}
+          if [[ ! "$TAG" =~ ^runner-v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid tag format: $TAG. Use format like 'runner-v1.2.3'"
+            exit 1
+          fi
+          echo "TAG=$TAG" >> $GITHUB_ENV
+          echo "VERSION=${TAG#runner-v}" >> $GITHUB_ENV
+
       - name: ✅ Ensure tag matches package.json version
+        if: ${{ github.event.inputs.skipPackageJsonMatch != 'true' }}
         working-directory: packages/extester-runner
         run: |
           PKG_VERSION=$(node -p "require('./package.json').version")
-          TAG=${{ github.event.inputs.tag }}
-          TAG_VERSION=${TAG#runner-v}
+          TAG_VERSION=${VERSION}
           echo "Package version: $PKG_VERSION"
           echo "Input tag version: $TAG_VERSION"
           if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
@@ -54,132 +62,110 @@ jobs:
             exit 1
           fi
 
-      - name: 👷🏻 Checkout the tag
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.inputs.tag }}
-
-      - name: ⚙️ Setup NodeJS
+      - name: ⚙️ Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: 📦 Install vsce
-        run: npm install -g @vscode/vsce
-
-      - name: 📦 Install ovsx
-        run: npm install -g ovsx
-
-      - name: 📦 Install GitHub CLI
-        run: sudo apt-get install gh -y
-
-      - name: 🔧 Install
-        run: npm ci
-
-      - name: 🔧 Build
-        run: npm run build
-
-      - name: 🛠 Extract version from a tag
-        id: version
+      - name: 📦 Install tools
         run: |
-          TAG=${{ github.event.inputs.tag }}
-          VER=$(echo "$TAG" | sed 's/^runner-v//')
-          echo "VERSION=$VER" >> $GITHUB_OUTPUT
+          npm install -g @vscode/vsce ovsx
+          sudo apt-get install -y gh
+
+      - name: 🔧 Install deps and build
+        run: |
+          npm ci
+          npm run build
 
       - name: 🛠 Package extension
         working-directory: packages/extester-runner
-        run: vsce package -o extester-runner-${{ steps.version.outputs.VERSION }}.vsix
-
-      - name: 🧾 Inspect packaged contents
-        working-directory: packages/extester-runner
-        run: vsce ls extester-runner-${{ steps.version.outputs.VERSION }}.vsix
-
-      - name: 🚀 Publish to VS Code Marketplace
-        if: ${{ github.event.inputs.skipPublish != 'true' }}
-        working-directory: packages/extester-runner
-        run: vsce publish --pat ${{ secrets.VSCODE_MARKETPLACE_TOKEN }} --packagePath extester-runner-${{ steps.version.outputs.VERSION }}.vsix
-
-      - name: 🚀 Publish to Open VSX Registry
-        if: ${{ github.event.inputs.skipPublish != 'true' }}
-        working-directory: packages/extester-runner
-        run: ovsx publish -p ${{ secrets.OVSX_MARKETPLACE_TOKEN }} extester-runner-${{ steps.version.outputs.VERSION }}.vsix
-
-      - name: 📣 Add summary
-        if: ${{ github.event.inputs.skipPublish != 'true' }}
         run: |
-          echo "#### ✅ Published \`extester-runner-${{ steps.version.outputs.VERSION }}.vsix\` to VS Code Marketplace" >> $GITHUB_STEP_SUMMARY
-          echo "#### ✅ Published \`extester-runner-${{ steps.version.outputs.VERSION }}.vsix\` to Open VSX Registry" >> $GITHUB_STEP_SUMMARY
-
-      - name: 💾 Upload VSIX
-        uses: actions/upload-artifact@v4
-        with:
-          name: extester-runner-${{ steps.version.outputs.VERSION }}.vsix
-          path: "packages/extester-runner/extester-runner-${{ steps.version.outputs.VERSION }}.vsix"
+          vsce package -o extester-runner-${VERSION}.vsix
+          vsce ls extester-runner-${VERSION}.vsix
 
       - name: 📝 Generate changelog
-        id: changelog
         working-directory: packages/extester-runner
         run: |
-          TAG=${{ github.event.inputs.tag }}
-          VERSION=${TAG#runner-v}
           PREV_TAG=$(git tag --list "runner-v*" --sort=-creatordate | grep -v "$TAG" | head -n 1)
-
-          echo "Comparing changes from $PREV_TAG to $TAG in packages/extester-runner"
-
-          git fetch --unshallow || true
+          echo "Comparing changes from $PREV_TAG to $TAG"
 
           if [ -z "$PREV_TAG" ]; then
-            # First tag: include everything reachable from it
-            LOG=$(git log "$TAG" --reverse -- packages/extester-runner --no-merges --pretty=format:'%s (%h)')
-            if [ -z "$LOG" ]; then
-              # Still empty? Fallback to full history
-              LOG=$(git log --reverse -- packages/extester-runner --no-merges --pretty=format:'%s (%h)')
-            fi
+            LOG=$(git log "$TAG" --reverse --oneline -- .)
+            [ -z "$LOG" ] && LOG=$(git log --reverse --oneline -- .)
           else
-            LOG=$(git log "$PREV_TAG..$TAG" -- packages/extester-runner --no-merges --pretty=format:'%s (%h)')
+            LOG=$(git log "$PREV_TAG..$TAG" --oneline -- .)
           fi
 
           if [ -z "$LOG" ]; then
             LOG="Initial release (first tag)"
           fi
 
-          # Helper to format sections
           format_section() {
-            local pattern="$1"
+            local pattern="($1)\(runner\)"
             local title="$2"
-            local content=$(echo "$LOG" | grep -iE "^$pattern" || true)
+            local content=$(echo "$LOG" | grep -iE "$pattern" || true)
             if [[ -n "$content" ]]; then
               echo "### $title"
               echo "$content"
-              echo ""
+              echo
+            fi
+          }
+
+          format_other_section() {
+            local title="🧼 Other Changes"
+            local content=$(echo "$LOG" | grep -vE "(feat|feature|fix|test|chore|refactor|internal|ci|docs|deps|dependencies)\(runner\)" || true)
+            if [[ -n "$content" ]]; then
+              echo "### $title"
+              echo "$content"
+              echo
             fi
           }
 
           {
-            format_section '^feat|^feature' "🚀 Features"
-            format_section '^fix' "🚫 Bugs"
-            format_section '^test' "🔎 Tests"
-            format_section '^chore|^refactor|^internal|^ci|^docs' "🔧 Maintenance"
-            format_section '^deps|^dependencies' "📦 Dependencies"
-
-            # Other commits not matching any above
-            OTHER=$(echo "$LOG" | grep -vE '^(feat|feature|fix|test|chore|refactor|internal|ci|docs|deps|dependencies)' || true)
-            if [[ -n "$OTHER" ]]; then
-              echo "### 🧼 Other Changes"
-              echo "$OTHER"
-              echo ""
-            fi
+            echo "## What's Changed"
+            format_section 'break|breaking' "⚠️ Breaking"
+            format_section 'feat|feature' "🚀 Features"
+            format_section 'fix' "🚫 Bugs"
+            format_section 'test' "🔎 Tests"
+            format_section 'chore|refactor|internal|ci|docs' "🔧 Maintenance"
+            format_section 'deps|dependencies' "📦 Dependencies"
+            format_other_section
           } > CHANGELOG.md
 
-          echo "Generated CHANGELOG.md:"
+          echo "Generated CHANGELOG.md"
           cat CHANGELOG.md
 
-      - name: 🚀 Publish GitHub Release with VSIX
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: 🚀 Publish to VS Code Marketplace
+        if: ${{ github.event.inputs.skipPublish != 'true' }}
         working-directory: packages/extester-runner
         run: |
-          TAG=${{ github.event.inputs.tag }}
-          gh release create "$TAG" --title "ExTester Runner v${{ steps.version.outputs.VERSION }}" \
+          vsce publish --pat ${{ secrets.VSCODE_MARKETPLACE_TOKEN }} \
+            --packagePath extester-runner-${VERSION}.vsix
+
+      - name: 🚀 Publish to Open VSX Registry
+        if: ${{ github.event.inputs.skipPublish != 'true' }}
+        working-directory: packages/extester-runner
+        run: |
+          ovsx publish -p ${{ secrets.OVSX_MARKETPLACE_TOKEN }} extester-runner-${VERSION}.vsix
+
+      - name: 📣 Add summary
+        if: ${{ github.event.inputs.skipPublish != 'true' }}
+        run: |
+          echo "#### ✅ Published \`extester-runner-${VERSION}.vsix\` to VS Code Marketplace" >> $GITHUB_STEP_SUMMARY
+          echo "#### ✅ Published \`extester-runner-${VERSION}.vsix\` to Open VSX Registry" >> $GITHUB_STEP_SUMMARY
+
+      - name: 💾 Upload VSIX
+        uses: actions/upload-artifact@v4
+        with:
+          name: extester-runner-${{ env.VERSION }}.vsix
+          path: packages/extester-runner/extester-runner-${{ env.VERSION }}.vsix
+
+      - name: 🚀 Publish GitHub Release
+        working-directory: packages/extester-runner
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$TAG" \
+            --title "ExTester Runner - Preview (v${VERSION})" \
             --notes-file CHANGELOG.md \
-            "extester-runner-${{ steps.version.outputs.VERSION }}.vsix"
+            extester-runner-${VERSION}.vsix
