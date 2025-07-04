@@ -69,13 +69,33 @@ jobs:
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
         run: xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' npm run test:runner:unit
 
-      - name: 🔍 Run UI Tests (macOS, windows)
-        if: ${{ ! startsWith(matrix.os, 'ubuntu') }}
-        run: npm run test:runner:ui
+      - name: 🔍 Run UI Tests (macOS)
+        uses: nick-fields/retry@v3
+        if: ${{ startsWith(matrix.os, 'mac') }}
+        with:
+          timeout_minutes: 10
+          retry_wait_seconds: 60
+          max_attempts: 3
+          command: npm run test:runner:ui
+          on_retry_command: rm -rf "${RUNNER_TEMP}/extest-code"
+
+      - name: 🔍 Run UI Tests (windows)
+        uses: nick-fields/retry@v3
+        if: ${{ startsWith(matrix.os, 'win') }}
+        with:
+          timeout_minutes: 10
+          retry_wait_seconds: 30
+          max_attempts: 3
+          command: npm run test:runner:ui
 
       - name: 🔍 Run UI Tests (linux)
+        uses: nick-fields/retry@v3
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
-        run: xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' npm run test:runner:ui
+        with:
+          timeout_minutes: 10
+          retry_wait_seconds: 30
+          max_attempts: 3
+          command: xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' npm run test:runner:ui
 
       - name: 💾 Upload Screenshots
         uses: actions/upload-artifact@v4
