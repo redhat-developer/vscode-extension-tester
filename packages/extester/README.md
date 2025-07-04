@@ -8,6 +8,7 @@
   <a href="#features">Features</a> •
   <a href="https://github.com/redhat-developer/vscode-extension-tester?tab=readme-ov-file#requirements">Requirements</a> •
   <a href="#usage">Usage</a> •
+  <a href="#extester-runner-extension">Extension</a> •
   <a href="https://github.com/redhat-developer/vscode-extension-tester-example">Example</a> •
   <a href="https://github.com/redhat-developer/vscode-extension-tester/wiki/">Documentation</a> •
   <a href="#known-issues">Known Issues</a>
@@ -43,6 +44,10 @@ Make sure to check out the 🔗 [Documentation](../../../../wiki) for detailed i
 - 📄 [Configuring Mocha](../../../../wiki/Mocha-Configuration)
 - 📄 [An example simple test case](../../../../wiki/Writing-Simple-Tests)
 - 📄 [Page objects API quick guide](../../../../wiki/Page-Object-APIs)
+
+### ExTester Runner Extension
+
+‼️ For a streamlined testing workflow, we recommend installing the 🔗 [ExTester Runner](https://marketplace.visualstudio.com/items?itemName=redhat.extester-runner) VS Code extension. It provides an enhanced UI for test orchestration and improves the overall developer experience.
 
 ### Example
 
