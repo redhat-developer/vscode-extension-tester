@@ -1,6 +1,6 @@
 {
   "name": "@redhat-developer/locators",
-  "version": "1.14.1",
+  "version": "1.14.2",
   "description": "Pluggable Page Objects locators for an ExTester framework.",
   "main": "out/index.js",
   "types": "out/index.d.ts",
