@@ -1,13 +1,13 @@
-name: 🚀 Publish ExTester Runner
+name: 🚀 Publish ExTester
 
 on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Version tag to publish (runner-vX.X.X)"
+        description: "Version tag to publish (vX.X.X)"
         required: true
       skipPublish:
-        description: "Skip publish into marketplaces"
+        description: "Skip publish into NPM registry (npmjs)"
         default: false
         type: boolean
       skipPackageJsonMatch:
@@ -46,16 +46,16 @@ jobs:
       - name: ✅ Validate and extract tag
         run: |
           TAG=${{ github.event.inputs.tag }}
-          if [[ ! "$TAG" =~ ^runner-v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "❌ Invalid tag format: $TAG. Use format like 'runner-v1.2.3'"
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid tag format: $TAG. Use format like 'v1.2.3'"
             exit 1
           fi
           echo "TAG=$TAG" >> $GITHUB_ENV
-          echo "VERSION=${TAG#runner-v}" >> $GITHUB_ENV
+          echo "VERSION=${TAG#v}" >> $GITHUB_ENV
 
       - name: ✅ Ensure tag matches package.json version
         if: ${{ github.event.inputs.skipPackageJsonMatch != 'true' }}
-        working-directory: packages/extester-runner
+        working-directory: packages/extester
         run: |
           PKG_VERSION=$(node -p "require('./package.json').version")
           TAG_VERSION=${VERSION}
@@ -66,44 +66,54 @@ jobs:
             exit 1
           fi
 
+      - name: 🔸 Get vscode-extension-tester version
+        working-directory: packages/extester
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "EXTESTER_VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: 🔸 Get @redhat-developer/page-objects version
+        working-directory: packages/page-objects
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "PAGE_OBJECTS_VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: 🔸 Get @redhat-developer/locators version
+        working-directory: packages/locators
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "LOCATORS_VERSION=${VERSION}" >> $GITHUB_ENV
+
       - name: ⚙️ Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: 📦 Install tools
-        run: |
-          npm install -g @vscode/vsce ovsx
-          sudo apt-get install -y gh
+      - name: 📦 Install GitHub CLI
+        run: sudo apt-get install -y gh
 
       - name: 🔧 Install deps and build
         run: |
           npm ci
           npm run build
 
-      - name: 🛠 Package extension
-        working-directory: packages/extester-runner
-        run: |
-          vsce package -o extester-runner-${VERSION}.vsix
-          vsce ls extester-runner-${VERSION}.vsix
-
       - name: 📝 Generate changelog
-        working-directory: packages/extester-runner
         run: |
-          PREV_TAG=$(git tag --list "runner-v*" --sort=-creatordate | grep -v "$TAG" | head -n 1)
+          PREV_TAG=$(git tag --list "v*" --sort=-creatordate | grep -v "$TAG" | head -n 1)
           echo "Comparing changes from $PREV_TAG to $TAG"
 
           if [ -z "$PREV_TAG" ]; then
-            LOG=$(git log "$TAG" --reverse ---pretty='format:%s by **%aN** in %H' -- .)
-            [ -z "$LOG" ] && LOG=$(git log --reverse --pretty='format:%s by **%aN** in %H' -- .)
+            LOG=$(git log "$TAG" --reverse --pretty='format:%s by **%aN** in %H' -- . | grep -vE "(runner)")
+            [ -z "$LOG" ] && LOG=$(git log --reverse --pretty='format:%s by **%aN** in %H' -- . | grep -vE "(runner)")
           else
-            LOG=$(git log "$PREV_TAG..$TAG" --pretty='format:%s by **%aN** in %H' -- .)
+            LOG=$(git log "$PREV_TAG..$TAG" --pretty='format:%s by **%aN** in %H' -- . | grep -vE "(runner)")
           fi
 
           if [ -z "$LOG" ]; then
             LOG="Initial release (first tag)"
           fi
 
+          # Helper to format sections
           format_section() {
             local pattern="$1"
             local title="$2"
@@ -139,46 +149,27 @@ jobs:
           echo "Generated CHANGELOG.md"
           cat CHANGELOG.md
 
-      - name: 🚀 Publish to VS Code Marketplace
+      - name: 🚀 Publish to NPM registry (npmjs)
         if: ${{ github.event.inputs.skipPublish != 'true' }}
-        working-directory: packages/extester-runner
-        run: |
-          vsce publish --pat ${{ secrets.VSCODE_MARKETPLACE_TOKEN }} \
-            --packagePath extester-runner-${VERSION}.vsix
-
-      - name: 🚀 Publish to Open VSX Registry
-        if: ${{ github.event.inputs.skipPublish != 'true' }}
-        working-directory: packages/extester-runner
-        run: |
-          ovsx publish -p ${{ secrets.OVSX_MARKETPLACE_TOKEN }} extester-runner-${VERSION}.vsix
+        run: npm run publish -- --yes
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
       - name: 📣 Add summary
         if: ${{ github.event.inputs.skipPublish != 'true' }}
         run: |
-          echo "#### ✅ Published \`extester-runner-${VERSION}.vsix\` to VS Code Marketplace" >> $GITHUB_STEP_SUMMARY
-          echo "#### ✅ Published \`extester-runner-${VERSION}.vsix\` to Open VSX Registry" >> $GITHUB_STEP_SUMMARY
-
-      - name: 💾 Upload VSIX
-        uses: actions/upload-artifact@v4
-        with:
-          name: extester-runner-${{ env.VERSION }}.vsix
-          path: packages/extester-runner/extester-runner-${{ env.VERSION }}.vsix
+          echo "#### ✅ Published \`vscode-extension-tester-${EXTESTER_VERSION}\`" >> $GITHUB_STEP_SUMMARY
+          echo "#### ✅ Published \`@redhat-developer/page-objects-${PAGE_OBJECTS_VERSION}\`" >> $GITHUB_STEP_SUMMARY
+          echo "#### ✅ Published \`@redhat-developer/locators-${LOCATORS_VERSION}\`" >> $GITHUB_STEP_SUMMARY
 
       - name: 🚀 Publish GitHub Release
-        working-directory: packages/extester-runner
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ "${{ github.event.inputs.draft }}" == "true" ]; then
             echo "Publishing release as draft..."
-            gh release create "$TAG" --draft \
-              --title "ExTester Runner - Preview (v${VERSION})" \
-              --notes-file CHANGELOG.md \
-              extester-runner-${VERSION}.vsix
+            gh release create "$TAG" --title "v${VERSION}" --notes-file CHANGELOG.md --draft
           else
             echo "Publishing release as a regular release..."
-            gh release create "$TAG" \
-              --title "ExTester Runner - Preview (v${VERSION})" \
-              --notes-file CHANGELOG.md \
-              extester-runner-${VERSION}.vsix
+            gh release create "$TAG" --title "v${VERSION}" --notes-file CHANGELOG.md
           fi
