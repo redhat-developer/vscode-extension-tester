@@ -1,0 +1,174 @@
+name: 🚀 Publish ExTester
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Version tag to publish (vX.X.X)"
+        required: true
+      skipPublish:
+        description: "Skip publish into NPM registry (npmjs)"
+        default: false
+        type: boolean
+      skipPackageJsonMatch:
+        description: "Skip tag validation with package.json (testing)"
+        default: false
+        type: boolean
+      draft:
+        description: "Publish GH release as draft"
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔖 Show input tag
+        run: echo "Publishing version ${{ github.event.inputs.tag }}"
+
+      - name: 👷🏻 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: ✅ Verify Git tag exists
+        run: |
+          git fetch --tags
+          if ! git rev-parse "refs/tags/${{ github.event.inputs.tag }}" >/dev/null 2>&1; then
+            echo "❌ Tag '${{ github.event.inputs.tag }}' does not exist!"
+            exit 1
+          fi
+
+      - name: ✅ Validate and extract tag
+        run: |
+          TAG=${{ github.event.inputs.tag }}
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid tag format: $TAG. Use format like 'v1.2.3'"
+            exit 1
+          fi
+          echo "TAG=$TAG" >> $GITHUB_ENV
+          echo "VERSION=${TAG#v}" >> $GITHUB_ENV
+
+      - name: ✅ Ensure tag matches package.json version
+        if: ${{ github.event.inputs.skipPackageJsonMatch != 'true' }}
+        working-directory: packages/extester
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          TAG_VERSION=${VERSION}
+          echo "Package version: $PKG_VERSION"
+          echo "Input tag version: $TAG_VERSION"
+          if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
+            echo "❌ Tag version ($TAG_VERSION) does not match package.json version ($PKG_VERSION)!"
+            exit 1
+          fi
+
+      - name: 🔸 Get vscode-extension-tester version
+        working-directory: packages/extester
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "EXTESTER_VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: 🔸 Get @redhat-developer/page-objects version
+        working-directory: packages/page-objects
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "PAGE_OBJECTS_VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: 🔸 Get @redhat-developer/locators version
+        working-directory: packages/locators
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "LOCATORS_VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: ⚙️ Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 📦 Install GitHub CLI
+        run: sudo apt-get install -y gh
+
+      - name: 🔧 Install deps and build
+        run: |
+          npm ci
+          npm run build
+
+      - name: 📝 Generate changelog
+        run: |
+          PREV_TAG=$(git tag --list "v*" --sort=-creatordate | grep -v "$TAG" | head -n 1)
+          echo "Comparing changes from $PREV_TAG to $TAG"
+
+          if [ -z "$PREV_TAG" ]; then
+            LOG=$(git log "$TAG" --reverse --oneline -- . | grep -v "packages/extester-runner")
+            [ -z "$LOG" ] && LOG=$(git log --reverse --oneline -- . | grep -v "packages/extester-runner")
+          else
+            LOG=$(git log "$PREV_TAG..$TAG" --oneline -- . | grep -v "packages/extester-runner")
+          fi
+
+          if [ -z "$LOG" ]; then
+            LOG="Initial release (first tag)"
+          fi
+
+          format_section() {
+            local pattern="$1"
+            local title="$2"
+            local content=$(echo "$LOG" | grep -iE "$pattern" || true)
+            if [[ -n "$content" ]]; then
+              echo "### $title"
+              echo "$content"
+              echo
+            fi
+          }
+
+          format_other_section() {
+            local title="🧼 Other Changes"
+            local content=$(echo "$LOG" | grep -vE "feat|feature|fix|test|chore|refactor|internal|ci|docs|deps|dependencies" || true)
+            if [[ -n "$content" ]]; then
+              echo "### $title"
+              echo "$content"
+              echo
+            fi
+          }
+
+          {
+            echo "## What's Changed"
+            format_section 'break|breaking' "⚠️ Breaking"
+            format_section 'feat|feature' "🚀 Features"
+            format_section 'fix' "🚫 Bugs"
+            format_section 'test' "🔎 Tests"
+            format_section 'chore|refactor|internal|ci|docs' "🔧 Maintenance"
+            format_section 'deps|dependencies' "📦 Dependencies"
+            format_other_section
+          } > CHANGELOG.md
+
+          echo "Generated CHANGELOG.md"
+          cat CHANGELOG.md
+
+      - name: 🚀 Publish to NPM registry (npmjs)
+        if: ${{ github.event.inputs.skipPublish != 'true' }}
+        run: npm run publish -- --yes
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+
+      - name: 📣 Add summary
+        if: ${{ github.event.inputs.skipPublish != 'true' }}
+        run: |
+          echo "#### ✅ Published \`vscode-extension-tester-${EXTESTER_VERSION}\`" >> $GITHUB_STEP_SUMMARY
+          echo "#### ✅ Published \`@redhat-developer/page-objects-${PAGE_OBJECTS_VERSION}\`" >> $GITHUB_STEP_SUMMARY
+          echo "#### ✅ Published \`@redhat-developer/locators-${LOCATORS_VERSION}\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: 🚀 Publish GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ github.event.inputs.draft }}" == "true" ]; then
+            echo "Publishing release as draft..."
+            gh release create "$TAG" --title "v${VERSION}" --notes-file CHANGELOG.md --draft
+          else
+            echo "Publishing release as a regular release..."
+            gh release create "$TAG" --title "v${VERSION}" --notes-file CHANGELOG.md
+          fi
