@@ -15,7 +15,7 @@
     "directory": "tests/test-project"
   },
   "engines": {
-    "vscode": "^1.97.0"
+    "vscode": "^1.100.0"
   },
   "categories": [
     "Other",
