@@ -88,7 +88,7 @@ describe('Extension Test Suite', () => {
 		assert.ok(extension);
 		const engines = extension.packageJSON.engines;
 		assert.ok(engines.vscode, 'VS Code engine requirement should be defined');
-		assert.strictEqual(engines.vscode, '^1.96.0', 'VS Code engine version should match');
+		assert.strictEqual(engines.vscode, '^1.100.0', 'VS Code engine version should match');
 	});
 
 	it('should create output channel', async () => {
