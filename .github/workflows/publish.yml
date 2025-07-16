@@ -154,7 +154,7 @@ jobs:
         run: |
           {
             echo "registry=https://registry.npmjs.com"
-            echo "//registry.npmjs.com/:_authToken=${NPM_TOKEN}"
+            echo "//registry.npmjs.com/:_authToken=\${NPM_TOKEN}"
           } > .npmrc
 
       - name: 🚀 Publish to NPM registry (npmjs)
