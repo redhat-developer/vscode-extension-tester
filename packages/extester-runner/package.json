@@ -368,7 +368,7 @@
     "ui-test": "npm run compile && extest setup-and-run ./out/ui-test/*.test.js --uninstall_extension --extensions_dir .test-extensions"
   },
   "devDependencies": {
-    "@types/babel__traverse": "^7.20.7",
+    "@types/babel__traverse": "^7.28.0",
     "@vscode/test-cli": "^0.0.11",
     "@vscode/test-electron": "^2.5.2",
     "esbuild": "^0.25.6",
