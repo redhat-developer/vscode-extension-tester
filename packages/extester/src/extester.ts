@@ -33,6 +33,8 @@ export * from '@redhat-developer/page-objects';
 export interface SetupOptions {
 	/** version of VS Code to test against, defaults to latest */
 	vscodeVersion?: string;
+	/** version of chromium to test against */
+	chromiumVersion?: string;
 	/** when true run `vsce package` with the `--yarn` flag */
 	useYarn?: boolean;
 	/** install the extension's dependencies from the marketplace. Defaults to `false`. */
@@ -181,6 +183,15 @@ export class ExTester {
 	}
 
 	/**
+	 * Download the chromedriver with a given version
+	 * @param chromiumVersion fixed version of chromium
+	 * @param noCache whether to skip using cached version
+	 */
+	async downloadChromeDriverForChromiumVersion(chromiumVersion: string, noCache: boolean = false): Promise<string> {
+		return await this.chrome.downloadChromeDriverForChromiumVersion(chromiumVersion, noCache);
+	}
+
+	/**
 	 * Performs all necessary setup: getting VS Code + ChromeDriver
 	 * and packaging/installing extension into the test instance
 	 *
@@ -190,12 +201,16 @@ export class ExTester {
 	 * @param noCache whether to skip using cached version
 	 */
 	async setupRequirements(options: SetupOptions = DEFAULT_SETUP_OPTIONS, offline = false, cleanup = false): Promise<void> {
-		const { useYarn, vscodeVersion, installDependencies, noCache } = options;
+		const { useYarn, vscodeVersion, chromiumVersion, installDependencies, noCache } = options;
 
 		const vscodeParsedVersion = loadCodeVersion(vscodeVersion);
 		if (!offline) {
 			await this.downloadCode(vscodeParsedVersion, noCache);
-			await this.downloadChromeDriver(vscodeParsedVersion, noCache);
+			if (!chromiumVersion) {
+				await this.downloadChromeDriver(vscodeParsedVersion, noCache);
+			} else {
+				await this.downloadChromeDriverForChromiumVersion(chromiumVersion, noCache);
+			}
 		} else {
 			console.log('Attempting Setup in offline mode');
 			const expectedChromeVersion = this.code.checkOfflineRequirements().split('.')[0];
