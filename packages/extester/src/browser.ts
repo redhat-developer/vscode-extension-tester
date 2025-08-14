@@ -76,6 +76,7 @@ export class VSBrowser {
 			'security.workspace.trust.enabled': false,
 			'files.simpleDialog.enable': true,
 			'terminal.integrated.copyOnSelection': true,
+			'workbench.secondarySideBar.defaultVisibility': 'hidden',
 			...(satisfies(this.codeVersion, '>=1.101.0') ? { 'window.menuStyle': 'custom' } : {}),
 		};
 		if (Object.keys(this.customSettings).length > 0) {
