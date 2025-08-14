@@ -52,8 +52,8 @@
     "ui-test"
   ],
   "supportedVersions": {
-    "vscode-min": "1.100.3",
-    "vscode-max": "1.102.0",
+    "vscode-min": "1.101.2",
+    "vscode-max": "1.103.2",
     "nodejs": "20"
   },
   "dependencies": {
@@ -65,13 +65,13 @@
     "commander": "^14.0.0",
     "compare-versions": "^6.1.1",
     "find-up": "7.0.0",
-    "fs-extra": "^11.3.0",
+    "fs-extra": "^11.3.1",
     "glob": "^11.0.3",
     "got": "^14.4.7",
     "hpagent": "^1.2.0",
     "js-yaml": "^4.1.0",
     "sanitize-filename": "^1.6.3",
-    "selenium-webdriver": "^4.34.0",
+    "selenium-webdriver": "^4.35.0",
     "targz": "^1.0.1",
     "unzipper": "^0.12.3"
   },
