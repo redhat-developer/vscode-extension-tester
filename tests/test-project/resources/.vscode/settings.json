@@ -3,5 +3,5 @@
   "window.zoomLevel": -1.5,
   "git.openRepositoryInParentFolders": "never",
   "redhat.telemetry.enabled": false,
-  "extensions.ignoreRecommendations": true
+  "extensions.ignoreRecommendations": true,
 }
