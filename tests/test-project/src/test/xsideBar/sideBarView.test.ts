@@ -149,7 +149,7 @@ describe('SideBarView', () => {
 			});
 
 			it('openItem lists available items when part of the path does not exist', async () => {
-				const items = ['foo', 'foolder'];
+				const items = ['.vscode', 'foo', 'foolder'];
 				try {
 					await section.openItem('x', 'y');
 				} catch (err) {
