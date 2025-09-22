@@ -58,7 +58,7 @@ describe('ExtensionsView', () => {
 	});
 
 	describe('ExtensionsViewItem', async () => {
-		beforeEach(async function () {
+		before(async function () {
 			this.timeout(30000);
 			section = await getSection();
 			await section.getDriver().wait(async function () {
