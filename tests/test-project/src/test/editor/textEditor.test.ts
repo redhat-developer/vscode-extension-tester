@@ -415,7 +415,14 @@ describe('TextEditor', function () {
 			this.timeout(20000);
 			const lens = await editor.getCodeLens(2);
 			await lens?.click();
-			await lens?.getDriver().sleep(2_000);
+			await lens?.getDriver().wait(
+				async function () {
+					return (await new Workbench().getNotifications()).length > 0;
+				},
+				5_000,
+				'Notification for lens command was not displayed!',
+			);
+
 			const notifications = await new Workbench().getNotifications();
 			const message = await notifications[0].getMessage();
 			expect(message).to.includes('CodeLens action clicked');
