@@ -368,16 +368,16 @@
     "ui-test": "npm run compile && extest setup-and-run ./out/ui-test/*.test.js --uninstall_extension --extensions_dir .test-extensions"
   },
   "devDependencies": {
-    "@types/babel__traverse": "^7.20.7",
+    "@types/babel__traverse": "^7.28.0",
     "@vscode/test-cli": "^0.0.11",
     "@vscode/test-electron": "^2.5.2",
-    "esbuild": "^0.25.6",
+    "esbuild": "^0.25.10",
     "npm-run-all": "^4.1.5",
     "vscode-extension-tester": "*"
   },
   "dependencies": {
-    "@babel/parser": "^7.28.0",
-    "@babel/traverse": "^7.28.0",
-    "@babel/types": "^7.28.1"
+    "@babel/parser": "^7.28.4",
+    "@babel/traverse": "^7.28.4",
+    "@babel/types": "^7.28.4"
   }
 }
