@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import * as path from 'path';
+import * as path from 'node:path';
 import { expect } from 'chai';
 import {
 	TextEditor,
@@ -40,7 +40,7 @@ describe('ContentAssist', async function () {
 	before(async () => {
 		this.timeout(30000);
 		await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-file.ts'), async () => {
-			await VSBrowser.instance.driver.sleep(3_000);
+			await VSBrowser.instance.driver.sleep(3000);
 		});
 		await VSBrowser.instance.waitForWorkbench();
 		await new Promise((res) => setTimeout(res, 2000));
@@ -188,14 +188,14 @@ describe('TextEditor', function () {
 			{ file: 'file-with-tabs.ts', indent: 'tabs' },
 		];
 
-		params.forEach((param) =>
+		for (const param of params) {
 			describe(`file using ${param.indent}`, function () {
 				let editor: TextEditor;
 				let ew: EditorView;
 
 				beforeEach(async function () {
 					await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', param.file), async () => {
-						await VSBrowser.instance.driver.sleep(3_000);
+						await VSBrowser.instance.driver.sleep(3000);
 					});
 					ew = new EditorView();
 					await ew.getDriver().wait(
@@ -208,30 +208,30 @@ describe('TextEditor', function () {
 					editor = (await ew.openEditor(param.file)) as TextEditor;
 				});
 
-				[
+				for (const coor of [
 					[2, 5],
 					[3, 9],
-				].forEach((coor) =>
+				]) {
 					it(`move cursor to position [Ln ${coor[0]}, Col ${coor[1]}]`, async function () {
 						this.timeout(30000);
 						await editor.moveCursor(coor[0], coor[1]);
 						expect(await editor.getCoordinates()).to.deep.equal(coor);
-					}),
-				);
+					});
+				}
 
 				// set cursor using command prompt is not working properly for tabs indentation in VS Code, see https://github.com/microsoft/vscode/issues/198780
-				[
+				for (const coor of [
 					[2, 12],
 					[3, 15],
-				].forEach((coor) =>
+				]) {
 					(param.indent === 'tabs' ? it.skip : it)(`set cursor to position [Ln ${coor[0]}, Col ${coor[1]}]`, async function () {
 						this.timeout(30000);
 						await editor.setCursor(coor[0], coor[1]);
 						expect(await editor.getCoordinates()).to.deep.equal(coor);
-					}),
-				);
-			}),
-		);
+					});
+				}
+			});
+		}
 	});
 
 	describe('searching', function () {
@@ -419,7 +419,7 @@ describe('TextEditor', function () {
 				async function () {
 					return (await new Workbench().getNotifications()).length > 0;
 				},
-				5_000,
+				5000,
 				'Notification for lens command was not displayed!',
 			);
 

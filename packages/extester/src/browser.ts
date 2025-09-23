@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import * as path from 'path';
+import * as path from 'node:path';
 import * as fs from 'fs-extra';
 import { satisfies } from 'compare-versions';
 import { WebDriver, Builder, until, initPageObjects, logging, By, Browser } from '@redhat-developer/page-objects';
@@ -180,7 +180,7 @@ export class VSBrowser {
 			await this._driver.wait(until.elementLocated(By.className('monaco-workbench')), timeout, `Workbench was not loaded properly after ${timeout} ms.`);
 		} catch (err) {
 			if ((err as Error).name === 'WebDriverError') {
-				await new Promise((res) => setTimeout(res, 3_000));
+				await new Promise((res) => setTimeout(res, 3000));
 			} else {
 				throw err;
 			}
@@ -197,9 +197,9 @@ export class VSBrowser {
 		const entries = await this._driver.manage().logs().get(logging.Type.DRIVER);
 		const logFile = path.join(this.storagePath, 'test.log');
 		const stream = fs.createWriteStream(logFile, { flags: 'w' });
-		entries.forEach((entry) => {
+		for (const entry of entries) {
 			stream.write(`[${new Date(entry.timestamp).toLocaleTimeString()}][${entry.level.name}] ${entry.message}`);
-		});
+		}
 		stream.end();
 
 		console.log('Shutting down the browser');
