@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import * as path from 'path';
+import * as path from 'node:path';
 import { expect } from 'chai';
 import {
 	SideBarView,
@@ -84,7 +84,7 @@ describe('SideBarView', () => {
 		before(async function () {
 			this.timeout(15000);
 			await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-folder'), async () => {
-				await VSBrowser.instance.driver.sleep(3_000);
+				await VSBrowser.instance.driver.sleep(3000);
 			});
 			view = await ((await new ActivityBar().getViewControl('Explorer')) as ViewControl).openView();
 			await new Promise((res) => {
