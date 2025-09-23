@@ -30,8 +30,8 @@ import {
 	DiffEditor,
 	InputBox,
 	VSBrowser,
-	EditorActionDropdown,
 	NotificationType,
+	ContextMenu,
 } from 'vscode-extension-tester';
 
 describe('EditorView', function () {
@@ -67,11 +67,11 @@ describe('EditorView', function () {
 
 	it('openEditor works with webview editor', async function () {
 		let editorTitle: string = '';
-		(await view.getOpenEditorTitles()).forEach((title) => {
+		for (const title of await view.getOpenEditorTitles()) {
 			if (title.startsWith('Test WebView')) {
 				editorTitle = title;
 			}
-		});
+		}
 		const editor = (await view.openEditor(editorTitle)) as WebView;
 		expect(editor.findWebElement).not.undefined;
 
@@ -138,18 +138,25 @@ describe('EditorView', function () {
 	});
 
 	(process.platform === 'darwin' && satisfies(VSBrowser.instance.version, '<1.101.0') ? it.skip : it)('Editor getAction dropdown', async function () {
-		this.timeout(15_000);
-		await new EditorView().openEditor('Untitled-2');
-		const editorAction = (await view.getAction('Run or Debug...')) as EditorActionDropdown;
+		this.timeout(20000);
+		view = new EditorView();
+		await view.openEditor('Untitled-2');
+		await view.getDriver().wait(
+			async () => {
+				return (await (await view.getActiveTab())?.getTitle()) === 'Untitled-2';
+			},
+			5000,
+			'Could not open editor Untitled-2',
+		);
 
-		if (editorAction) {
-			const menu = await editorAction.open();
+		const menu = await openDropDownMenuEditorAction(view, 'Run or Debug...');
+		if (menu) {
 			await menu.select('Hello a World');
 
 			const center = await new Workbench().openNotificationsCenter();
 			await center.getDriver().wait(async function () {
 				return (await center.getNotifications(NotificationType.Any)).length > 0;
-			}, 5_000);
+			}, 5000);
 
 			const notifications = await center.getNotifications(NotificationType.Any);
 			expect(await notifications.at(0)?.getText()).is.equal('Hello World, Test Project!');
@@ -238,6 +245,24 @@ describe('EditorView', function () {
 			expect(titles).deep.equals(allTitles);
 		});
 	});
+
+	async function openDropDownMenuEditorAction(editorView: EditorView, actionLabel: string): Promise<ContextMenu | undefined> {
+		let contextMenu: ContextMenu | undefined = undefined;
+		await view.getDriver().wait(async () => {
+			try {
+				const action = await editorView.getAction(actionLabel);
+				if (action) {
+					contextMenu = await action.open();
+					return true;
+				} else {
+					return false;
+				}
+			} catch {
+				return false;
+			}
+		});
+		return contextMenu;
+	}
 
 	async function newUntitledFile(title?: string, group?: number, timeout: number = 10000): Promise<void> {
 		await new Workbench().executeCommand('Create: New File...');
