@@ -54,7 +54,7 @@
   "supportedVersions": {
     "vscode-min": "1.102.3",
     "vscode-max": "1.104.3",
-    "nodejs": "20"
+    "nodejs": "22"
   },
   "dependencies": {
     "@redhat-developer/locators": "^1.16.0",
