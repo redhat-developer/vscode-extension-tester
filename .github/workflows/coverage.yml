@@ -58,7 +58,7 @@ jobs:
           exit 0
 
       - name: 💾 Upload Coverage
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: coverage

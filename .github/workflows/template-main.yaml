@@ -84,14 +84,14 @@ jobs:
           command: xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' npm test
 
       - name: 💾 Upload Screenshots
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: failure() && inputs.nodejs != 'lts/*'
         with:
           name: screenshots-${{ matrix.os }}-${{ inputs.version }}-node_${{ inputs.nodejs }}
           path: ${{ github.workspace }}/tests/**/screenshots/**/*.png
 
       - name: 💾 Upload Screenshots
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: failure() && inputs.nodejs == 'lts/*'
         with:
           name: screenshots-${{ matrix.os }}-${{ inputs.version }}-node_lts
