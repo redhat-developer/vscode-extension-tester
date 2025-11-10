@@ -376,7 +376,7 @@
     "vscode-extension-tester": "*"
   },
   "dependencies": {
-    "@babel/parser": "^7.28.4",
+    "@babel/parser": "^7.28.5",
     "@babel/traverse": "^7.28.4",
     "@babel/types": "^7.28.5"
   }
