@@ -69,7 +69,7 @@
     "glob": "^11.0.3",
     "got": "^14.5.0",
     "hpagent": "^1.2.0",
-    "js-yaml": "^4.1.0",
+    "js-yaml": "^4.1.1",
     "sanitize-filename": "^1.6.3",
     "selenium-webdriver": "^4.38.0",
     "targz": "^1.0.1",
