@@ -254,7 +254,7 @@
     "ui-test:coverage": "MOCHA_GREP='order|clipboard|ExtensionsView|TitleBar' MOCHA_INVERT=true extest setup-and-run './out/test/**/*.test.js' -i -r . -e ./test-extensions --coverage"
   },
   "devDependencies": {
-    "chai": "^4.5.0",
+    "chai": "^6.2.1",
     "compare-versions": "^6.1.1",
     "clipboard-cli": "^5.0.0",
     "clipboardy": "^5.0.1",
