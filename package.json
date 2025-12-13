@@ -43,7 +43,7 @@
     "eslint-define-config": "^2.1.0",
     "eslint-plugin-prettier": "^5.5.4",
     "lerna": "^9.0.1",
-    "prettier": "3.6.2",
+    "prettier": "3.7.4",
     "rimraf": "^6.1.0",
     "typescript": "^5.9.3"
   },
