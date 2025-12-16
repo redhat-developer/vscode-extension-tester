@@ -39,7 +39,7 @@
     "@typescript-eslint/parser": "^8.44.0",
     "eslint": "^9.38.0",
     "eslint-config-prettier": "^10.1.8",
-    "@vscode/vsce": "^3.6.2",
+    "@vscode/vsce": "^3.7.1",
     "eslint-define-config": "^2.1.0",
     "eslint-plugin-prettier": "^5.5.4",
     "lerna": "^9.0.1",
