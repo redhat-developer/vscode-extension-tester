@@ -65,7 +65,7 @@
     "commander": "^14.0.1",
     "compare-versions": "^6.1.1",
     "find-up": "8.0.0",
-    "fs-extra": "^11.3.2",
+    "fs-extra": "^11.3.3",
     "glob": "^13.0.0",
     "got": "^14.6.5",
     "hpagent": "^1.2.0",
