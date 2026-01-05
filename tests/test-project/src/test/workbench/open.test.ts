@@ -32,13 +32,15 @@ describe('Simple open file dialog', function () {
 		await input.selectQuickPick('File: Open File...');
 		await new Promise((res) => setTimeout(res, 1000));
 		await input.setText(filePath);
+		await new Promise((res) => setTimeout(res, 1000));
+		await input.selectQuickPick('package.json');
+		await new Promise((res) => setTimeout(res, 1000));
 
 		await VSBrowser.instance.driver.wait(
 			async () => {
 				try {
-					await input.confirm();
-					await new Promise((res) => setTimeout(res, 1000));
-					return (await new EditorView().openEditor('package.json')).isDisplayed();
+					const openEditorTitles = await new EditorView().getOpenEditorTitles();
+					return openEditorTitles.includes('package.json');
 				} catch {
 					return false;
 				}

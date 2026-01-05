@@ -352,7 +352,8 @@ export class TextEditor extends Editor {
 	async setCursor(line: number, column: number, timeout: number = 2_500): Promise<void> {
 		const input = await new Workbench().openCommandPrompt();
 		await input.setText(`:${line},${column}`);
-		await input.confirm();
+		await input.getDriver().sleep(500);
+		await input.selectQuickPick(0);
 		await this.waitForCursorPositionAt(line, column, timeout);
 	}
 
