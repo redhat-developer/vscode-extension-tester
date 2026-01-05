@@ -37,10 +37,10 @@
     "ui-test"
   ],
   "dependencies": {
-    "clipboardy": "^5.0.1",
+    "clipboardy": "^5.0.2",
     "clone-deep": "^4.0.1",
     "compare-versions": "^6.1.1",
-    "fs-extra": "^11.3.2",
+    "fs-extra": "^11.3.3",
     "type-fest": "^4.41.0"
   },
   "peerDependencies": {
