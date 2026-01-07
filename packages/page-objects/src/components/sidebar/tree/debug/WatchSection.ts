@@ -31,7 +31,14 @@ export class WatchSection extends GenericCustomTreeSection<WatchSectionItem> {
 	 */
 	async addItem(name: string): Promise<void> {
 		await (await this.getAction(WatchSection.locators.WatchSection.addExpression))?.click();
-		await new Promise((res) => setTimeout(res, 1000));
+		// Wait for input field to appear
+		await this.getWaitHelper().forCondition(
+			async () => {
+				const inputs = await this.findElements(WatchSection.locators.WatchSection.input);
+				return inputs.length > 0;
+			},
+			{ timeout: 3000, pollInterval: 100 },
+		);
 		const textInput = await this.findElement(WatchSection.locators.WatchSection.input);
 		await textInput.clear();
 		await textInput.sendKeys(name + Key.ENTER);

@@ -91,7 +91,14 @@ export class TitleBarItem extends MenuItem {
 			await this.getDriver().actions().sendKeys(Key.ESCAPE).perform();
 		}
 		await this.click();
-		await new Promise((res) => setTimeout(res, 500));
+		// Wait for context menu to appear
+		await this.getWaitHelper().forCondition(
+			async () => {
+				const menus = await this.getDriver().findElements(TitleBar.locators.ContextMenu.constructor);
+				return menus.length > 0 && (await menus[0].isDisplayed());
+			},
+			{ timeout: 2000, pollInterval: 50 },
+		);
 		return new ContextMenu(this).wait();
 	}
 }

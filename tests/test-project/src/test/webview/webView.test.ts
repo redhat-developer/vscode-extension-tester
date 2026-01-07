@@ -53,7 +53,7 @@ describe('WebViews', function () {
 		let tabs: string[];
 		let editorGroups: EditorGroup[];
 
-		before(async function () {
+		after(async function () {
 			await new EditorView().closeAllEditors();
 		});
 
@@ -115,7 +115,7 @@ describe('WebViews', function () {
 		let view: WebView;
 		let tabs: string[];
 
-		before(async function () {
+		after(async function () {
 			await new EditorView().closeAllEditors();
 		});
 

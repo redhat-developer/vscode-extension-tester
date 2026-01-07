@@ -22,7 +22,19 @@ import { By } from 'selenium-webdriver';
 export abstract class ActionButtonElementDropdown extends AbstractElement {
 	async open(): Promise<ContextMenu> {
 		await this.click();
-		await this.getDriver().sleep(500);
+		// Wait for dropdown to open
+		await this.getWaitHelper()
+			.forCondition(
+				async () => {
+					const expanded = await this.getAttribute('aria-expanded');
+					return expanded === 'true';
+				},
+				{ timeout: 2000, pollInterval: 50 },
+			)
+			.catch(() => {
+				/* May not have aria-expanded attribute */
+			});
+
 		const shadowRootHost = await this.enclosingItem.findElements(ActionButtonElementDropdown.locators.ContextMenu.shadowRootHost);
 		const actions = this.getDriver().actions();
 		await actions.clear();
@@ -30,7 +42,14 @@ export abstract class ActionButtonElementDropdown extends AbstractElement {
 		if (shadowRootHost.length > 0) {
 			if ((await this.getAttribute('aria-expanded')) !== 'true') {
 				await this.click();
-				await this.getDriver().sleep(500);
+				// Wait for dropdown to expand after second click
+				await this.getWaitHelper().forCondition(
+					async () => {
+						const expanded = await this.getAttribute('aria-expanded');
+						return expanded === 'true';
+					},
+					{ timeout: 2000, pollInterval: 50 },
+				);
 			}
 			const shadowRoot = await shadowRootHost[0].getShadowRoot();
 			return new ContextMenu(await shadowRoot.findElement(By.className('monaco-menu-container'))).wait();

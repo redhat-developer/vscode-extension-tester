@@ -49,7 +49,12 @@ export abstract class Input extends AbstractElement {
 		}
 		const input = await this.findElement(Input.locators.Input.inputBox).findElement(Input.locators.Input.input);
 		await this.clear();
-		await new Promise((res) => setTimeout(res, 200));
+		// Wait for clear operation to complete
+		await this.getWaitHelper()
+			.forCondition(async () => (await this.getText()).length === 0, { timeout: 1000, pollInterval: 50 })
+			.catch(() => {
+				/* Text may not be empty if clear didn't work fully */
+			});
 		if ((await this.getText()).length > 0) {
 			await input.sendKeys(Key.END, Key.chord(Key.SHIFT, Key.HOME));
 		}

@@ -83,16 +83,15 @@ export class SettingsEditor extends Editor {
 
 	private async _getSettingItem(title: string = '', category: string = ''): Promise<Setting> {
 		const count = await this.findElement(SettingsEditor.locators.SettingsEditor.itemCount);
-		let textCount = await count.getText();
-		await this.getDriver().wait(async function () {
-			await new Promise((res) => setTimeout(res, 1500));
-			const text = await count.getText();
-			if (text !== textCount) {
-				textCount = text;
-				return false;
-			}
-			return true;
-		});
+		// Wait for settings count to stabilize (loading complete)
+		await this.getWaitHelper().forCountStable(
+			async () => {
+				const text = await count.getText();
+				const match = text.match(/\d+/);
+				return match ? parseInt(match[0], 10) : 0;
+			},
+			{ timeout: 5000, stabilityInterval: 300, stableChecks: 2 },
+		);
 
 		let setting!: Setting;
 		const items = await this.findElements(SettingsEditor.locators.SettingsEditor.itemRow);
@@ -384,10 +383,20 @@ export class ArraySetting extends Setting {
 	 * @returns string[]
 	 */
 	async getValues(): Promise<string[]> {
-		const items = await this.getItems();
 		const values: string[] = [];
-		for (const item of items) {
-			values.push(await item.getValue());
+		const listRows = await this.getRows();
+		for (const row of listRows) {
+			try {
+				const li = await row.findElement(SettingsEditor.locators.SettingsEditor.arrayRowValue);
+				values.push(await li.getText());
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					// Item became stale during iteration (DOM updating), skip it
+					// The caller's retry logic will handle getting a consistent view
+					continue;
+				}
+				throw e;
+			}
 		}
 		return values;
 	}
@@ -400,10 +409,18 @@ export class ArraySetting extends Setting {
 		// click 'Add Item' button
 		const button = await this.findElement(SettingsEditor.locators.SettingsEditor.arrayNewRow).findElement(SettingsEditor.locators.SettingsEditor.button);
 		await button.click();
-		await new Promise((sleep) => setTimeout(sleep, 1_000)); // need to force some time to allow DOM rerender elements
+
+		// Wait for edit row to appear in DOM
+		const list = await this.getListRootElement();
+		await this.getWaitHelper().forCondition(
+			async () => {
+				const rows = await list.findElements(SettingsEditor.locators.SettingsEditor.arrayEditRow);
+				return rows.length > 0;
+			},
+			{ timeout: 2000, message: 'Edit row did not appear after clicking Add Item' },
+		);
 
 		// get item row switched to 'edit' mode
-		const list = await this.getListRootElement();
 		const editRow = await list.findElement(SettingsEditor.locators.SettingsEditor.arrayEditRow);
 		return new ArraySettingItem(editRow, this);
 	}
@@ -423,10 +440,18 @@ export class ArraySetting extends Setting {
 			// click 'Edit Item' button
 			const edit = await toEdit.findElement(SettingsEditor.locators.SettingsEditor.arrayBtnConstructor('Edit Item'));
 			await edit.click();
-			await new Promise((sleep) => setTimeout(sleep, 1_000)); // need to force some time to allow DOM rerender elements
+
+			// Wait for edit row to appear in DOM
+			const list = await this.getListRootElement();
+			await this.getWaitHelper().forCondition(
+				async () => {
+					const rows = await list.findElements(SettingsEditor.locators.SettingsEditor.arrayEditRow);
+					return rows.length > 0;
+				},
+				{ timeout: 2000, message: 'Edit row did not appear after clicking Edit Item' },
+			);
 
 			// get item row switched to 'edit' mode
-			const list = await this.getListRootElement();
 			const editRow = await list.findElement(SettingsEditor.locators.SettingsEditor.arrayEditRow);
 			return new ArraySettingItem(editRow, this);
 		}
@@ -475,7 +500,14 @@ export class ArraySettingItem extends AbstractElement {
 	 */
 	async select(): Promise<void> {
 		await this.click();
-		await new Promise((sleep) => setTimeout(sleep, 500));
+		// Wait for selection state to be applied
+		await this.getWaitHelper().forCondition(
+			async () => {
+				const classAttr = await this.getAttribute('class');
+				return classAttr && (classAttr.includes('selected') || classAttr.includes('focused'));
+			},
+			{ timeout: 1000, pollInterval: 50 },
+		);
 	}
 
 	/**
@@ -503,7 +535,18 @@ export class ArraySettingItem extends AbstractElement {
 		await this.select();
 		const remove = await this.findElement(SettingsEditor.locators.SettingsEditor.arrayBtnConstructor('Remove Item'));
 		await remove.click();
-		await new Promise((sleep) => setTimeout(sleep, 500));
+		// Wait for item to be removed from DOM
+		await this.getWaitHelper().forCondition(
+			async () => {
+				try {
+					await this.isDisplayed();
+					return false;
+				} catch {
+					return true; // Element no longer exists
+				}
+			},
+			{ timeout: 1000, pollInterval: 50 },
+		);
 	}
 
 	/**
@@ -513,7 +556,24 @@ export class ArraySettingItem extends AbstractElement {
 	async ok(): Promise<void> {
 		const ok = await this.findElement(SettingsEditor.locators.SettingsEditor.arraySettingItem.btnConstructor('OK'));
 		await ok.click();
-		await new Promise((sleep) => setTimeout(sleep, 500));
+		// Wait for edit mode to close - the edit row will be removed from DOM
+		await this.getWaitHelper()
+			.forCondition(
+				async () => {
+					try {
+						await this.isDisplayed();
+						// Check if still in edit mode by looking for OK button
+						const okButtons = await this.findElements(SettingsEditor.locators.SettingsEditor.arraySettingItem.btnConstructor('OK'));
+						return okButtons.length === 0;
+					} catch {
+						return true; // Element removed from DOM
+					}
+				},
+				{ timeout: 2000, pollInterval: 100 },
+			)
+			.catch(() => {
+				/* Element may already be gone */
+			});
 	}
 
 	/**
@@ -523,6 +583,23 @@ export class ArraySettingItem extends AbstractElement {
 	async cancel(): Promise<void> {
 		const cancel = await this.findElement(SettingsEditor.locators.SettingsEditor.arraySettingItem.btnConstructor('Cancel'));
 		await cancel.click();
-		await new Promise((sleep) => setTimeout(sleep, 500));
+		// Wait for edit mode to close - the edit row will be removed from DOM
+		await this.getWaitHelper()
+			.forCondition(
+				async () => {
+					try {
+						await this.isDisplayed();
+						// Check if still in edit mode by looking for Cancel button
+						const cancelButtons = await this.findElements(SettingsEditor.locators.SettingsEditor.arraySettingItem.btnConstructor('Cancel'));
+						return cancelButtons.length === 0;
+					} catch {
+						return true; // Element removed from DOM
+					}
+				},
+				{ timeout: 2000, pollInterval: 100 },
+			)
+			.catch(() => {
+				/* Element may already be gone */
+			});
 	}
 }

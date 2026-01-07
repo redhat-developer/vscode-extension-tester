@@ -56,7 +56,8 @@ export abstract class ViewSection extends AbstractElement {
 			const collapseExpandButton = await header.findElement(ViewSection.locators.ViewSection.headerCollapseExpandButton);
 			await collapseExpandButton.click();
 			await this.getDriver().wait(waitForAttributeValue(header, ViewSection.locators.ViewSection.headerExpanded, 'true'), timeout);
-			await this.getDriver().sleep(500);
+			// Wait for expand animation to complete
+			await this.getWaitHelper().forStable(this, { timeout: 1000 });
 		}
 	}
 
@@ -73,7 +74,8 @@ export abstract class ViewSection extends AbstractElement {
 			const collapseExpandButton = await header.findElement(ViewSection.locators.ViewSection.headerCollapseExpandButton);
 			await collapseExpandButton.click();
 			await this.getDriver().wait(waitForAttributeValue(header, ViewSection.locators.ViewSection.headerExpanded, 'false'), timeout);
-			await this.getDriver().sleep(500);
+			// Wait for collapse animation to complete
+			await this.getWaitHelper().forStable(this, { timeout: 1000 });
 		}
 	}
 

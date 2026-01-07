@@ -74,7 +74,8 @@ export class EditorView extends AbstractElement {
 
 		while (groups.length > 0 && (await groups[0].getOpenEditorTitles()).length > 0) {
 			await groups[0].closeAllEditors();
-			await new Promise((res) => setTimeout(res, 1000));
+			// Brief wait for DOM to settle after closing editors
+			await this.getWaitHelper().sleep(500);
 			groups = await this.getEditorGroups();
 		}
 	}

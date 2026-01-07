@@ -116,7 +116,12 @@ export class ContextMenuItem extends MenuItem {
 
 	async select(): Promise<Menu | undefined> {
 		await this.click();
-		await new Promise((res) => setTimeout(res, 500));
+		// Wait for click action to complete and potential submenu to appear
+		await this.getWaitHelper()
+			.forStable(this, { timeout: 1000 })
+			.catch(() => {
+				/* Element may be removed after click */
+			});
 		if (await this.isNesting()) {
 			return await new ContextMenu(this).wait();
 		}
