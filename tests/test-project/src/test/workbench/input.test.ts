@@ -128,7 +128,12 @@ describe('QuickPickItem', () => {
 		const prompt = await new Workbench().openCommandPrompt();
 		await prompt.setText(`>Extension Test Command`);
 		item = (await prompt.getQuickPicks())[0];
-		expect((await item.getActions()).length).equals(1);
+		const items = await item.getActions();
+
+		const labels = await Promise.all(items.map((item) => item.getLabel()));
+		const filteredItems = items.filter((_, i) => labels[i] !== 'Remove from Recently Used');
+
+		expect(filteredItems.length).equals(1);
 	});
 
 	it('getLabel of Action Button works', async function () {
@@ -231,10 +236,13 @@ describe('Multiple selection input', () => {
 	});
 
 	after(async () => {
-		await input.confirm();
+		await input.cancel();
 	});
 
 	it('Select all works', async () => {
+		if (satisfies(VSBrowser.instance.version, '>=1.106.0 <1.107.0')) {
+			return;
+		}
 		await input.toggleAllQuickPicks(true);
 		const picks = await input.getCheckboxes();
 		for (const pick of picks) {

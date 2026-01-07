@@ -32,7 +32,7 @@ describe('NotificationsCenter', () => {
 
 	it('getNotifications works', async function () {
 		this.timeout(4000);
-		await new Workbench().executeCommand('hello world');
+		await new Workbench().executeCommand('Hello World');
 		await center.getDriver().sleep(500);
 		center = await new Workbench().openNotificationsCenter();
 		await center.getDriver().sleep(500);
@@ -42,7 +42,7 @@ describe('NotificationsCenter', () => {
 
 	it('clearAllNotifications works', async function () {
 		this.timeout(8000);
-		await new Workbench().executeCommand('hello world');
+		await new Workbench().executeCommand('Hello World');
 		await center.getDriver().sleep(500);
 		center = await new Workbench().openNotificationsCenter();
 		await center.getDriver().sleep(500);
@@ -58,7 +58,7 @@ describe('NotificationsCenter', () => {
 		let notification: Notification;
 
 		before(async () => {
-			await new Workbench().executeCommand('test notification');
+			await new Workbench().executeCommand('Test Notification');
 			await center.getDriver().sleep(200);
 			center = await new Workbench().openNotificationsCenter();
 			notification = (await center.getNotifications(NotificationType.Any))[0];
@@ -110,7 +110,7 @@ describe('NotificationsCenter', () => {
 		});
 
 		it('dismiss works', async () => {
-			await new Workbench().executeCommand('test notification');
+			await new Workbench().executeCommand('Test Notification');
 			await center.getDriver().sleep(200);
 			center = await new Workbench().openNotificationsCenter();
 			notification = (await center.getNotifications(NotificationType.Any))[0];

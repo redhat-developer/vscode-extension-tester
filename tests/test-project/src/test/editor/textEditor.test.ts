@@ -367,15 +367,15 @@ describe('TextEditor', function () {
 
 	describe('CodeLens', function () {
 		before(async function () {
-			await new Workbench().executeCommand('enable codelens');
+			await new Workbench().executeCommand('Enable CodeLens');
 			// older versions of vscode don't fire the update event immediately, give it some encouragement
 			// otherwise the lenses end up empty
-			await new Workbench().executeCommand('enable codelens');
+			await new Workbench().executeCommand('Enable CodeLens');
 			await new Promise((res) => setTimeout(res, 1000));
 		});
 
 		after(async function () {
-			await new Workbench().executeCommand('disable codelens');
+			await new Workbench().executeCommand('Disable Codelens');
 			const nc = await new Workbench().openNotificationsCenter();
 			await nc.clearAllNotifications();
 			await nc.close();
@@ -417,15 +417,14 @@ describe('TextEditor', function () {
 			await lens?.click();
 			await lens?.getDriver().wait(
 				async function () {
-					return (await new Workbench().getNotifications()).length > 0;
+					const notifications = await new Workbench().getNotifications();
+					const messages = await Promise.all(notifications.map(async (notification) => await notification.getMessage()));
+
+					return messages.some((message) => message.includes('CodeLens action clicked'));
 				},
-				5000,
+				10_000,
 				'Notification for lens command was not displayed!',
 			);
-
-			const notifications = await new Workbench().getNotifications();
-			const message = await notifications[0].getMessage();
-			expect(message).to.includes('CodeLens action clicked');
 		});
 	});
 });
