@@ -53,8 +53,15 @@ export class DebugView extends SideBarView {
 		const options = await combo.findElements(DebugView.locators.DebugView.launchOption);
 
 		for (const option of options) {
-			if (await option.isEnabled()) {
-				configs.push(await option.getAttribute('value'));
+			try {
+				if (await option.isEnabled()) {
+					configs.push(await option.getAttribute('value'));
+				}
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
 			}
 		}
 

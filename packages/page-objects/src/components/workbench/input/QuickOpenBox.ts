@@ -46,9 +46,16 @@ export class QuickOpenBox extends Input {
 		const tree = await this.getDriver().wait(until.elementLocated(QuickOpenBox.locators.QuickOpenBox.quickList), 1000);
 		const elements = await tree.findElements(QuickOpenBox.locators.QuickOpenBox.row);
 		for (const element of elements) {
-			const index = +(await element.getAttribute('aria-posinset'));
-			if (await element.isDisplayed()) {
-				picks.push(await new QuickPickItem(index, this).wait());
+			try {
+				const index = +(await element.getAttribute('aria-posinset'));
+				if (await element.isDisplayed()) {
+					picks.push(await new QuickPickItem(index, this).wait());
+				}
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
 			}
 		}
 		return picks;

@@ -55,8 +55,15 @@ export class InputBox extends Input {
 			.findElements(InputBox.locators.InputBox.row);
 
 		for (const element of elements) {
-			if (await element.isDisplayed()) {
-				picks.push(await new QuickPickItem(+(await element.getAttribute('data-index')), this).wait());
+			try {
+				if (await element.isDisplayed()) {
+					picks.push(await new QuickPickItem(+(await element.getAttribute('data-index')), this).wait());
+				}
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
 			}
 		}
 		return picks;
@@ -69,8 +76,15 @@ export class InputBox extends Input {
 			.findElements(InputBox.locators.InputBox.row);
 
 		for (const element of elements) {
-			if (await element.isDisplayed()) {
-				picks.push(await new QuickPickItem(+(await element.getAttribute('data-index')), this, true).wait());
+			try {
+				if (await element.isDisplayed()) {
+					picks.push(await new QuickPickItem(+(await element.getAttribute('data-index')), this, true).wait());
+				}
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
 			}
 		}
 

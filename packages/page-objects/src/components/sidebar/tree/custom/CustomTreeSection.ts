@@ -52,8 +52,15 @@ export class GenericCustomTreeSection<T extends TreeItem> extends TreeSection {
 		const container = await this.getContainer();
 		const elements = await container.findElements(CustomTreeSection.locators.CustomTreeSection.itemRow);
 		for (const element of elements) {
-			if (await element.isDisplayed()) {
-				items.push(new this.itemConstructor(element, this));
+			try {
+				if (await element.isDisplayed()) {
+					items.push(new this.itemConstructor(element, this));
+				}
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
 			}
 		}
 		return items;
@@ -63,11 +70,18 @@ export class GenericCustomTreeSection<T extends TreeItem> extends TreeSection {
 		const predicate = typeof labelOrPredicate === 'string' ? async (el: T) => (await el.getLabel()) === labelOrPredicate : labelOrPredicate;
 		const elements = await this.getVisibleItems();
 		for (const element of elements) {
-			if (await predicate(element)) {
-				const level = +(await element.getAttribute(CustomTreeSection.locators.ViewSection.level));
-				if (maxLevel < 1 || level <= maxLevel) {
-					return element;
+			try {
+				if (await predicate(element)) {
+					const level = +(await element.getAttribute(CustomTreeSection.locators.ViewSection.level));
+					if (maxLevel < 1 || level <= maxLevel) {
+						return element;
+					}
 				}
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
 			}
 		}
 		return undefined;

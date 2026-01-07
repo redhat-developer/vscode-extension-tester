@@ -28,7 +28,14 @@ export class DefaultTreeSection extends TreeSection {
 		const items: TreeItem[] = [];
 		const elements = await this.findElements(DefaultTreeSection.locators.DefaultTreeSection.itemRow);
 		for (const element of elements) {
-			items.push(await new DefaultTreeItem(element, this).wait());
+			try {
+				items.push(await new DefaultTreeItem(element, this).wait());
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
+			}
 		}
 		return items;
 	}

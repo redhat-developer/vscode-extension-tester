@@ -51,8 +51,15 @@ export class TitleBar extends Menu {
 		const elements = await this.findElements(TitleBar.locators.TitleBar.itemElement);
 
 		for (const element of elements) {
-			if (await element.isDisplayed()) {
-				items.push(await new TitleBarItem(await element.getAttribute(TitleBar.locators.TitleBar.itemLabel), this).wait());
+			try {
+				if (await element.isDisplayed()) {
+					items.push(await new TitleBarItem(await element.getAttribute(TitleBar.locators.TitleBar.itemLabel), this).wait());
+				}
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
 			}
 		}
 		return items;

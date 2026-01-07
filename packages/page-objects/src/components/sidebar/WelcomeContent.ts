@@ -85,8 +85,15 @@ export class WelcomeContentSection extends AbstractElement {
 	public async getButton(title: string): Promise<WelcomeContentButton | undefined> {
 		const buttons = await this.getButtons();
 		for (const btn of buttons) {
-			if ((await btn.getTitle()) === title) {
-				return btn;
+			try {
+				if ((await btn.getTitle()) === title) {
+					return btn;
+				}
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
 			}
 		}
 		return undefined;

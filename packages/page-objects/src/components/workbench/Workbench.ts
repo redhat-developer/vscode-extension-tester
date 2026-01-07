@@ -95,7 +95,14 @@ export class Workbench extends AbstractElement {
 		const elements = await container.findElements(Workbench.locators.Workbench.notificationItem);
 
 		for (const element of elements) {
-			notifications.push(await new StandaloneNotification(element).wait());
+			try {
+				notifications.push(await new StandaloneNotification(element).wait());
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
+			}
 		}
 		return notifications;
 	}

@@ -697,8 +697,15 @@ export class TextEditor extends Editor {
 	async getBreakpoint(line: number): Promise<Breakpoint | undefined> {
 		const breakpoints = await this.getBreakpoints();
 		for (const breakpoint of breakpoints) {
-			if ((await breakpoint.getLineNumber()) === line) {
-				return breakpoint;
+			try {
+				if ((await breakpoint.getLineNumber()) === line) {
+					return breakpoint;
+				}
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
 			}
 		}
 		return undefined;
@@ -718,16 +725,23 @@ export class TextEditor extends Editor {
 		const breakpointsSelectors = await breakpointContainer.findElements(breakpointLocators.generalSelector);
 
 		for (const breakpointSelector of breakpointsSelectors) {
-			let lineElement: WebElement;
-			if (satisfies(TextEditor.versionInfo.version, '>=1.80.0')) {
-				const styleTopAttr = await breakpointSelector.getCssValue('top');
-				lineElement = await this.findElement(TextEditor.locators.TextEditor.marginArea).findElement(
-					TextEditor.locators.TextEditor.lineElement(styleTopAttr),
-				);
-			} else {
-				lineElement = await breakpointSelector.findElement(TextEditor.locators.TextEditor.elementLevelBack);
+			try {
+				let lineElement: WebElement;
+				if (satisfies(TextEditor.versionInfo.version, '>=1.80.0')) {
+					const styleTopAttr = await breakpointSelector.getCssValue('top');
+					lineElement = await this.findElement(TextEditor.locators.TextEditor.marginArea).findElement(
+						TextEditor.locators.TextEditor.lineElement(styleTopAttr),
+					);
+				} else {
+					lineElement = await breakpointSelector.findElement(TextEditor.locators.TextEditor.elementLevelBack);
+				}
+				breakpoints.push(new Breakpoint(breakpointSelector, lineElement));
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
 			}
-			breakpoints.push(new Breakpoint(breakpointSelector, lineElement));
 		}
 		return breakpoints;
 	}
@@ -741,7 +755,14 @@ export class TextEditor extends Editor {
 		const widgets = await this.findElement(TextEditor.locators.TextEditor.contentWidgets);
 		const items = await widgets.findElements(TextEditor.locators.TextEditor.contentWidgetsElements);
 		for (const item of items) {
-			lenses.push(await new CodeLens(item, this).wait());
+			try {
+				lenses.push(await new CodeLens(item, this).wait());
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
+			}
 		}
 		return lenses;
 	}
@@ -757,10 +778,17 @@ export class TextEditor extends Editor {
 
 		if (typeof indexOrTitle === 'string') {
 			for (const lens of lenses) {
-				const title = await lens.getText();
-				const match = title.match(indexOrTitle);
-				if (match && match.length > 0) {
-					return lens;
+				try {
+					const title = await lens.getText();
+					const match = title.match(indexOrTitle);
+					if (match && match.length > 0) {
+						return lens;
+					}
+				} catch (e: any) {
+					if (e.name === 'StaleElementReferenceError') {
+						continue;
+					}
+					throw e;
 				}
 			}
 		} else if (lenses[indexOrTitle]) {

@@ -165,19 +165,26 @@ export abstract class Input extends AbstractElement {
 		while (!endReached) {
 			const picks = await this.getQuickPicks();
 			for (const pick of picks) {
-				const lastRow = await this.findElements(Input.locators.DefaultTreeSection.lastRow);
-				if (lastRow.length > 0) {
-					endReached = true;
-				} else if ((await pick.getAttribute('aria-posinset')) === (await pick.getAttribute('aria-setsize'))) {
-					endReached = true;
-				}
-				if (typeof indexOrText === 'string') {
-					const text = await pick.getLabel();
-					if (text.indexOf(indexOrText) > -1) {
+				try {
+					const lastRow = await this.findElements(Input.locators.DefaultTreeSection.lastRow);
+					if (lastRow.length > 0) {
+						endReached = true;
+					} else if ((await pick.getAttribute('aria-posinset')) === (await pick.getAttribute('aria-setsize'))) {
+						endReached = true;
+					}
+					if (typeof indexOrText === 'string') {
+						const text = await pick.getLabel();
+						if (text.indexOf(indexOrText) > -1) {
+							return pick;
+						}
+					} else if (indexOrText === pick.getIndex()) {
 						return pick;
 					}
-				} else if (indexOrText === pick.getIndex()) {
-					return pick;
+				} catch (e: any) {
+					if (e.name === 'StaleElementReferenceError') {
+						continue;
+					}
+					throw e;
 				}
 			}
 			if (!endReached) {
@@ -316,7 +323,14 @@ export class QuickPickItem extends AbstractElement {
 		const actions: QuickInputAction[] = [];
 		const elements = await this.findElements(Input.locators.Input.button);
 		for (const element of elements) {
-			actions.push(await new QuickInputAction(element, this).wait());
+			try {
+				actions.push(await new QuickInputAction(element, this).wait());
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
+			}
 		}
 		return actions;
 	}
@@ -329,8 +343,15 @@ export class QuickPickItem extends AbstractElement {
 	async getAction(label: string): Promise<QuickInputAction | undefined> {
 		const actions = await this.getActions();
 		for (const action of actions) {
-			if ((await action.getLabel()) === label) {
-				return action;
+			try {
+				if ((await action.getLabel()) === label) {
+					return action;
+				}
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
 			}
 		}
 	}

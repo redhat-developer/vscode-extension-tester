@@ -35,8 +35,15 @@ export class ContextMenu extends Menu {
 		try {
 			const items = await this.getItems();
 			for (const item of items) {
-				if ((await item.getLabel()) === name) {
-					return item;
+				try {
+					if ((await item.getLabel()) === name) {
+						return item;
+					}
+				} catch (e: any) {
+					if (e.name === 'StaleElementReferenceError') {
+						continue;
+					}
+					throw e;
 				}
 			}
 		} catch (err) {
@@ -53,9 +60,16 @@ export class ContextMenu extends Menu {
 		const elements = await this.findElements(ContextMenu.locators.ContextMenu.itemElement);
 
 		for (const element of elements) {
-			const klass = await element.getAttribute('class');
-			if (klass.indexOf('disabled') < 0) {
-				items.push(await new ContextMenuItem(element, this).wait());
+			try {
+				const klass = await element.getAttribute('class');
+				if (klass.indexOf('disabled') < 0) {
+					items.push(await new ContextMenuItem(element, this).wait());
+				}
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
 			}
 		}
 		return items;

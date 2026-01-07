@@ -167,8 +167,15 @@ export abstract class ViewSection extends AbstractElement {
 	async getAction(label: string): Promise<ViewPanelAction | undefined> {
 		const actions = await this.getActions();
 		for (const action of actions) {
-			if ((await action.getLabel()) === label) {
-				return action;
+			try {
+				if ((await action.getLabel()) === label) {
+					return action;
+				}
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
 			}
 		}
 	}

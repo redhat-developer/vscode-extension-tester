@@ -154,10 +154,17 @@ export class ScmProvider extends AbstractElement {
 			let i = -1;
 			elements = await this.findElements(ScmProvider.locators.ScmView.changeItem);
 			for (const [index, item] of elements.entries()) {
-				const name = await item.findElement(ScmProvider.locators.ScmView.changeName);
-				if ((await name.getText()) === label) {
-					i = index + 1;
-					break;
+				try {
+					const name = await item.findElement(ScmProvider.locators.ScmView.changeName);
+					if ((await name.getText()) === label) {
+						i = index + 1;
+						break;
+					}
+				} catch (e: any) {
+					if (e.name === 'StaleElementReferenceError') {
+						continue;
+					}
+					throw e;
 				}
 			}
 			if (i < 0) {

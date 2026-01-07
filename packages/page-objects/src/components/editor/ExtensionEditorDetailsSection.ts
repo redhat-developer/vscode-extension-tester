@@ -29,7 +29,14 @@ export class ExtensionEditorDetailsSection extends ExtensionEditorView {
 		const categoriesInContainer = await container.findElements(ExtensionEditorDetailsSection.locators.ExtensionEditorDetailsSection.category);
 
 		for (const cat of categoriesInContainer) {
-			categories.push(await cat.getText());
+			try {
+				categories.push(await cat.getText());
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
+			}
 		}
 		return categories;
 	}
@@ -45,7 +52,14 @@ export class ExtensionEditorDetailsSection extends ExtensionEditorView {
 		const resourcesInContainer = await container.findElements(ExtensionEditorDetailsSection.locators.ExtensionEditorDetailsSection.resource);
 
 		for (const res of resourcesInContainer) {
-			resources.push(await res.getText());
+			try {
+				resources.push(await res.getText());
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
+			}
 		}
 
 		return resources;
@@ -62,11 +76,18 @@ export class ExtensionEditorDetailsSection extends ExtensionEditorView {
 		const moreInfoInContainer = await container.findElements(ExtensionEditorDetailsSection.locators.ExtensionEditorDetailsSection.moreInfo);
 
 		for (const entry of moreInfoInContainer) {
-			const elmnts = await entry.findElements(ExtensionEditorDetailsSection.locators.ExtensionEditorDetailsSection.moreInfoElements);
-			const name = await elmnts.at(0)?.getText();
-			const value = await elmnts.at(1)?.getText();
-			if (name !== undefined && value !== undefined) {
-				moreInfo[name] = value;
+			try {
+				const elmnts = await entry.findElements(ExtensionEditorDetailsSection.locators.ExtensionEditorDetailsSection.moreInfoElements);
+				const name = await elmnts.at(0)?.getText();
+				const value = await elmnts.at(1)?.getText();
+				if (name !== undefined && value !== undefined) {
+					moreInfo[name] = value;
+				}
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
 			}
 		}
 

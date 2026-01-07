@@ -81,8 +81,15 @@ export class ExtensionsViewSection extends ViewSection {
 		const extensions = await section.getVisibleItems();
 
 		for (const extension of extensions) {
-			if ((await extension.getTitle()) === title) {
-				return extension;
+			try {
+				if ((await extension.getTitle()) === title) {
+					return extension;
+				}
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
 			}
 		}
 

@@ -236,11 +236,18 @@ export class ComboSetting extends Setting {
 	async setValue(value: string): Promise<void> {
 		const rows = await this.getOptions();
 		for (const row of rows) {
-			if ((await row.getAttribute('class')).indexOf('disabled') < 0) {
-				const text = await row.getAttribute(SettingsEditor.locators.SettingsEditor.comboValue);
-				if (value === text) {
-					return await row.click();
+			try {
+				if ((await row.getAttribute('class')).indexOf('disabled') < 0) {
+					const text = await row.getAttribute(SettingsEditor.locators.SettingsEditor.comboValue);
+					if (value === text) {
+						return await row.click();
+					}
 				}
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
 			}
 		}
 	}
@@ -250,10 +257,17 @@ export class ComboSetting extends Setting {
 	 * @returns Promise resolving to array of string values
 	 */
 	async getValues(): Promise<string[]> {
-		const values = [];
+		const values: string[] = [];
 		const rows = await this.getOptions();
 		for (const row of rows) {
-			values.push(await row.getAttribute(SettingsEditor.locators.SettingsEditor.comboValue));
+			try {
+				values.push(await row.getAttribute(SettingsEditor.locators.SettingsEditor.comboValue));
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
+			}
 		}
 		return values;
 	}
@@ -477,9 +491,16 @@ export class ArraySetting extends Setting {
 			return listRows[index];
 		} else {
 			for (const row of listRows) {
-				const li = await row.findElement(SettingsEditor.locators.SettingsEditor.arrayRowValue);
-				if ((await li.getText()) === item) {
-					return row;
+				try {
+					const li = await row.findElement(SettingsEditor.locators.SettingsEditor.arrayRowValue);
+					if ((await li.getText()) === item) {
+						return row;
+					}
+				} catch (e: any) {
+					if (e.name === 'StaleElementReferenceError') {
+						continue;
+					}
+					throw e;
 				}
 			}
 		}
