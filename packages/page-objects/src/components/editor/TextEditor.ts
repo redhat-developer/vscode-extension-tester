@@ -810,18 +810,21 @@ class Selection extends ElementWithContextMenu {
 		const ed = this.getEnclosingElement() as TextEditor;
 
 		// Selection elements can become stale easily. Retry with fresh element if needed.
-		let element: WebElement = this;
+		let recoveredElement: WebElement | undefined;
 		const maxRetries = 3;
 		for (let attempt = 0; attempt < maxRetries; attempt++) {
 			try {
-				await this.getDriver().actions().contextClick(element).perform();
+				await this.getDriver()
+					.actions()
+					.contextClick(recoveredElement ?? this)
+					.perform();
 				break;
 			} catch (e: any) {
 				if (e.name === 'StaleElementReferenceError' && attempt < maxRetries - 1) {
 					// Re-fetch the selection element from the editor
 					const selections = await ed.findElements(TextEditor.locators.TextEditor.selection);
 					if (selections.length > 0) {
-						element = selections[0];
+						recoveredElement = selections[0];
 					} else {
 						throw e;
 					}

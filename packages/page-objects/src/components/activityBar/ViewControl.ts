@@ -42,7 +42,7 @@ export class ViewControl extends ElementWithContextMenu {
 			await this.getWaitHelper().forCondition(
 				async () => {
 					const newKlass = await this.getAttribute(ViewControl.locators.ViewControl.attribute);
-					return newKlass.indexOf(ViewControl.locators.ViewControl.klass) >= 0;
+					return newKlass.includes(ViewControl.locators.ViewControl.klass);
 				},
 				{ timeout: 2000, pollInterval: 100 },
 			);

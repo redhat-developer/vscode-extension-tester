@@ -54,6 +54,11 @@ export abstract class AbstractElement extends WebElement {
 	 * @param enclosingItem Locator or a WebElement reference to an element containing the element being constructed
 	 * this will be used to narrow down the search for the underlying DOM element
 	 */
+	/*
+	 * Note: The findElement calls below use selenium-webdriver's ThenableWebElement pattern
+	 * for lazy element resolution. The WebElement base class is designed to work with these
+	 * thenables, making this an intentional pattern.
+	 */
 	constructor(base: Locator | WebElement, enclosingItem?: WebElement | Locator) {
 		let item: WebElement = AbstractElement.driver.findElement(AbstractElement.locators.AbstractElement.tag);
 		if (!enclosingItem) {
@@ -148,7 +153,7 @@ export abstract class AbstractElement extends WebElement {
 			component: this.constructor.name,
 			action,
 			vscodeVersion: AbstractElement.versionInfo?.version,
-			locator: this.locatorInfo?.locator?.toString(),
+			locator: this.locatorInfo?.locator ? JSON.stringify(this.locatorInfo.locator) : undefined,
 			details,
 		};
 	}
@@ -171,11 +176,11 @@ export abstract class AbstractElement extends WebElement {
 	 */
 	async withRecovery<T>(fn: (self: this) => Promise<T>, maxRetries: number = 1): Promise<T> {
 		let lastError: Error | undefined;
-		let currentElement: this = this;
+		let recoveredElement: this | undefined;
 
 		for (let attempt = 0; attempt <= maxRetries; attempt++) {
 			try {
-				return await fn(currentElement);
+				return await fn(recoveredElement ?? this);
 			} catch (err: any) {
 				const isRecoverable =
 					err.name === 'StaleElementReferenceError' ||
@@ -184,10 +189,10 @@ export abstract class AbstractElement extends WebElement {
 
 				if (isRecoverable && attempt < maxRetries) {
 					try {
-						currentElement = await this.reinitialize();
-					} catch (reinitErr) {
+						recoveredElement = await this.reinitialize();
+					} catch (error_) {
 						// Recovery failed, throw original error with context
-						throw wrapError(err, this.createErrorContext('withRecovery', `Recovery failed: ${(reinitErr as Error).message}`));
+						throw wrapError(err, this.createErrorContext('withRecovery', `Recovery failed: ${(error_ as Error).message}`));
 					}
 					lastError = err;
 				} else {

@@ -87,8 +87,8 @@ export class SettingsEditor extends Editor {
 		await this.getWaitHelper().forCountStable(
 			async () => {
 				const text = await count.getText();
-				const match = text.match(/\d+/);
-				return match ? parseInt(match[0], 10) : 0;
+				const match = new RegExp(/\d+/).exec(text);
+				return match ? Number.parseInt(match[0], 10) : 0;
 			},
 			{ timeout: 5000, stabilityInterval: 300, stableChecks: 2 },
 		);
