@@ -54,7 +54,8 @@ export class ContentAssist extends Menu {
 			}
 			if (!lastItem) {
 				await scrollable.sendKeys(Key.PAGE_DOWN);
-				await new Promise((res) => setTimeout(res, 100));
+				// Minimal delay for scroll to render new items
+				await this.getWaitHelper().sleep(100);
 			}
 		}
 	}

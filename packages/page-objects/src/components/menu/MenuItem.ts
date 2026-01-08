@@ -33,7 +33,22 @@ export abstract class MenuItem extends AbstractElement {
 	 */
 	async select(): Promise<Menu | undefined> {
 		await this.click();
-		await new Promise((res) => setTimeout(res, 500));
+		// Wait for click action to complete - menu may close after selection
+		await this.getWaitHelper()
+			.forCondition(
+				async () => {
+					try {
+						// Check if element is still visible (menu might close)
+						return !(await this.isDisplayed());
+					} catch {
+						return true; // Element removed from DOM
+					}
+				},
+				{ timeout: 1000, pollInterval: 50 },
+			)
+			.catch(() => {
+				/* Menu item may still be visible if it has submenu */
+			});
 		return undefined;
 	}
 

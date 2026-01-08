@@ -66,7 +66,8 @@ export class ExtensionsViewSection extends ViewSection {
 				throw err;
 			}
 		}
-		await this.getDriver().wait(until.elementIsNotVisible(progress));
+		// Wait for search to complete with a timeout to prevent hanging
+		await this.getDriver().wait(until.elementIsNotVisible(progress), 30000);
 
 		const parent = this.enclosingItem as ViewContent;
 		const sectionTitle = this.getSectionForCategory(title);
@@ -81,8 +82,15 @@ export class ExtensionsViewSection extends ViewSection {
 		const extensions = await section.getVisibleItems();
 
 		for (const extension of extensions) {
-			if ((await extension.getTitle()) === title) {
-				return extension;
+			try {
+				if ((await extension.getTitle()) === title) {
+					return extension;
+				}
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
 			}
 		}
 
@@ -101,8 +109,13 @@ export class ExtensionsViewSection extends ViewSection {
 		try {
 			await textField.findElement(ExtensionsViewSection.locators.ExtensionsViewSection.textField);
 			await searchField.sendKeys(Key.chord(ExtensionsViewItem.ctlKey, 'a'), Key.BACK_SPACE);
-			await this.getDriver().wait(until.elementIsVisible(progress));
-			await this.getDriver().wait(until.elementIsNotVisible(progress));
+			// Add timeouts to prevent indefinite waits
+			try {
+				await this.getDriver().wait(until.elementIsVisible(progress), 2000);
+			} catch {
+				// Progress indicator may not appear for quick operations
+			}
+			await this.getDriver().wait(until.elementIsNotVisible(progress), 10000);
 		} catch (err) {
 			// do nothing, the text field is empty
 		}

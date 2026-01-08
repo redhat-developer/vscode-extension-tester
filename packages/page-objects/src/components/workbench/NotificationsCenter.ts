@@ -63,9 +63,16 @@ export class NotificationsCenter extends AbstractElement {
 		const elements = await this.findElements(NotificationsCenter.locators.NotificationsCenter.row);
 
 		for (const element of elements) {
-			const not = new CenterNotification(element);
-			if (type === NotificationType.Any || (await not.getType()) === type) {
-				notifications.push(await not.wait());
+			try {
+				const not = new CenterNotification(element);
+				if (type === NotificationType.Any || (await not.getType()) === type) {
+					notifications.push(await not.wait());
+				}
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
 			}
 		}
 		return notifications;

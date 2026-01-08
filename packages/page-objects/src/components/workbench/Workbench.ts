@@ -95,7 +95,14 @@ export class Workbench extends AbstractElement {
 		const elements = await container.findElements(Workbench.locators.Workbench.notificationItem);
 
 		for (const element of elements) {
-			notifications.push(await new StandaloneNotification(element).wait());
+			try {
+				notifications.push(await new StandaloneNotification(element).wait());
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
+			}
 		}
 		return notifications;
 	}
@@ -117,8 +124,10 @@ export class Workbench extends AbstractElement {
 		await this.executeCommand('Preferences: Open User Settings');
 		await new EditorView().openEditor('Settings');
 		await Workbench.driver.wait(until.elementLocated(Workbench.locators.Editor.constructor));
-		await new Promise((res) => setTimeout(res, 500));
-		return new SettingsEditor();
+		// Wait for settings editor to fully load
+		const editor = new SettingsEditor();
+		await this.getWaitHelper().forStable(editor, { timeout: 2000 });
+		return editor;
 	}
 
 	/**

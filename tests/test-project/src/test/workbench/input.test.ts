@@ -18,6 +18,7 @@
 import { expect } from 'chai';
 import { satisfies } from 'compare-versions';
 import { QuickOpenBox, Workbench, QuickPickItem, InputBox, StatusBar, EditorView, VSBrowser } from 'vscode-extension-tester';
+import { getWaitHelper, waitFor } from '../testUtils';
 
 describe('QuickOpenBox', () => {
 	let input: QuickOpenBox;
@@ -154,7 +155,14 @@ describe('InputBox', () => {
 		this.timeout(6000);
 		await new Workbench().executeCommand('Create: New File...');
 		await (await InputBox.create()).selectQuickPick('Text File');
-		await new Promise((res) => setTimeout(res, 500));
+		// Wait for editor to be ready
+		await waitFor(
+			async () => {
+				const ew = new EditorView();
+				return (await ew.getOpenEditorTitles()).length > 0;
+			},
+			{ timeout: 3000 },
+		);
 		await new StatusBar().openLanguageSelection();
 		input = await InputBox.create();
 	});
@@ -230,9 +238,11 @@ describe('Multiple selection input', () => {
 	let input: InputBox;
 
 	before(async () => {
+		const wait = getWaitHelper();
 		await new Workbench().executeCommand('Test Quickpicks');
-		await new Promise((res) => setTimeout(res, 500));
+		// Wait for input box to appear and stabilize
 		input = await InputBox.create();
+		await wait.forStable(input, { timeout: 1000 });
 	});
 
 	after(async () => {

@@ -74,8 +74,15 @@ export class SingleScmProvider extends ScmProvider {
 			const titlePart = view.getTitlePart();
 			const elements = await titlePart.findElements(ScmView.locators.ScmView.action);
 			for (const element of elements) {
-				const title = await element.getAttribute(ScmView.locators.ScmView.actionLabel);
-				buttons.push(await new TitleActionButton(ScmView.locators.ScmView.actionConstructor(title), titlePart).wait());
+				try {
+					const title = await element.getAttribute(ScmView.locators.ScmView.actionLabel);
+					buttons.push(await new TitleActionButton(ScmView.locators.ScmView.actionConstructor(title), titlePart).wait());
+				} catch (e: any) {
+					if (e.name === 'StaleElementReferenceError') {
+						continue;
+					}
+					throw e;
+				}
 			}
 			names = await Promise.all(buttons.map(async (button) => button.getTitle()));
 		}
@@ -117,9 +124,16 @@ export class SingleScmProvider extends ScmProvider {
 
 			const items = await this.findElements(NewScmView.locators.ScmView.itemLevel(depth));
 			for (const item of items) {
-				const index = +(await item.getAttribute('data-index'));
-				if (index > startIndex && index <= startIndex + count) {
-					elements.push(item);
+				try {
+					const index = +(await item.getAttribute('data-index'));
+					if (index > startIndex && index <= startIndex + count) {
+						elements.push(item);
+					}
+				} catch (e: any) {
+					if (e.name === 'StaleElementReferenceError') {
+						continue;
+					}
+					throw e;
 				}
 			}
 		}
@@ -166,8 +180,15 @@ export class MultiScmProvider extends ScmProvider {
 			let header!: WebElement;
 
 			for (const item of headers) {
-				if (+(await item.getAttribute('data-index')) > index) {
-					header = item;
+				try {
+					if (+(await item.getAttribute('data-index')) > index) {
+						header = item;
+					}
+				} catch (e: any) {
+					if (e.name === 'StaleElementReferenceError') {
+						continue;
+					}
+					throw e;
 				}
 			}
 			if (!header) {
@@ -179,9 +200,16 @@ export class MultiScmProvider extends ScmProvider {
 
 			const items = await this.enclosingItem.findElements(NewScmView.locators.ScmView.itemLevel(depth));
 			for (const item of items) {
-				const index = +(await item.getAttribute('data-index'));
-				if (index > startIndex && index <= startIndex + count) {
-					elements.push(item);
+				try {
+					const index = +(await item.getAttribute('data-index'));
+					if (index > startIndex && index <= startIndex + count) {
+						elements.push(item);
+					}
+				} catch (e: any) {
+					if (e.name === 'StaleElementReferenceError') {
+						continue;
+					}
+					throw e;
 				}
 			}
 		}
@@ -194,9 +222,16 @@ export class MultiScmProvider extends ScmProvider {
 		const index = +(await this.getAttribute('data-index'));
 
 		for (const row of rows) {
-			if (+(await row.getAttribute('data-index')) > index) {
-				const count = await rows[0].findElement(ScmChange.locators.ScmView.changeCount);
-				return +(await count.getText());
+			try {
+				if (+(await row.getAttribute('data-index')) > index) {
+					const count = await rows[0].findElement(ScmChange.locators.ScmView.changeCount);
+					return +(await count.getText());
+				}
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
 			}
 		}
 		return 0;

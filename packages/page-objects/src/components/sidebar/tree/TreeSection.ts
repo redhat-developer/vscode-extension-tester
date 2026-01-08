@@ -60,9 +60,16 @@ export abstract class TreeSection extends ViewSection {
 			if (i + 1 < path.length) {
 				currentItem = undefined;
 				for (const item of items) {
-					if ((await item.getLabel()) === path[i + 1]) {
-						currentItem = item;
-						break;
+					try {
+						if ((await item.getLabel()) === path[i + 1]) {
+							currentItem = item;
+							break;
+						}
+					} catch (e: any) {
+						if (e.name === 'StaleElementReferenceError') {
+							continue;
+						}
+						throw e;
 					}
 				}
 			}

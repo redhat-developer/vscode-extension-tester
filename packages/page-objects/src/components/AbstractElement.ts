@@ -17,6 +17,18 @@
 
 import { WebElement, WebDriver, Locator, until, Key } from 'selenium-webdriver';
 import { Locators } from '../locators/locators';
+import { WaitHelper } from '../utils/WaitHelper';
+import { ElementRecoveryError, wrapError, type ErrorContext } from '../errors/ExTesterError';
+
+/**
+ * Information needed to relocate an element after it becomes stale.
+ */
+export interface LocatorInfo {
+	/** The locator used to find this element */
+	locator: Locator;
+	/** The parent element or locator this element was found within */
+	enclosingLocator?: Locator | WebElement;
+}
 
 /**
  * Default wrapper for webElement
@@ -26,13 +38,26 @@ export abstract class AbstractElement extends WebElement {
 	protected static driver: WebDriver;
 	protected static locators: Locators;
 	protected static versionInfo: { version: string; browser: string };
+	protected static waitHelper: WaitHelper;
+
 	protected enclosingItem: WebElement;
+
+	/**
+	 * Locator information for auto-recovery when element becomes stale.
+	 * Stored when element is created with a Locator (not a WebElement).
+	 */
+	protected locatorInfo?: LocatorInfo;
 
 	/**
 	 * Constructs a new element from a Locator or an existing WebElement
 	 * @param base WebDriver compatible Locator for the given element or a reference to an existing WebElement
 	 * @param enclosingItem Locator or a WebElement reference to an element containing the element being constructed
 	 * this will be used to narrow down the search for the underlying DOM element
+	 */
+	/*
+	 * Note: The findElement calls below use selenium-webdriver's ThenableWebElement pattern
+	 * for lazy element resolution. The WebElement base class is designed to work with these
+	 * thenables, making this an intentional pattern.
 	 */
 	constructor(base: Locator | WebElement, enclosingItem?: WebElement | Locator) {
 		let item: WebElement = AbstractElement.driver.findElement(AbstractElement.locators.AbstractElement.tag);
@@ -47,10 +72,17 @@ export abstract class AbstractElement extends WebElement {
 
 		if (base instanceof WebElement) {
 			super(AbstractElement.driver, base.getId());
+			// Cannot store locator info for WebElement-based construction
 		} else {
 			const toFind = item.findElement(base);
 			const id = toFind.getId();
 			super(AbstractElement.driver, id);
+
+			// Store locator info for potential recovery
+			this.locatorInfo = {
+				locator: base,
+				enclosingLocator: enclosingItem,
+			};
 		}
 		this.enclosingItem = item;
 	}
@@ -74,36 +106,188 @@ export abstract class AbstractElement extends WebElement {
 	}
 
 	/**
+	 * Wait for the element to become stable (position/size stops changing).
+	 * Useful after animations or dynamic content loading.
+	 * @param timeout Maximum time to wait in milliseconds
+	 * @returns thenable self reference
+	 */
+	async waitForStable(timeout: number = 2000): Promise<this> {
+		await AbstractElement.waitHelper.forStable(this, { timeout });
+		return this;
+	}
+
+	/**
 	 * Return a reference to the WebElement containing this element
 	 */
 	getEnclosingElement(): WebElement {
 		return this.enclosingItem;
 	}
 
+	/**
+	 * Get the stored locator information for this element, if available.
+	 */
+	getLocatorInfo(): LocatorInfo | undefined {
+		return this.locatorInfo;
+	}
+
+	/**
+	 * Check if this element can be automatically recovered when stale.
+	 */
+	canAutoRecover(): boolean {
+		return this.locatorInfo !== undefined;
+	}
+
+	/**
+	 * Get the WaitHelper instance for condition-based waiting.
+	 */
+	protected getWaitHelper(): WaitHelper {
+		return AbstractElement.waitHelper;
+	}
+
+	/**
+	 * Create error context for this element.
+	 * Useful for creating detailed error messages.
+	 */
+	protected createErrorContext(action: string, details?: string): ErrorContext {
+		return {
+			component: this.constructor.name,
+			action,
+			vscodeVersion: AbstractElement.versionInfo?.version,
+			locator: this.locatorInfo?.locator ? JSON.stringify(this.locatorInfo.locator) : undefined,
+			details,
+		};
+	}
+
 	static init(locators: Locators, driver: WebDriver, browser: string, version: string) {
 		AbstractElement.locators = locators;
 		AbstractElement.driver = driver;
 		AbstractElement.versionInfo = { version: version, browser: browser };
+		AbstractElement.waitHelper = new WaitHelper(driver);
 	}
 
-	async withRecovery<T>(fn: (self: this) => Promise<T>): Promise<T> {
-		try {
-			return await fn(this);
-		} catch (err: any) {
-			if (
-				err.name === 'StaleElementReferenceError' ||
-				err.name === 'ElementNotInteractableError' ||
-				/element.*(detached|not interactable)/i.test(err.message)
-			) {
-				const reinit = await this.reinitialize();
-				return await fn(reinit);
+	/**
+	 * Execute a function with automatic recovery from stale element references.
+	 * If the element becomes stale during execution, it will be relocated and
+	 * the function will be retried once.
+	 *
+	 * @param fn The async function to execute
+	 * @param maxRetries Maximum number of recovery attempts (default: 1)
+	 * @returns The result of the function
+	 */
+	async withRecovery<T>(fn: (self: this) => Promise<T>, maxRetries: number = 1): Promise<T> {
+		let lastError: Error | undefined;
+		let recoveredElement: this | undefined;
+
+		for (let attempt = 0; attempt <= maxRetries; attempt++) {
+			try {
+				return await fn(recoveredElement ?? this);
+			} catch (err: any) {
+				const isRecoverable =
+					err.name === 'StaleElementReferenceError' ||
+					err.name === 'ElementNotInteractableError' ||
+					/element.*(detached|not interactable)/i.test(err.message);
+
+				if (isRecoverable && attempt < maxRetries) {
+					try {
+						recoveredElement = await this.reinitialize();
+					} catch (error_) {
+						// Recovery failed, throw original error with context
+						throw wrapError(err, this.createErrorContext('withRecovery', `Recovery failed: ${(error_ as Error).message}`));
+					}
+					lastError = err;
+				} else {
+					throw wrapError(err, this.createErrorContext('withRecovery'));
+				}
 			}
-			throw err;
+		}
+
+		// Should not reach here, but just in case
+		throw lastError || new Error('Unexpected error in withRecovery');
+	}
+
+	/**
+	 * Re-locate this element using stored locator information.
+	 * This is called automatically by withRecovery() when an element becomes stale.
+	 *
+	 * Subclasses can override this for custom recovery logic, but the default
+	 * implementation works for most cases when the element was created with a locator.
+	 *
+	 * @returns A new instance of this element type pointing to the relocated DOM element
+	 * @throws ElementRecoveryError if the element cannot be recovered
+	 */
+	protected async reinitialize(): Promise<this> {
+		if (!this.locatorInfo) {
+			throw new ElementRecoveryError(
+				`Cannot auto-recover ${this.constructor.name}: no locator information stored. ` +
+					`Element was likely created from a WebElement reference. ` +
+					`Override reinitialize() in ${this.constructor.name} for custom recovery logic.`,
+				this.createErrorContext('reinitialize'),
+			);
+		}
+
+		try {
+			// Resolve the parent element
+			let parentElement: WebElement;
+			if (this.locatorInfo.enclosingLocator instanceof WebElement) {
+				parentElement = this.locatorInfo.enclosingLocator;
+			} else if (this.locatorInfo.enclosingLocator) {
+				parentElement = await AbstractElement.driver.findElement(this.locatorInfo.enclosingLocator);
+			} else {
+				parentElement = await AbstractElement.driver.findElement(AbstractElement.locators.AbstractElement.tag);
+			}
+
+			// Find the element again
+			const newElement = await parentElement.findElement(this.locatorInfo.locator);
+
+			// Create a new instance of the same class
+			const Constructor = this.constructor as new (base: WebElement, enclosingItem?: WebElement) => this;
+			const recovered = new Constructor(newElement, parentElement);
+
+			// Copy over the locator info so subsequent recoveries work
+			recovered.locatorInfo = this.locatorInfo;
+
+			return recovered;
+		} catch (err) {
+			throw new ElementRecoveryError(`Failed to relocate ${this.constructor.name}`, {
+				...this.createErrorContext('reinitialize'),
+				cause: err as Error,
+			});
 		}
 	}
 
-	protected async reinitialize(): Promise<this> {
-		// Implement generic fallback if possible — otherwise force override in subclasses
-		throw new Error(`reinitialize() not implemented in ${this.constructor.name}`);
+	/**
+	 * Safely click on the element with automatic retry on stale/interactable errors.
+	 */
+	async safeClick(): Promise<void> {
+		await this.withRecovery(async (self) => {
+			await self.click();
+		});
+	}
+
+	/**
+	 * Safely send keys to the element with automatic retry on stale/interactable errors.
+	 */
+	async safeSendKeys(...keys: (string | Promise<string>)[]): Promise<void> {
+		await this.withRecovery(async (self) => {
+			await self.sendKeys(...keys);
+		});
+	}
+
+	/**
+	 * Safely get text from the element with automatic retry on stale errors.
+	 */
+	async safeGetText(): Promise<string> {
+		return await this.withRecovery(async (self) => {
+			return await self.getText();
+		});
+	}
+
+	/**
+	 * Safely get attribute from the element with automatic retry on stale errors.
+	 */
+	async safeGetAttribute(name: string): Promise<string> {
+		return await this.withRecovery(async (self) => {
+			return await self.getAttribute(name);
+		});
 	}
 }

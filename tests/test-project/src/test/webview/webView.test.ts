@@ -15,19 +15,22 @@
  * limitations under the License.
  */
 
-import { Workbench, EditorView, WebView, By, EditorGroup } from 'vscode-extension-tester';
+import { Workbench, EditorView, WebView, By, EditorGroup, until, VSBrowser, WebDriver } from 'vscode-extension-tester';
 import { expect } from 'chai';
+import { getWaitHelper, waitFor } from '../testUtils';
 
 describe('WebViews', function () {
 	describe('Single WebView', function () {
 		let view: WebView;
+		let driver: WebDriver;
 
 		before(async function () {
 			this.timeout(8000);
+			driver = VSBrowser.instance.driver;
 			await new Workbench().executeCommand('Webview Test Column 1');
-			await new Promise((res) => {
-				setTimeout(res, 1_000);
-			});
+			const wait = getWaitHelper();
+			await wait.sleep(1_500);
+
 			view = new WebView();
 			await view.switchToFrame(5_000);
 		});
@@ -38,11 +41,15 @@ describe('WebViews', function () {
 		});
 
 		it('findWebElement works', async function () {
+			await driver.wait(until.elementLocated(By.css('h1')));
+
 			const element = await view.findWebElement(By.css('h1'));
 			expect(await element.getText()).has.string('This is a web view');
 		});
 
 		it('findWebElements works', async function () {
+			await driver.wait(until.elementLocated(By.css('h1')));
+
 			const elements = await view.findWebElements(By.css('h1'));
 			expect(elements.length).equals(1);
 		});
@@ -53,20 +60,24 @@ describe('WebViews', function () {
 		let tabs: string[];
 		let editorGroups: EditorGroup[];
 
-		before(async function () {
+		after(async function () {
 			await new EditorView().closeAllEditors();
 		});
 
 		before(async function () {
-			this.timeout(30000);
-
+			this.timeout(45000);
 			const workbench = new Workbench();
 
 			for (let i = 0; i < 3; i++) {
 				await workbench.executeCommand(`Webview Test Column ${i + 1}`);
-				await new Promise((res) => {
-					setTimeout(res, 1_000);
-				});
+				// Wait for the editor group to appear
+				await waitFor(
+					async () => {
+						const groups = await new EditorView().getEditorGroups();
+						return groups.length >= i + 1;
+					},
+					{ timeout: 5000, message: `Editor group ${i + 1} did not appear` },
+				);
 			}
 
 			const editorView = new EditorView();
@@ -115,19 +126,23 @@ describe('WebViews', function () {
 		let view: WebView;
 		let tabs: string[];
 
-		before(async function () {
+		after(async function () {
 			await new EditorView().closeAllEditors();
 		});
 
 		before(async function () {
-			this.timeout(30000);
-
+			this.timeout(45000);
 			const workbench = new Workbench();
 			for (let i = 0; i < 3; i++) {
 				await workbench.executeCommand('Webview Test Column 1');
-				await new Promise((res) => {
-					setTimeout(res, 1_000);
-				});
+				// Wait for editor count to increase
+				await waitFor(
+					async () => {
+						const titles = await new EditorView().getOpenEditorTitles();
+						return titles.length >= i + 1;
+					},
+					{ timeout: 5000, message: `WebView ${i + 1} did not open` },
+				);
 			}
 
 			tabs = await new EditorView().getOpenEditorTitles();
@@ -135,9 +150,10 @@ describe('WebViews', function () {
 		for (let i = 0; i < 3; i++) {
 			describe(`WebView ${i}`, function () {
 				before(async function () {
+					this.timeout(15000);
 					await new EditorView().openEditor(tabs[i]);
 					view = new WebView();
-					await view.switchToFrame(5_000);
+					await view.switchToFrame(10_000);
 				});
 				it('findWebElement works', async function () {
 					const element = await view.findWebElement(By.css('h1'));

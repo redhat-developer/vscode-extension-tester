@@ -18,6 +18,7 @@
 import { expect } from 'chai';
 import { satisfies } from 'compare-versions';
 import { NotificationsCenter, Workbench, NotificationType, Notification, until, VSBrowser } from 'vscode-extension-tester';
+import { waitFor } from '../testUtils';
 
 describe('NotificationsCenter', () => {
 	let center: NotificationsCenter;
@@ -33,9 +34,15 @@ describe('NotificationsCenter', () => {
 	it('getNotifications works', async function () {
 		this.timeout(4000);
 		await new Workbench().executeCommand('Hello World');
-		await center.getDriver().sleep(500);
+		// Wait for notification to appear
 		center = await new Workbench().openNotificationsCenter();
-		await center.getDriver().sleep(500);
+		await waitFor(
+			async () => {
+				const notifications = await center.getNotifications(NotificationType.Any);
+				return notifications.length > 0;
+			},
+			{ timeout: 2000, message: 'Notifications did not appear' },
+		);
 		const notifications = await center.getNotifications(NotificationType.Any);
 		expect(notifications).not.empty;
 	});
@@ -43,14 +50,30 @@ describe('NotificationsCenter', () => {
 	it('clearAllNotifications works', async function () {
 		this.timeout(8000);
 		await new Workbench().executeCommand('Hello World');
-		await center.getDriver().sleep(500);
 		center = await new Workbench().openNotificationsCenter();
-		await center.getDriver().sleep(500);
+		// Wait for notification to appear
+		await waitFor(
+			async () => {
+				const notifications = await center.getNotifications(NotificationType.Any);
+				return notifications.length > 0;
+			},
+			{ timeout: 2000 },
+		);
 		const notifications = await center.getNotifications(NotificationType.Any);
 		expect(notifications).not.empty;
 
 		await center.clearAllNotifications();
-		await center.getDriver().sleep(1000);
+		// Wait for center to close
+		await waitFor(
+			async () => {
+				try {
+					return !(await center.isDisplayed());
+				} catch {
+					return true;
+				}
+			},
+			{ timeout: 3000 },
+		);
 		expect(await center.isDisplayed()).is.false;
 	});
 
@@ -59,8 +82,15 @@ describe('NotificationsCenter', () => {
 
 		before(async () => {
 			await new Workbench().executeCommand('Test Notification');
-			await center.getDriver().sleep(200);
 			center = await new Workbench().openNotificationsCenter();
+			// Wait for notification to appear
+			await waitFor(
+				async () => {
+					const notifications = await center.getNotifications(NotificationType.Any);
+					return notifications.length > 0;
+				},
+				{ timeout: 2000 },
+			);
 			notification = (await center.getNotifications(NotificationType.Any))[0];
 		});
 
@@ -111,8 +141,8 @@ describe('NotificationsCenter', () => {
 
 		it('dismiss works', async () => {
 			await new Workbench().executeCommand('Test Notification');
-			await center.getDriver().sleep(200);
 			center = await new Workbench().openNotificationsCenter();
+			await waitFor(async () => (await center.getNotifications(NotificationType.Any)).length > 0, { timeout: 2000 });
 			notification = (await center.getNotifications(NotificationType.Any))[0];
 
 			const driver = notification.getDriver();
@@ -122,8 +152,8 @@ describe('NotificationsCenter', () => {
 
 		it('get warning notification works', async () => {
 			await new Workbench().executeCommand('Warning Message');
-			await center.getDriver().sleep(200);
 			center = await new Workbench().openNotificationsCenter();
+			await waitFor(async () => (await center.getNotifications(NotificationType.Warning)).length > 0, { timeout: 2000 });
 			notification = (await center.getNotifications(NotificationType.Warning))[0];
 
 			expect(await notification.getMessage()).to.equal('This is a warning!');
@@ -134,8 +164,8 @@ describe('NotificationsCenter', () => {
 
 		it('get error notification works', async () => {
 			await new Workbench().executeCommand('Error Message');
-			await center.getDriver().sleep(200);
 			center = await new Workbench().openNotificationsCenter();
+			await waitFor(async () => (await center.getNotifications(NotificationType.Error)).length > 0, { timeout: 2000 });
 			notification = (await center.getNotifications(NotificationType.Error))[0];
 
 			expect(await notification.getMessage()).to.equal('This is an error!');

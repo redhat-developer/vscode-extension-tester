@@ -22,6 +22,8 @@ import { LocatorLoader } from './locators/loader';
 export * from 'selenium-webdriver';
 export * from './locators/locators';
 export * from './errors/NullAttributeError';
+export * from './errors/ExTesterError';
+export * from './utils/WaitHelper';
 
 export * from './components/menu/Menu';
 export * from './components/menu/MenuItem';

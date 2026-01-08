@@ -134,7 +134,18 @@ export class TextEditor extends Editor {
 			}
 			const inputarea = await self.findElement(TextEditor.locators.Editor.inputArea);
 			await inputarea.sendKeys(Key.chord(TextEditor.ctlKey, 'a'), Key.chord(TextEditor.ctlKey, 'c'));
-			await new Promise((res) => setTimeout(res, 500));
+			// Wait for clipboard operation to complete
+			await self.getWaitHelper().forCondition(
+				async () => {
+					try {
+						const currentClip = clipboard.readSync();
+						return currentClip !== originalClipboard || currentClip.length > 0;
+					} catch {
+						return false;
+					}
+				},
+				{ timeout: 2000, pollInterval: 50, message: 'Clipboard copy operation did not complete' },
+			);
 			const text = clipboard.readSync();
 			await inputarea.sendKeys(Key.UP);
 			if (originalClipboard.length > 0) {
@@ -263,7 +274,14 @@ export class TextEditor extends Editor {
 		}
 		actions = actions.keyUp(Key.SHIFT);
 		await actions.perform();
-		await new Promise((res) => setTimeout(res, 500));
+		// Wait for selection to be rendered
+		await this.getWaitHelper().forCondition(
+			async () => {
+				const selection = await this.findElements(TextEditor.locators.TextEditor.selection);
+				return selection.length > 0;
+			},
+			{ timeout: 2000, pollInterval: 50, message: 'Text selection did not appear' },
+		);
 	}
 
 	/**
@@ -288,10 +306,20 @@ export class TextEditor extends Editor {
 		} else {
 			const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
 			await inputarea.sendKeys(Key.chord(TextEditor.ctlKey, 'c'));
-			await new Promise((res) => setTimeout(res, 500));
 			await inputarea.sendKeys(Key.UP);
 		}
-		await new Promise((res) => setTimeout(res, 500));
+		// Wait for clipboard operation to complete
+		await this.getWaitHelper().forCondition(
+			async () => {
+				try {
+					const currentClip = clipboard.readSync();
+					return currentClip !== originalClipboard;
+				} catch {
+					return false;
+				}
+			},
+			{ timeout: 2000, pollInterval: 50, message: 'Copy operation did not complete' },
+		);
 		const text = clipboard.readSync();
 		if (originalClipboard.length > 0) {
 			clipboard.writeSync(originalClipboard);
@@ -352,7 +380,14 @@ export class TextEditor extends Editor {
 	async setCursor(line: number, column: number, timeout: number = 2_500): Promise<void> {
 		const input = await new Workbench().openCommandPrompt();
 		await input.setText(`:${line},${column}`);
-		await input.getDriver().sleep(500);
+		// Wait for input to be processed - check for quick picks appearing
+		await this.getWaitHelper().forCondition(
+			async () => {
+				const picks = await input.getQuickPicks().catch(() => []);
+				return picks.length > 0;
+			},
+			{ timeout: 1000, pollInterval: 50 },
+		);
 		await input.selectQuickPick(0);
 		await this.waitForCursorPositionAt(line, column, timeout);
 	}
@@ -417,7 +452,8 @@ export class TextEditor extends Editor {
 			}
 			await inputArea.getDriver().actions().clear();
 			await inputArea.sendKeys(lineKey);
-			await inputArea.getDriver().sleep(50);
+			// Minimal delay for key processing - this is a tight loop with position checking
+			await this.getWaitHelper().sleep(20);
 		}
 	}
 
@@ -438,7 +474,8 @@ export class TextEditor extends Editor {
 			}
 			await inputArea.getDriver().actions().clear();
 			await inputArea.sendKeys(columnKey);
-			await inputArea.getDriver().sleep(50);
+			// Minimal delay for key processing - this is a tight loop with position checking
+			await this.getWaitHelper().sleep(20);
 			if ((await this.getCoordinates())[0] !== coordinates[0]) {
 				throw new Error(`Column number ${column} is not accessible on line ${coordinates[0]}`);
 			}
@@ -591,7 +628,14 @@ export class TextEditor extends Editor {
 		if (breakPoint.length > 0) {
 			if (this.breakPoints.indexOf(line) !== -1) {
 				await breakPoint[this.breakPoints.indexOf(line)].click();
-				await new Promise((res) => setTimeout(res, 200));
+				// Wait for breakpoint to be removed
+				await this.getWaitHelper().forCondition(
+					async () => {
+						const remaining = await breakpointContainer.findElements(TextEditor.locators.TextEditor.breakpoint.generalSelector);
+						return remaining.length < breakPoint.length;
+					},
+					{ timeout: 1000, pollInterval: 50 },
+				);
 				this.breakPoints.splice(this.breakPoints.indexOf(line), 1);
 				return false;
 			}
@@ -599,7 +643,14 @@ export class TextEditor extends Editor {
 		const noBreak = await breakpointContainer.findElements(TextEditor.locators.TextEditor.debugHint);
 		if (noBreak.length > 0) {
 			await noBreak[0].click();
-			await new Promise((res) => setTimeout(res, 200));
+			// Wait for breakpoint to be added
+			await this.getWaitHelper().forCondition(
+				async () => {
+					const added = await breakpointContainer.findElements(TextEditor.locators.TextEditor.breakpoint.generalSelector);
+					return added.length > breakPoint.length;
+				},
+				{ timeout: 1000, pollInterval: 50 },
+			);
 			this.breakPoints.push(line);
 			return true;
 		}
@@ -646,8 +697,15 @@ export class TextEditor extends Editor {
 	async getBreakpoint(line: number): Promise<Breakpoint | undefined> {
 		const breakpoints = await this.getBreakpoints();
 		for (const breakpoint of breakpoints) {
-			if ((await breakpoint.getLineNumber()) === line) {
-				return breakpoint;
+			try {
+				if ((await breakpoint.getLineNumber()) === line) {
+					return breakpoint;
+				}
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
 			}
 		}
 		return undefined;
@@ -667,16 +725,23 @@ export class TextEditor extends Editor {
 		const breakpointsSelectors = await breakpointContainer.findElements(breakpointLocators.generalSelector);
 
 		for (const breakpointSelector of breakpointsSelectors) {
-			let lineElement: WebElement;
-			if (satisfies(TextEditor.versionInfo.version, '>=1.80.0')) {
-				const styleTopAttr = await breakpointSelector.getCssValue('top');
-				lineElement = await this.findElement(TextEditor.locators.TextEditor.marginArea).findElement(
-					TextEditor.locators.TextEditor.lineElement(styleTopAttr),
-				);
-			} else {
-				lineElement = await breakpointSelector.findElement(TextEditor.locators.TextEditor.elementLevelBack);
+			try {
+				let lineElement: WebElement;
+				if (satisfies(TextEditor.versionInfo.version, '>=1.80.0')) {
+					const styleTopAttr = await breakpointSelector.getCssValue('top');
+					lineElement = await this.findElement(TextEditor.locators.TextEditor.marginArea).findElement(
+						TextEditor.locators.TextEditor.lineElement(styleTopAttr),
+					);
+				} else {
+					lineElement = await breakpointSelector.findElement(TextEditor.locators.TextEditor.elementLevelBack);
+				}
+				breakpoints.push(new Breakpoint(breakpointSelector, lineElement));
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
 			}
-			breakpoints.push(new Breakpoint(breakpointSelector, lineElement));
 		}
 		return breakpoints;
 	}
@@ -690,7 +755,14 @@ export class TextEditor extends Editor {
 		const widgets = await this.findElement(TextEditor.locators.TextEditor.contentWidgets);
 		const items = await widgets.findElements(TextEditor.locators.TextEditor.contentWidgetsElements);
 		for (const item of items) {
-			lenses.push(await new CodeLens(item, this).wait());
+			try {
+				lenses.push(await new CodeLens(item, this).wait());
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
+			}
 		}
 		return lenses;
 	}
@@ -706,10 +778,17 @@ export class TextEditor extends Editor {
 
 		if (typeof indexOrTitle === 'string') {
 			for (const lens of lenses) {
-				const title = await lens.getText();
-				const match = title.match(indexOrTitle);
-				if (match && match.length > 0) {
-					return lens;
+				try {
+					const title = await lens.getText();
+					const match = title.match(indexOrTitle);
+					if (match && match.length > 0) {
+						return lens;
+					}
+				} catch (e: any) {
+					if (e.name === 'StaleElementReferenceError') {
+						continue;
+					}
+					throw e;
 				}
 			}
 		} else if (lenses[indexOrTitle]) {
@@ -729,7 +808,32 @@ class Selection extends ElementWithContextMenu {
 
 	async openContextMenu(): Promise<ContextMenu> {
 		const ed = this.getEnclosingElement() as TextEditor;
-		await this.getDriver().actions().contextClick(this).perform();
+
+		// Selection elements can become stale easily. Retry with fresh element if needed.
+		let recoveredElement: WebElement | undefined;
+		const maxRetries = 3;
+		for (let attempt = 0; attempt < maxRetries; attempt++) {
+			try {
+				await this.getDriver()
+					.actions()
+					.contextClick(recoveredElement ?? this)
+					.perform();
+				break;
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError' && attempt < maxRetries - 1) {
+					// Re-fetch the selection element from the editor
+					const selections = await ed.findElements(TextEditor.locators.TextEditor.selection);
+					if (selections.length > 0) {
+						recoveredElement = selections[0];
+					} else {
+						throw e;
+					}
+				} else {
+					throw e;
+				}
+			}
+		}
+
 		const shadowRootHost = await ed.getEnclosingElement().findElements(TextEditor.locators.TextEditor.shadowRootHost);
 
 		if (shadowRootHost.length > 0) {
@@ -946,7 +1050,8 @@ export class FindWidget extends AbstractElement {
 
 		const btn = await element.findElement(FindWidget.locators.FindWidget.button(title));
 		await btn.click();
-		await this.getDriver().sleep(100);
+		// Wait for button action to complete
+		await this.getWaitHelper().forStable(element, { timeout: 500 });
 	}
 
 	private async setText(text: string, composite: WebElement) {

@@ -16,7 +16,8 @@
  */
 
 import { expect } from 'chai';
-import { BottomBarPanel, By, CustomTreeSection, EditorView, SideBarView, VSBrowser, WebviewView, Workbench } from 'vscode-extension-tester';
+import { BottomBarPanel, By, CustomTreeSection, EditorView, SideBarView, WebviewView, Workbench } from 'vscode-extension-tester';
+import { getWaitHelper, waitFor } from '../testUtils';
 
 describe('WebviewViews', function () {
 	let webviewView: InstanceType<typeof WebviewView>;
@@ -40,8 +41,8 @@ describe('WebviewViews', function () {
 	}
 
 	async function closeBottomPanel() {
-		await VSBrowser.instance.driver.wait(
-			async function () {
+		await waitFor(
+			async () => {
 				try {
 					await new BottomBarPanel().toggle(false);
 					return true;
@@ -54,9 +55,7 @@ describe('WebviewViews', function () {
 					return false;
 				}
 			},
-			10000,
-			undefined,
-			1000,
+			{ timeout: 10000, pollInterval: 1000, message: 'Failed to close bottom panel' },
 		);
 	}
 
@@ -71,11 +70,14 @@ describe('WebviewViews', function () {
 
 	describe('BottomBar WebviewViews', async () => {
 		before(async () => {
-			this.timeout(10000);
+			this.timeout(15000);
+			const wait = getWaitHelper();
 			await new Workbench().executeCommand('My Panel: Focus on My Panel View View');
-			await new Promise((res) => setTimeout(res, 2000));
-			webviewView = new WebviewView(new BottomBarPanel());
-			await webviewView.switchToFrame(5000);
+			// Wait for panel to be visible and stable
+			const panel = new BottomBarPanel();
+			await wait.forStable(panel, { timeout: 3000 });
+			webviewView = new WebviewView(panel);
+			await webviewView.switchToFrame(10000);
 		});
 		after(async () => {
 			await webviewView.switchBack();
@@ -87,11 +89,14 @@ describe('WebviewViews', function () {
 
 	describe('Sidebar WebviewViews', function () {
 		before(async () => {
-			this.timeout(10000);
+			this.timeout(15000);
+			const wait = getWaitHelper();
 			await new Workbench().executeCommand('Explorer: Focus on My Side Panel View View');
-			await new Promise((res) => setTimeout(res, 2000));
-			webviewView = new WebviewView(new SideBarView());
-			await webviewView.switchToFrame(5000);
+			// Wait for sidebar to be visible and stable
+			const sidebar = new SideBarView();
+			await wait.forStable(sidebar, { timeout: 3000 });
+			webviewView = new WebviewView(sidebar);
+			await webviewView.switchToFrame(10000);
 		});
 		after(async () => {
 			await webviewView.switchBack();
@@ -103,10 +108,14 @@ describe('WebviewViews', function () {
 
 	describe('Sidebar And BottomBar WebviewViews', function () {
 		before(async () => {
-			this.timeout(10000);
+			this.timeout(15000);
+			const wait = getWaitHelper();
 			await new Workbench().executeCommand('My Panel: Focus on My Panel View View');
+			// Wait for panel to be ready
+			await wait.forStable(new BottomBarPanel(), { timeout: 2000 });
 			await new Workbench().executeCommand('Explorer: Focus on My Side Panel View View');
-			await new Promise((res) => setTimeout(res, 2000));
+			// Wait for both views to be ready
+			await wait.forStable(new SideBarView(), { timeout: 2000 });
 		});
 		after(async () => {
 			await closeSidePanel();
@@ -115,8 +124,12 @@ describe('WebviewViews', function () {
 
 		describe('Shopping List Sidebar', async () => {
 			before(async () => {
-				webviewView = new WebviewView(new SideBarView());
-				await webviewView.switchToFrame(5000);
+				this.timeout(15000);
+				const wait = getWaitHelper();
+				const sidebar = new SideBarView();
+				await wait.forStable(sidebar, { timeout: 2000 });
+				webviewView = new WebviewView(sidebar);
+				await webviewView.switchToFrame(10000);
 			});
 
 			after(async () => {
@@ -126,8 +139,12 @@ describe('WebviewViews', function () {
 		});
 		describe('Shopping List Bottombar', async () => {
 			before(async () => {
-				webviewView = new WebviewView(new BottomBarPanel());
-				await webviewView.switchToFrame(5000);
+				this.timeout(15000);
+				const wait = getWaitHelper();
+				const panel = new BottomBarPanel();
+				await wait.forStable(panel, { timeout: 2000 });
+				webviewView = new WebviewView(panel);
+				await webviewView.switchToFrame(10000);
 			});
 
 			after(async () => {

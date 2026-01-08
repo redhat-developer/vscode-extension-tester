@@ -38,7 +38,14 @@ export class ViewControl extends ElementWithContextMenu {
 		const klass = await this.getAttribute(ViewControl.locators.ViewControl.attribute);
 		if (klass.indexOf(ViewControl.locators.ViewControl.klass) < 0) {
 			await this.click();
-			await ViewControl.driver.sleep(500);
+			// Wait for view to be marked as active
+			await this.getWaitHelper().forCondition(
+				async () => {
+					const newKlass = await this.getAttribute(ViewControl.locators.ViewControl.attribute);
+					return newKlass.includes(ViewControl.locators.ViewControl.klass);
+				},
+				{ timeout: 2000, pollInterval: 100 },
+			);
 		}
 		const view = await new SideBarView().wait();
 		if ((await view.findElements(ViewControl.locators.ViewControl.scmId)).length > 0) {

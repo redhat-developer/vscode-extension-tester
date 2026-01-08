@@ -131,16 +131,19 @@ export class TerminalView extends ChannelView {
 		}
 		await input.sendKeys(command, Key.ENTER);
 
-		let timer = 0;
-		let style = await input.getCssValue('left');
-		do {
-			if (timeout > 0 && timer > timeout) {
-				throw new Error(`Timeout of ${timeout}ms exceeded`);
-			}
-			await new Promise((res) => setTimeout(res, 500));
-			timer += 500;
-			style = await input.getCssValue('left');
-		} while (style === '0px');
+		// Wait for command to complete by monitoring cursor position
+		const effectiveTimeout = timeout > 0 ? timeout : 30000;
+		await this.getWaitHelper().forCondition(
+			async () => {
+				const style = await input.getCssValue('left');
+				return style !== '0px';
+			},
+			{
+				timeout: effectiveTimeout,
+				pollInterval: 200,
+				message: `Terminal command did not complete within ${effectiveTimeout}ms`,
+			},
+		);
 	}
 
 	/**
@@ -160,7 +163,18 @@ export class TerminalView extends ChannelView {
 		}
 		const workbench = new Workbench();
 		await workbench.executeCommand('terminal select all');
-		await workbench.getDriver().sleep(500);
+		// Wait for clipboard to be updated
+		await this.getWaitHelper().forCondition(
+			async () => {
+				try {
+					const current = clipboard.readSync();
+					return current !== originalClipboard;
+				} catch {
+					return false;
+				}
+			},
+			{ timeout: 2000, pollInterval: 100 },
+		);
 		const text = clipboard.readSync();
 		if (originalClipboard.length > 0) {
 			clipboard.writeSync(originalClipboard);
@@ -202,7 +216,14 @@ export class TerminalView extends ChannelView {
 		}
 		const list = await this.findElement(TerminalView.locators.TerminalView.tabList);
 		const row = await list.findElement(TerminalView.locators.TerminalView.selectedRow);
-		await this.getDriver().sleep(1000);
+		// Wait for row to have a valid aria-label
+		await this.getWaitHelper().forCondition(
+			async () => {
+				const label = await row.getAttribute('aria-label');
+				return label && label.split(' ').length >= 3;
+			},
+			{ timeout: 2000, pollInterval: 100 },
+		);
 		const label = (await row.getAttribute('aria-label')).split(' ');
 
 		return `${label[1]}: ${label[2]}`;

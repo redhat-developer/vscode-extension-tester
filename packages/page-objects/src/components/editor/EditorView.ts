@@ -74,7 +74,8 @@ export class EditorView extends AbstractElement {
 
 		while (groups.length > 0 && (await groups[0].getOpenEditorTitles()).length > 0) {
 			await groups[0].closeAllEditors();
-			await new Promise((res) => setTimeout(res, 1000));
+			// Brief wait for DOM to settle after closing editors
+			await this.getWaitHelper().sleep(500);
 			groups = await this.getEditorGroups();
 		}
 	}
@@ -91,7 +92,14 @@ export class EditorView extends AbstractElement {
 		}
 		const titles: string[] = [];
 		for (const group of groups) {
-			titles.push(...(await group.getOpenEditorTitles()));
+			try {
+				titles.push(...(await group.getOpenEditorTitles()));
+			} catch (e) {
+				if (e instanceof error.StaleElementReferenceError) {
+					continue;
+				}
+				throw e;
+			}
 		}
 		return titles;
 	}
@@ -119,7 +127,14 @@ export class EditorView extends AbstractElement {
 		}
 		const tabs: EditorTab[] = [];
 		for (const group of groups) {
-			tabs.push(...(await group.getOpenTabs()));
+			try {
+				tabs.push(...(await group.getOpenTabs()));
+			} catch (e) {
+				if (e instanceof error.StaleElementReferenceError) {
+					continue;
+				}
+				throw e;
+			}
 		}
 		return tabs;
 	}
@@ -132,8 +147,15 @@ export class EditorView extends AbstractElement {
 		const tabs = await this.getOpenTabs();
 
 		for (const tab of tabs) {
-			if (await tab.isSelected()) {
-				return tab;
+			try {
+				if (await tab.isSelected()) {
+					return tab;
+				}
+			} catch (e) {
+				if (e instanceof error.StaleElementReferenceError) {
+					continue;
+				}
+				throw e;
 			}
 		}
 
@@ -333,8 +355,15 @@ export class EditorGroup extends AbstractElement {
 		const tabs = await this.getOpenTabs();
 
 		for (const tab of tabs) {
-			if (await tab.isSelected()) {
-				return tab;
+			try {
+				if (await tab.isSelected()) {
+					return tab;
+				}
+			} catch (e) {
+				if (e instanceof error.StaleElementReferenceError) {
+					continue;
+				}
+				throw e;
 			}
 		}
 
@@ -371,8 +400,15 @@ export class EditorGroup extends AbstractElement {
 		const actions = await this.getActions();
 
 		for (const action of actions) {
-			if (await predicate(action)) {
-				return action;
+			try {
+				if (await predicate(action)) {
+					return action;
+				}
+			} catch (e) {
+				if (e instanceof error.StaleElementReferenceError) {
+					continue;
+				}
+				throw e;
 			}
 		}
 		return undefined;

@@ -34,6 +34,7 @@ import {
 	ViewPanelAction,
 } from 'vscode-extension-tester';
 import { satisfies } from 'compare-versions';
+import { getWaitHelper } from '../testUtils';
 
 describe('SideBarView', () => {
 	let view: SideBarView;
@@ -83,22 +84,42 @@ describe('SideBarView', () => {
 
 		before(async function () {
 			this.timeout(15000);
+			const wait = getWaitHelper();
 			await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-folder'), async () => {
-				await VSBrowser.instance.driver.sleep(3000);
+				await wait.sleep(3000);
 			});
 			view = await ((await new ActivityBar().getViewControl('Explorer')) as ViewControl).openView();
-			await new Promise((res) => {
-				setTimeout(res, 1000);
-			});
+			// Wait for content to be ready
+			await wait.forStable(view, { timeout: 2000 });
 			content = view.getContent();
 		});
 
 		after(async function () {
 			this.timeout(15000);
+			const wait = getWaitHelper();
 			await new Workbench().executeCommand('close test folder');
-			await new Promise((res) => {
-				setTimeout(res, 3000);
-			});
+			// Wait for folder to close - check that test-folder section is gone
+			await wait.forCondition(
+				async () => {
+					try {
+						const sections = await view.getContent().getSections();
+						if (sections.length === 0) {
+							return true;
+						}
+						// Check each section title - can't use async in Array.some()
+						for (const section of sections) {
+							const title = await section.getTitle();
+							if (title === 'test-folder') {
+								return false; // Folder still present
+							}
+						}
+						return true; // Folder not found
+					} catch {
+						return true; // View is gone, consider success
+					}
+				},
+				{ timeout: 10000, message: 'Test folder did not close' },
+			);
 		});
 
 		it('getSections works', async () => {

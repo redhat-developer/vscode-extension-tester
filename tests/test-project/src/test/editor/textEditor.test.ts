@@ -32,6 +32,7 @@ import {
 	beforeEach,
 } from 'vscode-extension-tester';
 import { satisfies } from 'compare-versions';
+import { getWaitHelper, waitFor } from '../testUtils';
 
 describe('ContentAssist', async function () {
 	let assist: ContentAssist;
@@ -39,11 +40,11 @@ describe('ContentAssist', async function () {
 
 	before(async () => {
 		this.timeout(30000);
+		const wait = getWaitHelper();
 		await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-file.ts'), async () => {
-			await VSBrowser.instance.driver.sleep(3000);
+			await wait.sleep(3000);
 		});
 		await VSBrowser.instance.waitForWorkbench();
-		await new Promise((res) => setTimeout(res, 2000));
 		const ew = new EditorView();
 		try {
 			await ew.closeEditor('Welcome');
@@ -51,29 +52,28 @@ describe('ContentAssist', async function () {
 			// continue - Welcome page is not displayed
 		}
 		editor = (await ew.openEditor('test-file.ts')) as TextEditor;
-		await editor.getDriver().wait(
-			async function () {
+		// Wait for JS/TS language features to initialize
+		await waitFor(
+			async () => {
 				const progress = await new StatusBar().getItem('Initializing JS/TS language features');
-				if (progress) {
-					return false;
-				} else {
-					return true;
-				}
+				return !progress;
 			},
-			this.timeout() - 2000,
-			'Initializing JS/TS language features was not finished yet!',
+			{ timeout: this.timeout() - 2000, message: 'Initializing JS/TS language features was not finished yet!' },
 		);
 	});
 
 	beforeEach(async () => {
 		this.timeout(8000);
+		const wait = getWaitHelper();
 		assist = (await editor.toggleContentAssist(true)) as ContentAssist;
-		await new Promise((res) => setTimeout(res, 2500));
+		// Wait for content assist to stabilize
+		await wait.forStable(assist, { timeout: 2500 });
 	});
 
 	afterEach(async function () {
+		const wait = getWaitHelper();
 		await editor.toggleContentAssist(false);
-		await new Promise((res) => setTimeout(res, 1500));
+		await wait.sleep(500); // Brief wait for assist to close
 	});
 
 	after(async function () {
@@ -111,9 +111,15 @@ describe('TextEditor', function () {
 		this.timeout(8000);
 		await new Workbench().executeCommand('Create: New File...');
 		await (await InputBox.create()).selectQuickPick('Text File');
-		await new Promise((res) => {
-			setTimeout(res, 1000);
-		});
+		// Wait for editor to be ready
+		await waitFor(
+			async () => {
+				const ew = new EditorView();
+				const titles = await ew.getOpenEditorTitles();
+				return titles.length > 0;
+			},
+			{ timeout: 5000, message: 'Editor did not open' },
+		);
 		view = new EditorView();
 		editor = new TextEditor(view);
 
@@ -194,17 +200,16 @@ describe('TextEditor', function () {
 				let ew: EditorView;
 
 				beforeEach(async function () {
+					const wait = getWaitHelper();
 					await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', param.file), async () => {
-						await VSBrowser.instance.driver.sleep(3000);
+						await wait.sleep(3000);
 					});
 					ew = new EditorView();
-					await ew.getDriver().wait(
-						async function () {
-							return (await ew.getOpenEditorTitles()).includes(param.file);
-						},
-						10_000,
-						`Unable to find opened editor with title '${param.file}'`,
-					);
+					// Wait for editor to be available
+					await waitFor(async () => (await ew.getOpenEditorTitles()).includes(param.file), {
+						timeout: 10_000,
+						message: `Unable to find opened editor with title '${param.file}'`,
+					});
 					editor = (await ew.openEditor(param.file)) as TextEditor;
 				});
 
@@ -367,11 +372,19 @@ describe('TextEditor', function () {
 
 	describe('CodeLens', function () {
 		before(async function () {
+			const wait = getWaitHelper();
 			await new Workbench().executeCommand('Enable CodeLens');
 			// older versions of vscode don't fire the update event immediately, give it some encouragement
 			// otherwise the lenses end up empty
 			await new Workbench().executeCommand('Enable CodeLens');
-			await new Promise((res) => setTimeout(res, 1000));
+			// Wait for CodeLens to appear
+			await wait.forCondition(
+				async () => {
+					const lenses = await editor.getCodeLenses();
+					return lenses.length > 0;
+				},
+				{ timeout: 5000, message: 'CodeLens did not appear' },
+			);
 		});
 
 		after(async function () {
@@ -415,15 +428,14 @@ describe('TextEditor', function () {
 			this.timeout(20000);
 			const lens = await editor.getCodeLens(2);
 			await lens?.click();
-			await lens?.getDriver().wait(
-				async function () {
+			// Wait for notification to appear
+			await waitFor(
+				async () => {
 					const notifications = await new Workbench().getNotifications();
 					const messages = await Promise.all(notifications.map(async (notification) => await notification.getMessage()));
-
 					return messages.some((message) => message.includes('CodeLens action clicked'));
 				},
-				10_000,
-				'Notification for lens command was not displayed!',
+				{ timeout: 10_000, message: 'Notification for lens command was not displayed!' },
 			);
 		});
 	});

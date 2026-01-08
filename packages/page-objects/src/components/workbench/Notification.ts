@@ -100,8 +100,15 @@ export abstract class Notification extends ElementWithContextMenu {
 		const elements = await this.findElement(Notification.locators.Notification.actions).findElements(Notification.locators.Notification.action);
 
 		for (const button of elements) {
-			const title = await Notification.locators.Notification.actionLabel.value(button);
-			buttons.push(await new NotificationButton(Notification.locators.Notification.buttonConstructor(title), this).wait());
+			try {
+				const title = await Notification.locators.Notification.actionLabel.value(button);
+				buttons.push(await new NotificationButton(Notification.locators.Notification.buttonConstructor(title), this).wait());
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					continue;
+				}
+				throw e;
+			}
 		}
 		return buttons;
 	}
