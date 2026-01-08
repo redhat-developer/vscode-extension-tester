@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { WebDriver, WebElement, until, error } from 'selenium-webdriver';
+import { WebDriver, WebElement, Locator, until, error } from 'selenium-webdriver';
 
 export interface WaitOptions {
 	/** Maximum time to wait in milliseconds */
@@ -24,6 +24,17 @@ export interface WaitOptions {
 	pollInterval?: number;
 	/** Custom error message when timeout is reached */
 	message?: string;
+}
+
+export interface RetryOptions {
+	/** Maximum number of retry attempts */
+	maxRetries?: number;
+	/** Delay between retries in milliseconds */
+	retryDelay?: number;
+	/** Multiplier for exponential backoff (default: 1 = linear) */
+	backoffMultiplier?: number;
+	/** Function to determine if error is retryable */
+	isRetryable?: (error: Error) => boolean;
 }
 
 export interface StabilityOptions extends WaitOptions {
@@ -306,11 +317,243 @@ export class WaitHelper {
 	}
 
 	/**
+	 * Wait for an element to be clickable (visible AND enabled).
+	 * @param element The WebElement to check
+	 * @param options Wait configuration options
+	 */
+	async forClickable(element: WebElement, options: WaitOptions = {}): Promise<void> {
+		const { timeout = this.defaultTimeout, message } = options;
+
+		await this.forCondition(
+			async () => {
+				try {
+					const isDisplayed = await element.isDisplayed();
+					const isEnabled = await element.isEnabled();
+					return isDisplayed && isEnabled;
+				} catch (e) {
+					if (e instanceof error.StaleElementReferenceError) {
+						return false;
+					}
+					throw e;
+				}
+			},
+			{
+				...options,
+				timeout,
+				message: message || `Element did not become clickable within ${timeout}ms`,
+			},
+		);
+	}
+
+	/**
+	 * Wait for text content to match exactly or a regex pattern.
+	 * @param element The WebElement to check
+	 * @param expected Expected text string or RegExp pattern
+	 * @param options Wait configuration options
+	 */
+	async forTextContent(element: WebElement, expected: string | RegExp, options: WaitOptions = {}): Promise<void> {
+		const { timeout = this.defaultTimeout, message } = options;
+
+		await this.forCondition(
+			async () => {
+				const text = await element.getText();
+				if (expected instanceof RegExp) {
+					return expected.test(text);
+				}
+				return text === expected;
+			},
+			{
+				...options,
+				timeout,
+				message: message || `Text did not match '${expected}' within ${timeout}ms`,
+			},
+		);
+	}
+
+	/**
+	 * Wait for a specific number of elements to be present.
+	 * @param parent Parent element or driver to search within
+	 * @param locator Locator for the elements
+	 * @param expectedCount Expected number of elements
+	 * @param options Wait configuration options
+	 */
+	async forElementCount(parent: WebElement | WebDriver, locator: Locator, expectedCount: number, options: WaitOptions = {}): Promise<WebElement[]> {
+		const { timeout = this.defaultTimeout, message } = options;
+
+		const result = await this.forCondition(
+			async () => {
+				const elements = await parent.findElements(locator);
+				return elements.length === expectedCount ? elements : null;
+			},
+			{
+				...options,
+				timeout,
+				message: message || `Expected ${expectedCount} elements but condition not met within ${timeout}ms`,
+			},
+		);
+		return result as WebElement[];
+	}
+
+	/**
+	 * Wait for at least one element matching the locator to be present.
+	 * @param parent Parent element or driver to search within
+	 * @param locator Locator for the element
+	 * @param options Wait configuration options
+	 * @returns The first matching element
+	 */
+	async forElementLocated(parent: WebElement | WebDriver, locator: Locator, options: WaitOptions = {}): Promise<WebElement> {
+		const { timeout = this.defaultTimeout, message } = options;
+
+		const result = await this.forCondition(
+			async () => {
+				const elements = await parent.findElements(locator);
+				return elements.length > 0 ? elements[0] : null;
+			},
+			{
+				...options,
+				timeout,
+				message: message || `Element not found within ${timeout}ms`,
+			},
+		);
+		return result as WebElement;
+	}
+
+	/**
+	 * Wait for no elements matching the locator to be present (element removed).
+	 * @param parent Parent element or driver to search within
+	 * @param locator Locator for the element
+	 * @param options Wait configuration options
+	 */
+	async forNoElement(parent: WebElement | WebDriver, locator: Locator, options: WaitOptions = {}): Promise<void> {
+		const { timeout = this.defaultTimeout, message } = options;
+
+		await this.forCondition(
+			async () => {
+				try {
+					const elements = await parent.findElements(locator);
+					return elements.length === 0;
+				} catch (e) {
+					if (e instanceof error.StaleElementReferenceError) {
+						return true; // Parent is gone, so element is definitely gone
+					}
+					throw e;
+				}
+			},
+			{
+				...options,
+				timeout,
+				message: message || `Element still present after ${timeout}ms`,
+			},
+		);
+	}
+
+	/**
+	 * Wait for element to be removed from DOM or become stale.
+	 * @param element The WebElement to monitor
+	 * @param options Wait configuration options
+	 */
+	async forElementRemoved(element: WebElement, options: WaitOptions = {}): Promise<void> {
+		const { timeout = this.defaultTimeout, message } = options;
+
+		await this.forCondition(
+			async () => {
+				try {
+					await element.getTagName(); // Will throw if element is stale
+					return false;
+				} catch (e) {
+					if (e instanceof error.StaleElementReferenceError || e instanceof error.NoSuchElementError) {
+						return true;
+					}
+					throw e;
+				}
+			},
+			{
+				...options,
+				timeout,
+				message: message || `Element was not removed within ${timeout}ms`,
+			},
+		);
+	}
+
+	/**
+	 * Wait for any of the conditions to be met (OR logic).
+	 * @param conditions Array of condition functions
+	 * @param options Wait configuration options
+	 * @returns Index of the first condition that was met
+	 */
+	async forAnyCondition(conditions: Array<() => Promise<boolean>>, options: WaitOptions = {}): Promise<number> {
+		const { timeout = this.defaultTimeout, message } = options;
+
+		const result = await this.forCondition(
+			async () => {
+				for (let i = 0; i < conditions.length; i++) {
+					try {
+						if (await conditions[i]()) {
+							return i;
+						}
+					} catch {
+						// Continue checking other conditions
+					}
+				}
+				return null;
+			},
+			{
+				...options,
+				timeout,
+				message: message || `None of the conditions were met within ${timeout}ms`,
+			},
+		);
+		return result as number;
+	}
+
+	/**
+	 * Execute a function with automatic retry on failure.
+	 * @param fn The function to execute
+	 * @param options Retry configuration options
+	 * @returns The result of the function
+	 */
+	async withRetry<T>(fn: () => Promise<T>, options: RetryOptions = {}): Promise<T> {
+		const {
+			maxRetries = 3,
+			retryDelay = 500,
+			backoffMultiplier = 1,
+			isRetryable = (e) => e.name === 'StaleElementReferenceError' || e.name === 'ElementNotInteractableError',
+		} = options;
+
+		let lastError: Error | undefined;
+
+		for (let attempt = 0; attempt <= maxRetries; attempt++) {
+			try {
+				return await fn();
+			} catch (e: any) {
+				lastError = e;
+
+				if (!isRetryable(e) || attempt === maxRetries) {
+					throw e;
+				}
+
+				const delay = retryDelay * Math.pow(backoffMultiplier, attempt);
+				await this.sleep(delay);
+			}
+		}
+
+		// This should never be reached as the loop always throws or returns
+		throw lastError ?? new Error('withRetry: unexpected state - no result and no error');
+	}
+
+	/**
 	 * Simple sleep helper - use sparingly and prefer condition-based waits.
 	 * @param ms Milliseconds to sleep
 	 */
 	async sleep(ms: number): Promise<void> {
 		await new Promise((resolve) => setTimeout(resolve, ms));
+	}
+
+	/**
+	 * Get the WebDriver instance.
+	 */
+	getDriver(): WebDriver {
+		return this.driver;
 	}
 
 	private rectsEqual(a: { x: number; y: number; width: number; height: number }, b: { x: number; y: number; width: number; height: number }): boolean {

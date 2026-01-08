@@ -46,6 +46,8 @@ describe('Extension Editor', function () {
 	let extensionEditorDetails: ExtensionEditorDetailsSection;
 
 	before(async function () {
+		this.timeout(20000);
+
 		driver = VSBrowser.instance.driver;
 		await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-folder'), async () => {
 			await driver.sleep(3_000);

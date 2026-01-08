@@ -21,7 +21,7 @@
  * and displayed in the VS Code test explorer tree view.
  */
 
-import { VSBrowser, ActivityBar, DefaultTreeSection } from 'vscode-extension-tester';
+import { VSBrowser, ActivityBar, DefaultTreeSection, WaitHelper, createWaitHelper } from 'vscode-extension-tester';
 import {
 	EXAMPLE_PROJECT,
 	TEST_FILE_GLOB_SETTINGS_ID,
@@ -50,6 +50,9 @@ const TEST_FILE_GLOB = '**/parser/*.test.ts';
 describe('Parser test suite', function () {
 	this.timeout(60000);
 
+	let browser: VSBrowser;
+	let waitHelper: WaitHelper;
+
 	/**
 	 * Setup function that runs before all tests
 	 * Configures the test file glob setting and opens the example project
@@ -57,7 +60,9 @@ describe('Parser test suite', function () {
 	before(async function () {
 		this.timeout(30000);
 
-		const browser = VSBrowser.instance;
+		browser = VSBrowser.instance;
+		waitHelper = createWaitHelper(browser.driver, 5000);
+
 		await browser.openResources(EXAMPLE_PROJECT, async () => {
 			await browser.driver.sleep(3_000);
 		});
@@ -95,6 +100,18 @@ describe('Parser test suite', function () {
 		const tree = sections[0] as DefaultTreeSection;
 
 		// Verify parser folder exists
+		await waitHelper.forCondition(
+			async () => {
+				const items = await tree.getVisibleItems();
+				const item = await items[0]?.getLabel();
+				if (!item) {
+					return false;
+				}
+				return item.includes(PARSER_FOLDER);
+			},
+			{ timeout: 5000, message: 'Tree items not found' },
+		);
+
 		const items = await tree.getVisibleItems();
 		const labels = await Promise.all(items.map((item) => item.getLabel()));
 		expect(labels).contains(PARSER_FOLDER);
@@ -111,6 +128,17 @@ describe('Parser test suite', function () {
 		const firstDescribe = describes[0];
 		const describeLabel = await firstDescribe.getLabel();
 		assert.strictEqual(describeLabel.trim(), EXPECTED_DESCRIBE);
+
+		await waitHelper.forCondition(
+			async () => {
+				const its = await firstDescribe.getChildren();
+				if (!its) {
+					return false;
+				}
+				return its.length > 0;
+			},
+			{ timeout: 5000, message: 'Its not found' },
+		);
 
 		// Verify test block
 		const its = await firstDescribe.getChildren();

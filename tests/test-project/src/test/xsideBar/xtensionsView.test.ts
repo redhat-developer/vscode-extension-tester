@@ -19,6 +19,7 @@ import { ActivityBar, ExtensionsViewSection, EditorView, ExtensionsViewItem, VSB
 import { expect } from 'chai';
 import pjson from '../../../package.json';
 import { satisfies } from 'compare-versions';
+import { waitFor } from '../testUtils';
 
 describe('ExtensionsView', () => {
 	let section: ExtensionsViewSection;
@@ -50,21 +51,33 @@ describe('ExtensionsView', () => {
 
 	it('findItem works', async function () {
 		this.timeout(30000);
-		await section.getDriver().wait(async function () {
-			item = (await section.findItem(`@installed ${pjson.displayName}`)) as ExtensionsViewItem;
-			return item !== undefined;
-		});
+		await waitFor(
+			async () => {
+				item = (await section.findItem(`@installed ${pjson.displayName}`)) as ExtensionsViewItem;
+				return item !== undefined;
+			},
+			{ timeout: 25000, message: 'Extension item not found' },
+		);
 		expect(item).not.undefined;
 	});
 
 	describe('ExtensionsViewItem', async () => {
 		before(async function () {
-			this.timeout(30000);
-			section = await getSection();
-			await section.getDriver().wait(async function () {
-				item = (await section.findItem(`@installed ${pjson.displayName}`)) as ExtensionsViewItem;
-				return item !== undefined;
-			});
+			this.timeout(45000);
+			// Use existing section from parent before, just need to find the item
+			// Clear any previous search first
+			try {
+				await section.clearSearch();
+			} catch {
+				// Ignore if clear fails
+			}
+			await waitFor(
+				async () => {
+					item = (await section.findItem(`@installed ${pjson.displayName}`)) as ExtensionsViewItem;
+					return item !== undefined;
+				},
+				{ timeout: 35000, message: 'Extension item not found in before hook' },
+			);
 		});
 
 		after(async () => {
@@ -105,9 +118,7 @@ describe('ExtensionsView', () => {
 
 	async function getSection(): Promise<ExtensionsViewSection> {
 		const view = await ((await new ActivityBar().getViewControl('Extensions')) as ViewControl).openView();
-		await view.getDriver().wait(async function () {
-			return (await view.getContent().getSections()).length > 0;
-		});
+		await waitFor(async () => (await view.getContent().getSections()).length > 0, { timeout: 10000, message: 'Extensions sections did not appear' });
 		return (await view.getContent().getSection(sectionTitle)) as ExtensionsViewSection;
 	}
 });

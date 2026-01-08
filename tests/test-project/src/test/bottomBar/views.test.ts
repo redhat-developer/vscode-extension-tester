@@ -19,6 +19,7 @@ import { expect } from 'chai';
 import * as path from 'path';
 import { BottomBarPanel, OutputView, TerminalView, VSBrowser, Workbench } from 'vscode-extension-tester';
 import { satisfies } from 'compare-versions';
+import { getWaitHelper, waitFor } from '../testUtils';
 
 describe('Output View/Text Views', function () {
 	let panel: BottomBarPanel;
@@ -27,14 +28,16 @@ describe('Output View/Text Views', function () {
 
 	before(async function () {
 		this.timeout(25000);
+		const wait = getWaitHelper();
 		await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources'), async () => {
-			await VSBrowser.instance.driver.sleep(3_000);
+			await wait.sleep(3_000);
 		});
 		await VSBrowser.instance.waitForWorkbench();
 	});
 
 	before(async function () {
 		this.timeout(15000);
+		const wait = getWaitHelper();
 		const center = await new Workbench().openNotificationsCenter();
 		await center.clearAllNotifications();
 		await center.close();
@@ -42,12 +45,14 @@ describe('Output View/Text Views', function () {
 		await panel.toggle(true);
 		await panel.maximize();
 		view = await panel.openOutputView();
-		await new Promise((resolve) => setTimeout(resolve, 2000));
+		// Wait for output view to stabilize
+		await wait.forStable(view, { timeout: 3000 });
 	});
 
 	after(async function () {
+		const wait = getWaitHelper();
 		await panel.restore();
-		await new Promise((resolve) => setTimeout(resolve, 500));
+		await wait.forStable(panel, { timeout: 1000 });
 		await panel.toggle(false);
 	});
 
@@ -76,7 +81,14 @@ describe('Output View/Text Views', function () {
 
 	it('getText returns all current text', async function () {
 		await view.selectChannel(channelName);
-		await new Promise((resolve) => setTimeout(resolve, 2000));
+		// Wait for channel content to load
+		await waitFor(
+			async () => {
+				const text = await view.getText();
+				return text.length > 0;
+			},
+			{ timeout: 3000, message: 'Channel text did not appear' },
+		);
 		const text = await view.getText();
 		expect(text).not.empty;
 	});
@@ -95,8 +107,10 @@ describe('Output View/Text Views', function () {
 
 		before(async function () {
 			this.timeout(15_000);
+			const wait = getWaitHelper();
 			terminal = await panel.openTerminalView();
-			await new Promise((res) => setTimeout(res, 2000));
+			// Wait for terminal to stabilize
+			await wait.forStable(terminal, { timeout: 3000 });
 		});
 
 		it('getText returns all current text', async function () {
@@ -124,7 +138,7 @@ describe('Output View/Text Views', function () {
 		it('newTerminal opens a new term channel', async function () {
 			const expectedChannel = [`2: ${terminalName}`, `2: zsh`];
 			await terminal.newTerminal();
-			await VSBrowser.instance.driver.wait(
+			await waitFor(
 				async () => {
 					try {
 						return expectedChannel.includes(await terminal.getCurrentChannel());
@@ -132,9 +146,7 @@ describe('Output View/Text Views', function () {
 						return false;
 					}
 				},
-				10000,
-				undefined,
-				1000,
+				{ timeout: 10000, pollInterval: 1000, message: 'New terminal channel did not appear' },
 			);
 			expect(expectedChannel).contains(await terminal.getCurrentChannel());
 		});

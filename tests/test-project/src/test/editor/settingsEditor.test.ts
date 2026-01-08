@@ -17,14 +17,17 @@
 
 import { expect } from 'chai';
 import { SettingsEditor, Workbench, EditorView, ComboSetting, TextSetting, CheckboxSetting, ArraySetting, after, before } from 'vscode-extension-tester';
+import { getWaitHelper, waitFor } from '../testUtils';
 
 describe('Settings Editor', function () {
 	let editor: SettingsEditor;
 
 	before(async () => {
 		this.timeout(30000);
+		const wait = getWaitHelper();
 		editor = await new Workbench().openSettings();
-		await new Promise((t) => setTimeout(t, 5_000)); // wait to be sure settings editor is loaded properly
+		// Wait for settings editor to be fully loaded and stable
+		await wait.forStable(editor, { timeout: 5000 });
 	});
 
 	after(async function () {
@@ -235,26 +238,22 @@ describe('Settings Editor', function () {
 		});
 
 		async function waitUntilItemExists(item: string, timeout: number = 10_000): Promise<void> {
-			let values: string[] = [];
-			await setting.getDriver().wait(
-				async function () {
-					values = await setting.getValues();
+			await waitFor(
+				async () => {
+					const values = await setting.getValues();
 					return values.includes(item);
 				},
-				timeout,
-				`Expected item - '${item}' was not found in list of: ${values}`,
+				{ timeout, message: `Expected item '${item}' was not found in array setting` },
 			);
 		}
 
 		async function waitUntilItemNotExists(item: string, timeout: number = 10_000): Promise<void> {
-			let values: string[] = [];
-			await setting.getDriver().wait(
-				async function () {
-					values = await setting.getValues();
+			await waitFor(
+				async () => {
+					const values = await setting.getValues();
 					return !values.includes(item);
 				},
-				timeout,
-				`Expected item - '${item}' was found in list of: ${values}`,
+				{ timeout, message: `Item '${item}' was still present in array setting` },
 			);
 		}
 	});
