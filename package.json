@@ -25,7 +25,7 @@
     "tests/*"
   ],
   "devDependencies": {
-    "@stylistic/eslint-plugin": "^5.6.1",
+    "@stylistic/eslint-plugin": "^5.7.0",
     "@types/chai": "^4.3.20",
     "@types/clone-deep": "^4.0.4",
     "@types/fs-extra": "^11.0.4",
@@ -35,7 +35,7 @@
     "@types/selenium-webdriver": "^4.35.4",
     "@types/targz": "^1.0.5",
     "@types/vscode": "^1.107.0",
-    "@typescript-eslint/eslint-plugin": "^8.52.0",
+    "@typescript-eslint/eslint-plugin": "^8.53.0",
     "@typescript-eslint/parser": "^8.52.0",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
