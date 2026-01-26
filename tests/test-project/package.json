@@ -257,7 +257,7 @@
     "chai": "^4.5.0",
     "compare-versions": "^6.1.1",
     "clipboard-cli": "^5.0.0",
-    "clipboardy": "^5.0.2",
+    "clipboardy": "^5.1.0",
     "mocha": "^11.7.5",
     "vscode-extension-tester": "*"
   }
