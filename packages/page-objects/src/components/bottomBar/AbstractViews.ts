@@ -96,6 +96,19 @@ export abstract class TextView extends ChannelView {
 			const textarea = await self.findElement(ChannelView.locators.BottomBarViews.textArea);
 			await textarea.sendKeys(Key.chord(TextView.ctlKey, 'a'));
 			await textarea.sendKeys(Key.chord(TextView.ctlKey, 'c'));
+			// Wait for clipboard operation to complete
+			// Fixes issue https://github.com/redhat-developer/vscode-extension-tester/issues/2214
+			await self.getWaitHelper().forCondition(
+				async () => {
+					try {
+						const currentClip = clipboard.readSync();
+						return currentClip !== originalClipboard || currentClip.length > 0;
+					} catch {
+						return false;
+					}
+				},
+				{ timeout: 2000, pollInterval: 50, message: 'Clipboard copy operation did not complete' },
+			);
 			const text = clipboard.readSync();
 			// workaround as we are getting "element click intercepted" during the send keys actions.
 			// await textarea.click();
