@@ -244,7 +244,7 @@ describe('TextEditor', function () {
 			const ew = new EditorView();
 			const editors = await ew.getOpenEditorTitles();
 			editor = (await ew.openEditor(editors[0])) as TextEditor;
-			await editor.setText('aline\nbline\ncline\ndline\nnope\neline1 eline2\n');
+			await editor.setText('aline\nbline\ncline\ndline\nnope\neline1 eline2\nnope again\nfline');
 		});
 
 		it('getLineOfText works', async function () {
@@ -257,6 +257,11 @@ describe('TextEditor', function () {
 			expect(line).equals(6);
 		});
 
+		it('getLineOfText finds multiple occurrences on the same line', async function () {
+			const line = await editor.getLineOfText('line', 6);
+			expect(line).equals(6);
+		});
+
 		it('getLineOfText returns -1 on no line found', async function () {
 			const line = await editor.getLineOfText('wat');
 			expect(line).equals(-1);
@@ -265,6 +270,20 @@ describe('TextEditor', function () {
 		it('getLineOfText returns last known occurrence if there are fewer than specified', async function () {
 			const line = await editor.getLineOfText('line', 15);
 			expect(line).equals(6);
+		});
+
+		it('selectText selects first occurrence', async function () {
+			const text = 'line';
+			await editor.selectText(text);
+			const cursor = await editor.getCoordinates();
+			expect(cursor).to.deep.equal([1, 6]);
+		});
+
+		it('selectText selects second occurrence on same line', async function () {
+			const text = 'line';
+			await editor.selectText(text, 6);
+			const cursor = await editor.getCoordinates();
+			expect(cursor).to.deep.equal([6, 13]);
 		});
 
 		it('selected text can be get', async function () {

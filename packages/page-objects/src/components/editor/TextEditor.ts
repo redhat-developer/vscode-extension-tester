@@ -233,20 +233,7 @@ export class TextEditor extends Editor {
 	 * Returns the line number that holds the last occurrence found this way.
 	 */
 	async getLineOfText(text: string, occurrence = 1): Promise<number> {
-		let lineNum = -1;
-		let found = 0;
-		const lines = (await this.getText()).split('\n');
-
-		for (let i = 0; i < lines.length; i++) {
-			if (lines[i].includes(text)) {
-				found++;
-				lineNum = i + 1;
-				if (found >= occurrence) {
-					break;
-				}
-			}
-		}
-		return lineNum;
+		return (await this.findTextOccurrence(text, occurrence))[0];
 	}
 
 	/**
@@ -256,13 +243,10 @@ export class TextEditor extends Editor {
 	 * @param occurrence specify which occurrence of text to select if multiple are present in the document
 	 */
 	async selectText(text: string, occurrence = 1): Promise<void> {
-		const lineNum = await this.getLineOfText(text, occurrence);
+		const [lineNum, column] = await this.findTextOccurrence(text, occurrence);
 		if (lineNum < 1) {
 			throw new Error(`Text '${text}' not found`);
 		}
-
-		const line = await this.getTextAtLine(lineNum);
-		const column = line.indexOf(text) + 1;
 
 		await this.moveCursor(lineNum, column);
 
@@ -548,6 +532,33 @@ export class TextEditor extends Editor {
 			`Unable to set cursor at column ${column}`,
 			500,
 		);
+	}
+
+	/**
+	 * (private) Find the position of text in the editor.
+	 * @param text text to search for
+	 * @param occurrence select which occurrence of the search text to look for in case there are multiple in the document
+	 * @returns The (line, column) numbers in case the occurrence is found
+	 */
+	private async findTextOccurrence(text: string, occurrence: number): Promise<[number, number]> {
+		let line = -1;
+		let column = -1;
+		let found = 0;
+		const lines = (await this.getText()).split('\n');
+
+		for (let i = 0; i < lines.length; i++) {
+			let searchIndex = -1; // start at the beginning of the line
+			while ((searchIndex = lines[i].indexOf(text, searchIndex)) > -1) {
+				found++;
+				column = searchIndex + 1;
+				line = i + 1;
+				if (found >= occurrence) {
+					return [line, column];
+				}
+				searchIndex += text.length;
+			}
+		}
+		return [line, column];
 	}
 
 	/**
