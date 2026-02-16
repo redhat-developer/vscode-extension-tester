@@ -1,7 +1,7 @@
 name: 🚫 Bug Report
 description: If something is not working properly
-title: "[🚫 Bug] "
-labels: [bug, new-issue]
+labels: [bug]
+projects: ["redhat-developer/41"]
 body:
   - type: markdown
     attributes:

@@ -1,7 +1,7 @@
 name: 🔧 Task
 description: Simple changes, mainly maintenance manner
-title: "[🔧 Task] "
-labels: [task, new-issue]
+labels: [task]
+projects: ["redhat-developer/41"]
 body:
   - type: markdown
     attributes:
