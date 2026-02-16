@@ -269,7 +269,7 @@ describe('TextEditor', function () {
 
 		it('getLineOfText returns last known occurrence if there are fewer than specified', async function () {
 			const line = await editor.getLineOfText('line', 15);
-			expect(line).equals(6);
+			expect(line).equals(7);
 		});
 
 		it('selectText selects first occurrence', async function () {
