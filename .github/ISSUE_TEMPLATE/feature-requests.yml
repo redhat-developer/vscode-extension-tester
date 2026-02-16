@@ -1,7 +1,7 @@
 name: 🚀 Feature Request
 description: If something is missing or could be improved
-title: "[🚀 Request] "
-labels: [enhancement, new-issue]
+labels: [enhancement]
+projects: ["redhat-developer/41"]
 body:
   - type: markdown
     attributes:
