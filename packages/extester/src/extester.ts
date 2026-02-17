@@ -52,11 +52,6 @@ export const VSCODE_VERSION_MIN = pjson.supportedVersions['vscode-min'];
 export const VSCODE_VERSION_MAX = pjson.supportedVersions['vscode-max'];
 
 /**
- * The latest version with automated tests
- */
-export const NODEJS_VERSION_MAX = pjson.supportedVersions.nodejs;
-
-/**
  * ExTester
  */
 export class ExTester {
@@ -71,13 +66,6 @@ export class ExTester {
 	) {
 		this.code = new CodeUtil(storageFolder, releaseType, extensionsDir, coverage);
 		this.chrome = new DriverUtil(storageFolder);
-
-		if (process.versions.node.slice(0, 2) > NODEJS_VERSION_MAX) {
-			console.log(
-				'\x1b[33m%s\x1b[0m',
-				`\nWarning: You are using the untested NodeJS version '${process.versions.node}'. The latest supported version is '${NODEJS_VERSION_MAX}.x.x'.\n\t We recommend to use tested version to have ExTester working properly.\n\n`,
-			);
-		}
 	}
 
 	/**

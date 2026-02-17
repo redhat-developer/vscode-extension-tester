@@ -87,7 +87,7 @@ jobs:
       - name: ⚙️ Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: lts/*
 
       - name: 📦 Install GitHub CLI
         run: sudo apt-get install -y gh
