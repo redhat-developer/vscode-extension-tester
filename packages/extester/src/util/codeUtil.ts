@@ -69,6 +69,7 @@ export class CodeUtil {
 	private releaseType: ReleaseQuality;
 	private executablePath!: string;
 	private cliPath!: string;
+	private cliPathResolved = false;
 	private cliEnv!: string;
 	private availableVersions: string[];
 	private extensionsFolder: string | undefined;
@@ -211,8 +212,16 @@ export class CodeUtil {
 		}
 	}
 
+	private getCliPath(): string {
+		if (process.platform === 'win32' && !this.cliPathResolved) {
+			this.cliPathResolved = true;
+			this.cliPath = this.findWindowsCliPath();
+		}
+		return this.cliPath;
+	}
+
 	private getCliInitCommand(): string {
-		const cli = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}"`;
+		const cli = `${this.cliEnv} "${this.executablePath}" "${this.getCliPath()}"`;
 		if (satisfies(this.getExistingCodeVersion(), '>=1.86.0')) {
 			return cli;
 		} else {
@@ -423,7 +432,7 @@ export class CodeUtil {
 	 * Check what VS Code version is present in the testing folder
 	 */
 	private getExistingCodeVersion(): string {
-		const command = `${this.cliEnv} "${this.executablePath}" "${this.cliPath}"`;
+		const command = `${this.cliEnv} "${this.executablePath}" "${this.getCliPath()}"`;
 		let out: Buffer;
 		try {
 			out = childProcess.execSync(`${command} -v`, { env: this.env });
@@ -481,6 +490,7 @@ export class CodeUtil {
 				if (this.releaseType === ReleaseQuality.Insider) {
 					this.executablePath = path.join(this.codeFolder, 'Code - Insiders.exe');
 				}
+				// CLI path resolved lazily in getCliPath() after download (1.109+ uses random subfolder)
 				break;
 			case 'linux':
 				this.executablePath = path.join(this.codeFolder, 'code');
@@ -489,6 +499,31 @@ export class CodeUtil {
 				}
 				break;
 		}
+	}
+
+	/**
+	 * Resolve CLI path on Windows. Since VS Code 1.109 the resources folder may live under
+	 * a randomly named parent folder (commit-hash based). Prefer legacy path, then search.
+	 */
+	private findWindowsCliPath(): string {
+		const legacyPath = path.join(this.codeFolder, 'resources', 'app', 'out', 'cli.js');
+		if (fs.existsSync(legacyPath)) {
+			return legacyPath;
+		}
+		try {
+			const entries = fs.readdirSync(this.codeFolder, { withFileTypes: true });
+			for (const entry of entries) {
+				if (entry.isDirectory()) {
+					const candidate = path.join(this.codeFolder, entry.name, 'resources', 'app', 'out', 'cli.js');
+					if (fs.existsSync(candidate)) {
+						return candidate;
+					}
+				}
+			}
+		} catch {
+			// fallback to legacy path even if missing, caller will get a clear error
+		}
+		return legacyPath;
 	}
 
 	/**
