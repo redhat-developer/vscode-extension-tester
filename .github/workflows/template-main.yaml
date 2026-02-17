@@ -8,7 +8,7 @@ on:
         type: string
       nodejs:
         required: false
-        default: "22.x"
+        default: "lts/*"
         type: string
       code_type:
         required: false
