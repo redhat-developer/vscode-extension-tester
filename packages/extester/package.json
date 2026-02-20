@@ -70,7 +70,7 @@
     "hpagent": "^1.2.0",
     "js-yaml": "^4.1.1",
     "sanitize-filename": "^1.6.3",
-    "selenium-webdriver": "^4.40.0",
+    "selenium-webdriver": "^4.41.0",
     "targz": "^1.0.1",
     "unzipper": "^0.12.3"
   },
