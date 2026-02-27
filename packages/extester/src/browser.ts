@@ -62,7 +62,16 @@ export class VSBrowser {
 	async start(codePath: string): Promise<VSBrowser> {
 		const userSettings = path.join(this.storagePath, 'settings', 'User');
 		if (fs.existsSync(userSettings)) {
-			fs.removeSync(path.join(this.storagePath, 'settings'));
+			try {
+				fs.removeSync(path.join(this.storagePath, 'settings'));
+			} catch (e: unknown) {
+				const code = (e as NodeJS.ErrnoException).code;
+				if (code === 'EBUSY' || code === 'EPERM') {
+					console.warn(`Could not fully clean settings dir (${code}), continuing anyway.`);
+				} else {
+					throw e;
+				}
+			}
 		}
 
 		let defaultSettings = {
