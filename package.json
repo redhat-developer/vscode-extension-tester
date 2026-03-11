@@ -34,7 +34,7 @@
     "@types/node": "^25.4.0",
     "@types/selenium-webdriver": "^4.35.5",
     "@types/targz": "^1.0.5",
-    "@types/vscode": "^1.109.0",
+    "@types/vscode": "^1.110.0",
     "@typescript-eslint/eslint-plugin": "^8.57.0",
     "@typescript-eslint/parser": "^8.52.0",
     "eslint": "^10.0.3",
