@@ -16,6 +16,7 @@
  */
 
 import { By, LocatorDiff, WebElement } from '@redhat-developer/page-objects';
+
 export const diff: LocatorDiff = {
 	locators: {
 		BreakpointSectionItem: {
