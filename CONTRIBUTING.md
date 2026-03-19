@@ -61,6 +61,22 @@ Now the changes are in a new branch in your fork, you can submit a new pull requ
 
 Lastly, a pull request check on [Github Actions](../../actions) is going to kick in whenever a change is pushed. **Please make sure it ends up green**. Otherwise it might need a change on your part. Or maybe it also needs a change on our part - in that case opening a [new issue](../../issues) is the best way to go.
 
+## Automated VS Code Version Updates
+
+ExTester automatically maintains support for the latest 3 stable VS Code releases. See [Automated Version Updates](docs/Automated-Version-Updates.md) for full details.
+
+### For Maintainers
+
+When the automated workflow creates a version update PR:
+
+1. **Review the PR** - Check which versions are being updated
+2. **Wait for CI** - Tests run automatically against all 3 versions
+3. **Check test results** - Look for any failures or breaking changes
+4. **Merge if green** - If all tests pass, merge the PR
+5. **Consider release** - Decide if a new release is needed
+
+**Manual trigger**: You can manually run the [Update VS Code Version Window](../../actions/workflows/update-vscode-versions.yml) workflow if needed.
+
 ## Release new ExTester version
 
 - [ ] Check all related PR's were merged and the `Main CI` is green
