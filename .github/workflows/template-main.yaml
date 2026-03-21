@@ -52,7 +52,7 @@ jobs:
         run: npm install --workspace=extester-test
 
       - name: 🔍 Run Tests (macOS)
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         if: ${{ startsWith(matrix.os, 'mac') }}
         with:
           timeout_minutes: 20
@@ -62,7 +62,7 @@ jobs:
           on_retry_command: rm -rf "${RUNNER_TEMP}/extest-code"
 
       - name: 🔍 Run Tests (windows)
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         if: ${{ startsWith(matrix.os, 'win') }}
         with:
           timeout_minutes: 20
@@ -75,7 +75,7 @@ jobs:
         run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
       - name: 🔍 Run Tests (linux)
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
         with:
           timeout_minutes: 20

@@ -20,7 +20,7 @@ jobs:
 
       - name: 🔍 Fetch VS Code versions with retry
         id: versions
-        uses: nick-fields/retry@v3.0.2
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 5
           max_attempts: 3
