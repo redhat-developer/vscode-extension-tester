@@ -85,10 +85,10 @@ export abstract class TextView extends ChannelView {
 	 */
 	async getText(): Promise<string> {
 		return this.withRecovery(async (self) => {
-			const clipboard = (await import('clipboardy')).default;
+			const clipboard = await import('tinyclip');
 			let originalClipboard = '';
 			try {
-				originalClipboard = clipboard.readSync();
+				originalClipboard = await clipboard.readText();
 			} catch (error) {
 				// workaround issue https://github.com/redhat-developer/vscode-extension-tester/issues/835
 				// do not fail if clipboard is empty
@@ -101,7 +101,7 @@ export abstract class TextView extends ChannelView {
 			await self.getWaitHelper().forCondition(
 				async () => {
 					try {
-						const currentClip = clipboard.readSync();
+						const currentClip = await clipboard.readText();
 						return currentClip !== originalClipboard || currentClip.length > 0;
 					} catch {
 						return false;
@@ -109,11 +109,11 @@ export abstract class TextView extends ChannelView {
 				},
 				{ timeout: 2000, pollInterval: 50, message: 'Clipboard copy operation did not complete' },
 			);
-			const text = clipboard.readSync();
+			const text = await clipboard.readText();
 			// workaround as we are getting "element click intercepted" during the send keys actions.
 			// await textarea.click();
 			if (originalClipboard.length > 0) {
-				clipboard.writeSync(originalClipboard);
+				await clipboard.writeText(originalClipboard);
 			}
 			return text;
 		});
