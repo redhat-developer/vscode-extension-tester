@@ -67,7 +67,7 @@ jobs:
 
       - name: 🔍 Run Unit Tests (linux)
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
-        run: xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' npm run test:runner:unit
+        run: sudo apt-get update && sudo apt-get install -y xclip xvfb && xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' npm run test:runner:unit
 
       - name: 🔍 Run UI Tests (macOS)
         uses: nick-fields/retry@v4
@@ -95,7 +95,7 @@ jobs:
           timeout_minutes: 10
           retry_wait_seconds: 30
           max_attempts: 3
-          command: xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' npm run test:runner:ui
+          command: sudo apt-get update && sudo apt-get install -y xclip xvfb && xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' npm run test:runner:ui
 
       - name: 💾 Upload Screenshots
         uses: actions/upload-artifact@v7
