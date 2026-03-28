@@ -153,10 +153,10 @@ export class TerminalView extends ChannelView {
 	 * @returns Promise resolving to all terminal text
 	 */
 	async getText(): Promise<string> {
-		const clipboard = (await import('clipboardy')).default;
+		const clipboard = await import('tinyclip');
 		let originalClipboard = '';
 		try {
-			originalClipboard = clipboard.readSync();
+			originalClipboard = await clipboard.readText();
 		} catch (error) {
 			// workaround issue https://github.com/redhat-developer/vscode-extension-tester/issues/835
 			// do not fail if clipboard is empty
@@ -167,7 +167,7 @@ export class TerminalView extends ChannelView {
 		await this.getWaitHelper().forCondition(
 			async () => {
 				try {
-					const current = clipboard.readSync();
+					const current = await clipboard.readText();
 					return current !== originalClipboard;
 				} catch {
 					return false;
@@ -175,9 +175,9 @@ export class TerminalView extends ChannelView {
 			},
 			{ timeout: 2000, pollInterval: 100 },
 		);
-		const text = clipboard.readSync();
+		const text = await clipboard.readText();
 		if (originalClipboard.length > 0) {
-			clipboard.writeSync(originalClipboard);
+			await clipboard.writeText(originalClipboard);
 		}
 		return text;
 	}
