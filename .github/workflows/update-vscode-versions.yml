@@ -219,7 +219,7 @@ jobs:
 
       - name: 💬 Comment on PR with test instructions
         if: steps.check.outputs.needs_update == 'true' && steps.create_pr.outputs.pull-request-number
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             github.rest.issues.createComment({
@@ -264,7 +264,7 @@ jobs:
 
       - name: ⚠️ Notify on failure
         if: failure()
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             github.rest.issues.create({
