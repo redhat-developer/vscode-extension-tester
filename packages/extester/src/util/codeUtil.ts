@@ -70,7 +70,6 @@ export class CodeUtil {
 	private executablePath!: string;
 	private cliPath!: string;
 	private cliPathResolved = false;
-	private cliEnv!: string;
 	private availableVersions: string[];
 	private extensionsFolder: string | undefined;
 	private coverage: boolean | undefined;
@@ -106,6 +105,7 @@ export class CodeUtil {
 				delete this.env[key];
 			}
 		}
+		this.env.ELECTRON_RUN_AS_NODE = '1';
 	}
 
 	/**
@@ -220,24 +220,40 @@ export class CodeUtil {
 		return this.cliPath;
 	}
 
-	private getCliInitCommand(): string {
-		const cli = `${this.cliEnv} "${this.executablePath}" "${this.getCliPath()}"`;
-		if (satisfies(this.getExistingCodeVersion(), '>=1.86.0')) {
-			return cli;
-		} else {
-			return `${cli} --ms-enable-electron-run-as-node`;
+	private getCliArgs(args: string[]): string[] {
+		const cliArgs = [this.getCliPath()];
+		if (!satisfies(this.getExistingCodeVersion(), '>=1.86.0')) {
+			cliArgs.push('--ms-enable-electron-run-as-node');
 		}
+		cliArgs.push(...args);
+		return cliArgs;
+	}
+
+	private execCli(args: string[], options?: childProcess.ExecFileSyncOptions): Buffer {
+		return childProcess.execFileSync(this.executablePath, this.getCliArgs(args), {
+			...options,
+			env: this.env,
+			shell: false,
+		});
+	}
+
+	private execRawCli(args: string[], options?: childProcess.ExecFileSyncOptions): Buffer {
+		return childProcess.execFileSync(this.executablePath, [this.getCliPath(), ...args], {
+			...options,
+			env: this.env,
+			shell: false,
+		});
 	}
 
 	private installExt(pathOrID: string, preRelease?: boolean): void {
-		let command = `${this.getCliInitCommand()} --force --install-extension "${pathOrID}"`;
+		const args = ['--force', '--install-extension', pathOrID];
 		if (preRelease) {
-			command += ' --pre-release';
+			args.push('--pre-release');
 		}
 		if (this.extensionsFolder) {
-			command += ` --extensions-dir=${this.extensionsFolder}`;
+			args.push(`--extensions-dir=${this.extensionsFolder}`);
 		}
-		childProcess.execSync(command, { stdio: 'inherit' });
+		this.execCli(args, { stdio: 'inherit' });
 	}
 
 	/**
@@ -245,9 +261,7 @@ export class CodeUtil {
 	 * @param paths vararg paths to files or folders to open
 	 */
 	open(...paths: string[]): void {
-		const segments = paths.map((f) => `"${f}"`).join(' ');
-		const command = `${this.getCliInitCommand()} -r ${segments} --user-data-dir="${path.join(this.downloadFolder, 'settings')}"`;
-		childProcess.execSync(command);
+		this.execCli(['-r', ...paths, `--user-data-dir=${path.join(this.downloadFolder, 'settings')}`]);
 	}
 
 	/**
@@ -288,11 +302,11 @@ export class CodeUtil {
 		const extension = `${pjson.publisher}.${pjson.name}`;
 
 		if (cleanup) {
-			let command = `${this.getCliInitCommand()} --uninstall-extension "${extension}"`;
+			const args = ['--uninstall-extension', extension];
 			if (this.extensionsFolder) {
-				command += ` --extensions-dir=${this.extensionsFolder}`;
+				args.push(`--extensions-dir=${this.extensionsFolder}`);
 			}
-			childProcess.execSync(command, { stdio: 'inherit' });
+			this.execCli(args, { stdio: 'inherit' });
 		}
 	}
 
@@ -432,12 +446,11 @@ export class CodeUtil {
 	 * Check what VS Code version is present in the testing folder
 	 */
 	private getExistingCodeVersion(): string {
-		const command = `${this.cliEnv} "${this.executablePath}" "${this.getCliPath()}"`;
 		let out: Buffer;
 		try {
-			out = childProcess.execSync(`${command} -v`, { env: this.env });
+			out = this.execRawCli(['-v']);
 		} catch (error) {
-			out = childProcess.execSync(`${command} --ms-enable-electron-run-as-node -v`, { env: this.env });
+			out = this.execRawCli(['--ms-enable-electron-run-as-node', '-v']);
 		}
 		return out.toString().split('\n')[0];
 	}
@@ -448,7 +461,6 @@ export class CodeUtil {
 	private getPlatform(): string {
 		let platform: string = process.platform;
 		const arch = process.arch;
-		this.cliEnv = 'ELECTRON_RUN_AS_NODE=1';
 
 		if (platform === 'linux') {
 			platform += arch === 'ia32' ? '-ia32' : `-${arch}`;
@@ -467,7 +479,6 @@ export class CodeUtil {
 				}
 			}
 			platform += '-archive';
-			this.cliEnv = `set ${this.cliEnv} &&`;
 		} else if (platform === 'darwin') {
 			platform += '-universal';
 		}
