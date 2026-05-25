@@ -128,7 +128,7 @@ jobs:
         id: create_pr
         uses: peter-evans/create-pull-request@v8.1.0
         with:
-          token: ${{ secrets.PAT_TOKEN || secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: |
             chore: update VS Code version window to latest 2 releases
 
@@ -181,12 +181,108 @@ jobs:
             maintenance
             dependencies
 
+      - name: 💬 Create PR using GitHub CLI
+        if: steps.check.outputs.needs_update == 'true' && steps.create_pr.outputs.pull-request-operation == 'created'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get the PR number from the create-pull-request action
+          PR_NUMBER="${{ steps.create_pr.outputs.pull-request-number }}"
+
+          if [ -z "$PR_NUMBER" ]; then
+            echo "No PR number found, attempting to create PR via GitHub CLI..."
+            
+            # Create PR using gh CLI
+            gh pr create \
+              --repo redhat-developer/vscode-extension-tester \
+              --head djelinek:auto-update-vscode-versions \
+              --base main \
+              --title "Update VS Code version window (${{ steps.versions.outputs.oldest }} - ${{ steps.versions.outputs.latest }})" \
+              --body "## 🔄 VS Code Version Window Update
+
+            This PR updates the supported VS Code version window to the latest 2 stable major releases.
+
+            ### 📊 Version Changes
+
+            | Position | Before | After | Status |
+            |----------|--------|-------|--------|
+            | **Min** | \`${{ steps.versions.outputs.current_min }}\` | \`${{ steps.versions.outputs.oldest }}\` | ✅ Updated |
+            | **Max** | \`${{ steps.versions.outputs.current_max }}\` | \`${{ steps.versions.outputs.latest }}\` | ✅ Updated |
+
+            ### 📝 Files Modified
+
+            - ✅ [\`packages/extester/package.json\`](https://github.com/redhat-developer/vscode-extension-tester/blob/auto-update-vscode-versions/packages/extester/package.json) - Updated \`vscode-min\` and \`vscode-max\`
+
+            ### 🧪 Testing
+
+            CI will automatically test against both versions:
+            - ✅ Min: \`${{ steps.versions.outputs.oldest }}\`
+            - ✅ Max: \`${{ steps.versions.outputs.latest }}\`
+
+            ### ✅ Review Checklist
+
+            - [ ] All CI tests pass for both versions
+            - [ ] No breaking changes detected in test results
+            - [ ] Page objects still work across all versions
+            - [ ] Ready to merge and release
+
+            ### 📦 Next Steps After Merge
+
+            1. ✅ Verify all tests passed
+            2. 🚀 Trigger release workflow if needed
+            3. 📚 Update documentation if there are breaking changes
+
+            ---
+
+            🤖 *This PR was automatically created by the [version update workflow](https://github.com/redhat-developer/vscode-extension-tester/actions/workflows/update-vscode-versions.yml)*" \
+              --label automation,maintenance,dependencies || echo "PR creation failed or already exists"
+          fi
+
       - name: 💬 Comment on PR with test instructions
         if: steps.check.outputs.needs_update == 'true' && steps.create_pr.outputs.pull-request-number
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr comment ${{ steps.create_pr.outputs.pull-request-number }} \
+            --repo redhat-developer/vscode-extension-tester \
+            --body "## 🧪 Testing Instructions
+              
+              The CI pipeline will automatically test both versions. Monitor the test results in the checks below.
+              
+              ### 🔍 What to Review
+              
+              - ✅ Check that all CI tests pass
+              - ⚠️ Look for any failures or warnings in test output
+              - 📸 Review screenshots if any tests fail
+              - 🐛 Check for breaking changes in page objects
+              
+              ### 🛠️ Manual Testing (Optional)
+              
+              If you want to test locally before merging:
+              
+              \`\`\`bash
+              # Test with min version
+              CODE_VERSION=min npm test
+              
+              # Test with max version
+              CODE_VERSION=max npm test
+              \`\`\`
+              
+              ### ✅ Ready to Merge?
+              
+              If all tests pass and there are no breaking changes, this PR is ready to merge! 🎉
+              
+              After merging, consider:
+              1. Creating a new release with the updated version support
+              2. Updating documentation if needed
+              3. Announcing the new supported versions"
+
+      - name: ⚠️ Notify on failure (legacy)
+        if: failure()
         uses: actions/github-script@v8
         with:
           script: |
-            github.rest.issues.createComment({
+            github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: ${{ steps.create_pr.outputs.pull-request-number }},
@@ -259,5 +355,3 @@ jobs:
               🤖 *This issue was automatically created by the version update workflow*`,
               labels: ['automation', 'bug', 'maintenance']
             })
-
-# Made with Bob
