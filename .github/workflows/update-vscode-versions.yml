@@ -161,7 +161,7 @@ jobs:
         id: create_pr
         uses: peter-evans/create-pull-request@v8.1.0
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN || secrets.GITHUB_TOKEN }}
           commit-message: |
             chore: update VS Code version window to latest 3 releases
 
