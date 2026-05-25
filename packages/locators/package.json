@@ -38,6 +38,6 @@
   },
   "peerDependencies": {
     "@redhat-developer/page-objects": ">=1.0.0",
-    "selenium-webdriver": ">=4.6.1"
+    "selenium-webdriver": "^4.43.0"
   }
 }

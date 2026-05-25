@@ -44,7 +44,7 @@
     "type-fest": "^4.41.0"
   },
   "peerDependencies": {
-    "selenium-webdriver": ">=4.6.1",
+    "selenium-webdriver": "^4.43.0",
     "typescript": ">=4.6.2"
   }
 }
