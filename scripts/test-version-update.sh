@@ -138,5 +138,3 @@ else
     echo "   - Versions are up to date"
     echo "   - The workflow will check again next Monday"
 fi
-
-# Made with Bob
