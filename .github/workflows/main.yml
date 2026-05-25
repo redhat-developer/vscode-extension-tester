@@ -26,7 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: [min, 1.110.1, max]
+        version: [min, max]
     uses: ./.github/workflows/template-main.yaml
     with:
       version: ${{ matrix.version }}
