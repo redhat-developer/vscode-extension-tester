@@ -136,6 +136,7 @@ jobs:
             - vscode-max: ${{ steps.versions.outputs.current_max }} → ${{ steps.versions.outputs.latest }}
           branch: auto-update-vscode-versions
           delete-branch: true
+          push-to-fork: djelinek/vscode-extension-tester
           title: "Update VS Code version window (${{ steps.versions.outputs.oldest }} - ${{ steps.versions.outputs.latest }})"
           body: |
             ## 🔄 VS Code Version Window Update
