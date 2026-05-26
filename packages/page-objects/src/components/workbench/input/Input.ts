@@ -39,10 +39,10 @@ export abstract class Input extends AbstractElement {
 	 * @returns Promise resolving when the text is typed in
 	 */
 	async setText(text: string): Promise<void> {
-		const clipboard = (await import('clipboardy')).default;
+		const clipboard = await import('tinyclip');
 		let originalClipboard = '';
 		try {
-			originalClipboard = clipboard.readSync();
+			originalClipboard = await clipboard.readText();
 		} catch (error) {
 			// workaround issue https://github.com/redhat-developer/vscode-extension-tester/issues/835
 			// do not fail if clipboard is empty
@@ -62,11 +62,11 @@ export abstract class Input extends AbstractElement {
 
 		// fallback to clipboard if the text gets malformed
 		if ((await this.getText()) !== text) {
-			await clipboard.write(text);
+			await clipboard.writeText(text);
 			await input.sendKeys(Key.END, Key.chord(Key.SHIFT, Key.HOME));
 			await input.sendKeys(Key.chord(Input.ctlKey, 'v'));
 			if (originalClipboard.length > 0) {
-				clipboard.writeSync(originalClipboard);
+				await clipboard.writeText(originalClipboard);
 			}
 		}
 	}

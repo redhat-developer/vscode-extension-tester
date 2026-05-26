@@ -249,16 +249,15 @@
     "watch": "tsc -watch -p ./",
     "compile": "tsc -p ./ && npm run lint",
     "lint": "eslint --fix --fix-type layout src",
-    "cb-init": "echo hello_ExTester | clipboard",
+    "cb-init": "echo hello_ExTester | node ./cb-init.mjs",
     "ui-test": "npm run cb-init && extest setup-and-run './out/test/cli/order-3.test.js' './out/test/cli/order-2.test.js' './out/test/cli/order-1.test.js' './out/test/**/!(clipboard)*.test.js' './out/test/system/clipboard.test.js' -u -i -r . -e ./test-extensions",
     "ui-test:coverage": "MOCHA_GREP='order|clipboard|ExtensionsView|TitleBar' MOCHA_INVERT=true extest setup-and-run './out/test/**/*.test.js' -i -r . -e ./test-extensions --coverage"
   },
   "devDependencies": {
     "chai": "^4.5.0",
     "compare-versions": "^6.1.1",
-    "clipboard-cli": "^5.0.0",
-    "clipboardy": "^5.3.1",
     "mocha": "^11.7.5",
-    "vscode-extension-tester": "*"
+    "vscode-extension-tester": "*",
+    "tinyclip": "^0.1.12"
   }
 }
