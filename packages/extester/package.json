@@ -68,7 +68,7 @@
     "glob": "^13.0.6",
     "got": "^14.6.6",
     "hpagent": "^1.2.0",
-    "js-yaml": "^4.1.1",
+    "js-yaml": "^4.2.0",
     "sanitize-filename": "^1.6.3",
     "selenium-webdriver": "^4.41.0",
     "targz": "^1.0.1",
