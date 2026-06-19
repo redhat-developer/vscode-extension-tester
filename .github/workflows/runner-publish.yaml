@@ -31,7 +31,7 @@ jobs:
         run: echo "Publishing version ${{ github.event.inputs.tag }}"
 
       - name: 👷🏻 Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
