@@ -229,7 +229,7 @@ describe('TextEditor', function () {
 					[2, 12],
 					[3, 15],
 				]) {
-					(param.indent === 'tabs' ? it.skip : it)(`set cursor to position [Ln ${coor[0]}, Col ${coor[1]}]`, async function () {
+					it(`set cursor to position [Ln ${coor[0]}, Col ${coor[1]}]`, async function () {
 						this.timeout(30000);
 						await editor.setCursor(coor[0], coor[1]);
 						expect(await editor.getCoordinates()).to.deep.equal(coor);

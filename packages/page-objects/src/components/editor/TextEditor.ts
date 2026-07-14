@@ -341,7 +341,7 @@ export class TextEditor extends Editor {
 	 * @returns Promise resolving when the text is typed in
 	 */
 	async typeTextAt(line: number, column: number, text: string): Promise<void> {
-		await this.moveCursor(line, column);
+		await this.setCursor(line, column);
 		await this.typeText(text);
 	}
 
