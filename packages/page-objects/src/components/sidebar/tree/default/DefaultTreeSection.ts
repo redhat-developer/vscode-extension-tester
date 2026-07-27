@@ -48,7 +48,7 @@ export class DefaultTreeSection extends TreeSection {
 		do {
 			const temp = await container.findElements(DefaultTreeSection.locators.DefaultTreeItem.ctor(label));
 			if (temp.length > 0) {
-				const level = +(await temp[0].getAttribute(DefaultTreeSection.locators.ViewSection.level));
+				const level = +(await temp[0].getAttribute(DefaultTreeSection.locators.ViewSection.level))!;
 				if (maxLevel < 1 || level <= maxLevel) {
 					item = await new DefaultTreeItem(temp[0], this).wait();
 				}

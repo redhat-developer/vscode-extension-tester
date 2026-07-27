@@ -170,7 +170,7 @@ export class StatusBar extends AbstractElement {
 	private async toggleNotificationsCentre(open: boolean): Promise<void> {
 		let visible = false;
 		try {
-			const klass = await this.enclosingItem.findElement(StatusBar.locators.StatusBar.notifications).getAttribute('class');
+			const klass = (await this.enclosingItem.findElement(StatusBar.locators.StatusBar.notifications).getAttribute('class'))!;
 			visible = klass.indexOf('visible') > -1;
 		} catch (err) {
 			// element doesn't exist until the button is first clicked
@@ -181,6 +181,6 @@ export class StatusBar extends AbstractElement {
 	}
 
 	private async getPartText(locator: Locator): Promise<string> {
-		return await this.findElement(locator).findElement(StatusBar.locators.StatusBar.aTag).getAttribute('innerHTML');
+		return (await this.findElement(locator).findElement(StatusBar.locators.StatusBar.aTag).getAttribute('innerHTML'))!;
 	}
 }

@@ -287,7 +287,7 @@ export abstract class AbstractElement extends WebElement {
 	 */
 	async safeGetAttribute(name: string): Promise<string> {
 		return await this.withRecovery(async (self) => {
-			return await self.getAttribute(name);
+			return (await self.getAttribute(name))!;
 		});
 	}
 }

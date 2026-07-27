@@ -16,8 +16,9 @@
  */
 
 import { By, IRectangle, WebElement } from 'selenium-webdriver';
-import { PartialDeep } from 'type-fest';
 import { ViewSection } from '../components/sidebar/ViewSection';
+
+type PartialDeep<T> = T extends object ? { [K in keyof T]?: PartialDeep<T[K]> } : T;
 
 type WebElementFunction<E extends WebElement, T> = (element: E) => T | PromiseLike<T>;
 type LocatorAwareWebElementFunction<T> = (element: WebElement, locator: Locators) => T | PromiseLike<T>;
@@ -592,7 +593,7 @@ export function hasClass(classOrPredicate: string | ((klass: string) => boolean)
 		const klasses = await el.getAttribute('class');
 		const segments = klasses?.split(/\s+/g);
 		const predicate = typeof classOrPredicate === 'string' ? (klass: string) => klass === classOrPredicate : classOrPredicate;
-		return segments.find(predicate) !== undefined;
+		return segments?.find(predicate) !== undefined;
 	};
 }
 
@@ -612,7 +613,7 @@ export function hasElement(locatorSelector: (l: Locators) => By): (el: WebElemen
 export function fromAttribute(attribute: string, locator?: By): (el: WebElement) => Promise<string> {
 	return async (el: WebElement) => {
 		el = locator ? await el.findElement(locator) : el;
-		return await el.getAttribute(attribute);
+		return (await el.getAttribute(attribute))!;
 	};
 }
 

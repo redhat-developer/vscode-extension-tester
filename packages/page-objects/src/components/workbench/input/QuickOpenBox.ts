@@ -37,7 +37,7 @@ export class QuickOpenBox extends Input {
 	}
 
 	async hasProgress(): Promise<boolean> {
-		const klass = await this.findElement(QuickOpenBox.locators.QuickOpenBox.progress).getAttribute('class');
+		const klass = (await this.findElement(QuickOpenBox.locators.QuickOpenBox.progress).getAttribute('class'))!;
 		return klass.indexOf('done') < 0;
 	}
 
@@ -47,7 +47,7 @@ export class QuickOpenBox extends Input {
 		const elements = await tree.findElements(QuickOpenBox.locators.QuickOpenBox.row);
 		for (const element of elements) {
 			try {
-				const index = +(await element.getAttribute('aria-posinset'));
+				const index = +(await element.getAttribute('aria-posinset'))!;
 				if (await element.isDisplayed()) {
 					picks.push(await new QuickPickItem(index, this).wait());
 				}

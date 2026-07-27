@@ -36,7 +36,7 @@ export class CustomEditor extends Editor {
 	 */
 	async isDirty(): Promise<boolean> {
 		const tab = await this.getTab();
-		const klass = await tab.getAttribute('class');
+		const klass = (await tab.getAttribute('class'))!;
 		return klass.includes('dirty');
 	}
 

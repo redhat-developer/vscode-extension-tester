@@ -230,14 +230,14 @@ export abstract class Setting extends AbstractElement {
 export class ComboSetting extends Setting {
 	async getValue(): Promise<string> {
 		const combo = await this.findElement(SettingsEditor.locators.SettingsEditor.comboSetting);
-		return await combo.getAttribute(SettingsEditor.locators.SettingsEditor.comboValue);
+		return (await combo.getAttribute(SettingsEditor.locators.SettingsEditor.comboValue))!;
 	}
 
 	async setValue(value: string): Promise<void> {
 		const rows = await this.getOptions();
 		for (const row of rows) {
 			try {
-				if ((await row.getAttribute('class')).indexOf('disabled') < 0) {
+				if ((await row.getAttribute('class'))!.indexOf('disabled') < 0) {
 					const text = await row.getAttribute(SettingsEditor.locators.SettingsEditor.comboValue);
 					if (value === text) {
 						return await row.click();
@@ -261,7 +261,7 @@ export class ComboSetting extends Setting {
 		const rows = await this.getOptions();
 		for (const row of rows) {
 			try {
-				values.push(await row.getAttribute(SettingsEditor.locators.SettingsEditor.comboValue));
+				values.push((await row.getAttribute(SettingsEditor.locators.SettingsEditor.comboValue))!);
 			} catch (e: any) {
 				if (e.name === 'StaleElementReferenceError') {
 					continue;
@@ -284,7 +284,7 @@ export class ComboSetting extends Setting {
 export class TextSetting extends Setting {
 	async getValue(): Promise<string> {
 		const input = await this.findElement(SettingsEditor.locators.SettingsEditor.textSetting);
-		return await input.getAttribute('value');
+		return (await input.getAttribute('value'))!;
 	}
 
 	async setValue(value: string): Promise<void> {

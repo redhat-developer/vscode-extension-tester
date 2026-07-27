@@ -47,7 +47,7 @@ export abstract class Notification extends ElementWithContextMenu {
 	 * @returns Promise resolving to NotificationType
 	 */
 	async getType(): Promise<NotificationType> {
-		const iconType = await (await this.findElement(Notification.locators.Notification.icon)).getAttribute('class');
+		const iconType = (await (await this.findElement(Notification.locators.Notification.icon)).getAttribute('class'))!;
 		if (iconType.indexOf('icon-info') > -1) {
 			return NotificationType.Info;
 		} else if (iconType.indexOf('icon-warning') > -1) {
@@ -67,7 +67,7 @@ export abstract class Notification extends ElementWithContextMenu {
 			throw Error(`DEPRECATED METHOD! For VS Code 1.88+ this method won't be working any more.`);
 		}
 		await this.expand();
-		return await (await this.findElement(Notification.locators.Notification.source)).getAttribute('title');
+		return (await (await this.findElement(Notification.locators.Notification.source)).getAttribute('title'))!;
 	}
 
 	/**
@@ -75,7 +75,7 @@ export abstract class Notification extends ElementWithContextMenu {
 	 * @returns Promise resolving to true/false
 	 */
 	async hasProgress(): Promise<boolean> {
-		const klass = await (await this.findElement(Notification.locators.Notification.progress)).getAttribute('class');
+		const klass = (await (await this.findElement(Notification.locators.Notification.progress)).getAttribute('class'))!;
 		return klass.indexOf('done') < 0;
 	}
 

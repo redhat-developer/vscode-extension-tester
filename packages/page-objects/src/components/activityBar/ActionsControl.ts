@@ -39,6 +39,6 @@ export class ActionsControl extends ElementWithContextMenu {
 	 * Returns the title of the associated action
 	 */
 	async getTitle(): Promise<string> {
-		return await this.getAttribute('aria-label');
+		return (await this.getAttribute('aria-label'))!;
 	}
 }

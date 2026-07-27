@@ -43,7 +43,7 @@ export class ViewTitlePart extends ElementWithContextMenu {
 		const actions: TitleActionButton[] = [];
 		const elements = await this.findElements(ViewTitlePart.locators.ViewTitlePart.action);
 		for (const element of elements) {
-			const title = await element.getAttribute(ViewTitlePart.locators.ViewTitlePart.actionLabel);
+			const title = (await element.getAttribute(ViewTitlePart.locators.ViewTitlePart.actionLabel))!;
 			actions.push(await new TitleActionButton(TitleActionButton.locators.ViewTitlePart.actionConstructor(title), this).wait());
 		}
 		return actions;
@@ -71,6 +71,6 @@ export class TitleActionButton extends AbstractElement {
 	 * Get title of the button
 	 */
 	async getTitle(): Promise<string> {
-		return await this.getAttribute(TitleActionButton.locators.ViewTitlePart.actionLabel);
+		return (await this.getAttribute(TitleActionButton.locators.ViewTitlePart.actionLabel))!;
 	}
 }
