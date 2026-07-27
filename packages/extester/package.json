@@ -52,8 +52,8 @@
     "ui-test"
   ],
   "supportedVersions": {
-    "vscode-min": "1.109.5",
-    "vscode-max": "1.111.0"
+    "vscode-min": "1.128.1",
+    "vscode-max": "1.130.0"
   },
   "dependencies": {
     "@redhat-developer/locators": "^1.20.0",

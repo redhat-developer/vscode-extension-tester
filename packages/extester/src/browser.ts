@@ -86,6 +86,9 @@ export class VSBrowser {
 			'files.simpleDialog.enable': true,
 			'terminal.integrated.copyOnSelection': true,
 			'workbench.secondarySideBar.defaultVisibility': 'hidden',
+			'workbench.welcomePage.experimentalOnboarding': false,
+			'workbench.welcomePage.walkthroughs.openOnInstall': false,
+			'workbench.editor.useModal': 'off',
 			...(satisfies(this.codeVersion, '>=1.101.0') ? { 'window.menuStyle': 'custom' } : {}),
 		};
 		if (Object.keys(this.customSettings).length > 0) {
