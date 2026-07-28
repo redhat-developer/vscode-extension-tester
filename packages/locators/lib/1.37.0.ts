@@ -347,6 +347,7 @@ const sideBar = {
 	CustomTreeItem: {
 		constructor: (label: string) => By.xpath(`.//div[@role='treeitem' and .//span[text()='${label}']]`),
 		tooltipAttribute: 'aria-label',
+		tooltipElement: By.className('custom-view-tree-node-item-resourceLabel'),
 		expandedAttr: 'aria-expanded',
 		expandedValue: 'true',
 		description: By.className('label-description'),

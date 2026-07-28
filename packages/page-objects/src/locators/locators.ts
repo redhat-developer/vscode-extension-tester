@@ -351,6 +351,7 @@ export interface Locators {
 		expandedAttr: string;
 		expandedValue: string;
 		tooltipAttribute: string;
+		tooltipElement: By;
 		description: By;
 	};
 	DebugBreakpointSection: {

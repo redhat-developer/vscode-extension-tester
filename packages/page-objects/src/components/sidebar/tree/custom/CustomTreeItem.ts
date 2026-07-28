@@ -32,7 +32,8 @@ export class CustomTreeItem extends TreeItem {
 	}
 
 	async getTooltip(): Promise<string> {
-		return (await this.getAttribute(CustomTreeItem.locators.CustomTreeItem.tooltipAttribute))!;
+		const resourceItem = await this.findElement(CustomTreeItem.locators.CustomTreeItem.tooltipElement);
+		return (await resourceItem.getAttribute(CustomTreeItem.locators.CustomTreeItem.tooltipAttribute))!;
 	}
 
 	async getDescription(): Promise<string> {
