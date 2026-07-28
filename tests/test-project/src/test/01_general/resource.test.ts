@@ -38,22 +38,36 @@ describe('Open resource test', function () {
 
 	it('Single folder is open from CLI', async function () {
 		let lastError = new Error('Could not get title from TitleBar.');
-		const prefix = 'folder: ';
+		// VS Code >=1.130 title format: "<file> — <foldername>"
+		// VS Code <1.130 title format:  "folder: /full/path — Visual Studio Code"
+		const legacyPrefix = 'folder: ';
+		const expectedFolder = path.basename(process.cwd());
+		const expectedFullPath = process.cwd();
 
 		await VSBrowser.instance.driver.wait(
 			async () => {
-				const [title, error] = await getTitle();
-				lastError = error ?? lastError;
+				const [title, err] = await getTitle();
+				lastError = err ?? lastError;
+				if (!title) {
+					return false;
+				}
 
-				const index = title?.indexOf(prefix) ?? 0;
+				// New format: title ends with " — <foldername>"
+				const separatorIdx = title.lastIndexOf(' \u2014 ');
+				if (separatorIdx !== -1) {
+					const folderName = title.slice(separatorIdx + 3).trim();
+					expect(folderName).equals(expectedFolder);
+					return true;
+				}
 
-				let openFolderPath = title?.slice(index + prefix.length);
-				if (openFolderPath) {
+				// Legacy format: "folder: /full/path ..."
+				const legacyIdx = title.indexOf(legacyPrefix);
+				if (legacyIdx !== -1) {
+					let openFolderPath = title.slice(legacyIdx + legacyPrefix.length);
 					if (openFolderPath.startsWith('~/')) {
 						openFolderPath = path.join(os.homedir(), openFolderPath.slice(2));
 					}
-
-					expect(openFolderPath.split(' ')[0]).equals(process.cwd());
+					expect(openFolderPath.split(' ')[0]).equals(expectedFullPath);
 					return true;
 				}
 

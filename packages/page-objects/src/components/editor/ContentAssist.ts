@@ -67,7 +67,7 @@ export class ContentAssist extends Menu {
 	async getItems(): Promise<ContentAssistItem[]> {
 		await this.getDriver().wait(async () => {
 			return await this.isLoaded();
-		});
+		}, 10000);
 
 		const elements = await this.findElement(ContentAssist.locators.ContentAssist.itemRows).findElements(ContentAssist.locators.ContentAssist.itemRow);
 		const items: ContentAssistItem[] = [];
@@ -90,12 +90,15 @@ export class ContentAssist extends Menu {
 	 * to false otherwise
 	 */
 	async isLoaded(): Promise<boolean> {
-		const message = await this.findElement(ContentAssist.locators.ContentAssist.message);
-		if (await message.isDisplayed()) {
-			if ((await message.getText()).startsWith('No suggestions')) {
-				return true;
-			}
-			return false;
+		const messages = await this.findElements(ContentAssist.locators.ContentAssist.message);
+		if (messages.length === 0) {
+			return true;
+		}
+		if (await messages[0].isDisplayed()) {
+			const text = await messages[0].getText();
+			// Empty message means loaded; "No suggestions" is also a terminal state.
+			// Any other non-empty text (e.g. "Loading...") means still loading.
+			return text === '' || text.startsWith('No suggestions');
 		}
 		return true;
 	}
