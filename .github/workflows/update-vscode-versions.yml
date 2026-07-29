@@ -1,4 +1,4 @@
-name: 🔄 Update VS Code Version Window
+name: 🔄 Sync VS Code version support
 
 on:
   schedule:
@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: 👷🏻 Checkout Repository
         uses: actions/checkout@v7
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
 
       - name: ⚙️ Setup Node.js
         uses: actions/setup-node@v7
@@ -34,26 +36,27 @@ jobs:
               exit 1
             fi
 
-            # Get unique major.minor versions and find latest patch for each
-            # This gives us the latest 2 major versions with their latest patches
-            MAJOR_VERSIONS=$(echo $RELEASES | jq -r '.[]' | sed -E 's/([0-9]+\.[0-9]+)\..*/\1/' | uniq | head -2)
+            # Get unique major.minor versions (latest patch for each) — take top 3
+            MAJOR_VERSIONS=$(echo "$RELEASES" | jq -r '.[]' | sed -E 's/([0-9]+\.[0-9]+)\..*/\1/' | uniq | head -3)
 
-            # Validate we have at least 2 major versions
+            # Validate we have at least 3 major.minor versions
             COUNT=$(echo "$MAJOR_VERSIONS" | wc -l | tr -d ' ')
-            if [[ "$COUNT" -lt 2 ]]; then
-              echo "❌ Not enough major versions available (found $COUNT, need 2)"
+            if [[ "$COUNT" -lt 3 ]]; then
+              echo "❌ Not enough major versions available (found $COUNT, need 3)"
               exit 1
             fi
 
-            # Get the latest patch version for each of the 2 major versions
+            # Latest patch version for each of the 3 major.minor streams
             MAJOR_1=$(echo "$MAJOR_VERSIONS" | sed -n '1p')
             MAJOR_2=$(echo "$MAJOR_VERSIONS" | sed -n '2p')
+            MAJOR_3=$(echo "$MAJOR_VERSIONS" | sed -n '3p')
 
-            LATEST=$(echo $RELEASES | jq -r ".[] | select(startswith(\"$MAJOR_1\"))" | head -1)
-            OLDEST=$(echo $RELEASES | jq -r ".[] | select(startswith(\"$MAJOR_2\"))" | head -1)
+            LATEST=$(echo "$RELEASES" | jq -r ".[] | select(startswith(\"$MAJOR_1\"))" | head -1)
+            MIDDLE=$(echo "$RELEASES" | jq -r ".[] | select(startswith(\"$MAJOR_2\"))" | head -1)
+            OLDEST=$(echo "$RELEASES" | jq -r ".[] | select(startswith(\"$MAJOR_3\"))" | head -1)
 
             # Validate version format (x.y.z)
-            for VERSION in $LATEST $OLDEST; do
+            for VERSION in "$LATEST" "$MIDDLE" "$OLDEST"; do
               if ! [[ $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
                 echo "❌ Invalid version format: $VERSION"
                 exit 1
@@ -62,17 +65,19 @@ jobs:
 
             echo "✅ Found valid versions:"
             echo "  Latest (max): $LATEST"
+            echo "  Middle:       $MIDDLE"
             echo "  Oldest (min): $OLDEST"
 
-            echo "latest=$LATEST" >> $GITHUB_OUTPUT
-            echo "oldest=$OLDEST" >> $GITHUB_OUTPUT
+            echo "latest=$LATEST" >> "$GITHUB_OUTPUT"
+            echo "middle=$MIDDLE" >> "$GITHUB_OUTPUT"
+            echo "oldest=$OLDEST" >> "$GITHUB_OUTPUT"
 
-            # Get current values
+            # Get current values from package.json
             CURRENT_MAX=$(jq -r '.supportedVersions["vscode-max"]' packages/extester/package.json)
             CURRENT_MIN=$(jq -r '.supportedVersions["vscode-min"]' packages/extester/package.json)
 
-            echo "current_max=$CURRENT_MAX" >> $GITHUB_OUTPUT
-            echo "current_min=$CURRENT_MIN" >> $GITHUB_OUTPUT
+            echo "current_max=$CURRENT_MAX" >> "$GITHUB_OUTPUT"
+            echo "current_min=$CURRENT_MIN" >> "$GITHUB_OUTPUT"
 
       - name: 🔎 Check if update needed
         id: check
@@ -96,10 +101,12 @@ jobs:
             echo "✅ No updates needed - versions are current"
           fi
 
-          echo "needs_update=$NEEDS_UPDATE" >> $GITHUB_OUTPUT
-          echo "changes<<EOF" >> $GITHUB_OUTPUT
-          echo -e "$CHANGES" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          echo "needs_update=$NEEDS_UPDATE" >> "$GITHUB_OUTPUT"
+          {
+            echo "changes<<EOF"
+            echo -e "$CHANGES"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: 📝 Update package.json
         if: steps.check.outputs.needs_update == 'true'
@@ -126,39 +133,43 @@ jobs:
       - name: 🔀 Create Pull Request
         if: steps.check.outputs.needs_update == 'true'
         id: create_pr
-        uses: peter-evans/create-pull-request@v8.1.1
+        uses: peter-evans/create-pull-request@v8
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # PAT_TOKEN needs repo scope on redhat-developer/vscode-extension-tester.
+          # GITHUB_TOKEN alone cannot push a new branch in a scheduled workflow,
+          # so we use the repo-scoped PAT that is already stored as a secret.
+          token: ${{ secrets.PAT_TOKEN }}
           commit-message: |
-            chore: update VS Code version window to latest 2 releases
+            chore: update supported VS Code versions
 
             - vscode-min: ${{ steps.versions.outputs.current_min }} → ${{ steps.versions.outputs.oldest }}
             - vscode-max: ${{ steps.versions.outputs.current_max }} → ${{ steps.versions.outputs.latest }}
           branch: auto-update-vscode-versions
           delete-branch: true
-          push-to-fork: djelinek/vscode-extension-tester
-          title: "Update VS Code version window (${{ steps.versions.outputs.oldest }} - ${{ steps.versions.outputs.latest }})"
+          base: main
+          title: "chore: update supported VS Code versions (${{ steps.versions.outputs.oldest }} - ${{ steps.versions.outputs.latest }})"
           body: |
-            ## 🔄 VS Code Version Window Update
+            ## 🔄 Update supported VS Code versions
 
-            This PR updates the supported VS Code version window to the latest 2 stable major releases.
+            This PR updates the supported VS Code versions to the latest **3** stable minor releases.
 
             ### 📊 Version Changes
 
-            | Position | Before | After | Status |
-            |----------|--------|-------|--------|
-            | **Min** | `${{ steps.versions.outputs.current_min }}` | `${{ steps.versions.outputs.oldest }}` | ${{ steps.versions.outputs.current_min != steps.versions.outputs.oldest && '✅ Updated' || '➖ No change' }} |
-            | **Max** | `${{ steps.versions.outputs.current_max }}` | `${{ steps.versions.outputs.latest }}` | ${{ steps.versions.outputs.current_max != steps.versions.outputs.latest && '✅ Updated' || '➖ No change' }} |
+            | Position | Before | After |
+            |----------|--------|-------|
+            | **Min** | `${{ steps.versions.outputs.current_min }}` | `${{ steps.versions.outputs.oldest }}` |
+            | **Middle** | *(implicit)* | `${{ steps.versions.outputs.middle }}` |
+            | **Max** | `${{ steps.versions.outputs.current_max }}` | `${{ steps.versions.outputs.latest }}` |
 
             ### 📝 Files Modified
 
-            - ✅ [`packages/extester/package.json`](https://github.com/${{ github.repository }}/blob/${{ github.head_ref || github.ref_name }}/packages/extester/package.json) - Updated `vscode-min` and `vscode-max`
+            - [`packages/extester/package.json`](https://github.com/${{ github.repository }}/blob/auto-update-vscode-versions/packages/extester/package.json) — updated `vscode-min` and `vscode-max`
 
             ### 🧪 Testing
 
-            CI will automatically test against both versions:
-            - ✅ Min: `${{ steps.versions.outputs.oldest }}`
-            - ✅ Max: `${{ steps.versions.outputs.latest }}`
+            CI will automatically run against min and max versions:
+            - Min: `${{ steps.versions.outputs.oldest }}`
+            - Max: `${{ steps.versions.outputs.latest }}`
 
             ### ✅ Review Checklist
 
@@ -167,157 +178,42 @@ jobs:
             - [ ] Page objects still work across all versions
             - [ ] Ready to merge and release
 
-            ### 📦 Next Steps After Merge
-
-            1. ✅ Verify all tests passed
-            2. 🚀 Trigger release workflow if needed
-            3. 📚 Update documentation if there are breaking changes
-
             ---
 
-            🤖 *This PR was automatically created by the [version update workflow](https://github.com/${{ github.repository }}/actions/workflows/update-vscode-versions.yml)*
+            🤖 *This PR was automatically created by the [sync workflow](https://github.com/${{ github.repository }}/actions/workflows/update-vscode-versions.yml)*
           labels: |
             automation
             maintenance
             dependencies
-
-      - name: 💬 Create PR using GitHub CLI
-        if: steps.check.outputs.needs_update == 'true' && steps.create_pr.outputs.pull-request-operation == 'created'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # Get the PR number from the create-pull-request action
-          PR_NUMBER="${{ steps.create_pr.outputs.pull-request-number }}"
-
-          if [ -z "$PR_NUMBER" ]; then
-            echo "No PR number found, attempting to create PR via GitHub CLI..."
-            
-            # Create PR using gh CLI
-            gh pr create \
-              --repo redhat-developer/vscode-extension-tester \
-              --head djelinek:auto-update-vscode-versions \
-              --base main \
-              --title "Update VS Code version window (${{ steps.versions.outputs.oldest }} - ${{ steps.versions.outputs.latest }})" \
-              --body "## 🔄 VS Code Version Window Update
-
-            This PR updates the supported VS Code version window to the latest 2 stable major releases.
-
-            ### 📊 Version Changes
-
-            | Position | Before | After | Status |
-            |----------|--------|-------|--------|
-            | **Min** | \`${{ steps.versions.outputs.current_min }}\` | \`${{ steps.versions.outputs.oldest }}\` | ✅ Updated |
-            | **Max** | \`${{ steps.versions.outputs.current_max }}\` | \`${{ steps.versions.outputs.latest }}\` | ✅ Updated |
-
-            ### 📝 Files Modified
-
-            - ✅ [\`packages/extester/package.json\`](https://github.com/redhat-developer/vscode-extension-tester/blob/auto-update-vscode-versions/packages/extester/package.json) - Updated \`vscode-min\` and \`vscode-max\`
-
-            ### 🧪 Testing
-
-            CI will automatically test against both versions:
-            - ✅ Min: \`${{ steps.versions.outputs.oldest }}\`
-            - ✅ Max: \`${{ steps.versions.outputs.latest }}\`
-
-            ### ✅ Review Checklist
-
-            - [ ] All CI tests pass for both versions
-            - [ ] No breaking changes detected in test results
-            - [ ] Page objects still work across all versions
-            - [ ] Ready to merge and release
-
-            ### 📦 Next Steps After Merge
-
-            1. ✅ Verify all tests passed
-            2. 🚀 Trigger release workflow if needed
-            3. 📚 Update documentation if there are breaking changes
-
-            ---
-
-            🤖 *This PR was automatically created by the [version update workflow](https://github.com/redhat-developer/vscode-extension-tester/actions/workflows/update-vscode-versions.yml)*" \
-              --label automation,maintenance,dependencies || echo "PR creation failed or already exists"
-          fi
+          team-reviewers: ${{ github.repository == 'redhat-developer/vscode-extension-tester' && 'extester-maintainers' || '' }}
 
       - name: 💬 Comment on PR with test instructions
         if: steps.check.outputs.needs_update == 'true' && steps.create_pr.outputs.pull-request-number
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           gh pr comment ${{ steps.create_pr.outputs.pull-request-number }} \
             --repo redhat-developer/vscode-extension-tester \
             --body "## 🧪 Testing Instructions
-              
-              The CI pipeline will automatically test both versions. Monitor the test results in the checks below.
-              
-              ### 🔍 What to Review
-              
-              - ✅ Check that all CI tests pass
-              - ⚠️ Look for any failures or warnings in test output
-              - 📸 Review screenshots if any tests fail
-              - 🐛 Check for breaking changes in page objects
-              
-              ### 🛠️ Manual Testing (Optional)
-              
-              If you want to test locally before merging:
-              
-              \`\`\`bash
-              # Test with min version
-              CODE_VERSION=min npm test
-              
-              # Test with max version
-              CODE_VERSION=max npm test
-              \`\`\`
-              
-              ### ✅ Ready to Merge?
-              
-              If all tests pass and there are no breaking changes, this PR is ready to merge! 🎉
-              
-              After merging, consider:
-              1. Creating a new release with the updated version support
-              2. Updating documentation if needed
-              3. Announcing the new supported versions"
 
-      - name: ⚠️ Notify on failure (legacy)
-        if: failure()
-        uses: actions/github-script@v9
-        with:
-          script: |
-            github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: ${{ steps.create_pr.outputs.pull-request-number }},
-              body: `## 🧪 Testing Instructions
-              
-              The CI pipeline will automatically test both versions. Monitor the test results in the checks below.
-              
-              ### 🔍 What to Review
-              
-              - ✅ Check that all CI tests pass
-              - ⚠️ Look for any failures or warnings in test output
-              - 📸 Review screenshots if any tests fail
-              - 🐛 Check for breaking changes in page objects
-              
-              ### 🛠️ Manual Testing (Optional)
-              
-              If you want to test locally before merging:
-              
-              \`\`\`bash
-              # Test with min version
-              CODE_VERSION=min npm test
-              
-              # Test with max version
-              CODE_VERSION=max npm test
-              \`\`\`
-              
-              ### ✅ Ready to Merge?
-              
-              If all tests pass and there are no breaking changes, this PR is ready to merge! 🎉
-              
-              After merging, consider:
-              1. Creating a new release with the updated version support
-              2. Updating documentation if needed
-              3. Announcing the new supported versions`
-            })
+          The CI pipeline will automatically test both versions. Monitor the test results in the checks below.
+
+          ### 🔍 What to Review
+
+          - Check that all CI tests pass
+          - Look for any failures or warnings in test output
+          - Review screenshots if any tests fail
+          - Check for breaking changes in page objects
+
+          ### 🛠️ Manual Testing (Optional)
+
+          \`\`\`bash
+          # Test with min version
+          CODE_VERSION=min npm test
+
+          # Test with max version
+          CODE_VERSION=max npm test
+          \`\`\`"
 
       - name: ⚠️ Notify on failure
         if: failure()
@@ -327,31 +223,31 @@ jobs:
             github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: '⚠️ VS Code version update workflow failed',
-              body: `## ⚠️ Automated Version Update Failed
-              
-              The automated VS Code version update workflow encountered an error.
-              
-              ### 📋 Details
-              
-              - **Workflow Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-              - **Triggered**: ${{ github.event_name }}
-              - **Branch**: ${{ github.ref_name }}
-              
-              ### 🔧 Action Required
-              
-              Please investigate the workflow failure and update versions manually if needed.
-              
-              ### 📝 Manual Update Steps
-              
-              1. Check the latest 2 VS Code stable versions at https://code.visualstudio.com/updates
-              2. Update \`packages/extester/package.json\`:
-                 - \`vscode-min\`: oldest of the 2 versions
-                 - \`vscode-max\`: newest of the 2 versions
-              3. Run tests and create a release
-              
-              ---
-              
-              🤖 *This issue was automatically created by the version update workflow*`,
+              title: '⚠️ Sync VS Code version support workflow failed',
+              body: `## ⚠️ Automated VS Code Version Sync Failed
+
+            The automated VS Code version sync workflow encountered an error.
+
+            ### 📋 Details
+
+            - **Workflow Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            - **Triggered**: ${{ github.event_name }}
+            - **Branch**: ${{ github.ref_name }}
+
+            ### 🔧 Action Required
+
+            Please investigate the workflow failure and update versions manually if needed.
+
+            ### 📝 Manual Update Steps
+
+            1. Check the latest 3 VS Code stable versions at https://code.visualstudio.com/updates
+            2. Update \`packages/extester/package.json\`:
+               - \`vscode-min\`: oldest of the 3 versions
+               - \`vscode-max\`: newest of the 3 versions
+            3. Run tests and create a release
+
+            ---
+
+            🤖 *This issue was automatically created by the version sync workflow*`,
               labels: ['automation', 'bug', 'maintenance']
             })
