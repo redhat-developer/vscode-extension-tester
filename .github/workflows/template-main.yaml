@@ -27,7 +27,6 @@ jobs:
     env:
       CODE_TYPE: ${{ inputs.code_type }}
       CODE_VERSION: ${{ inputs.version }}
-      TEST_RESOURCES: test-resources
 
     steps:
       - name: 👷🏻 Checkout Repository
@@ -88,8 +87,8 @@ jobs:
         with:
           name: screenshots-${{ matrix.os }}-${{ inputs.version }}-node_${{ inputs.nodejs }}
           path: |
-            ${{ github.workspace }}/tests/**/screenshots/**/*.png
-            ${{ github.workspace }}/tests/**/test-resources/chromedriver.log
+            ${{ runner.temp }}/test-resources/screenshots/**/*.png
+            ${{ runner.temp }}/test-resources/chromedriver.log
 
       - name: 💾 Upload Screenshots
         uses: actions/upload-artifact@v7
@@ -97,5 +96,5 @@ jobs:
         with:
           name: screenshots-${{ matrix.os }}-${{ inputs.version }}-node_lts
           path: |
-            ${{ github.workspace }}/tests/**/screenshots/**/*.png
-            ${{ github.workspace }}/tests/**/test-resources/chromedriver.log
+            ${{ runner.temp }}/test-resources/screenshots/**/*.png
+            ${{ runner.temp }}/test-resources/chromedriver.log
