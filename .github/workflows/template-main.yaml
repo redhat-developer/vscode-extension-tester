@@ -59,7 +59,6 @@ jobs:
           retry_wait_seconds: 60
           max_attempts: 3
           command: npm test
-          on_retry_command: rm -rf "${RUNNER_TEMP}/extest-code"
 
       - name: 🔍 Run Tests (windows)
         uses: nick-fields/retry@v4

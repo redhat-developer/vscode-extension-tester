@@ -63,18 +63,18 @@ export const DEFAULT_RUN_OPTIONS = {
  * Includes downloading, unpacking, launching, and version checks.
  */
 export class CodeUtil {
-	private codeFolder: string;
-	private downloadPlatform: string;
-	private downloadFolder: string;
-	private releaseType: ReleaseQuality;
+	private readonly codeFolder: string;
+	private readonly downloadPlatform: string;
+	private readonly downloadFolder: string;
+	private readonly releaseType: ReleaseQuality;
 	private executablePath!: string;
 	private macExecutableResolved = false;
 	private cliPath!: string;
 	private cliPathResolved = false;
 	private cliEnv!: string;
 	private availableVersions: string[];
-	private extensionsFolder: string | undefined;
-	private coverage: boolean | undefined;
+	private readonly extensionsFolder: string | undefined;
+	private readonly coverage: boolean | undefined;
 	private readonly env: NodeJS.ProcessEnv = { ...process.env };
 
 	/**
@@ -139,7 +139,7 @@ export class CodeUtil {
 			fs.mkdirpSync(this.downloadFolder);
 
 			const url = ['https://update.code.visualstudio.com', version, this.downloadPlatform, this.releaseType].join('/');
-			const isTarGz = this.downloadPlatform.indexOf('linux') > -1;
+			const isTarGz = this.downloadPlatform.includes('linux');
 			const fileExtension = isTarGz ? 'tar.gz' : 'zip';
 			let versionPart = '';
 			if (this.releaseType === ReleaseQuality.Stable) {
@@ -174,6 +174,12 @@ export class CodeUtil {
 					rootDir = path.join(target, files[0]);
 				}
 				await fs.move(rootDir, this.codeFolder, { overwrite: true });
+				if (process.platform === 'darwin') {
+					// Remove macOS quarantine attribute that may be inherited from the downloaded
+					// zip on newer macOS versions (Sequoia / Tahoe), which would prevent
+					// the hardened-runtime app bundle from launching via ChromeDriver.
+					childProcess.execSync(`xattr -r -d com.apple.quarantine "${this.codeFolder}"`, { stdio: 'ignore' });
+				}
 				console.log('Success!');
 				if (noCache) {
 					await fs.remove(zipPath);
@@ -195,7 +201,7 @@ export class CodeUtil {
 		if (id) {
 			return this.installExt(id, preRelease);
 		}
-		const vsixPath = path.resolve(vsix ? vsix : `${pjson.name}-${pjson.version}.vsix`);
+		const vsixPath = path.resolve(vsix || `${pjson.name}-${pjson.version}.vsix`);
 		this.installExt(vsixPath);
 	}
 
@@ -396,8 +402,8 @@ export class CodeUtil {
 	getChromiumVersionOffline(): string {
 		const manifestPath = path.join(this.codeFolder, 'resources', 'app', 'ThirdPartyNotices.txt');
 		const text = fs.readFileSync(manifestPath).toString();
-		const matches = text.match(/chromium\sversion\s(.*)\s\(/);
-		if (matches && matches[1]) {
+		const matches = new RegExp(/chromium\sversion\s(.*)\s\(/).exec(text);
+		if (matches?.[1]) {
 			return matches[1];
 		}
 		return '';
@@ -424,7 +430,7 @@ export class CodeUtil {
 		if (this.availableVersions.length < 1) {
 			this.availableVersions = await this.getVSCodeVersions();
 		}
-		if (vscodeVersion !== 'latest' && this.availableVersions.indexOf(vscodeVersion) < 0) {
+		if (vscodeVersion !== 'latest' && !this.availableVersions.includes(vscodeVersion)) {
 			throw new Error(`Version ${vscodeVersion} is not available in ${this.releaseType} stream`);
 		}
 	}
