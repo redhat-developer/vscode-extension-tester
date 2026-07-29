@@ -201,12 +201,12 @@ export abstract class TreeItem extends ViewItem {
 		await this.expand();
 
 		const rows = await this.enclosingItem.findElements(locator);
-		const baseIndex = +(await this.getAttribute(TreeItem.locators.ViewSection.index));
-		const baseLevel = +(await this.getAttribute(TreeItem.locators.ViewSection.level));
+		const baseIndex = +(await this.getAttribute(TreeItem.locators.ViewSection.index))!;
+		const baseLevel = +(await this.getAttribute(TreeItem.locators.ViewSection.level))!;
 
 		for (const row of rows) {
-			const level = +(await row.getAttribute(TreeItem.locators.ViewSection.level));
-			const index = +(await row.getAttribute(TreeItem.locators.ViewSection.index));
+			const level = +(await row.getAttribute(TreeItem.locators.ViewSection.level))!;
+			const index = +(await row.getAttribute(TreeItem.locators.ViewSection.index))!;
 
 			if (index <= baseIndex) {
 				continue;

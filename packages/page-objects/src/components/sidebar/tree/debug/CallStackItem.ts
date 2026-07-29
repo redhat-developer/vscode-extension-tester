@@ -30,7 +30,7 @@ export class CallStackItem extends CustomTreeItem {
 	 */
 	async getLabel(): Promise<string> {
 		const name = await this.findElement(CallStackItem.locators.CallStackItem.label);
-		return await name?.getAttribute('textContent');
+		return (await name?.getAttribute('textContent'))!;
 	}
 
 	/**

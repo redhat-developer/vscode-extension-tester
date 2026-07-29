@@ -79,14 +79,14 @@ export class ScmProvider extends AbstractElement {
 	 * Get title of the scm provider
 	 */
 	async getTitle(): Promise<string> {
-		return await this.findElement(ScmProvider.locators.ScmView.providerTitle).getAttribute('innerHTML');
+		return (await this.findElement(ScmProvider.locators.ScmView.providerTitle).getAttribute('innerHTML'))!;
 	}
 
 	/**
 	 * Get type of the scm provider (e.g. Git)
 	 */
 	async getType(): Promise<string> {
-		return await this.findElement(ScmProvider.locators.ScmView.providerType).getAttribute('innerHTML');
+		return (await this.findElement(ScmProvider.locators.ScmView.providerType).getAttribute('innerHTML'))!;
 	}
 
 	/**
@@ -97,7 +97,7 @@ export class ScmProvider extends AbstractElement {
 	async takeAction(title: string): Promise<boolean> {
 		const header = await this.findElement(ScmProvider.locators.ScmView.providerHeader);
 		let actions: WebElement[] = [];
-		if ((await header.getAttribute('class')).indexOf('hidden') > -1) {
+		if ((await header.getAttribute('class'))!.indexOf('hidden') > -1) {
 			const view = this.enclosingItem as ScmView;
 			actions = await view.getTitlePart().getActions();
 		} else {
@@ -120,7 +120,7 @@ export class ScmProvider extends AbstractElement {
 	 */
 	async openMoreActions(): Promise<ContextMenu> {
 		const header = await this.findElement(ScmProvider.locators.ScmView.providerHeader);
-		if ((await header.getAttribute('class')).indexOf('hidden') > -1) {
+		if ((await header.getAttribute('class'))!.indexOf('hidden') > -1) {
 			return await new MoreAction(this.enclosingItem as ScmView).openContextMenu();
 		} else {
 			await this.getDriver().actions().move({ origin: this }).perform();
@@ -241,7 +241,7 @@ export class ScmChange extends ElementWithContextMenu {
 		if (twisties.length < 1) {
 			return true;
 		}
-		return (await twisties[0].getAttribute('class')).indexOf('collapsed') < 0;
+		return (await twisties[0].getAttribute('class'))!.indexOf('collapsed') < 0;
 	}
 
 	/**

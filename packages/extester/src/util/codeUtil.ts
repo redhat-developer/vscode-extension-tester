@@ -63,17 +63,18 @@ export const DEFAULT_RUN_OPTIONS = {
  * Includes downloading, unpacking, launching, and version checks.
  */
 export class CodeUtil {
-	private codeFolder: string;
-	private downloadPlatform: string;
-	private downloadFolder: string;
-	private releaseType: ReleaseQuality;
+	private readonly codeFolder: string;
+	private readonly downloadPlatform: string;
+	private readonly downloadFolder: string;
+	private readonly releaseType: ReleaseQuality;
 	private executablePath!: string;
+	private macExecutableResolved = false;
 	private cliPath!: string;
 	private cliPathResolved = false;
 	private cliEnv!: string;
 	private availableVersions: string[];
-	private extensionsFolder: string | undefined;
-	private coverage: boolean | undefined;
+	private readonly extensionsFolder: string | undefined;
+	private readonly coverage: boolean | undefined;
 	private readonly env: NodeJS.ProcessEnv = { ...process.env };
 
 	/**
@@ -134,11 +135,11 @@ export class CodeUtil {
 		}
 
 		console.log(`Downloading VS Code: ${literalVersion} / ${this.releaseType}`);
-		if (!fs.existsSync(this.executablePath) || this.getExistingCodeVersion() !== literalVersion || noCache) {
+		if (!fs.existsSync(this.getExecutablePath()) || this.getExistingCodeVersion() !== literalVersion || noCache) {
 			fs.mkdirpSync(this.downloadFolder);
 
 			const url = ['https://update.code.visualstudio.com', version, this.downloadPlatform, this.releaseType].join('/');
-			const isTarGz = this.downloadPlatform.indexOf('linux') > -1;
+			const isTarGz = this.downloadPlatform.includes('linux');
 			const fileExtension = isTarGz ? 'tar.gz' : 'zip';
 			let versionPart = '';
 			if (this.releaseType === ReleaseQuality.Stable) {
@@ -173,6 +174,12 @@ export class CodeUtil {
 					rootDir = path.join(target, files[0]);
 				}
 				await fs.move(rootDir, this.codeFolder, { overwrite: true });
+				if (process.platform === 'darwin') {
+					// Remove macOS quarantine attribute that may be inherited from the downloaded
+					// zip on newer macOS versions (Sequoia / Tahoe), which would prevent
+					// the hardened-runtime app bundle from launching via ChromeDriver.
+					childProcess.execSync(`xattr -r -d com.apple.quarantine "${this.codeFolder}"`, { stdio: 'ignore' });
+				}
 				console.log('Success!');
 				if (noCache) {
 					await fs.remove(zipPath);
@@ -194,7 +201,7 @@ export class CodeUtil {
 		if (id) {
 			return this.installExt(id, preRelease);
 		}
-		const vsixPath = path.resolve(vsix ? vsix : `${pjson.name}-${pjson.version}.vsix`);
+		const vsixPath = path.resolve(vsix || `${pjson.name}-${pjson.version}.vsix`);
 		this.installExt(vsixPath);
 	}
 
@@ -221,7 +228,7 @@ export class CodeUtil {
 	}
 
 	private getCliInitCommand(): string {
-		const cli = `${this.cliEnv} "${this.executablePath}" "${this.getCliPath()}"`;
+		const cli = `${this.cliEnv} "${this.getExecutablePath()}" "${this.getCliPath()}"`;
 		if (satisfies(this.getExistingCodeVersion(), '>=1.86.0')) {
 			return cli;
 		} else {
@@ -324,7 +331,7 @@ export class CodeUtil {
 		process.env.EXTENSIONS_FOLDER = this.extensionsFolder;
 		process.env.EXTENSION_DEV_PATH = this.coverage ? process.cwd() : undefined;
 		const runner = new VSRunner(
-			this.executablePath,
+			this.getExecutablePath(),
 			literalVersion,
 			this.parseSettings(runOptions.settings ?? DEFAULT_RUN_OPTIONS.settings),
 			runOptions.cleanup,
@@ -395,8 +402,8 @@ export class CodeUtil {
 	getChromiumVersionOffline(): string {
 		const manifestPath = path.join(this.codeFolder, 'resources', 'app', 'ThirdPartyNotices.txt');
 		const text = fs.readFileSync(manifestPath).toString();
-		const matches = text.match(/chromium\sversion\s(.*)\s\(/);
-		if (matches && matches[1]) {
+		const matches = new RegExp(/chromium\sversion\s(.*)\s\(/).exec(text);
+		if (matches?.[1]) {
 			return matches[1];
 		}
 		return '';
@@ -423,7 +430,7 @@ export class CodeUtil {
 		if (this.availableVersions.length < 1) {
 			this.availableVersions = await this.getVSCodeVersions();
 		}
-		if (vscodeVersion !== 'latest' && this.availableVersions.indexOf(vscodeVersion) < 0) {
+		if (vscodeVersion !== 'latest' && !this.availableVersions.includes(vscodeVersion)) {
 			throw new Error(`Version ${vscodeVersion} is not available in ${this.releaseType} stream`);
 		}
 	}
@@ -432,7 +439,7 @@ export class CodeUtil {
 	 * Check what VS Code version is present in the testing folder
 	 */
 	private getExistingCodeVersion(): string {
-		const command = `${this.cliEnv} "${this.executablePath}" "${this.getCliPath()}"`;
+		const command = `${this.cliEnv} "${this.getExecutablePath()}" "${this.getCliPath()}"`;
 		let out: Buffer;
 		try {
 			out = childProcess.execSync(`${command} -v`, { env: this.env });
@@ -476,12 +483,37 @@ export class CodeUtil {
 	}
 
 	/**
+	 * Get the executable path, resolving the macOS binary name lazily after download.
+	 * VS Code 1.131+ renamed Contents/MacOS/Electron to Contents/MacOS/Code on macOS.
+	 * On other platforms the path is fixed at construction time.
+	 * Resolution is deferred until one of the candidates actually exists on disk
+	 * (i.e. after VS Code has been downloaded and unpacked).
+	 */
+	private getExecutablePath(): string {
+		if (process.platform === 'darwin' && !this.macExecutableResolved) {
+			const newPath = path.join(this.codeFolder, 'Contents', 'MacOS', 'Code');
+			const legacyPath = path.join(this.codeFolder, 'Contents', 'MacOS', 'Electron');
+			if (fs.existsSync(newPath)) {
+				this.executablePath = newPath;
+				this.macExecutableResolved = true;
+			} else if (fs.existsSync(legacyPath)) {
+				this.executablePath = legacyPath;
+				this.macExecutableResolved = true;
+			}
+			// neither exists yet (pre-download) — leave executablePath as-is and retry next call
+		}
+		return this.executablePath;
+	}
+
+	/**
 	 * Setup paths specific to used OS
 	 */
 	private findExecutables(): void {
 		this.cliPath = path.join(this.codeFolder, 'resources', 'app', 'out', 'cli.js');
 		switch (process.platform) {
 			case 'darwin':
+				// Resolved lazily in getMacExecutablePath() after download —
+				// VS Code 1.131+ renamed Contents/MacOS/Electron to Contents/MacOS/Code
 				this.executablePath = path.join(this.codeFolder, 'Contents', 'MacOS', 'Electron');
 				this.cliPath = path.join(this.codeFolder, 'Contents', 'Resources', 'app', 'out', 'cli.js');
 				break;

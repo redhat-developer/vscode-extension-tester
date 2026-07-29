@@ -69,14 +69,14 @@ export class SingleScmProvider extends ScmProvider {
 
 		if (satisfies(ScmProvider.versionInfo.version, '>=1.93.0')) {
 			actions = await this.getProviderHeaderActions(view);
-			names = await Promise.all(actions.map(async (action) => await action.getAttribute(ScmProvider.locators.ScmView.actionLabel)));
+			names = await Promise.all(actions.map(async (action) => (await action.getAttribute(ScmProvider.locators.ScmView.actionLabel))!));
 		} else {
 			const titlePart = view.getTitlePart();
 			const elements = await titlePart.findElements(ScmView.locators.ScmView.action);
 			for (const element of elements) {
 				try {
 					const title = await element.getAttribute(ScmView.locators.ScmView.actionLabel);
-					buttons.push(await new TitleActionButton(ScmView.locators.ScmView.actionConstructor(title), titlePart).wait());
+					buttons.push(await new TitleActionButton(ScmView.locators.ScmView.actionConstructor(title!), titlePart).wait());
 				} catch (e: any) {
 					if (e.name === 'StaleElementReferenceError') {
 						continue;
@@ -119,13 +119,13 @@ export class SingleScmProvider extends ScmProvider {
 		if (count > 0) {
 			const locator = staged ? ScmProvider.locators.ScmView.stagedChanges : ScmProvider.locators.ScmView.changes;
 			const header = await this.findElement(locator);
-			const startIndex = +(await header.getAttribute('data-index'));
-			const depth = +(await header.getAttribute('aria-level')) + 1;
+			const startIndex = +(await header.getAttribute('data-index'))!;
+			const depth = +(await header.getAttribute('aria-level'))! + 1;
 
 			const items = await this.findElements(NewScmView.locators.ScmView.itemLevel(depth));
 			for (const item of items) {
 				try {
-					const index = +(await item.getAttribute('data-index'));
+					const index = +(await item.getAttribute('data-index'))!;
 					if (index > startIndex && index <= startIndex + count) {
 						elements.push(item);
 					}
@@ -162,7 +162,7 @@ export class MultiScmProvider extends ScmProvider {
 	}
 
 	async commitChanges(message: string): Promise<void> {
-		const index = +(await this.getAttribute('data-index')) + 1;
+		const index = +(await this.getAttribute('data-index'))! + 1;
 		const input = await this.enclosingItem.findElement(NewScmView.locators.ScmView.itemIndex(index));
 		await input.clear();
 		await input.sendKeys(message);
@@ -174,14 +174,14 @@ export class MultiScmProvider extends ScmProvider {
 		const elements: WebElement[] = [];
 
 		if (count > 0) {
-			const index = +(await this.getAttribute('data-index'));
+			const index = +(await this.getAttribute('data-index'))!;
 			const locator = staged ? ScmProvider.locators.ScmView.stagedChanges : ScmProvider.locators.ScmView.changes;
 			const headers = await this.enclosingItem.findElements(locator);
 			let header!: WebElement;
 
 			for (const item of headers) {
 				try {
-					if (+(await item.getAttribute('data-index')) > index) {
+					if (+(await item.getAttribute('data-index'))! > index) {
 						header = item;
 					}
 				} catch (e: any) {
@@ -195,13 +195,13 @@ export class MultiScmProvider extends ScmProvider {
 				return [];
 			}
 
-			const startIndex = +(await header.getAttribute('data-index'));
-			const depth = +(await header.getAttribute('aria-level')) + 1;
+			const startIndex = +(await header.getAttribute('data-index'))!;
+			const depth = +(await header.getAttribute('aria-level'))! + 1;
 
 			const items = await this.enclosingItem.findElements(NewScmView.locators.ScmView.itemLevel(depth));
 			for (const item of items) {
 				try {
-					const index = +(await item.getAttribute('data-index'));
+					const index = +(await item.getAttribute('data-index'))!;
 					if (index > startIndex && index <= startIndex + count) {
 						elements.push(item);
 					}
@@ -219,11 +219,11 @@ export class MultiScmProvider extends ScmProvider {
 	async getChangeCount(staged: boolean = false): Promise<number> {
 		const locator = staged ? ScmProvider.locators.ScmView.stagedChanges : ScmProvider.locators.ScmView.changes;
 		const rows = await this.enclosingItem.findElements(locator);
-		const index = +(await this.getAttribute('data-index'));
+		const index = +(await this.getAttribute('data-index'))!;
 
 		for (const row of rows) {
 			try {
-				if (+(await row.getAttribute('data-index')) > index) {
+				if (+(await row.getAttribute('data-index'))! > index) {
 					const count = await rows[0].findElement(ScmChange.locators.ScmView.changeCount);
 					return +(await count.getText());
 				}

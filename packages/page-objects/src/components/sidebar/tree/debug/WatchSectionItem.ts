@@ -30,7 +30,7 @@ export class WatchSectionItem extends CustomTreeItem {
 	 */
 	async getLabel(): Promise<string> {
 		const name = await this.findElement(WatchSectionItem.locators.WatchSectionItem.label);
-		return await name?.getAttribute('textContent');
+		return (await name?.getAttribute('textContent'))!;
 	}
 
 	/**

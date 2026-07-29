@@ -26,7 +26,6 @@ jobs:
     env:
       CODE_TYPE: stable
       CODE_VERSION: max
-      TEST_RESOURCES: test-resources
 
     steps:
       - name: 👷🏻 Checkout Repository

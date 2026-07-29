@@ -40,7 +40,7 @@ export class TextEditor extends Editor {
 	 */
 	async isDirty(): Promise<boolean> {
 		const tab = await this.enclosingItem.findElement(TextEditor.locators.TextEditor.activeTab);
-		const klass = await tab.getAttribute('class');
+		const klass = (await tab.getAttribute('class'))!;
 		return klass.indexOf('dirty') >= 0;
 	}
 
@@ -70,7 +70,7 @@ export class TextEditor extends Editor {
 	 */
 	async getFileUri(): Promise<string> {
 		const ed = await this.findElement(TextEditor.locators.TextEditor.editorContainer);
-		return await ed.getAttribute(TextEditor.locators.TextEditor.dataUri);
+		return (await ed.getAttribute(TextEditor.locators.TextEditor.dataUri))!;
 	}
 
 	/**
@@ -92,7 +92,7 @@ export class TextEditor extends Editor {
 			let isHidden = true;
 			try {
 				const assist = await self.findElement(TextEditor.locators.ContentAssist.constructor);
-				const klass = await assist.getAttribute('class');
+				const klass = (await assist.getAttribute('class'))!;
 				const visibility = await assist.getCssValue('visibility');
 				isHidden = klass.indexOf('visible') < 0 || visibility === 'hidden';
 			} catch (err) {
@@ -872,7 +872,7 @@ export class CodeLens extends AbstractElement {
 	 * @returns tooltip as string
 	 */
 	async getTooltip(): Promise<string> {
-		return await this.getAttribute('title');
+		return (await this.getAttribute('title'))!;
 	}
 }
 
@@ -896,7 +896,7 @@ export class FindWidget extends AbstractElement {
 	 */
 	async toggleReplace(replace: boolean): Promise<void> {
 		const btn = await this.findElement(FindWidget.locators.FindWidget.toggleReplace);
-		const klass = await btn.getAttribute('class');
+		const klass = (await btn.getAttribute('class'))!;
 
 		if ((replace && klass.includes('collapsed')) || (!replace && !klass.includes('collapsed'))) {
 			await btn.sendKeys(Key.SPACE);
@@ -924,7 +924,7 @@ export class FindWidget extends AbstractElement {
 	 */
 	async getSearchText(): Promise<string> {
 		const findPart = await this.findElement(FindWidget.locators.FindWidget.findPart);
-		return await this.getInputText(findPart);
+		return (await this.getInputText(findPart))!;
 	}
 
 	/**
@@ -943,7 +943,7 @@ export class FindWidget extends AbstractElement {
 	 */
 	async getReplaceText(): Promise<string> {
 		const replacePart = await this.findElement(FindWidget.locators.FindWidget.replacePart);
-		return await this.getInputText(replacePart);
+		return (await this.getInputText(replacePart))!;
 	}
 
 	/**

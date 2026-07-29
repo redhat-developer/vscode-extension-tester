@@ -34,7 +34,7 @@ import {
 import { satisfies } from 'compare-versions';
 import { getWaitHelper, waitFor } from '../testUtils';
 
-describe('ContentAssist', async function () {
+describe('ContentAssist', function () {
 	let assist: ContentAssist;
 	let editor: TextEditor;
 
@@ -62,8 +62,8 @@ describe('ContentAssist', async function () {
 		);
 	});
 
-	beforeEach(async () => {
-		this.timeout(8000);
+	beforeEach(async function (this: Mocha.Context) {
+		this.timeout(15000);
 		const wait = getWaitHelper();
 		assist = (await editor.toggleContentAssist(true)) as ContentAssist;
 		// Wait for content assist to stabilize

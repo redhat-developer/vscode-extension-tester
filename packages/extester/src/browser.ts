@@ -86,6 +86,9 @@ export class VSBrowser {
 			'files.simpleDialog.enable': true,
 			'terminal.integrated.copyOnSelection': true,
 			'workbench.secondarySideBar.defaultVisibility': 'hidden',
+			'workbench.welcomePage.experimentalOnboarding': false,
+			'workbench.welcomePage.walkthroughs.openOnInstall': false,
+			'workbench.editor.useModal': 'off',
 			...(satisfies(this.codeVersion, '>=1.101.0') ? { 'window.menuStyle': 'custom' } : {}),
 		};
 		if (Object.keys(this.customSettings).length > 0) {
@@ -127,9 +130,10 @@ export class VSBrowser {
 			chromeDriverBinaryPath = path.join(this.storagePath, `chromedriver-${DriverUtil.getChromeDriverPlatform()}`, driverBinary);
 		}
 
-		console.log('Launching browser...');
+		const chromeDriverLog = path.join(this.storagePath, 'chromedriver.log');
+		console.log(`Launching browser... (ChromeDriver log: ${chromeDriverLog})`);
 		this._driver = await new Builder()
-			.setChromeService(new ServiceBuilder(chromeDriverBinaryPath))
+			.setChromeService(new ServiceBuilder(chromeDriverBinaryPath).loggingTo(chromeDriverLog).enableVerboseLogging())
 			.forBrowser(Browser.CHROME)
 			.setChromeOptions(options)
 			.build();

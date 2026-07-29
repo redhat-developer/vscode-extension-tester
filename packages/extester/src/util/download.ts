@@ -51,6 +51,15 @@ const options = {
 };
 
 export class Download {
+	/**
+	 * Check whether a URL is reachable (HTTP 2xx) without downloading the body.
+	 * Throws if the URL returns a non-2xx status or a network error.
+	 */
+	static async checkURL(uri: string): Promise<void> {
+		const got = (await import('got')).default;
+		await got.head(uri, { ...options, retry: { limit: 0 } });
+	}
+
 	static async getText(uri: string): Promise<string> {
 		const got = (await import('got')).default;
 		const body = await got(uri, options).text();

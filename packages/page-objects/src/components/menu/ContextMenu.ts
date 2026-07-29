@@ -61,7 +61,7 @@ export class ContextMenu extends Menu {
 
 		for (const element of elements) {
 			try {
-				const klass = await element.getAttribute('class');
+				const klass = (await element.getAttribute('class'))!;
 				if (klass.indexOf('disabled') < 0) {
 					items.push(await new ContextMenuItem(element, this).wait());
 				}
@@ -156,7 +156,7 @@ export class ContextMenuItem extends MenuItem {
 
 	async getLabel(): Promise<string> {
 		const labelItem = await this.findElement(ContextMenu.locators.ContextMenu.itemLabel);
-		return await labelItem.getAttribute(ContextMenu.locators.ContextMenu.itemText);
+		return (await labelItem.getAttribute(ContextMenu.locators.ContextMenu.itemText))!;
 	}
 
 	private async isNesting(): Promise<boolean> {

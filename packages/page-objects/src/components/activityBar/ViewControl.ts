@@ -35,13 +35,13 @@ export class ViewControl extends ElementWithContextMenu {
 	 */
 	async openView(): Promise<SideBarView> {
 		// Check whether view is already open
-		const klass = await this.getAttribute(ViewControl.locators.ViewControl.attribute);
+		const klass = (await this.getAttribute(ViewControl.locators.ViewControl.attribute))!;
 		if (klass.indexOf(ViewControl.locators.ViewControl.klass) < 0) {
 			await this.click();
 			// Wait for view to be marked as active
 			await this.getWaitHelper().forCondition(
 				async () => {
-					const newKlass = await this.getAttribute(ViewControl.locators.ViewControl.attribute);
+					const newKlass = (await this.getAttribute(ViewControl.locators.ViewControl.attribute))!;
 					return newKlass.includes(ViewControl.locators.ViewControl.klass);
 				},
 				{ timeout: 2000, pollInterval: 100 },
@@ -65,7 +65,7 @@ export class ViewControl extends ElementWithContextMenu {
 	 * @returns Promise resolving when the view closes
 	 */
 	async closeView(): Promise<void> {
-		const klass = await this.getAttribute(ViewControl.locators.ViewControl.attribute);
+		const klass = (await this.getAttribute(ViewControl.locators.ViewControl.attribute))!;
 		if (klass.indexOf(ViewControl.locators.ViewControl.klass) > -1) {
 			await this.click();
 		}
@@ -76,6 +76,6 @@ export class ViewControl extends ElementWithContextMenu {
 	 */
 	async getTitle(): Promise<string> {
 		const badge = await this.findElement(ViewControl.locators.ViewControl.badge);
-		return await badge.getAttribute('aria-label');
+		return (await badge.getAttribute('aria-label'))!;
 	}
 }

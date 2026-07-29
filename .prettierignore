@@ -5,3 +5,4 @@ test-resources/
 test-extensions/
 .test-extensions/
 CODEOWNERS
+AGENTS.md

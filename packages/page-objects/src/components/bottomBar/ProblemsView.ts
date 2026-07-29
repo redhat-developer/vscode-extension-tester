@@ -116,7 +116,7 @@ export class Marker extends ElementWithContextMenu {
 	 */
 	async getType(): Promise<MarkerType> {
 		const twist = await this.findElement(ProblemsView.locators.ProblemsView.markerTwistie);
-		if ((await twist.getAttribute('class')).indexOf('collapsible') > -1) {
+		if ((await twist.getAttribute('class'))!.indexOf('collapsible') > -1) {
 			return MarkerType.File;
 		}
 		const text = await this.getText();
@@ -132,7 +132,7 @@ export class Marker extends ElementWithContextMenu {
 	 * @returns Promise resolving to a Marker row text
 	 */
 	async getText(): Promise<string> {
-		return await this.getAttribute(ProblemsView.locators.ProblemsView.rowLabel);
+		return (await this.getAttribute(ProblemsView.locators.ProblemsView.rowLabel))!;
 	}
 
 	/**
@@ -150,7 +150,7 @@ export class Marker extends ElementWithContextMenu {
 	 */
 	async toggleExpand(expand: boolean): Promise<void> {
 		if ((await this.getType()) === MarkerType.File) {
-			const klass = await this.findElement(ProblemsView.locators.ProblemsView.markerTwistie).getAttribute('class');
+			const klass = (await this.findElement(ProblemsView.locators.ProblemsView.markerTwistie).getAttribute('class'))!;
 			if (klass.indexOf('collapsed') > -1 === expand) {
 				await this.click();
 			}

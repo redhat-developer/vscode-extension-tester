@@ -72,7 +72,7 @@ export class GenericCustomTreeSection<T extends TreeItem> extends TreeSection {
 		for (const element of elements) {
 			try {
 				if (await predicate(element)) {
-					const level = +(await element.getAttribute(CustomTreeSection.locators.ViewSection.level));
+					const level = +(await element.getAttribute(CustomTreeSection.locators.ViewSection.level))!;
 					if (maxLevel < 1 || level <= maxLevel) {
 						return element;
 					}

@@ -13,31 +13,31 @@ ExTester supports a **floating window** of the 3 most recent VS Code **major ver
 ```
 Example:
 ┌─────────────────────────────────────────────────┐
-│  Min: 1.109.5  (latest patch of 1.109.x)       │
-│  Middle: 1.110.1  (latest patch of 1.110.x)    │
-│  Max: 1.111.0  (latest patch of 1.111.x)       │
+│  Min: 1.128.1  (latest patch of 1.128.x)       │
+│  Middle: 1.129.0  (latest patch of 1.129.x)    │
+│  Max: 1.130.0  (latest patch of 1.130.x)       │
 └─────────────────────────────────────────────────┘
 ```
 
-**When a new major version is released** (e.g., 1.112.0), the window shifts:
+**When a new major version is released** (e.g., 1.131.0), the window shifts:
 
 ```
-New major version: 1.112.x
+New major version: 1.131.x
 ┌─────────────────────────────────────────────────┐
-│  Min: 1.110.1  (latest patch of 1.110.x)       │
-│  Middle: 1.111.0  (latest patch of 1.111.x)    │
-│  Max: 1.112.0  (latest patch of 1.112.x)       │
+│  Min: 1.129.0  (latest patch of 1.129.x)       │
+│  Middle: 1.130.0  (latest patch of 1.130.x)    │
+│  Max: 1.131.0  (latest patch of 1.131.x)       │
 └─────────────────────────────────────────────────┘
 ```
 
-**When a new patch is released** (e.g., 1.111.1), only that version updates:
+**When a new patch is released** (e.g., 1.130.1), only that version updates:
 
 ```
-New patch: 1.111.1
+New patch: 1.130.1
 ┌─────────────────────────────────────────────────┐
-│  Min: 1.109.5  (unchanged)                      │
-│  Middle: 1.110.1  (unchanged)                   │
-│  Max: 1.111.1  (updated patch)                  │
+│  Min: 1.128.1  (unchanged)                      │
+│  Middle: 1.129.0  (unchanged)                   │
+│  Max: 1.130.1  (updated patch)                  │
 └─────────────────────────────────────────────────┘
 ```
 
@@ -47,14 +47,13 @@ The [`.github/workflows/update-vscode-versions.yml`](../.github/workflows/update
 
 1. **Runs weekly** (every Monday at 9 AM UTC)
 2. **Fetches** all stable VS Code versions from the official API
-3. **Identifies** the latest 3 major versions (e.g., 1.111.x, 1.110.x, 1.109.x)
-4. **Selects** the latest patch release for each major version
+3. **Identifies** the latest stable versions needed for the support window
+4. **Selects** the latest patch release for each version slot
 5. **Compares** with current versions in the repository
 6. **Updates** if changes are detected:
    - `packages/extester/package.json` - `vscode-min` and `vscode-max`
-   - `.github/workflows/main.yml` - middle version in test matrix
 7. **Creates a Pull Request** with all changes
-8. **Triggers CI tests** against all 3 versions automatically
+8. **Triggers CI tests** against the configured supported versions automatically
 
 ## Files Updated
 
@@ -62,8 +61,8 @@ The [`.github/workflows/update-vscode-versions.yml`](../.github/workflows/update
 
 ```json
 "supportedVersions": {
-  "vscode-min": "1.109.5",  // ← Updated to oldest of 3
-  "vscode-max": "1.111.0"   // ← Updated to newest of 3
+  "vscode-min": "1.128.1",  // ← Updated to oldest supported version
+  "vscode-max": "1.130.0"   // ← Updated to newest supported version
 }
 ```
 
@@ -76,10 +75,10 @@ These values are used when users run tests with:
 
 ```yaml
 matrix:
-  version: [min, 1.110.1, max]  // ← Middle version updated
+  version: [min, max]  // ← CI currently tests the oldest and newest supported versions
 ```
 
-This ensures CI tests run against all 3 supported versions.
+This keeps CI aligned with the currently configured supported versions.
 
 ## For Maintainers
 
@@ -88,7 +87,7 @@ This ensures CI tests run against all 3 supported versions.
 When the workflow creates a PR, you should:
 
 1. **Check the PR description** for version changes
-2. **Wait for CI tests** to complete (tests all 3 versions)
+2. **Wait for CI tests** to complete for the configured supported versions
 3. **Review test results** for any failures or warnings
 4. **Look for breaking changes** in page objects
 5. **Merge if all tests pass** ✅
@@ -131,7 +130,7 @@ Users can specify VS Code versions when running tests:
 extest setup-tests --code_version=min
 
 # Use a specific version
-extest setup-tests --code_version=1.110.1
+extest setup-tests --code_version=1.130.0
 
 # Use the newest supported version
 extest setup-tests --code_version=max
@@ -188,14 +187,14 @@ The workflow includes retry logic and runs weekly to avoid rate limits. If you e
 ### For Maintainers
 
 - ✅ **80% less manual work** - No more checking for new versions
-- ✅ **No version mismatches** - Both files updated atomically
-- ✅ **Automatic testing** - CI validates all 3 versions
+- ✅ **No version mismatches** - Version support is updated consistently
+- ✅ **Automatic testing** - CI validates the configured supported versions
 - ✅ **Clear audit trail** - All changes via PRs
 
 ### For Users
 
 - ✅ **Always current** - Support for latest VS Code versions
-- ✅ **Predictable** - Always 3 versions supported
+- ✅ **Predictable** - Published support versions are easy to inspect and use
 - ✅ **Flexible** - Can use min/max/latest as needed
 - ✅ **Reliable** - Tested before release
 
