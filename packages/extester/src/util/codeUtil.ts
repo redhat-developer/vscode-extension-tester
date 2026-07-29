@@ -68,6 +68,7 @@ export class CodeUtil {
 	private downloadFolder: string;
 	private releaseType: ReleaseQuality;
 	private executablePath!: string;
+	private macExecutableResolved = false;
 	private cliPath!: string;
 	private cliPathResolved = false;
 	private cliEnv!: string;
@@ -134,7 +135,7 @@ export class CodeUtil {
 		}
 
 		console.log(`Downloading VS Code: ${literalVersion} / ${this.releaseType}`);
-		if (!fs.existsSync(this.executablePath) || this.getExistingCodeVersion() !== literalVersion || noCache) {
+		if (!fs.existsSync(this.getExecutablePath()) || this.getExistingCodeVersion() !== literalVersion || noCache) {
 			fs.mkdirpSync(this.downloadFolder);
 
 			const url = ['https://update.code.visualstudio.com', version, this.downloadPlatform, this.releaseType].join('/');
@@ -221,7 +222,7 @@ export class CodeUtil {
 	}
 
 	private getCliInitCommand(): string {
-		const cli = `${this.cliEnv} "${this.executablePath}" "${this.getCliPath()}"`;
+		const cli = `${this.cliEnv} "${this.getExecutablePath()}" "${this.getCliPath()}"`;
 		if (satisfies(this.getExistingCodeVersion(), '>=1.86.0')) {
 			return cli;
 		} else {
@@ -324,7 +325,7 @@ export class CodeUtil {
 		process.env.EXTENSIONS_FOLDER = this.extensionsFolder;
 		process.env.EXTENSION_DEV_PATH = this.coverage ? process.cwd() : undefined;
 		const runner = new VSRunner(
-			this.executablePath,
+			this.getExecutablePath(),
 			literalVersion,
 			this.parseSettings(runOptions.settings ?? DEFAULT_RUN_OPTIONS.settings),
 			runOptions.cleanup,
@@ -432,7 +433,7 @@ export class CodeUtil {
 	 * Check what VS Code version is present in the testing folder
 	 */
 	private getExistingCodeVersion(): string {
-		const command = `${this.cliEnv} "${this.executablePath}" "${this.getCliPath()}"`;
+		const command = `${this.cliEnv} "${this.getExecutablePath()}" "${this.getCliPath()}"`;
 		let out: Buffer;
 		try {
 			out = childProcess.execSync(`${command} -v`, { env: this.env });
@@ -476,12 +477,37 @@ export class CodeUtil {
 	}
 
 	/**
+	 * Get the executable path, resolving the macOS binary name lazily after download.
+	 * VS Code 1.131+ renamed Contents/MacOS/Electron to Contents/MacOS/Code on macOS.
+	 * On other platforms the path is fixed at construction time.
+	 * Resolution is deferred until one of the candidates actually exists on disk
+	 * (i.e. after VS Code has been downloaded and unpacked).
+	 */
+	private getExecutablePath(): string {
+		if (process.platform === 'darwin' && !this.macExecutableResolved) {
+			const newPath = path.join(this.codeFolder, 'Contents', 'MacOS', 'Code');
+			const legacyPath = path.join(this.codeFolder, 'Contents', 'MacOS', 'Electron');
+			if (fs.existsSync(newPath)) {
+				this.executablePath = newPath;
+				this.macExecutableResolved = true;
+			} else if (fs.existsSync(legacyPath)) {
+				this.executablePath = legacyPath;
+				this.macExecutableResolved = true;
+			}
+			// neither exists yet (pre-download) — leave executablePath as-is and retry next call
+		}
+		return this.executablePath;
+	}
+
+	/**
 	 * Setup paths specific to used OS
 	 */
 	private findExecutables(): void {
 		this.cliPath = path.join(this.codeFolder, 'resources', 'app', 'out', 'cli.js');
 		switch (process.platform) {
 			case 'darwin':
+				// Resolved lazily in getMacExecutablePath() after download —
+				// VS Code 1.131+ renamed Contents/MacOS/Electron to Contents/MacOS/Code
 				this.executablePath = path.join(this.codeFolder, 'Contents', 'MacOS', 'Electron');
 				this.cliPath = path.join(this.codeFolder, 'Contents', 'Resources', 'app', 'out', 'cli.js');
 				break;

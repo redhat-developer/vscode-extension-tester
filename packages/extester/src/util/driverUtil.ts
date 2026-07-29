@@ -165,7 +165,11 @@ export class DriverUtil {
 	}
 
 	/**
-	 * Find a matching version of ChromeDriver for a given Chromium version
+	 * Find a matching version of ChromeDriver for a given Chromium version.
+	 * For Chrome for Testing (major > 114), tries the exact full Chromium version first
+	 * (e.g. 148.0.7778.280) before falling back to LATEST_RELEASE_{major}. This is
+	 * necessary because VS Code ships a specific Chromium build whose ChromeDriver
+	 * may not yet be promoted to the stable channel but is available at the exact URL.
 	 * @param chromiumVersion Chromium version to check against
 	 */
 	private async getChromeDriverVersion(chromiumVersion: string): Promise<string> {
@@ -179,6 +183,20 @@ export class DriverUtil {
 				throw new Error(`Chromium version ${chromiumVersion} not supported`);
 			}
 		}
+
+		if (+majorVersion > 114) {
+			// Try the exact Chromium version first — VS Code ships a specific build
+			// that may have a matching ChromeDriver not yet in the stable release channel.
+			const platform = DriverUtil.getChromeDriverPlatform();
+			const exactUrl = `https://storage.googleapis.com/chrome-for-testing-public/${chromiumVersion}/${platform}/chromedriver-${platform}.zip`;
+			try {
+				await Download.checkURL(exactUrl);
+				return chromiumVersion;
+			} catch {
+				// exact version not available — fall through to LATEST_RELEASE lookup
+			}
+		}
+
 		let url = `https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${majorVersion}`;
 		if (+majorVersion > 114) {
 			url = `https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_${majorVersion}`;
