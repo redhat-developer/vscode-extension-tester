@@ -19,7 +19,23 @@
 import { program } from 'commander';
 import { ExTester } from './extester';
 import { ReleaseQuality } from './util/codeUtil';
+import type { IPackageOptions } from '@vscode/vsce';
 import pjson from '../package.json';
+
+/**
+ * Parses a JSON string from the --package_options CLI flag into an IPackageOptions object.
+ * Exported for unit testing.
+ */
+export function parsePackageOptions(json: string | undefined): IPackageOptions | undefined {
+	if (!json) {
+		return undefined;
+	}
+	try {
+		return JSON.parse(json) as IPackageOptions;
+	} catch {
+		throw new Error(`--package_options: invalid JSON: ${json}`);
+	}
+}
 
 program.version(pjson.version).description('UI Test Runner for VS Code Extension');
 
@@ -60,15 +76,16 @@ program
 	.option('-s, --storage <storage>', 'Use this folder for all test resources')
 	.option('-e, --extensions_dir <extensions_directory>', 'VS Code will use this directory for managing extensions')
 	.option('-f, --vsix_file <file>', 'path/URL to vsix file containing the extension')
-	.option('-y, --yarn', 'Use yarn to build the extension via vsce instead of npm', false)
+	.option('--package_options <json>', 'JSON string of vsce IPackageOptions passed to vsce.createVSIX() (e.g. \'{"useYarn":true,"followSymlinks":true}\')')
 	.option('-t, --type <type>', 'Type of VS Code release (stable/insider)')
 	.option('-i, --install_dependencies', 'Automatically install extensions your extension depends on', false)
 	.action(
 		withErrors(async (cmd) => {
 			const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
+			const packageOptions = parsePackageOptions(cmd.package_options);
 			await extest.installVsix({
 				vsixFile: cmd.vsix_file,
-				useYarn: cmd.yarn,
+				packageOptions,
 				installDependencies: cmd.install_dependencies,
 			});
 		}),
@@ -100,15 +117,16 @@ program
 	.option('-e, --extensions_dir <extensions_directory>', 'VS Code will use this directory for managing extensions')
 	.option('-c, --code_version <version>', 'Version of VS Code to download, use `min`/`max` to download the oldest/latest VS Code supported by ExTester')
 	.option('-t, --type <type>', 'Type of VS Code release (stable/insider)')
-	.option('-y, --yarn', 'Use yarn to build the extension via vsce instead of npm', false)
+	.option('--package_options <json>', 'JSON string of vsce IPackageOptions passed to vsce.createVSIX() (e.g. \'{"useYarn":true,"followSymlinks":true}\')')
 	.option('-i, --install_dependencies', 'Automatically install extensions your extension depends on', false)
 	.option('-n, --no_cache', 'Skip using cached version and download fresh copy without caching it', false)
 	.action(
 		withErrors(async (cmd) => {
 			const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir);
+			const packageOptions = parsePackageOptions(cmd.package_options);
 			await extest.setupRequirements({
 				vscodeVersion: cmd.code_version,
-				useYarn: cmd.yarn,
+				packageOptions,
 				installDependencies: cmd.install_dependencies,
 				noCache: cmd.no_cache,
 			});
@@ -154,7 +172,7 @@ program
 	.option('-c, --code_version <version>', 'Version of VS Code to download, use `min`/`max` to download the oldest/latest VS Code supported by ExTester')
 	.option('-t, --type <type>', 'Type of VS Code release (stable/insider)')
 	.option('-o, --code_settings <settings.json>', 'Path to custom settings for VS Code json file')
-	.option('-y, --yarn', 'Use yarn to build the extension via vsce instead of npm', false)
+	.option('--package_options <json>', 'JSON string of vsce IPackageOptions passed to vsce.createVSIX() (e.g. \'{"useYarn":true,"followSymlinks":true}\')')
 	.option('-u, --uninstall_extension', 'Uninstall the extension after the test run', false)
 	.option('-m, --mocha_config <mocharc.js>', 'Path to Mocha configuration file')
 	.option('-i, --install_dependencies', 'Automatically install extensions your extension depends on', false)
@@ -167,11 +185,12 @@ program
 	.action(
 		withErrors(async (testFiles, cmd) => {
 			const extest = new ExTester(cmd.storage, codeStream(cmd.type), cmd.extensions_dir, cmd.coverage);
+			const packageOptions = parsePackageOptions(cmd.package_options);
 			await extest.setupAndRunTests(
 				testFiles,
 				cmd.code_version,
 				{
-					useYarn: cmd.yarn,
+					packageOptions,
 					installDependencies: cmd.install_dependencies,
 					noCache: cmd.no_cache,
 				},
@@ -187,7 +206,10 @@ program
 		}),
 	);
 
-program.parse(process.argv);
+// Only parse argv when running as the CLI binary, not when imported (e.g. in unit tests)
+if (require.main === module) {
+	program.parse(process.argv);
+}
 
 function withErrors(command: (...args: any[]) => Promise<void>) {
 	return async (...args: any[]) => {

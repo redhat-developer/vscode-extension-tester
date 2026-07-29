@@ -16,6 +16,7 @@
  */
 
 import { CodeUtil, DEFAULT_RUN_OPTIONS, ReleaseQuality, RunOptions } from './util/codeUtil';
+import type { IPackageOptions } from '@vscode/vsce';
 import { DriverUtil } from './util/driverUtil';
 import * as fs from 'fs-extra';
 import * as path from 'path';
@@ -34,8 +35,8 @@ export * from '@redhat-developer/page-objects';
 export interface SetupOptions {
 	/** version of VS Code to test against, defaults to latest */
 	vscodeVersion?: string;
-	/** when true run `vsce package` with the `--yarn` flag */
-	useYarn?: boolean;
+	/** vsce packaging options passed directly to vsce.createVSIX() — use e.g. `{ useYarn: true, followSymlinks: true }` */
+	packageOptions?: IPackageOptions;
 	/** install the extension's dependencies from the marketplace. Defaults to `false`. */
 	installDependencies?: boolean;
 	/** skip using cached version and download fresh copy */
@@ -81,15 +82,15 @@ export class ExTester {
 	/**
 	 * Install the extension into the test instance of VS Code
 	 * @param vsixFile path to extension .vsix file. If not set, default vsce path will be used
-	 * @param useYarn when true run `vsce package` with the `--yarn` flag
+	 * @param packageOptions vsce IPackageOptions passed directly to vsce.createVSIX() when packaging
 	 */
 	async installVsix({
 		vsixFile,
-		useYarn,
+		packageOptions,
 		installDependencies,
 	}: {
 		vsixFile?: string;
-		useYarn?: boolean;
+		packageOptions?: IPackageOptions;
 		installDependencies?: boolean;
 	} = {}): Promise<void> {
 		let target = vsixFile;
@@ -119,7 +120,7 @@ export class ExTester {
 				}
 			}
 		} else {
-			await this.code.packageExtension(useYarn);
+			await this.code.packageExtension(packageOptions);
 			this.code.installExtension(target);
 		}
 
@@ -179,7 +180,7 @@ export class ExTester {
 	 * @param noCache whether to skip using cached version
 	 */
 	async setupRequirements(options: SetupOptions = DEFAULT_SETUP_OPTIONS, offline = false, cleanup = false): Promise<void> {
-		const { useYarn, vscodeVersion, installDependencies, noCache } = options;
+		const { packageOptions, vscodeVersion, installDependencies, noCache } = options;
 
 		const vscodeParsedVersion = loadCodeVersion(vscodeVersion);
 		if (!offline) {
@@ -198,7 +199,7 @@ export class ExTester {
 			}
 		}
 		if (!this.code.coverageEnabled || cleanup) {
-			await this.installVsix({ useYarn });
+			await this.installVsix({ packageOptions });
 		}
 		if (installDependencies && !offline) {
 			this.code.installDependencies();
