@@ -369,10 +369,10 @@
   },
   "devDependencies": {
     "@types/babel__traverse": "^7.28.0",
-    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^3.1.0",
-    "esbuild": "^0.27.4",
-    "npm-run-all": "^4.1.5",
+    "esbuild": "^0.28.1",
+    "npm-run-all2": "^8.0.4",
     "vscode-extension-tester": "*"
   },
   "dependencies": {
