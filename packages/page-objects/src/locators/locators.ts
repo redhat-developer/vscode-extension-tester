@@ -573,7 +573,7 @@ export interface Locators {
  * Definition for locator diff object
  */
 export interface LocatorDiff {
-	locators: PartialDeep<Locators>;
+	locators: PartialDeep<Locators> & Record<string, Record<string, unknown>>;
 	extras?: object;
 }
 

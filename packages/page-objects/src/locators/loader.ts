@@ -77,7 +77,7 @@ export class LocatorLoader {
 	}
 }
 
-function mergeLocators(original: Locators, diff: LocatorDiff): Locators {
+export function mergeLocators(original: Locators, diff: LocatorDiff): Locators {
 	const target = clone(original);
 	const targetDiff = diff.locators;
 

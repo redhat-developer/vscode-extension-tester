@@ -19,7 +19,7 @@ import { VSBrowser } from '../browser';
 import * as fs from 'fs-extra';
 import Mocha from 'mocha';
 import { globSync } from 'glob';
-import { CodeUtil, ReleaseQuality } from '../util/codeUtil';
+import { CodeUtil, CustomPageObjectsOptions, ReleaseQuality } from '../util/codeUtil';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
 import sanitize from 'sanitize-filename';
@@ -30,14 +30,23 @@ import { Coverage } from '../util/coverage';
  * Mocha runner wrapper
  */
 export class VSRunner {
-	private mocha: Mocha;
-	private chromeBin: string;
-	private customSettings: object;
-	private codeVersion: string;
-	private cleanup: boolean;
-	private releaseType: ReleaseQuality;
+	private readonly mocha: Mocha;
+	private readonly chromeBin: string;
+	private readonly customSettings: object;
+	private readonly codeVersion: string;
+	private readonly cleanup: boolean;
+	private readonly releaseType: ReleaseQuality;
+	private readonly customPageObjects?: CustomPageObjectsOptions;
 
-	constructor(bin: string, codeVersion: string, customSettings: object = {}, cleanup: boolean = false, releaseType: ReleaseQuality, config?: string) {
+	constructor(
+		bin: string,
+		codeVersion: string,
+		releaseType: ReleaseQuality,
+		config?: string,
+		customPageObjects?: CustomPageObjectsOptions,
+		customSettings: object = {},
+		cleanup: boolean = false,
+	) {
 		const conf = this.loadConfig(config);
 		this.mocha = new Mocha(conf);
 		this.chromeBin = bin;
@@ -45,6 +54,7 @@ export class VSRunner {
 		this.codeVersion = codeVersion;
 		this.cleanup = cleanup;
 		this.releaseType = releaseType;
+		this.customPageObjects = customPageObjects;
 	}
 
 	/**
@@ -53,10 +63,10 @@ export class VSRunner {
 	 * @param logLevel The logging level for the Webdriver
 	 * @return The exit code of the mocha process
 	 */
-	runTests(testFilesPattern: string[], code: CodeUtil, logLevel: logging.Level = logging.Level.INFO, resources: string[]): Promise<number> {
+	runTests(testFilesPattern: string[], code: CodeUtil, resources: string[], logLevel: logging.Level = logging.Level.INFO): Promise<number> {
 		return new Promise((resolve) => {
 			const self = this;
-			const browser: VSBrowser = new VSBrowser(this.codeVersion, this.releaseType, this.customSettings, logLevel);
+			const browser: VSBrowser = new VSBrowser(this.codeVersion, this.releaseType, this.customSettings, logLevel, this.customPageObjects);
 			let coverage: Coverage | undefined;
 
 			const testFiles = new Set<string>();

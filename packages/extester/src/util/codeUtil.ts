@@ -31,6 +31,15 @@ export enum ReleaseQuality {
 	Insider = 'insider',
 }
 
+export interface CustomPageObjectsOptions {
+	/**
+	 * Path to a compiled JS module that exports a `locators` object
+	 * matching the LocatorDiff shape. These locators are deep-merged
+	 * into the built-in locators after version resolution, before tests run.
+	 */
+	locatorsPath: string;
+}
+
 export interface RunOptions {
 	/** version of VS Code to test against, defaults to latest */
 	vscodeVersion?: string;
@@ -46,6 +55,8 @@ export interface RunOptions {
 	offline?: boolean;
 	/** list of resources to be opened by VS Code */
 	resources: string[];
+	/** custom page objects locator contribution to load at startup */
+	customPageObjects?: CustomPageObjectsOptions;
 }
 
 /** defaults for the [[RunOptions]] */
@@ -333,12 +344,13 @@ export class CodeUtil {
 		const runner = new VSRunner(
 			this.getExecutablePath(),
 			literalVersion,
-			this.parseSettings(runOptions.settings ?? DEFAULT_RUN_OPTIONS.settings),
-			runOptions.cleanup,
 			this.releaseType,
 			runOptions.config,
+			runOptions.customPageObjects,
+			this.parseSettings(runOptions.settings ?? DEFAULT_RUN_OPTIONS.settings),
+			runOptions.cleanup,
 		);
-		return await runner.runTests(testFilesPattern, this, runOptions.logLevel, runOptions.resources);
+		return await runner.runTests(testFilesPattern, this, runOptions.resources, runOptions.logLevel);
 	}
 
 	/**
