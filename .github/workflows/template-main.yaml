@@ -87,11 +87,15 @@ jobs:
         if: failure() && inputs.nodejs != 'lts/*'
         with:
           name: screenshots-${{ matrix.os }}-${{ inputs.version }}-node_${{ inputs.nodejs }}
-          path: ${{ github.workspace }}/tests/**/screenshots/**/*.png
+          path: |
+            ${{ github.workspace }}/tests/**/screenshots/**/*.png
+            ${{ github.workspace }}/tests/**/test-resources/chromedriver.log
 
       - name: 💾 Upload Screenshots
         uses: actions/upload-artifact@v7
         if: failure() && inputs.nodejs == 'lts/*'
         with:
           name: screenshots-${{ matrix.os }}-${{ inputs.version }}-node_lts
-          path: ${{ github.workspace }}/tests/**/screenshots/**/*.png
+          path: |
+            ${{ github.workspace }}/tests/**/screenshots/**/*.png
+            ${{ github.workspace }}/tests/**/test-resources/chromedriver.log

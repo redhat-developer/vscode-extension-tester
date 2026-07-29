@@ -130,9 +130,10 @@ export class VSBrowser {
 			chromeDriverBinaryPath = path.join(this.storagePath, `chromedriver-${DriverUtil.getChromeDriverPlatform()}`, driverBinary);
 		}
 
-		console.log('Launching browser...');
+		const chromeDriverLog = path.join(this.storagePath, 'chromedriver.log');
+		console.log(`Launching browser... (ChromeDriver log: ${chromeDriverLog})`);
 		this._driver = await new Builder()
-			.setChromeService(new ServiceBuilder(chromeDriverBinaryPath))
+			.setChromeService(new ServiceBuilder(chromeDriverBinaryPath).loggingTo(chromeDriverLog).enableVerboseLogging())
 			.forBrowser(Browser.CHROME)
 			.setChromeOptions(options)
 			.build();
