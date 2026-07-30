@@ -31,6 +31,7 @@ export { MochaOptions } from 'mocha';
 export * from './browser';
 export * from './suite/mochaHooks';
 export * from '@redhat-developer/page-objects';
+export type { ExTesterConfig, ExTesterSetupConfig, ExTesterRunConfig } from './config';
 
 export interface SetupOptions {
 	/** version of VS Code to test against, defaults to latest */

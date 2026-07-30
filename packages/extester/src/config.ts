@@ -1,0 +1,239 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License", destination); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import type { IPackageOptions } from '@vscode/vsce';
+import { readFileSync, realpathSync, statSync } from 'node:fs';
+import * as os from 'node:os';
+import * as path from 'node:path';
+
+/**
+ * Setup section of `extester.config.json`.
+ * Controls VS Code + ChromeDriver download and extension packaging/installation.
+ */
+export interface ExTesterSetupConfig {
+	/** Version of VS Code to test against. Accepts `latest`, `min`, `max`, or a specific version string (e.g. `1.131.0`). Defaults to `latest`. */
+	vscodeVersion?: string;
+	/** Type of VS Code release. Defaults to `stable`. */
+	type?: 'stable' | 'insider';
+	/** Folder used for all test resources (VS Code binary, ChromeDriver, logs). Defaults to `$TEST_RESOURCES` or `$TMPDIR/test-resources`. */
+	storage?: string;
+	/** VS Code extensions directory override. */
+	extensionsDir?: string;
+	/** vsce packaging options forwarded directly to `vsce.createVSIX()`. */
+	packageOptions?: IPackageOptions;
+	/** Automatically install extensions your extension depends on from the marketplace. Defaults to `false`. */
+	installDependencies?: boolean;
+	/** Skip using a cached download and fetch a fresh copy. Defaults to `false`. */
+	noCache?: boolean;
+}
+
+/**
+ * Run section of `extester.config.json`.
+ * Controls test execution inside VS Code.
+ */
+export interface ExTesterRunConfig {
+	/** Glob pattern(s) for test files to run (e.g. `["./out/test/**\/*.test.js"]`). Used as CLI positional arguments when none are provided on the command line. */
+	testFiles?: string[];
+	/** Version of VS Code to test against. Accepts `latest`, `min`, `max`, or a specific version string. Defaults to `latest`. */
+	vscodeVersion?: string;
+	/** Type of VS Code release. Defaults to `stable`. */
+	type?: 'stable' | 'insider';
+	/** Folder used for all test resources. Defaults to `$TEST_RESOURCES` or `$TMPDIR/test-resources`. */
+	storage?: string;
+	/** VS Code extensions directory override. */
+	extensionsDir?: string;
+	/** Path to a custom VS Code `settings.json` file to use during the test run. */
+	settings?: string;
+	/** Uninstall the extension under test after the test run completes. Defaults to `false`. */
+	cleanup?: boolean;
+	/** Path to a Mocha configuration file (e.g. `.mocharc.js`). */
+	mochaConfig?: string;
+	/** Webdriver log level. Defaults to `Info`. */
+	logLevel?: 'Debug' | 'Info' | 'Warning' | 'Severe' | 'OFF' | 'ALL';
+	/** Run without an internet connection. All required resources must be pre-downloaded. Defaults to `false`. */
+	offline?: boolean;
+	/** Enable c8 code coverage collection. Defaults to `false`. */
+	coverage?: boolean;
+	/** File or folder paths to open in VS Code at startup. */
+	resources?: string[];
+	/** Path to a compiled JS locator contribution file for custom page objects. */
+	customPageObjects?: string;
+}
+
+/**
+ * Shape of `extester.config.json`.
+ *
+ * @example
+ * ```json
+ * {
+ *   "$schema": "./node_modules/vscode-extension-tester/resources/extester.schema.json",
+ *   "setup": { "vscodeVersion": "latest", "installDependencies": true },
+ *   "run": { "testFiles": ["./out/test/**\/*.test.js"], "resources": ["."] }
+ * }
+ * ```
+ */
+export interface ExTesterConfig {
+	/** Setup options: VS Code download, ChromeDriver, and extension installation. */
+	setup?: ExTesterSetupConfig;
+	/** Run options: test execution inside VS Code. */
+	run?: ExTesterRunConfig;
+}
+
+/** Path-valued keys in ExTesterSetupConfig that must be resolved relative to the config file. */
+const SETUP_PATH_KEYS: (keyof ExTesterSetupConfig)[] = ['storage', 'extensionsDir'];
+
+/** Path-valued keys in ExTesterRunConfig that must be resolved relative to the config file. */
+const RUN_PATH_KEYS: (keyof ExTesterRunConfig)[] = ['storage', 'extensionsDir', 'settings', 'mochaConfig', 'customPageObjects'];
+
+/** Path-valued array keys in ExTesterRunConfig that must be resolved relative to the config file. */
+const RUN_PATH_ARRAY_KEYS: (keyof ExTesterRunConfig)[] = ['testFiles', 'resources'];
+
+/**
+ * Resolves all path-valued fields in a config object relative to the given base directory.
+ * Only string values that look like relative paths (i.e. not already absolute) are resolved.
+ */
+function resolvePaths(config: ExTesterConfig, baseDir: string): ExTesterConfig {
+	if (config.setup) {
+		const setup = { ...config.setup };
+		for (const key of SETUP_PATH_KEYS) {
+			const val = setup[key];
+			if (typeof val === 'string' && !path.isAbsolute(val)) {
+				(setup as Record<string, unknown>)[key] = path.resolve(baseDir, val);
+			}
+		}
+		config = { ...config, setup };
+	}
+
+	if (config.run) {
+		const run = { ...config.run };
+		for (const key of RUN_PATH_KEYS) {
+			const val = run[key];
+			if (typeof val === 'string' && !path.isAbsolute(val)) {
+				(run as Record<string, unknown>)[key] = path.resolve(baseDir, val);
+			}
+		}
+		for (const key of RUN_PATH_ARRAY_KEYS) {
+			const arr = run[key];
+			if (Array.isArray(arr)) {
+				(run as Record<string, unknown>)[key] = arr.map((v: string) => (typeof v === 'string' && !path.isAbsolute(v) ? path.resolve(baseDir, v) : v));
+			}
+		}
+		config = { ...config, run };
+	}
+
+	return config;
+}
+
+/**
+ * Loads and parses an `extester.config.json` configuration file.
+ *
+ * - If `configPath` is provided, that exact file is read (throws if it does not exist).
+ * - If `configPath` is omitted, `find-up` walks from `process.cwd()` looking for
+ *   `extester.config.json`. Returns `{}` when no file is found.
+ * - All relative paths inside the config are resolved relative to the directory containing
+ *   the config file, so paths work regardless of where `extest` is invoked from.
+ *
+ * @param configPath Optional explicit path to the config file.
+ * @returns Parsed and path-resolved {@link ExTesterConfig}. Empty object when no file is found.
+ */
+/**
+ * Resolves a config file path from CLI input to a safe canonical path.
+ *
+ * Follows the exact order prescribed by SonarCloud rule tssecurity:S8707:
+ *   1. realpathSync(input)         — canonicalise (resolves .., symlinks)
+ *   2. realpathSync(allowedRoot)   — canonicalise the boundary too
+ *   3. startsWith(boundary + sep)  — validate the canonicalised result
+ *   4. return the validated path   — only this value reaches file-read callers
+ *
+ * Allowed roots: process.cwd() and os.tmpdir().
+ * Also enforces that the file has a .json extension.
+ */
+function safeConfigPath(filePath: string): string {
+	let resolved: string;
+	try {
+		resolved = realpathSync(filePath);
+	} catch {
+		throw new Error(`extester config: file not found: ${filePath}`);
+	}
+
+	if (path.extname(resolved).toLowerCase() !== '.json') {
+		throw new Error(`extester config: config file must be a .json file: ${resolved}`);
+	}
+
+	const allowedRoots = [process.cwd(), os.tmpdir()].map((r) => {
+		try {
+			return realpathSync(r) + path.sep;
+		} catch {
+			return path.resolve(r) + path.sep;
+		}
+	});
+
+	const isAllowed = allowedRoots.some((root) => resolved === root.slice(0, -1) || resolved.startsWith(root));
+	if (!isAllowed) {
+		throw new Error(`extester config: config file must be within the project directory or temp directory: ${resolved}`);
+	}
+
+	return resolved;
+}
+
+export async function loadConfig(configPath?: string): Promise<ExTesterConfig> {
+	let safePath: string | undefined;
+
+	if (configPath) {
+		// CLI-provided path: run through safeConfigPath immediately.
+		safePath = safeConfigPath(configPath);
+	} else {
+		// Auto-discovered path: find-up returns an absolute path; still validate it.
+		const { findUp } = await import('find-up');
+		const found = await findUp('extester.config.json');
+		if (found) {
+			safePath = safeConfigPath(found);
+		}
+	}
+
+	if (!safePath) {
+		return {};
+	}
+
+	try {
+		const stat = statSync(safePath);
+		if (!stat.isFile()) {
+			throw new Error(`extester config: path is not a file: ${safePath}`);
+		}
+	} catch (err: unknown) {
+		if (err instanceof Error && err.message.startsWith('extester config:')) {
+			throw err;
+		}
+		throw new Error(`extester config: file not found: ${safePath}`);
+	}
+
+	let raw: string;
+	try {
+		raw = readFileSync(safePath, 'utf8');
+	} catch {
+		throw new Error(`extester config: could not read file: ${safePath}`);
+	}
+
+	let parsed: ExTesterConfig;
+	try {
+		parsed = JSON.parse(raw) as ExTesterConfig;
+	} catch {
+		throw new Error(`extester config: invalid JSON in ${safePath}`);
+	}
+
+	return resolvePaths(parsed, path.dirname(safePath));
+}

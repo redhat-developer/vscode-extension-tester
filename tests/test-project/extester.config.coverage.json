@@ -1,0 +1,13 @@
+{
+  "$schema": "../../packages/extester/resources/extester.schema.json",
+  "setup": {
+    "extensionsDir": "./test-extensions",
+    "installDependencies": true
+  },
+  "run": {
+    "testFiles": ["./out/test/**/*.test.js"],
+    "extensionsDir": "./test-extensions",
+    "resources": ["."],
+    "coverage": true
+  }
+}
