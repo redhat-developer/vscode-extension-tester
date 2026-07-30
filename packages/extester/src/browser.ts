@@ -28,15 +28,15 @@ import { DriverUtil } from './util/driverUtil';
 export class VSBrowser {
 	static readonly baseVersion = '1.37.0';
 	static readonly browserName = 'vscode';
-	private storagePath: string;
-	private extensionsFolder: string | undefined;
-	private customSettings: object;
+	private readonly storagePath: string;
+	private readonly extensionsFolder: string | undefined;
+	private readonly customSettings: object;
 	private _driver!: WebDriver;
-	private codeVersion: string;
-	private releaseType: ReleaseQuality;
-	private logLevel: logging.Level;
-	private customPageObjects?: CustomPageObjectsOptions;
-	private locale: string;
+	private readonly codeVersion: string;
+	private readonly releaseType: ReleaseQuality;
+	private readonly logLevel: logging.Level;
+	private readonly customPageObjects?: CustomPageObjectsOptions;
+	private readonly locale: string;
 	private static _instance: VSBrowser;
 	private readonly _startTimestamp: string;
 
@@ -71,10 +71,24 @@ export class VSBrowser {
 	 * @param codePath path to code binary
 	 */
 	async start(codePath: string): Promise<VSBrowser> {
-		const userSettings = path.join(this.storagePath, 'settings', 'User');
+		const settingsDir = path.join(this.storagePath, 'settings');
+		const userSettings = path.join(settingsDir, 'User');
+		const languagePacksPath = path.join(settingsDir, 'languagepacks.json');
+
+		// Preserve languagepacks.json across the settings wipe — it is written by the
+		// VS Code CLI install step (installExt) and must survive into the launch.
+		let languagePacks: object | undefined;
+		if (fs.existsSync(languagePacksPath)) {
+			try {
+				languagePacks = fs.readJSONSync(languagePacksPath);
+			} catch {
+				// ignore malformed file; VS Code will fall back to English
+			}
+		}
+
 		if (fs.existsSync(userSettings)) {
 			try {
-				fs.removeSync(path.join(this.storagePath, 'settings'));
+				fs.removeSync(settingsDir);
 			} catch (e: unknown) {
 				const code = (e as NodeJS.ErrnoException).code;
 				if (code === 'EBUSY' || code === 'EPERM') {
@@ -111,11 +125,20 @@ export class VSBrowser {
 		fs.writeJSONSync(path.join(userSettings, 'settings.json'), defaultSettings);
 		console.log(`Writing code settings to ${path.join(userSettings, 'settings.json')}`);
 
-		const args = ['--no-sandbox', '--disable-dev-shm-usage', `--user-data-dir=${path.join(this.storagePath, 'settings')}`]; // sem pridam locale
+		if (this.locale) {
+			fs.writeJSONSync(path.join(userSettings, 'locale.json'), { locale: this.locale, osLocale: this.locale });
+			console.log(`Writing locale settings to ${path.join(userSettings, 'locale.json')}`);
+		}
+
+		if (languagePacks && Object.keys(languagePacks).length > 0) {
+			fs.writeJSONSync(languagePacksPath, languagePacks);
+			console.log(`Restored languagepacks.json to ${languagePacksPath}`);
+		}
+
+		const args = ['--no-sandbox', '--disable-dev-shm-usage', `--user-data-dir=${path.join(this.storagePath, 'settings')}`];
 
 		if (this.locale) {
-			console.log('locale is in args with value ' + this.locale);
-			args.push(`--locale ${this.locale}`);
+			args.push(`--locale=${this.locale}`);
 		}
 
 		if (this.extensionsFolder) {
@@ -133,12 +156,8 @@ export class VSBrowser {
 
 		const extraArgs = ['--skip-welcome', '--skip-sessions-welcome', '--skip-release-notes'];
 		let options = new Options().setChromeBinaryPath(codePath).addArguments(...args, ...extraArgs) as any;
-		console.log('args', args);
-
 		options['options_'].windowTypes = ['webview'];
 		options = options as Options;
-
-		console.log('options', options);
 
 		const prefs = new logging.Preferences();
 		prefs.setLevel(logging.Type.DRIVER, this.logLevel);
@@ -152,8 +171,6 @@ export class VSBrowser {
 
 		const chromeDriverLog = path.join(this.storagePath, 'chromedriver.log');
 		console.log(`Launching browser... (ChromeDriver log: ${chromeDriverLog})`);
-		// Print the full launch command for debugging
-		console.log('Launching VS Code with command:', `"${codePath}" ${args.join(' ')}`);
 
 		this._driver = await new Builder()
 			.setChromeService(new ServiceBuilder(chromeDriverBinaryPath).loggingTo(chromeDriverLog).enableVerboseLogging())

@@ -58,7 +58,7 @@ export interface RunOptions {
 	resources: string[];
 	/** custom page objects locator contribution to load at startup */
 	customPageObjects?: CustomPageObjectsOptions;
-	/** tbd */
+	/** Display language locale for VS Code (e.g. 'ru', 'zh-cn', 'fr'). Requires the matching language pack extension to be installed. */
 	locale?: string;
 }
 
@@ -69,7 +69,7 @@ export const DEFAULT_RUN_OPTIONS = {
 	logLevel: logging.Level.INFO,
 	offline: false,
 	resources: [],
-	noCache: false, //???
+	noCache: false,
 };
 
 /**
@@ -258,6 +258,7 @@ export class CodeUtil {
 		if (this.extensionsFolder) {
 			command += ` --extensions-dir=${this.extensionsFolder}`;
 		}
+		command += ` --user-data-dir="${path.join(this.downloadFolder, 'settings')}"`;
 		childProcess.execSync(command, { stdio: 'inherit' });
 	}
 

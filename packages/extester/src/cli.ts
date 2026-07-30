@@ -181,7 +181,10 @@ program
 	.option('-r, --open_resource <resources...>', 'Open resources in VS Code. Multiple files and folders can be specified.')
 	.option('-p, --custom_page_objects <path>', 'Path to a compiled JS locator contribution file for custom page objects')
 	.option('--config <path>', 'Path to extester.config.json configuration file')
-	.option('-L, --locale <locale>', 'to be defined')
+	.option(
+		'-L, --locale <locale>',
+		'Set the display language locale for VS Code (e.g. ru, zh-cn, fr). Requires the matching language pack extension to be installed.',
+	)
 	.action(
 		withErrors(async (testFiles, cmd) => {
 			const cfg = await loadConfig(cmd.config);
@@ -227,7 +230,10 @@ program
 	.option('-n, --no_cache', 'Skip using cached version and download fresh copy without caching it', false)
 	.option('-p, --custom_page_objects <path>', 'Path to a compiled JS locator contribution file for custom page objects')
 	.option('--config <path>', 'Path to extester.config.json configuration file')
-	.option('-L, --locale <locale>', 'to be defined')
+	.option(
+		'-L, --locale <locale>',
+		'Set the display language locale for VS Code (e.g. ru, zh-cn, fr). Requires the matching language pack extension to be installed.',
+	)
 	.action(
 		withErrors(async (testFiles, cmd) => {
 			const cfg = await loadConfig(cmd.config);

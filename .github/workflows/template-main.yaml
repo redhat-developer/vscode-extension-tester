@@ -50,9 +50,6 @@ jobs:
       - name: 🔧 Install - Test Project
         run: npm install --workspace=extester-test
 
-      - name: 🔧 Install RU language pack
-        run: code --install-extension ms-ceintl.vscode-language-pack-ru
-
       - name: 🔍 Run Tests (macOS)
         uses: nick-fields/retry@v4
         if: ${{ startsWith(matrix.os, 'mac') }}
