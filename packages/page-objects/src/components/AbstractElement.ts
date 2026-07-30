@@ -36,7 +36,7 @@ export interface LocatorInfo {
 export abstract class AbstractElement extends WebElement {
 	public static readonly ctlKey = process.platform === 'darwin' ? Key.COMMAND : Key.CONTROL;
 	protected static driver: WebDriver;
-	protected static locators: Locators;
+	protected static locators: Locators & Record<string, Record<string, unknown>>;
 	protected static versionInfo: { version: string; browser: string };
 	protected static waitHelper: WaitHelper;
 
@@ -159,7 +159,7 @@ export abstract class AbstractElement extends WebElement {
 	}
 
 	static init(locators: Locators, driver: WebDriver, browser: string, version: string) {
-		AbstractElement.locators = locators;
+		AbstractElement.locators = locators as Locators & Record<string, Record<string, unknown>>;
 		AbstractElement.driver = driver;
 		AbstractElement.versionInfo = { version: version, browser: browser };
 		AbstractElement.waitHelper = new WaitHelper(driver);
