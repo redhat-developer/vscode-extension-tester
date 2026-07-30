@@ -25,7 +25,7 @@ abstract class BaseEditorAction extends ActionButtonElementDropdown {
 	 * Get text description of the action.
 	 */
 	async getTitle(): Promise<string> {
-		return await this.getAttribute(BaseEditorAction.locators.EditorView.attribute);
+		return (await this.getAttribute(BaseEditorAction.locators.EditorView.attribute))!;
 	}
 }
 

@@ -96,7 +96,7 @@ describe('CustomTreeSection', () => {
 
 	it('openItem returns subitems', async () => {
 		const items = await section.openItem('a');
-		expect(items.length).equals(2);
+		expect(items).to.have.lengthOf(2);
 	});
 
 	it('openItem returns empty array for leaves', async () => {
@@ -137,9 +137,9 @@ describe('CustomTreeSection', () => {
 	});
 
 	it('findWelcomeContent returns undefined if no WelcomeContent is present', async () => {
-		expect(await section.findWelcomeContent()).to.equal(undefined);
+		expect(await section.findWelcomeContent()).to.be.undefined;
 		await emptyViewSection.expand();
-		expect(await emptyViewSection.findWelcomeContent()).to.not.equal(undefined);
+		expect(await emptyViewSection.findWelcomeContent()).to.not.be.undefined;
 	});
 
 	it('findWelcomeContent returns the section', async () => {
@@ -177,7 +177,7 @@ describe('CustomTreeSection', () => {
 			expect(button).to.be.not.be.undefined;
 			await button?.click();
 			await new Promise((res) => setTimeout(res, 1_000));
-			expect(await emptyViewSection.findWelcomeContent()).to.equal(undefined);
+			expect(await emptyViewSection.findWelcomeContent()).to.be.undefined;
 		});
 	});
 
@@ -281,12 +281,12 @@ describe('CustomTreeSection', () => {
 			});
 
 			it('findChildItem does not click on the tree item', async () => {
-				expect(await (dItem as CustomTreeItem).findChildItem('da')).to.not.equal(undefined);
+				expect(await (dItem as CustomTreeItem).findChildItem('da')).to.not.be.undefined;
 				await dItem?.collapse();
 			});
 
 			it('findItem does not click on the tree item', async () => {
-				expect(await section.openItem('d', 'da')).to.not.equal(undefined);
+				expect(await section.openItem('d', 'da')).to.not.be.undefined;
 			});
 
 			it('clicking on the tree item with a command assigned, triggers the command', async () => {

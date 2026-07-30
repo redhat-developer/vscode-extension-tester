@@ -39,7 +39,7 @@ export abstract class ChannelView extends ElementWithContextMenu {
 			elements.map(async (element) => {
 				const disabled = await element.getAttribute('disabled');
 				if (!disabled) {
-					names.push(await element.getAttribute('value'));
+					names.push((await element.getAttribute('value'))!);
 				}
 			}),
 		);
@@ -59,7 +59,7 @@ export abstract class ChannelView extends ElementWithContextMenu {
 			);
 		}
 		const combo = await this.enclosingItem.findElement(ChannelView.locators.BottomBarViews.channelCombo);
-		return await combo.getAttribute(ChannelView.locators.OutputView.currentChannelAttribute);
+		return (await combo.getAttribute(ChannelView.locators.OutputView.currentChannelAttribute))!;
 	}
 
 	/**

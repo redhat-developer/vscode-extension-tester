@@ -40,7 +40,7 @@ export abstract class ViewSection extends AbstractElement {
 	 */
 	async getTitle(): Promise<string> {
 		const title = await this.findElement(ViewSection.locators.ViewSection.title);
-		return await title.getAttribute(ViewSection.locators.ViewSection.titleText);
+		return (await title.getAttribute(ViewSection.locators.ViewSection.titleText))!;
 	}
 
 	/**
@@ -215,7 +215,7 @@ export abstract class ViewSection extends AbstractElement {
 
 	private async isHeaderHidden(): Promise<boolean> {
 		const header = await this.findElement(ViewSection.locators.ViewSection.header);
-		return (await header.getAttribute('class')).indexOf('hidden') > -1;
+		return (await header.getAttribute('class'))!.indexOf('hidden') > -1;
 	}
 }
 
@@ -232,7 +232,7 @@ abstract class BaseViewPanelAction extends ActionButtonElementDropdown {
 	 * Get label of the action button
 	 */
 	async getLabel(): Promise<string> {
-		return await this.getAttribute(BaseViewPanelAction.locators.ViewSection.buttonLabel);
+		return (await this.getAttribute(BaseViewPanelAction.locators.ViewSection.buttonLabel))!;
 	}
 
 	/**

@@ -44,7 +44,7 @@ export class InputBox extends Input {
 	}
 
 	async hasProgress(): Promise<boolean> {
-		const klass = await this.findElement(InputBox.locators.InputBox.progress).getAttribute('class');
+		const klass = (await this.findElement(InputBox.locators.InputBox.progress).getAttribute('class'))!;
 		return klass.indexOf('done') < 0;
 	}
 
@@ -57,7 +57,7 @@ export class InputBox extends Input {
 		for (const element of elements) {
 			try {
 				if (await element.isDisplayed()) {
-					picks.push(await new QuickPickItem(+(await element.getAttribute('data-index')), this).wait());
+					picks.push(await new QuickPickItem(+(await element.getAttribute('data-index'))!, this).wait());
 				}
 			} catch (e: any) {
 				if (e.name === 'StaleElementReferenceError') {
@@ -78,7 +78,7 @@ export class InputBox extends Input {
 		for (const element of elements) {
 			try {
 				if (await element.isDisplayed()) {
-					picks.push(await new QuickPickItem(+(await element.getAttribute('data-index')), this, true).wait());
+					picks.push(await new QuickPickItem(+(await element.getAttribute('data-index'))!, this, true).wait());
 				}
 			} catch (e: any) {
 				if (e.name === 'StaleElementReferenceError') {
@@ -96,7 +96,7 @@ export class InputBox extends Input {
 	 * @returns Promise resolving to notification message
 	 */
 	async hasError(): Promise<boolean> {
-		const klass = await this.findElement(InputBox.locators.Input.inputBox).getAttribute('class');
+		const klass = (await this.findElement(InputBox.locators.Input.inputBox).getAttribute('class'))!;
 		return klass.indexOf('error') > -1;
 	}
 

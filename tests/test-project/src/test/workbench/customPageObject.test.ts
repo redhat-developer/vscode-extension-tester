@@ -15,30 +15,23 @@
  * limitations under the License.
  */
 
-import { WebElement } from 'selenium-webdriver';
-import { ActivityBar, ContextMenu } from '../..';
-import { ElementWithContextMenu } from '../ElementWithContextMenu';
+import { expect } from 'chai';
+import { CustomStatusBar } from '../customPageObjects/CustomStatusBar';
 
 /**
- * Page object representing the global action controls on the bottom of the action bar
+ * Integration test for custom page object support.
+ *
+ * Verifies that:
+ *   1. A locator contribution file is correctly loaded via RunOptions.customPageObjects
+ *   2. A page object class extending AbstractElement can resolve its custom locators
+ *   3. The element is found and interactive in the live VS Code instance
+ *
+ * The test project's ui-test:custom-po script passes --custom_page_objects pointing
+ * at out/test/customPageObjects/locators.js when running this test file.
  */
-export class ActionsControl extends ElementWithContextMenu {
-	constructor(element: WebElement, bar: ActivityBar) {
-		super(element, bar);
-	}
-
-	/**
-	 * Open the context menu bound to this global action
-	 * @returns Promise resolving to ContextMenu object representing the action's menu
-	 */
-	async openActionMenu(): Promise<ContextMenu> {
-		return await this.openContextMenu();
-	}
-
-	/**
-	 * Returns the title of the associated action
-	 */
-	async getTitle(): Promise<string> {
-		return (await this.getAttribute('aria-label'))!;
-	}
-}
+describe('Custom Page Objects', () => {
+	it('custom page object class resolves its locator and finds the element', async () => {
+		const statusBar = new CustomStatusBar();
+		expect(await statusBar.isDisplayed()).to.be.true;
+	});
+});

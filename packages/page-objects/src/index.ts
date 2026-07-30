@@ -15,9 +15,13 @@
  * limitations under the License.
  */
 
+import * as path from 'node:path';
 import { WebDriver } from 'selenium-webdriver';
 import { AbstractElement } from './components/AbstractElement';
-import { LocatorLoader } from './locators/loader';
+import { LocatorDiff } from './locators/locators';
+import { LocatorLoader, mergeLocators } from './locators/loader';
+
+export { AbstractElement } from './components/AbstractElement';
 
 export * from 'selenium-webdriver';
 export * from './locators/locators';
@@ -102,8 +106,20 @@ export * from './conditions/WaitForAttribute';
  * @param driver WebDriver instance
  * @param browserID identifier/name of the browser (i.e. vscode)
  */
-export function initPageObjects(currentVersion: string, baseVersion: string, locatorFolder: string, driver: WebDriver, browserID: string) {
-	const locators = new LocatorLoader(currentVersion, baseVersion, locatorFolder).loadLocators();
+export function initPageObjects(
+	currentVersion: string,
+	baseVersion: string,
+	locatorFolder: string,
+	driver: WebDriver,
+	browserID: string,
+	customLocatorsPath?: string,
+) {
+	let locators = new LocatorLoader(currentVersion, baseVersion, locatorFolder).loadLocators();
+
+	if (customLocatorsPath) {
+		const custom = require(path.resolve(customLocatorsPath)) as LocatorDiff;
+		locators = mergeLocators(locators, custom);
+	}
 
 	AbstractElement.init(locators, driver, browserID, currentVersion);
 }

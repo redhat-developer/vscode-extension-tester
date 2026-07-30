@@ -15,30 +15,18 @@
  * limitations under the License.
  */
 
-import { WebElement } from 'selenium-webdriver';
-import { ActivityBar, ContextMenu } from '../..';
-import { ElementWithContextMenu } from '../ElementWithContextMenu';
+import { By } from 'vscode-extension-tester';
+import type { LocatorDiff } from 'vscode-extension-tester';
 
 /**
- * Page object representing the global action controls on the bottom of the action bar
+ * Locator contribution file for custom page objects used in integration tests.
+ * Demonstrates loading custom locators via RunOptions.customPageObjects.locatorsPath.
+ *
+ * CustomStatusBar re-targets the known VS Code status bar element so the
+ * wiring can be verified without requiring extension-specific UI.
  */
-export class ActionsControl extends ElementWithContextMenu {
-	constructor(element: WebElement, bar: ActivityBar) {
-		super(element, bar);
-	}
-
-	/**
-	 * Open the context menu bound to this global action
-	 * @returns Promise resolving to ContextMenu object representing the action's menu
-	 */
-	async openActionMenu(): Promise<ContextMenu> {
-		return await this.openContextMenu();
-	}
-
-	/**
-	 * Returns the title of the associated action
-	 */
-	async getTitle(): Promise<string> {
-		return (await this.getAttribute('aria-label'))!;
-	}
-}
+export const locators: LocatorDiff['locators'] = {
+	CustomStatusBar: {
+		constructor: By.id('workbench.parts.statusbar'),
+	},
+};

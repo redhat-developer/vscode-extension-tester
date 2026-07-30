@@ -30,7 +30,7 @@ export abstract class Input extends AbstractElement {
 	 */
 	async getText(): Promise<string> {
 		const input = await this.findElement(Input.locators.Input.inputBox).findElement(Input.locators.Input.input);
-		return await input.getAttribute('value');
+		return (await input.getAttribute('value'))!;
 	}
 
 	/**
@@ -76,7 +76,7 @@ export abstract class Input extends AbstractElement {
 	 * @returns Promise resolving to input placeholder
 	 */
 	async getPlaceHolder(): Promise<string> {
-		return await this.findElement(Input.locators.Input.inputBox).findElement(Input.locators.Input.input).getAttribute('placeholder');
+		return (await this.findElement(Input.locators.Input.inputBox).findElement(Input.locators.Input.input).getAttribute('placeholder'))!;
 	}
 
 	/**
@@ -106,7 +106,7 @@ export abstract class Input extends AbstractElement {
 		const input = await this.findElement(Input.locators.Input.inputBox).findElement(Input.locators.Input.input);
 		// VS Code 1.40 breaks the default clear method, use select all + back space instead
 		await input.sendKeys(Key.END, Key.chord(Key.SHIFT, Key.HOME), Key.BACK_SPACE);
-		if ((await input.getAttribute('value')).length > 0) {
+		if ((await input.getAttribute('value'))!.length > 0) {
 			await input.sendKeys(Key.END, Key.chord(Key.SHIFT, Key.HOME), Key.BACK_SPACE);
 		}
 	}

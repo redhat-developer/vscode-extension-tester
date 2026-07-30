@@ -21,7 +21,7 @@ import { satisfies } from 'compare-versions';
 import { WebDriver, Builder, until, initPageObjects, logging, By, Browser } from '@redhat-developer/page-objects';
 import { Options, ServiceBuilder } from 'selenium-webdriver/chrome';
 import { getLocatorsPath } from '@redhat-developer/locators';
-import { CodeUtil, ReleaseQuality } from './util/codeUtil';
+import { CodeUtil, CustomPageObjectsOptions, ReleaseQuality } from './util/codeUtil';
 import { DEFAULT_STORAGE_FOLDER } from './extester';
 import { DriverUtil } from './util/driverUtil';
 
@@ -35,6 +35,7 @@ export class VSBrowser {
 	private codeVersion: string;
 	private releaseType: ReleaseQuality;
 	private logLevel: logging.Level;
+	private customPageObjects?: CustomPageObjectsOptions;
 	private static _instance: VSBrowser;
 	private readonly _startTimestamp: string;
 
@@ -43,13 +44,20 @@ export class VSBrowser {
 		return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}T${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
 	}
 
-	constructor(codeVersion: string, releaseType: ReleaseQuality, customSettings: object = {}, logLevel: logging.Level = logging.Level.INFO) {
+	constructor(
+		codeVersion: string,
+		releaseType: ReleaseQuality,
+		customSettings: object = {},
+		logLevel: logging.Level = logging.Level.INFO,
+		customPageObjects?: CustomPageObjectsOptions,
+	) {
 		this.storagePath = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.resolve(DEFAULT_STORAGE_FOLDER);
 		this.extensionsFolder = process.env.EXTENSIONS_FOLDER ? process.env.EXTENSIONS_FOLDER : undefined;
 		this.customSettings = customSettings;
 		this.codeVersion = codeVersion;
 		this.releaseType = releaseType;
 		this.logLevel = logLevel;
+		this.customPageObjects = customPageObjects;
 		this._startTimestamp = this.formatTimestamp(new Date());
 
 		VSBrowser._instance = this;
@@ -86,6 +94,9 @@ export class VSBrowser {
 			'files.simpleDialog.enable': true,
 			'terminal.integrated.copyOnSelection': true,
 			'workbench.secondarySideBar.defaultVisibility': 'hidden',
+			'workbench.welcomePage.experimentalOnboarding': false,
+			'workbench.welcomePage.walkthroughs.openOnInstall': false,
+			'workbench.editor.useModal': 'off',
 			...(satisfies(this.codeVersion, '>=1.101.0') ? { 'window.menuStyle': 'custom' } : {}),
 		};
 		if (Object.keys(this.customSettings).length > 0) {
@@ -127,15 +138,16 @@ export class VSBrowser {
 			chromeDriverBinaryPath = path.join(this.storagePath, `chromedriver-${DriverUtil.getChromeDriverPlatform()}`, driverBinary);
 		}
 
-		console.log('Launching browser...');
+		const chromeDriverLog = path.join(this.storagePath, 'chromedriver.log');
+		console.log(`Launching browser... (ChromeDriver log: ${chromeDriverLog})`);
 		this._driver = await new Builder()
-			.setChromeService(new ServiceBuilder(chromeDriverBinaryPath))
+			.setChromeService(new ServiceBuilder(chromeDriverBinaryPath).loggingTo(chromeDriverLog).enableVerboseLogging())
 			.forBrowser(Browser.CHROME)
 			.setChromeOptions(options)
 			.build();
 		VSBrowser._instance = this;
 
-		initPageObjects(this.codeVersion, VSBrowser.baseVersion, getLocatorsPath(), this._driver, VSBrowser.browserName);
+		initPageObjects(this.codeVersion, VSBrowser.baseVersion, getLocatorsPath(), this._driver, VSBrowser.browserName, this.customPageObjects?.locatorsPath);
 		return this;
 	}
 

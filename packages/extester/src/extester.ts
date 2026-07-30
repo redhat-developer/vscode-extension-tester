@@ -25,6 +25,7 @@ import pjson from '../package.json';
 import { globSync } from 'glob';
 
 export { ReleaseQuality };
+export type { RunOptions };
 export { MochaOptions } from 'mocha';
 export * from './browser';
 export * from './suite/mochaHooks';
@@ -55,8 +56,8 @@ export const VSCODE_VERSION_MAX = pjson.supportedVersions['vscode-max'];
  * ExTester
  */
 export class ExTester {
-	private code: CodeUtil;
-	private chrome: DriverUtil;
+	private readonly code: CodeUtil;
+	private readonly chrome: DriverUtil;
 
 	constructor(
 		storageFolder: string = DEFAULT_STORAGE_FOLDER,
@@ -255,3 +256,5 @@ export function loadCodeVersion(version: string | undefined): string {
 	}
 	return 'latest';
 }
+
+export { type CustomPageObjectsOptions } from './util/codeUtil';

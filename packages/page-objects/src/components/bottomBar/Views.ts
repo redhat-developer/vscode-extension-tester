@@ -224,7 +224,7 @@ export class TerminalView extends ChannelView {
 			},
 			{ timeout: 2000, pollInterval: 100 },
 		);
-		const label = (await row.getAttribute('aria-label')).split(' ');
+		const label = (await row.getAttribute('aria-label'))!.split(' ');
 
 		return `${label[1]}: ${label[2]}`;
 	}
@@ -250,7 +250,7 @@ export class TerminalView extends ChannelView {
 
 		for (const row of rows) {
 			const label = await row.getAttribute('aria-label');
-			if (label.includes(channelNumber)) {
+			if (label?.includes(channelNumber)) {
 				await row.click();
 				return;
 			}

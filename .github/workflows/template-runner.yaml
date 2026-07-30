@@ -27,14 +27,13 @@ jobs:
     env:
       CODE_TYPE: ${{ inputs.code_type }}
       CODE_VERSION: ${{ inputs.version }}
-      TEST_RESOURCES: test-resources
 
     steps:
       - name: 👷🏻 Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: ⚙️ Setup NodeJS
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ inputs.nodejs }}
           cache: npm
@@ -102,11 +101,11 @@ jobs:
         if: failure() && inputs.nodejs != 'lts/*'
         with:
           name: runner-screenshots-${{ matrix.os }}-${{ inputs.version }}-node_${{ inputs.nodejs }}
-          path: ${{ github.workspace }}/packages/extester-runner/**/screenshots/**/*.png
+          path: ${{ runner.temp }}/test-resources/screenshots/**/*.png
 
       - name: 💾 Upload Screenshots
         uses: actions/upload-artifact@v7
         if: failure() && inputs.nodejs == 'lts/*'
         with:
           name: runner-screenshots-${{ matrix.os }}-${{ inputs.version }}-node_lts
-          path: ${{ github.workspace }}/packages/extester-runner/**/screenshots/**/*.png
+          path: ${{ runner.temp }}/test-resources/screenshots/**/*.png

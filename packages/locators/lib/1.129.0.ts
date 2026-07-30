@@ -15,30 +15,15 @@
  * limitations under the License.
  */
 
-import { WebElement } from 'selenium-webdriver';
-import { ActivityBar, ContextMenu } from '../..';
-import { ElementWithContextMenu } from '../ElementWithContextMenu';
+import { By, LocatorDiff } from '@redhat-developer/page-objects';
 
-/**
- * Page object representing the global action controls on the bottom of the action bar
- */
-export class ActionsControl extends ElementWithContextMenu {
-	constructor(element: WebElement, bar: ActivityBar) {
-		super(element, bar);
-	}
-
-	/**
-	 * Open the context menu bound to this global action
-	 * @returns Promise resolving to ContextMenu object representing the action's menu
-	 */
-	async openActionMenu(): Promise<ContextMenu> {
-		return await this.openContextMenu();
-	}
-
-	/**
-	 * Returns the title of the associated action
-	 */
-	async getTitle(): Promise<string> {
-		return (await this.getAttribute('aria-label'))!;
-	}
-}
+export const diff: LocatorDiff = {
+	locators: {
+		DebugView: {
+			launchSelectAttribute: 'title',
+			launchSelect: By.className('monaco-select-box'),
+			launchOption: By.xpath(`.//div[contains(@class,'monaco-list-row') and @role='menuitemcheckbox' and @title]`),
+			optionByName: (name: string) => By.xpath(`.//div[contains(@class,'monaco-list-row') and @role='menuitemcheckbox' and @title='${name}']`),
+		},
+	},
+};

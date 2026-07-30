@@ -15,30 +15,14 @@
  * limitations under the License.
  */
 
-import { WebElement } from 'selenium-webdriver';
-import { ActivityBar, ContextMenu } from '../..';
-import { ElementWithContextMenu } from '../ElementWithContextMenu';
+import { AbstractElement } from 'vscode-extension-tester';
 
 /**
- * Page object representing the global action controls on the bottom of the action bar
+ * Custom page object that targets the VS Code status bar via a user-supplied
+ * locator contribution. Used to verify the custom page object wiring end-to-end.
  */
-export class ActionsControl extends ElementWithContextMenu {
-	constructor(element: WebElement, bar: ActivityBar) {
-		super(element, bar);
-	}
-
-	/**
-	 * Open the context menu bound to this global action
-	 * @returns Promise resolving to ContextMenu object representing the action's menu
-	 */
-	async openActionMenu(): Promise<ContextMenu> {
-		return await this.openContextMenu();
-	}
-
-	/**
-	 * Returns the title of the associated action
-	 */
-	async getTitle(): Promise<string> {
-		return (await this.getAttribute('aria-label'))!;
+export class CustomStatusBar extends AbstractElement {
+	constructor() {
+		super(CustomStatusBar.locators.CustomStatusBar.constructor);
 	}
 }

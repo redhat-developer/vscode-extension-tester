@@ -68,8 +68,8 @@ describe('WebviewViews', function () {
 		await new EditorView().closeAllEditors();
 	});
 
-	describe('BottomBar WebviewViews', async () => {
-		before(async () => {
+	describe('BottomBar WebviewViews', function () {
+		before(async function () {
 			this.timeout(15000);
 			const wait = getWaitHelper();
 			await new Workbench().executeCommand('My Panel: Focus on My Panel View View');
@@ -88,7 +88,7 @@ describe('WebviewViews', function () {
 	});
 
 	describe('Sidebar WebviewViews', function () {
-		before(async () => {
+		before(async function () {
 			this.timeout(15000);
 			const wait = getWaitHelper();
 			await new Workbench().executeCommand('Explorer: Focus on My Side Panel View View');
@@ -107,7 +107,7 @@ describe('WebviewViews', function () {
 	});
 
 	describe('Sidebar And BottomBar WebviewViews', function () {
-		before(async () => {
+		before(async function () {
 			this.timeout(15000);
 			const wait = getWaitHelper();
 			await new Workbench().executeCommand('My Panel: Focus on My Panel View View');
@@ -122,8 +122,8 @@ describe('WebviewViews', function () {
 			await closeBottomPanel();
 		});
 
-		describe('Shopping List Sidebar', async () => {
-			before(async () => {
+		describe('Shopping List Sidebar', function () {
+			before(async function () {
 				this.timeout(15000);
 				const wait = getWaitHelper();
 				const sidebar = new SideBarView();
@@ -137,8 +137,8 @@ describe('WebviewViews', function () {
 			});
 			runTests('Shopping Side List', ['Side Apple', 'Side Banana']);
 		});
-		describe('Shopping List Bottombar', async () => {
-			before(async () => {
+		describe('Shopping List Bottombar', function () {
+			before(async function () {
 				this.timeout(15000);
 				const wait = getWaitHelper();
 				const panel = new BottomBarPanel();
