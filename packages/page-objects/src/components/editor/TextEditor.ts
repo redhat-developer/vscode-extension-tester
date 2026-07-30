@@ -248,7 +248,7 @@ export class TextEditor extends Editor {
 			throw new Error(`Text '${text}' not found`);
 		}
 
-		await this.moveCursor(lineNum, column);
+		await this.setCursor(lineNum, column);
 
 		let actions = this.getDriver().actions();
 		await actions.clear();
@@ -545,12 +545,16 @@ export class TextEditor extends Editor {
 		let column = -1;
 		let found = 0;
 		const lines = (await this.getText()).split('\n');
+		const tabSize = await this.getTabSize();
 
 		for (let i = 0; i < lines.length; i++) {
 			let searchIndex = -1; // start at the beginning of the line
 			while ((searchIndex = lines[i].indexOf(text, searchIndex)) > -1) {
 				found++;
-				column = searchIndex + 1;
+				// Compute offset for tabs
+				const nTabs = lines[i].substring(0, searchIndex + 1).split('\t').length - 1;
+				const tabOffset = nTabs * (tabSize - 1); // 1 character per tab has already been counted ('\t') - now offset for the tab size
+				column = searchIndex + 1 + tabOffset;
 				line = i + 1;
 				if (found >= occurrence) {
 					return [line, column];
@@ -618,6 +622,13 @@ export class TextEditor extends Editor {
 			coords.push(+c);
 		}
 		return [coords[0], coords[1]];
+	}
+
+	private async getTabSize(): Promise<number> {
+		const statusBar = new StatusBar();
+		const indent = await statusBar.getCurrentIndentation();
+		const matches = <RegExpMatchArray>indent.match(/\d+/g);
+		return +matches[0];
 	}
 
 	/**
