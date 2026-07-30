@@ -124,10 +124,10 @@ export class TextEditor extends Editor {
 	 */
 	async getText(): Promise<string> {
 		return this.withRecovery(async (self) => {
-			const clipboard = (await import('clipboardy')).default;
+			const clipboard = await import('tinyclip');
 			let originalClipboard = '';
 			try {
-				originalClipboard = clipboard.readSync();
+				originalClipboard = await clipboard.readText();
 			} catch (error) {
 				// workaround issue https://github.com/redhat-developer/vscode-extension-tester/issues/835
 				// do not fail if clipboard is empty
@@ -138,7 +138,7 @@ export class TextEditor extends Editor {
 			await self.getWaitHelper().forCondition(
 				async () => {
 					try {
-						const currentClip = clipboard.readSync();
+						const currentClip = await clipboard.readText();
 						return currentClip !== originalClipboard || currentClip.length > 0;
 					} catch {
 						return false;
@@ -146,10 +146,10 @@ export class TextEditor extends Editor {
 				},
 				{ timeout: 2000, pollInterval: 50, message: 'Clipboard copy operation did not complete' },
 			);
-			const text = clipboard.readSync();
+			const text = await clipboard.readText();
 			await inputarea.sendKeys(Key.UP);
 			if (originalClipboard.length > 0) {
-				clipboard.writeSync(originalClipboard);
+				await clipboard.writeText(originalClipboard);
 			}
 			return text;
 		});
@@ -162,19 +162,19 @@ export class TextEditor extends Editor {
 	 * @returns Promise resolving once the new text is copied over
 	 */
 	async setText(text: string, formatText: boolean = false): Promise<void> {
-		const clipboard = (await import('clipboardy')).default;
+		const clipboard = await import('tinyclip');
 		let originalClipboard = '';
 		try {
-			originalClipboard = clipboard.readSync();
+			originalClipboard = await clipboard.readText();
 		} catch (error) {
 			// workaround issue https://github.com/redhat-developer/vscode-extension-tester/issues/835
 			// do not fail if clipboard is empty
 		}
 		const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
-		clipboard.writeSync(text);
+		await clipboard.writeText(text);
 		await inputarea.sendKeys(Key.chord(TextEditor.ctlKey, 'a'), Key.chord(TextEditor.ctlKey, 'v'));
 		if (originalClipboard.length > 0) {
-			clipboard.writeSync(originalClipboard);
+			await clipboard.writeText(originalClipboard);
 		}
 		if (formatText) {
 			await this.formatDocument();
@@ -272,10 +272,10 @@ export class TextEditor extends Editor {
 	 * Get the text that is currently selected as string
 	 */
 	async getSelectedText(): Promise<string> {
-		const clipboard = (await import('clipboardy')).default;
+		const clipboard = await import('tinyclip');
 		let originalClipboard = '';
 		try {
-			originalClipboard = clipboard.readSync();
+			originalClipboard = await clipboard.readText();
 		} catch (error) {
 			// workaround issue https://github.com/redhat-developer/vscode-extension-tester/issues/835
 			// do not fail if clipboard is empty
@@ -296,7 +296,7 @@ export class TextEditor extends Editor {
 		await this.getWaitHelper().forCondition(
 			async () => {
 				try {
-					const currentClip = clipboard.readSync();
+					const currentClip = await clipboard.readText();
 					return currentClip !== originalClipboard;
 				} catch {
 					return false;
@@ -304,9 +304,9 @@ export class TextEditor extends Editor {
 			},
 			{ timeout: 2000, pollInterval: 50, message: 'Copy operation did not complete' },
 		);
-		const text = clipboard.readSync();
+		const text = await clipboard.readText();
 		if (originalClipboard.length > 0) {
-			clipboard.writeSync(originalClipboard);
+			await clipboard.writeText(originalClipboard);
 		}
 		return text;
 	}
