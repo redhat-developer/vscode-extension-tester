@@ -74,7 +74,7 @@ Options:
   -s, --storage <storage>                      # Use this folder for all test resources
   -e, --extensions_dir <extensions_directory>  # VS Code will use this directory for managing extensions
   -f, --vsix_file <file>                       # path/URL to vsix file containing the extension
-  -y, --yarn                                   # Use yarn to build the extension via vsce instead of npm (default: false)
+  --package_options <json>                     # JSON string of vsce IPackageOptions (e.g. '{"useYarn":true,"followSymlinks":true}')
   -t, --type <type>                            # Type of VS Code release (stable/insider)
   -h, --help                                   # display help for command
 
@@ -111,7 +111,7 @@ Options:
   -e, --extensions_dir <extensions_directory>  # VS Code will use this directory for managing extensions
   -c, --code_version <version>                 # Version of VS Code to download
   -t, --type <type>                            # Type of VS Code release (stable/insider)
-  -y, --yarn                                   # Use yarn to build the extension via vsce instead of npm (default: false)
+  --package_options <json>                     # JSON string of vsce IPackageOptions (e.g. '{"useYarn":true,"followSymlinks":true}')
   -i, --install_dependencies                   # Automatically install extensions your extension depends on (default: false)
   -n, --no_cache                               # Disable caching of VS Code and ChromeDriver downloads (default: false)
   -h, --help                                   # display help for command
@@ -156,7 +156,7 @@ Options:
   -c, --code_version <version>                 # Version of VS Code to download
   -t, --type <type>                            # Type of VS Code release (stable/insider)
   -o, --code_settings <settings.json>          # Path to custom settings for VS Code json file
-  -y, --yarn                                   # Use yarn to build the extension via vsce instead of npm (default: false)
+  --package_options <json>                     # JSON string of vsce IPackageOptions (e.g. '{"useYarn":true,"followSymlinks":true}')
   -u, --uninstall_extension                    # Uninstall the extension after the test run (default: false)
   -m, --mocha_config <mocharc.js>              # Path to Mocha configuration file
   -i, --install_dependencies                   # Automatically install extensions your extension depends on (default: false)
@@ -196,12 +196,38 @@ When the `--no_cache` option is enabled:
 
 The same actions are available in the `ExTester` class as API:
 
+### `packageOptions` / `--package_options`
+
+The `packageOptions` field (and its CLI counterpart `--package_options <json>`) accepts any option
+from the `IPackageOptions` interface of [`@vscode/vsce`](https://github.com/microsoft/vscode-vsce).
+The object is forwarded directly to `vsce.createVSIX()`, so every packaging option vsce supports
+is available without ExTester needing to enumerate them individually.
+
+Common examples:
+
+```typescript
+// Use yarn instead of npm
+{ useYarn: true }
+
+// Recurse into symlinked directories (fixes missing-symlink issues)
+{ followSymlinks: true }
+
+// Combine options freely
+{ useYarn: true, followSymlinks: true, preRelease: true }
+```
+
+CLI equivalent:
+
+```shell
+extest setup-and-run 'out/**/*.test.js' --package_options '{"useYarn":true,"followSymlinks":true}'
+```
+
 ```typescript
 export interface SetupOptions {
   /** version of VS Code to test against, defaults to latest */
   vscodeVersion?: string;
-  /** when true run `vsce package` with the `--yarn` flag */
-  useYarn?: boolean;
+  /** vsce packaging options passed directly to vsce.createVSIX() */
+  packageOptions?: IPackageOptions;
   /** install the extension's dependencies from the marketplace. Defaults to `false`. */
   installDependencies?: boolean;
   /** disable caching of VS Code and ChromeDriver downloads */

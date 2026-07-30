@@ -21,6 +21,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  unit:
+    name: 🧪 Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: 👷🏻 Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: ⚙️ Setup NodeJS
+        uses: actions/setup-node@v7
+        with:
+          node-version: "lts/*"
+          cache: npm
+
+      - name: 🔧 Install
+        run: npm ci
+
+      - name: 🔧 Build
+        run: npm run build
+
+      - name: 🔍 Run Unit Tests
+        run: npm run test:unit
+
   main:
     name: ${{ matrix.version }}
     strategy:
@@ -40,19 +62,20 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     name: 🚦 Status Check
-    needs: [main, runner]
+    needs: [main, runner, unit]
     steps:
       - name: ℹ️ Test Matrix Result
         run: |
+          echo Unit Test result = ${{ needs.unit.result }}
           echo Main Test result = ${{ needs.main.result }}
           echo Runner Test result = ${{ needs.runner.result }}
       - name: ✅ Status Check - success
-        if: ${{ needs.main.result == 'success' && needs.runner.result == 'success' }}
+        if: ${{ needs.main.result == 'success' && needs.runner.result == 'success' && needs.unit.result == 'success' }}
         run: |
           echo "All tests successfully completed!"
           exit 0
       - name: ❌ Status Check - failure
-        if: ${{ needs.main.result != 'success' || needs.runner.result != 'success' }}
+        if: ${{ needs.main.result != 'success' || needs.runner.result != 'success' || needs.unit.result != 'success' }}
         run: |
           echo "Status Check failed!"
           exit 1
