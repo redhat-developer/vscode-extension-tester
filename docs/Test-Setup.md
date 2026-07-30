@@ -142,6 +142,7 @@ Options:
   -l, --log_level <level>                      # Log messages from webdriver with a given level (default: "Info")
   -f, --offline                                # Attempt to run without internet connection, make sure to have all requirements downloaded (default: false)
   -C, --coverage                               # Enable code coverage using c8
+  -L, --locale <locale>                        # Launch VS Code with the given display language (e.g. ru, zh-cn). Requires the language pack to be installed via -i. See [[Locale-Testing]]
   -p, --custom_page_objects <path>             # Path to a compiled JS locator contribution file for custom page objects
   --config <path>                              # Path to extester.config.json configuration file
   -h, --help                                   # display help for command
@@ -170,6 +171,7 @@ Options:
   -f, --offline                                # Attempt to run without internet connection, make sure to have all requirements downloaded (default: false)
   -C, --coverage                               # Enable code coverage using c8
   -n, --no_cache                               # Disable caching of VS Code and ChromeDriver downloads (default: false)
+  -L, --locale <locale>                        # Launch VS Code with the given display language (e.g. ru, zh-cn). Requires the language pack to be installed via -i. See [[Locale-Testing]]
   -p, --custom_page_objects <path>             # Path to a compiled JS locator contribution file for custom page objects
   --config <path>                              # Path to extester.config.json configuration file
   -h, --help                                   # display help for command
@@ -360,6 +362,8 @@ export interface RunOptions {
   logLevel?: VSBrowserLogLevel;
   /** try to perform all setup without internet connection, needs all requirements pre-downloaded manually */
   offline?: boolean;
+  /** display language locale for VS Code (e.g. 'ru', 'zh-cn'). Requires the matching language pack extension to be installed. See [[Locale-Testing]] */
+  locale?: string;
   /** custom page objects locator contribution to load at startup */
   customPageObjects?: CustomPageObjectsOptions;
 }

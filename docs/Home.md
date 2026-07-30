@@ -22,6 +22,8 @@ Find more about the test setup: [[Test-Setup]]
 See how to change the Mocha test runner configuration: [[Mocha-Configuration]] and
 also how to enable code coverage using the c8 tool [[CodeCoverage]]
 
+To run tests against a localized (non-English) VS Code instance: [[Locale-Testing]]
+
 Once the setup is complete, check out the sample test file: [[Writing-Simple-Tests]].
 
 Debugging UI tests from VSCode: [[Debugging-Tests]]
