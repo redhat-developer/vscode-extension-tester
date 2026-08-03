@@ -251,21 +251,22 @@ Controls VS Code + ChromeDriver download and extension installation. Used by `ge
 
 Controls test execution inside VS Code. Used by `run-tests` and `setup-and-run`.
 
-| Field               | Type                      | Default                                       | CLI equivalent                 | Description                                                                    |
-| ------------------- | ------------------------- | --------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------ |
-| `testFiles`         | string[]                  | —                                             | positional `[testFiles...]`    | Glob pattern(s) for test files. Used when no CLI positional args are provided. |
-| `vscodeVersion`     | string                    | `"latest"`                                    | `-c` / `--code_version`        | VS Code version: `latest`, `min`, `max`, or `1.X.Y`                            |
-| `type`              | `"stable"` \| `"insider"` | `"stable"`                                    | `-t` / `--type`                | VS Code release stream                                                         |
-| `storage`           | string                    | `$TEST_RESOURCES` or `$TMPDIR/test-resources` | `-s` / `--storage`             | Folder for all downloaded test resources                                       |
-| `extensionsDir`     | string                    | —                                             | `-e` / `--extensions_dir`      | VS Code extensions directory override                                          |
-| `settings`          | string                    | —                                             | `-o` / `--code_settings`       | Path to a custom VS Code `settings.json`                                       |
-| `cleanup`           | boolean                   | `false`                                       | `-u` / `--uninstall_extension` | Uninstall the extension after the test run                                     |
-| `mochaConfig`       | string                    | —                                             | `-m` / `--mocha_config`        | Path to a Mocha configuration file                                             |
-| `logLevel`          | string                    | `"Info"`                                      | `-l` / `--log_level`           | Webdriver log level: `Debug`, `Info`, `Warning`, `Severe`, `OFF`, `ALL`        |
-| `offline`           | boolean                   | `false`                                       | `-f` / `--offline`             | Run without internet access                                                    |
-| `coverage`          | boolean                   | `false`                                       | `-C` / `--coverage`            | Enable c8 code coverage                                                        |
-| `resources`         | string[]                  | `[]`                                          | `-r` / `--open_resource`       | Files or folders to open in VS Code at startup                                 |
-| `customPageObjects` | string                    | —                                             | `-p` / `--custom_page_objects` | Path to a compiled JS locator contribution file                                |
+| Field               | Type                      | Default                                       | CLI equivalent                 | Description                                                                                                                |
+| ------------------- | ------------------------- | --------------------------------------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| `testFiles`         | string[]                  | —                                             | positional `[testFiles...]`    | Glob pattern(s) for test files. Used when no CLI positional args are provided.                                             |
+| `vscodeVersion`     | string                    | `"latest"`                                    | `-c` / `--code_version`        | VS Code version: `latest`, `min`, `max`, or `1.X.Y`                                                                        |
+| `type`              | `"stable"` \| `"insider"` | `"stable"`                                    | `-t` / `--type`                | VS Code release stream                                                                                                     |
+| `storage`           | string                    | `$TEST_RESOURCES` or `$TMPDIR/test-resources` | `-s` / `--storage`             | Folder for all downloaded test resources                                                                                   |
+| `extensionsDir`     | string                    | —                                             | `-e` / `--extensions_dir`      | VS Code extensions directory override                                                                                      |
+| `settings`          | string                    | —                                             | `-o` / `--code_settings`       | Path to a custom VS Code `settings.json`                                                                                   |
+| `cleanup`           | boolean                   | `false`                                       | `-u` / `--uninstall_extension` | Uninstall the extension after the test run                                                                                 |
+| `mochaConfig`       | string                    | —                                             | `-m` / `--mocha_config`        | Path to a Mocha configuration file                                                                                         |
+| `logLevel`          | string                    | `"Info"`                                      | `-l` / `--log_level`           | Webdriver log level: `Debug`, `Info`, `Warning`, `Severe`, `OFF`, `ALL`                                                    |
+| `offline`           | boolean                   | `false`                                       | `-f` / `--offline`             | Run without internet access                                                                                                |
+| `coverage`          | boolean                   | `false`                                       | `-C` / `--coverage`            | Enable c8 code coverage                                                                                                    |
+| `resources`         | string[]                  | `[]`                                          | `-r` / `--open_resource`       | Files or folders to open in VS Code at startup                                                                             |
+| `customPageObjects` | string                    | —                                             | `-p` / `--custom_page_objects` | Path to a compiled JS locator contribution file                                                                            |
+| `locale`            | string                    | —                                             | `-L` / `--locale`              | Display language locale (e.g. `ru`, `zh-cn`). Requires the language pack extension to be installed. See [[Locale-Testing]] |
 
 ### Editor autocomplete
 

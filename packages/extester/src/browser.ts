@@ -75,8 +75,11 @@ export class VSBrowser {
 		const userSettings = path.join(settingsDir, 'User');
 		const languagePacksPath = path.join(settingsDir, 'languagepacks.json');
 
-		// Preserve languagepacks.json across the settings wipe — it is written by the
-		// VS Code CLI install step (installExt) and must survive into the launch.
+		// Preserve languagepacks.json across the settings wipe.
+		// It is written by the VS Code CLI install step (installExt) with --user-data-dir
+		// pointing to settingsDir, so it is always in the right location.
+		// It contains absolute translation file paths that VS Code requires to load
+		// the language pack — we must not regenerate it ourselves.
 		let languagePacks: object | undefined;
 		if (fs.existsSync(languagePacksPath)) {
 			try {

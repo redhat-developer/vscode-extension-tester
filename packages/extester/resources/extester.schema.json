@@ -165,6 +165,11 @@
           "type": "string",
           "description": "Path to a compiled JS locator contribution file for custom page objects.",
           "examples": ["./out/test/customPageObjects/locators.js"]
+        },
+        "locale": {
+          "type": "string",
+          "description": "Display language locale for VS Code (e.g. 'ru', 'zh-cn', 'fr'). Requires the matching language pack extension to be installed.",
+          "examples": ["ru", "zh-cn", "fr", "de", "es", "ja", "ko", "pt-br", "tr"]
         }
       }
     }

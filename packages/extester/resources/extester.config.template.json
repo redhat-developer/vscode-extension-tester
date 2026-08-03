@@ -25,6 +25,7 @@
     "offline": false,
     "coverage": false,
     "resources": ["."],
-    "customPageObjects": "./out/test/customPageObjects/locators.js"
+    "customPageObjects": "./out/test/customPageObjects/locators.js",
+    "locale": ""
   }
 }

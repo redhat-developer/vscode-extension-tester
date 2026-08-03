@@ -206,7 +206,7 @@ program
 				offline: cmd.offline || run.offline,
 				resources: cmd.open_resource ?? run.resources ?? [],
 				customPageObjects: customPageObjectsPath ? { locatorsPath: customPageObjectsPath } : undefined,
-				locale: cmd.locale,
+				locale: cmd.locale ?? run.locale,
 			});
 		}),
 	);
@@ -263,7 +263,7 @@ program
 					logLevel: cmd.log_level ?? run.logLevel,
 					resources: cmd.open_resource ?? run.resources ?? [],
 					customPageObjects: customPageObjectsPath ? { locatorsPath: customPageObjectsPath } : undefined,
-					locale: cmd.locale,
+					locale: cmd.locale ?? run.locale,
 				},
 			);
 		}),

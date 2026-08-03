@@ -193,4 +193,26 @@ describe('loadConfig', () => {
 			}
 		});
 	});
+
+	describe('locale field', () => {
+		it('passes locale through unchanged in run section', async () => {
+			const { file } = makeTmpConfig(JSON.stringify({ run: { locale: 'zh-cn' } }));
+			try {
+				const cfg = await loadConfig(file);
+				assert.strictEqual(cfg.run?.locale, 'zh-cn');
+			} finally {
+				fs.rmSync(path.dirname(file), { recursive: true });
+			}
+		});
+
+		it('locale is omitted when not set', async () => {
+			const { file } = makeTmpConfig(JSON.stringify({ run: { testFiles: ['./out/**/*.test.js'] } }));
+			try {
+				const cfg = await loadConfig(file);
+				assert.strictEqual(cfg.run?.locale, undefined);
+			} finally {
+				fs.rmSync(path.dirname(file), { recursive: true });
+			}
+		});
+	});
 });
