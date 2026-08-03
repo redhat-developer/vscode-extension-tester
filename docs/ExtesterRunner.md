@@ -40,10 +40,11 @@ The extension integrates into VS Code's Activity Bar and provides three main vie
 3. **Test, Logs and Screenshots Management**
    - Automatic refresh of views when test files change
    - Provides quick navigation to test source code
-   - Displays screenshots from test runs with automatic refresh
-   - Provides quick access to view captured screenshots
-   - Maintains and organizes test logs with refresh
-   - Enables quick opening of log files
+   - Displays screenshots and logs sorted newest-first so the latest run is always at the top
+   - Timestamp-named run folders show a human-readable date/time label (e.g. `Jan 15, 2025, 14:30:22`) with the raw folder name as secondary text
+   - **Clear all** — removes the entire contents of the Logs or Screenshots directory in one click (with confirmation)
+   - **Delete individual item** — removes a single file or folder from either view (inline trash icon or right-click > Delete, with confirmation)
+   - **Reveal in File Explorer** — opens the Logs or Screenshots root directory, or any individual item, in the OS file manager (Finder on macOS, Explorer on Windows)
 
 ### Configuration
 
