@@ -181,6 +181,10 @@ program
 	.option('-r, --open_resource <resources...>', 'Open resources in VS Code. Multiple files and folders can be specified.')
 	.option('-p, --custom_page_objects <path>', 'Path to a compiled JS locator contribution file for custom page objects')
 	.option('--config <path>', 'Path to extester.config.json configuration file')
+	.option(
+		'-L, --locale <locale>',
+		'Set the display language locale for VS Code (e.g. ru, zh-cn, fr). Requires the matching language pack extension to be installed.',
+	)
 	.action(
 		withErrors(async (testFiles, cmd) => {
 			const cfg = await loadConfig(cmd.config);
@@ -202,6 +206,7 @@ program
 				offline: cmd.offline || run.offline,
 				resources: cmd.open_resource ?? run.resources ?? [],
 				customPageObjects: customPageObjectsPath ? { locatorsPath: customPageObjectsPath } : undefined,
+				locale: cmd.locale ?? run.locale,
 			});
 		}),
 	);
@@ -225,6 +230,10 @@ program
 	.option('-n, --no_cache', 'Skip using cached version and download fresh copy without caching it', false)
 	.option('-p, --custom_page_objects <path>', 'Path to a compiled JS locator contribution file for custom page objects')
 	.option('--config <path>', 'Path to extester.config.json configuration file')
+	.option(
+		'-L, --locale <locale>',
+		'Set the display language locale for VS Code (e.g. ru, zh-cn, fr). Requires the matching language pack extension to be installed.',
+	)
 	.action(
 		withErrors(async (testFiles, cmd) => {
 			const cfg = await loadConfig(cmd.config);
@@ -254,6 +263,7 @@ program
 					logLevel: cmd.log_level ?? run.logLevel,
 					resources: cmd.open_resource ?? run.resources ?? [],
 					customPageObjects: customPageObjectsPath ? { locatorsPath: customPageObjectsPath } : undefined,
+					locale: cmd.locale ?? run.locale,
 				},
 			);
 		}),
@@ -286,7 +296,7 @@ function codeStream(stream: string | undefined) {
 	if (!type && envType) {
 		type = envType;
 	}
-	if (type && type.toLowerCase() === 'insider') {
+	if (type?.toLowerCase() === 'insider') {
 		return ReleaseQuality.Insider;
 	}
 	return ReleaseQuality.Stable;

@@ -72,6 +72,8 @@ export interface ExTesterRunConfig {
 	resources?: string[];
 	/** Path to a compiled JS locator contribution file for custom page objects. */
 	customPageObjects?: string;
+	/** Display language locale for VS Code (e.g. `ru`, `zh-cn`, `fr`). Requires the matching language pack extension to be installed. */
+	locale?: string;
 }
 
 /**
@@ -117,7 +119,7 @@ function resolveGlobPattern(baseDir: string, pattern: string): string {
 	}
 	// Split at the last path separator before the first glob character so that the
 	// directory boundary is preserved and re-attached with a forward slash.
-	const globChars = /[*?{!(|@+\[]/;
+	const globChars = /[*?{!(|@+[]/;
 	const firstGlob = pattern.search(globChars);
 	if (firstGlob === -1) {
 		// No glob characters — treat as a plain path, but normalise separators.

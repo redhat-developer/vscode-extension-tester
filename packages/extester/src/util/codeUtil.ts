@@ -58,6 +58,8 @@ export interface RunOptions {
 	resources: string[];
 	/** custom page objects locator contribution to load at startup */
 	customPageObjects?: CustomPageObjectsOptions;
+	/** Display language locale for VS Code (e.g. 'ru', 'zh-cn', 'fr'). Requires the matching language pack extension to be installed. */
+	locale?: string;
 }
 
 /** defaults for the [[RunOptions]] */
@@ -256,6 +258,7 @@ export class CodeUtil {
 		if (this.extensionsFolder) {
 			command += ` --extensions-dir=${this.extensionsFolder}`;
 		}
+		command += ` --user-data-dir="${path.join(this.downloadFolder, 'settings')}"`;
 		childProcess.execSync(command, { stdio: 'inherit' });
 	}
 
@@ -348,6 +351,7 @@ export class CodeUtil {
 			runOptions.customPageObjects,
 			this.parseSettings(runOptions.settings ?? DEFAULT_RUN_OPTIONS.settings),
 			runOptions.cleanup,
+			runOptions.locale,
 		);
 		return await runner.runTests(testFilesPattern, this, runOptions.resources, runOptions.logLevel);
 	}
