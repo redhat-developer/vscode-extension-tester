@@ -1,0 +1,20 @@
+{
+  "$schema": "../../packages/extester/resources/extester.schema.json",
+  "setup": {
+    "extensionsDir": "./test-extensions",
+    "installDependencies": true
+  },
+  "run": {
+    "testFiles": [
+      "./out/test/cli/order-3.test.js",
+      "./out/test/cli/order-2.test.js",
+      "./out/test/cli/order-1.test.js",
+      "./out/test/**/!(clipboard)*.test.js",
+      "./out/test/system/clipboard.test.js"
+    ],
+    "extensionsDir": "./test-extensions",
+    "cleanup": true,
+    "resources": ["."],
+    "customPageObjects": "./out/test/customPageObjects/locators.js"
+  }
+}

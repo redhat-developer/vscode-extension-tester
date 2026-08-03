@@ -1,0 +1,172 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/redhat-developer/vscode-extension-tester/main/packages/extester/resources/extester.schema.json",
+  "title": "ExTester Configuration",
+  "description": "Configuration file for vscode-extension-tester (extester.config.json)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Path or URL to the JSON Schema for this file."
+    },
+    "setup": {
+      "type": "object",
+      "description": "Setup options: controls VS Code + ChromeDriver download and extension packaging/installation.",
+      "additionalProperties": false,
+      "properties": {
+        "vscodeVersion": {
+          "type": "string",
+          "description": "Version of VS Code to test against. Accepts 'latest', 'min', 'max', or a specific version string (e.g. '1.131.0').",
+          "default": "latest",
+          "examples": ["latest", "min", "max", "1.131.0"]
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of VS Code release stream.",
+          "enum": ["stable", "insider"],
+          "default": "stable"
+        },
+        "storage": {
+          "type": "string",
+          "description": "Folder used for all test resources (VS Code binary, ChromeDriver, logs). Defaults to $TEST_RESOURCES or $TMPDIR/test-resources.",
+          "examples": ["./test-resources"]
+        },
+        "extensionsDir": {
+          "type": "string",
+          "description": "VS Code extensions directory override.",
+          "examples": ["./test-extensions"]
+        },
+        "packageOptions": {
+          "type": "object",
+          "description": "vsce packaging options forwarded directly to vsce.createVSIX(). See @vscode/vsce IPackageOptions for all available fields.",
+          "properties": {
+            "useYarn": {
+              "type": "boolean",
+              "description": "Use yarn instead of npm when packaging.",
+              "default": false
+            },
+            "followSymlinks": {
+              "type": "boolean",
+              "description": "Follow symlinks when packaging.",
+              "default": false
+            },
+            "preRelease": {
+              "type": "boolean",
+              "description": "Mark the packaged extension as a pre-release.",
+              "default": false
+            },
+            "allowStarActivation": {
+              "type": "boolean",
+              "description": "Allow the use of * in activationEvents.",
+              "default": false
+            },
+            "allowMissingRepository": {
+              "type": "boolean",
+              "description": "Skip the check for a repository field in package.json.",
+              "default": false
+            },
+            "skipLicense": {
+              "type": "boolean",
+              "description": "Skip adding a LICENSE file to the package.",
+              "default": false
+            }
+          },
+          "additionalProperties": true
+        },
+        "installDependencies": {
+          "type": "boolean",
+          "description": "Automatically install extensions your extension depends on from the marketplace.",
+          "default": false
+        },
+        "noCache": {
+          "type": "boolean",
+          "description": "Skip using a cached download and fetch a fresh copy.",
+          "default": false
+        }
+      }
+    },
+    "run": {
+      "type": "object",
+      "description": "Run options: controls test execution inside VS Code.",
+      "additionalProperties": false,
+      "properties": {
+        "testFiles": {
+          "type": "array",
+          "description": "Glob pattern(s) for test files to run. Used as CLI positional arguments when none are provided on the command line.",
+          "items": {
+            "type": "string"
+          },
+          "examples": [["./out/test/**/*.test.js"]],
+          "minItems": 1
+        },
+        "vscodeVersion": {
+          "type": "string",
+          "description": "Version of VS Code to test against. Accepts 'latest', 'min', 'max', or a specific version string (e.g. '1.131.0').",
+          "default": "latest",
+          "examples": ["latest", "min", "max", "1.131.0"]
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of VS Code release stream.",
+          "enum": ["stable", "insider"],
+          "default": "stable"
+        },
+        "storage": {
+          "type": "string",
+          "description": "Folder used for all test resources. Defaults to $TEST_RESOURCES or $TMPDIR/test-resources.",
+          "examples": ["./test-resources"]
+        },
+        "extensionsDir": {
+          "type": "string",
+          "description": "VS Code extensions directory override.",
+          "examples": ["./test-extensions"]
+        },
+        "settings": {
+          "type": "string",
+          "description": "Path to a custom VS Code settings.json file to apply during the test run.",
+          "examples": ["./vscode-settings.json"]
+        },
+        "cleanup": {
+          "type": "boolean",
+          "description": "Uninstall the extension under test after the test run completes.",
+          "default": false
+        },
+        "mochaConfig": {
+          "type": "string",
+          "description": "Path to a Mocha configuration file.",
+          "examples": ["./.mocharc.js", "./.mocharc.json"]
+        },
+        "logLevel": {
+          "type": "string",
+          "description": "Webdriver log level.",
+          "enum": ["Debug", "Info", "Warning", "Severe", "OFF", "ALL"],
+          "default": "Info"
+        },
+        "offline": {
+          "type": "boolean",
+          "description": "Run without an internet connection. All required resources must be pre-downloaded.",
+          "default": false
+        },
+        "coverage": {
+          "type": "boolean",
+          "description": "Enable c8 code coverage collection.",
+          "default": false
+        },
+        "resources": {
+          "type": "array",
+          "description": "File or folder paths to open in VS Code at startup.",
+          "items": {
+            "type": "string"
+          },
+          "examples": [["."], ["./test-workspace"]]
+        },
+        "customPageObjects": {
+          "type": "string",
+          "description": "Path to a compiled JS locator contribution file for custom page objects.",
+          "examples": ["./out/test/customPageObjects/locators.js"]
+        }
+      }
+    }
+  }
+}
