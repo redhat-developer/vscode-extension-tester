@@ -16,9 +16,11 @@
  */
 
 import * as vscode from 'vscode';
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import * as os from 'node:os';
 import { Logger } from '../logger/logger';
+import { formatTimestampLabel } from '../utils/formatLabel';
 
 /**
  * Provides a tree view for displaying screenshots within the ExTester VS Code extension.
@@ -60,7 +62,7 @@ export class ScreenshotsTreeProvider implements vscode.TreeDataProvider<Screensh
 	 *
 	 * @returns {string} The resolved absolute path to the screenshots directory (`screenshots`).
 	 */
-	private resolveScreenshotsPath(): string {
+	resolveScreenshotsPath(): string {
 		const configuration = vscode.workspace.getConfiguration('extesterRunner');
 		const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
 
@@ -72,7 +74,7 @@ export class ScreenshotsTreeProvider implements vscode.TreeDataProvider<Screensh
 		if (baseTempDir && baseTempDir.length > 0) {
 			baseTempDir = path.isAbsolute(baseTempDir) ? baseTempDir : path.join(workspaceFolder ?? '', baseTempDir);
 		} else {
-			baseTempDir = path.join(process.env.TMPDIR ?? require('os').tmpdir(), 'test-resources');
+			baseTempDir = path.join(process.env.TMPDIR ?? os.tmpdir(), 'test-resources');
 		}
 
 		const finalPath = path.join(baseTempDir, 'screenshots');
@@ -112,7 +114,7 @@ export class ScreenshotsTreeProvider implements vscode.TreeDataProvider<Screensh
 			return [new ScreenshotsResourcesItem('No screenshots', '', false)];
 		}
 
-		const items: ScreenshotsResourcesItem[] = [];
+		const itemsWithStat: { item: ScreenshotsResourcesItem; mtime: number }[] = [];
 
 		for (const file of files) {
 			const fullPath = path.join(dirPath, file);
@@ -120,29 +122,34 @@ export class ScreenshotsTreeProvider implements vscode.TreeDataProvider<Screensh
 
 			if (stat.isDirectory()) {
 				// This is a timestamp folder
-				items.push(new ScreenshotsResourcesItem(file, fullPath, true));
+				itemsWithStat.push({ item: new ScreenshotsResourcesItem(file, fullPath, true), mtime: stat.mtimeMs });
 			} else if (stat.isFile()) {
 				// This is a screenshot file
-				items.push(new ScreenshotsResourcesItem(file, fullPath, false));
+				itemsWithStat.push({ item: new ScreenshotsResourcesItem(file, fullPath, false), mtime: stat.mtimeMs });
 			}
 		}
 
-		// Sort directories first, then files
-		items.sort((a, b) => {
-			if (a.isDirectory !== b.isDirectory) {
-				return a.isDirectory ? -1 : 1;
-			}
-			return a.label.localeCompare(b.label);
-		});
+		if (!element) {
+			// Root level: sort newest-first by mtime.
+			itemsWithStat.sort((a, b) => b.mtime - a.mtime);
+		} else {
+			// Nested level: directories first, then alphabetical.
+			itemsWithStat.sort((a, b) => {
+				if (a.item.isDirectory !== b.item.isDirectory) {
+					return a.item.isDirectory ? -1 : 1;
+				}
+				return a.item.label.localeCompare(b.item.label);
+			});
+		}
 
-		return items;
+		return itemsWithStat.map((x) => x.item);
 	}
 }
 
 /**
  * Represents a tree item in the screenshots explorer.
  */
-class ScreenshotsResourcesItem extends vscode.TreeItem {
+export class ScreenshotsResourcesItem extends vscode.TreeItem {
 	/**
 	 * Creates an instance of the `ScreenshotsResourcesItem`
 	 * @param {string} label - The label displayed in the tree view.
@@ -164,6 +171,13 @@ class ScreenshotsResourcesItem extends vscode.TreeItem {
 				// This is a timestamp folder
 				this.iconPath = vscode.ThemeIcon.Folder;
 				this.contextValue = 'screenshotFolder';
+
+				// Apply human-readable label for timestamp-named directories.
+				const formatted = formatTimestampLabel(label);
+				if (formatted) {
+					this.label = formatted.label;
+					this.description = formatted.description;
+				}
 			} else {
 				// This is a screenshot file
 				this.iconPath = vscode.ThemeIcon.File;

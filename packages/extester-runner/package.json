@@ -272,6 +272,58 @@
         "icon": "$(refresh)",
         "tooltip": "Refresh list of screenshots.",
         "category": "ExTester Runner"
+      },
+      {
+        "command": "extester-runner.clearLogs",
+        "title": "Clear Logs",
+        "icon": "$(trash)",
+        "tooltip": "Remove all log files.",
+        "category": "ExTester Runner"
+      },
+      {
+        "command": "extester-runner.clearScreenshots",
+        "title": "Clear Screenshots",
+        "icon": "$(trash)",
+        "tooltip": "Remove all screenshot files.",
+        "category": "ExTester Runner"
+      },
+      {
+        "command": "extester-runner.deleteLogsItem",
+        "title": "Delete",
+        "icon": "$(trash)",
+        "category": "ExTester Runner"
+      },
+      {
+        "command": "extester-runner.deleteScreenshotsItem",
+        "title": "Delete",
+        "icon": "$(trash)",
+        "category": "ExTester Runner"
+      },
+      {
+        "command": "extester-runner.revealLogs",
+        "title": "Reveal Logs in File Explorer",
+        "icon": "$(folder-opened)",
+        "tooltip": "Open logs directory in file explorer.",
+        "category": "ExTester Runner"
+      },
+      {
+        "command": "extester-runner.revealScreenshots",
+        "title": "Reveal Screenshots in File Explorer",
+        "icon": "$(folder-opened)",
+        "tooltip": "Open screenshots directory in file explorer.",
+        "category": "ExTester Runner"
+      },
+      {
+        "command": "extester-runner.revealLogsItem",
+        "title": "Reveal in File Explorer",
+        "icon": "$(folder-opened)",
+        "category": "ExTester Runner"
+      },
+      {
+        "command": "extester-runner.revealScreenshotsItem",
+        "title": "Reveal in File Explorer",
+        "icon": "$(folder-opened)",
+        "category": "ExTester Runner"
       }
     ],
     "viewsContainers": {
@@ -326,6 +378,26 @@
           "command": "extester-runner.refreshScreenshots",
           "when": "view == extesterResourcesScreenshotsView",
           "group": "navigation@1"
+        },
+        {
+          "command": "extester-runner.revealLogs",
+          "when": "view == extesterResourcesLogsView",
+          "group": "navigation@2"
+        },
+        {
+          "command": "extester-runner.revealScreenshots",
+          "when": "view == extesterResourcesScreenshotsView",
+          "group": "navigation@2"
+        },
+        {
+          "command": "extester-runner.clearLogs",
+          "when": "view == extesterResourcesLogsView",
+          "group": "navigation@3"
+        },
+        {
+          "command": "extester-runner.clearScreenshots",
+          "when": "view == extesterResourcesScreenshotsView",
+          "group": "navigation@3"
         }
       ],
       "view/item/context": [
@@ -338,6 +410,36 @@
           "command": "extester-runner.runFile",
           "when": "view == extesterView && viewItem == file",
           "group": "inline"
+        },
+        {
+          "command": "extester-runner.deleteLogsItem",
+          "when": "view == extesterResourcesLogsView && (viewItem == logFolder || viewItem == logFile)",
+          "group": "inline"
+        },
+        {
+          "command": "extester-runner.deleteLogsItem",
+          "when": "view == extesterResourcesLogsView && (viewItem == logFolder || viewItem == logFile)",
+          "group": "1_modification"
+        },
+        {
+          "command": "extester-runner.deleteScreenshotsItem",
+          "when": "view == extesterResourcesScreenshotsView && (viewItem == screenshotFolder || viewItem == screenshotFile)",
+          "group": "inline"
+        },
+        {
+          "command": "extester-runner.deleteScreenshotsItem",
+          "when": "view == extesterResourcesScreenshotsView && (viewItem == screenshotFolder || viewItem == screenshotFile)",
+          "group": "1_modification"
+        },
+        {
+          "command": "extester-runner.revealLogsItem",
+          "when": "view == extesterResourcesLogsView && (viewItem == logFolder || viewItem == logFile)",
+          "group": "2_navigation"
+        },
+        {
+          "command": "extester-runner.revealScreenshotsItem",
+          "when": "view == extesterResourcesScreenshotsView && (viewItem == screenshotFolder || viewItem == screenshotFile)",
+          "group": "2_navigation"
         }
       ],
       "commandPalette": [
@@ -351,6 +453,38 @@
         },
         {
           "command": "extester-runner.runAll",
+          "when": "false"
+        },
+        {
+          "command": "extester-runner.clearLogs",
+          "when": "false"
+        },
+        {
+          "command": "extester-runner.clearScreenshots",
+          "when": "false"
+        },
+        {
+          "command": "extester-runner.deleteLogsItem",
+          "when": "false"
+        },
+        {
+          "command": "extester-runner.deleteScreenshotsItem",
+          "when": "false"
+        },
+        {
+          "command": "extester-runner.revealLogs",
+          "when": "false"
+        },
+        {
+          "command": "extester-runner.revealScreenshots",
+          "when": "false"
+        },
+        {
+          "command": "extester-runner.revealLogsItem",
+          "when": "false"
+        },
+        {
+          "command": "extester-runner.revealScreenshotsItem",
           "when": "false"
         }
       ]
@@ -376,8 +510,8 @@
     "vscode-extension-tester": "*"
   },
   "dependencies": {
-    "@babel/parser": "^7.29.2",
-    "@babel/traverse": "^7.29.0",
-    "@babel/types": "^7.29.0"
+    "@babel/parser": "^7.29.8",
+    "@babel/traverse": "^7.29.8",
+    "@babel/types": "^7.29.8"
   }
 }

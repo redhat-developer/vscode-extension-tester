@@ -16,9 +16,11 @@
  */
 
 import * as vscode from 'vscode';
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import * as os from 'node:os';
 import { Logger } from '../logger/logger';
+import { formatTimestampLabel } from '../utils/formatLabel';
 
 /**
  * Provides a tree view for displaying log files and directories within the ExTester VS Code extension.
@@ -61,7 +63,7 @@ export class LogsTreeProvider implements vscode.TreeDataProvider<LogsResourcesIt
 	 *
 	 * @returns {string} The resolved absolute path to the logs directory (`settings/logs`).
 	 */
-	private resolveLogPath(): string {
+	resolveLogPath(): string {
 		const configuration = vscode.workspace.getConfiguration('extesterRunner');
 		const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
 
@@ -73,7 +75,7 @@ export class LogsTreeProvider implements vscode.TreeDataProvider<LogsResourcesIt
 		if (baseTempDir && baseTempDir.length > 0) {
 			baseTempDir = path.isAbsolute(baseTempDir) ? baseTempDir : path.join(workspaceFolder ?? '', baseTempDir);
 		} else {
-			baseTempDir = path.join(process.env.TMPDIR ?? require('os').tmpdir(), 'test-resources');
+			baseTempDir = path.join(process.env.TMPDIR ?? os.tmpdir(), 'test-resources');
 		}
 
 		const finalPath = path.join(baseTempDir, 'settings', 'logs');
@@ -129,6 +131,22 @@ export class LogsTreeProvider implements vscode.TreeDataProvider<LogsResourcesIt
 			return [new LogsResourcesItem('No logs', '', false, true)];
 		}
 
+		// Sort root-level items newest-first by mtime; leave nested items (children of a folder) unsorted.
+		if (!element) {
+			const withMtime = await Promise.all(
+				items.map(async (item) => {
+					try {
+						const stat = await fs.promises.stat(item.filePath);
+						return { item, mtime: stat.mtimeMs };
+					} catch {
+						return { item, mtime: 0 };
+					}
+				}),
+			);
+			withMtime.sort((a, b) => b.mtime - a.mtime);
+			return withMtime.map((x) => x.item);
+		}
+
 		return items;
 	}
 }
@@ -136,7 +154,7 @@ export class LogsTreeProvider implements vscode.TreeDataProvider<LogsResourcesIt
 /**
  * Represents a tree item in the logs explorer.
  */
-class LogsResourcesItem extends vscode.TreeItem {
+export class LogsResourcesItem extends vscode.TreeItem {
 	/**
 	 * Creates an instance of the `LogsResourcesItem`
 	 * @param {string} label - The label displayed in the tree view.
@@ -157,6 +175,16 @@ class LogsResourcesItem extends vscode.TreeItem {
 			this.resourceUri = vscode.Uri.file(filePath);
 
 			this.iconPath = isDir ? new vscode.ThemeIcon('symbol-folder') : new vscode.ThemeIcon('file');
+			this.contextValue = isDir ? 'logFolder' : 'logFile';
+
+			// Apply human-readable label for timestamp-named directories.
+			if (isDir) {
+				const formatted = formatTimestampLabel(label);
+				if (formatted) {
+					this.label = formatted.label;
+					this.description = formatted.description;
+				}
+			}
 
 			if (!isDir) {
 				this.command = {
