@@ -170,6 +170,18 @@ describe('Parser test suite', function () {
 		const tree = sections[0] as DefaultTreeSection;
 
 		// Verify parser folder exists
+		await waitHelper.forCondition(
+			async () => {
+				const items = await tree.getVisibleItems();
+				const item = await items[0]?.getLabel();
+				if (!item) {
+					return false;
+				}
+				return item.includes(PARSER_FOLDER);
+			},
+			{ timeout: 5000, message: 'Tree items not found' },
+		);
+
 		const items = await tree.getVisibleItems();
 		const labels = await Promise.all(items.map((item) => item.getLabel()));
 		expect(labels).contains(PARSER_FOLDER);
@@ -188,6 +200,17 @@ describe('Parser test suite', function () {
 		assert.strictEqual(describeLabel.trim(), EXPECTED_DESCRIBE);
 
 		// Verify test block
+		await waitHelper.forCondition(
+			async () => {
+				const its = await firstDescribe.getChildren();
+				if (!its) {
+					return false;
+				}
+				return its.length > 0;
+			},
+			{ timeout: 5000, message: 'Its not found' },
+		);
+
 		const its = await firstDescribe.getChildren();
 		assert.ok(its?.length === 1, 'First describe should have exactly one it');
 
@@ -217,6 +240,18 @@ describe('Parser test suite', function () {
 		const tree = sections[0] as DefaultTreeSection;
 
 		// Verify parser folder exists
+		await waitHelper.forCondition(
+			async () => {
+				const items = await tree.getVisibleItems();
+				const item = await items[0]?.getLabel();
+				if (!item) {
+					return false;
+				}
+				return item.includes(PARSER_FOLDER);
+			},
+			{ timeout: 5000, message: 'Tree items not found' },
+		);
+
 		const items = await tree.getVisibleItems();
 		const labels = await Promise.all(items.map((item) => item.getLabel()));
 		expect(labels).contains(PARSER_FOLDER);
@@ -235,6 +270,17 @@ describe('Parser test suite', function () {
 		assert.strictEqual(describeLabel.trim(), EXPECTED_DESCRIBE);
 
 		// Verify test block
+		await waitHelper.forCondition(
+			async () => {
+				const its = await firstDescribe.getChildren();
+				if (!its) {
+					return false;
+				}
+				return its.length > 0;
+			},
+			{ timeout: 5000, message: 'Its not found' },
+		);
+
 		const its = await firstDescribe.getChildren();
 		assert.ok(its?.length === 1, 'First describe should have exactly one it');
 
@@ -266,6 +312,18 @@ describe('Parser test suite', function () {
 		const tree = sections[0] as DefaultTreeSection;
 
 		// Verify parser folder exists
+		await waitHelper.forCondition(
+			async () => {
+				const items = await tree.getVisibleItems();
+				const item = await items[0]?.getLabel();
+				if (!item) {
+					return false;
+				}
+				return item.includes(PARSER_FOLDER);
+			},
+			{ timeout: 5000, message: 'Tree items not found' },
+		);
+
 		const items = await tree.getVisibleItems();
 		const labels = await Promise.all(items.map((item) => item.getLabel()));
 		expect(labels).contains(PARSER_FOLDER);
@@ -285,6 +343,17 @@ describe('Parser test suite', function () {
 		assert.strictEqual(firstDescribeLabel.trim(), EXPECTED_DESCRIBE_1);
 
 		// first describe first test
+		await waitHelper.forCondition(
+			async () => {
+				const its = await firstDescribe.getChildren();
+				if (!its) {
+					return false;
+				}
+				return its.length > 0;
+			},
+			{ timeout: 5000, message: 'First describe its not found' },
+		);
+
 		const firstDescribeIts = await firstDescribe.getChildren();
 		assert.ok(firstDescribeIts?.length === 1, 'First describe should have exactly one it');
 
@@ -298,6 +367,17 @@ describe('Parser test suite', function () {
 		assert.strictEqual(secondDescribeLabel.trim(), EXPECTED_DESCRIBE_2);
 
 		// second describe first test
+		await waitHelper.forCondition(
+			async () => {
+				const its = await secondDescribe.getChildren();
+				if (!its) {
+					return false;
+				}
+				return its.length > 0;
+			},
+			{ timeout: 5000, message: 'Second describe its not found' },
+		);
+
 		const secondDescribeIts = await secondDescribe.getChildren();
 		assert.ok(secondDescribeIts?.length === 1, 'Second describe should have exactly one it');
 
