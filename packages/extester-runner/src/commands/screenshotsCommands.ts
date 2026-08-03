@@ -16,15 +16,12 @@
  */
 
 import * as vscode from 'vscode';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
 import { Logger } from '../logger/logger';
 import { ScreenshotsTreeProvider, ScreenshotsResourcesItem } from '../providers/screenshotsTreeProvider';
+import { clearResourceDirectory, deleteResourceItem, revealResourceDirectory, revealResourceItem } from './resourceCommands';
 
 /**
  * Registers Screenshots view related commands for the VS Code extension.
- *
- * This function registers commands for refreshing and clearing the screenshot tree view.
  *
  * @param {vscode.ExtensionContext} context - The extension context, used for registering commands.
  * @param {ScreenshotsTreeProvider} screenshotDataProvider - The tree data provider responsible for managing the screenshot view.
@@ -32,80 +29,25 @@ import { ScreenshotsTreeProvider, ScreenshotsResourcesItem } from '../providers/
  */
 export function registerScreenshotsCommands(context: vscode.ExtensionContext, screenshotDataProvider: ScreenshotsTreeProvider, logger: Logger) {
 	context.subscriptions.push(
-		/**
-		 * Registers the `extester-runner.refreshScreenshots` command.
-		 * This command refreshes the screenshots view by triggering an update on the tree data provider.
-		 */
-		vscode.commands.registerCommand('extester-runner.refreshScreenshots', async () => {
+		vscode.commands.registerCommand('extester-runner.refreshScreenshots', () => {
 			logger.debug('Command triggered: extester-runner.refreshScreenshots');
 			screenshotDataProvider.refresh();
 		}),
-		/**
-		 * Registers the `extester-runner.clearScreenshots` command.
-		 * Asks for confirmation then removes all files and folders inside the resolved screenshots directory.
-		 */
-		vscode.commands.registerCommand('extester-runner.clearScreenshots', async () => {
+		vscode.commands.registerCommand('extester-runner.clearScreenshots', () => {
 			logger.debug('Command triggered: extester-runner.clearScreenshots');
-			const answer = await vscode.window.showWarningMessage('Clear all screenshots? This cannot be undone.', { modal: true }, 'Clear');
-			if (answer !== 'Clear') {
-				return;
-			}
-			const screenshotsPath = screenshotDataProvider.resolveScreenshotsPath();
-			try {
-				await fs.promises.rm(screenshotsPath, { recursive: true, force: true });
-				logger.info(`Cleared screenshots directory: ${screenshotsPath}`);
-			} catch (error) {
-				logger.error(`Failed to clear screenshots: ${error}`);
-				vscode.window.showErrorMessage(`Failed to clear screenshots: ${error}`);
-			}
-			screenshotDataProvider.refresh();
+			return clearResourceDirectory(screenshotDataProvider, 'screenshots', logger);
 		}),
-		/**
-		 * Registers the `extester-runner.deleteScreenshotsItem` command.
-		 * Asks for confirmation then removes the selected file or folder from the screenshots directory.
-		 */
-		vscode.commands.registerCommand('extester-runner.deleteScreenshotsItem', async (item: ScreenshotsResourcesItem) => {
+		vscode.commands.registerCommand('extester-runner.deleteScreenshotsItem', (item: ScreenshotsResourcesItem) => {
 			logger.debug(`Command triggered: extester-runner.deleteScreenshotsItem on ${item?.filePath}`);
-			if (!item?.filePath) {
-				return;
-			}
-			const name = path.basename(item.filePath);
-			const answer = await vscode.window.showWarningMessage(`Delete '${name}'? This cannot be undone.`, { modal: true }, 'Delete');
-			if (answer !== 'Delete') {
-				return;
-			}
-			try {
-				await fs.promises.rm(item.filePath, { recursive: true, force: true });
-				logger.info(`Deleted screenshots item: ${item.filePath}`);
-			} catch (error) {
-				logger.error(`Failed to delete screenshots item: ${error}`);
-				vscode.window.showErrorMessage(`Failed to delete '${name}': ${error}`);
-			}
-			screenshotDataProvider.refresh();
+			return deleteResourceItem(item, screenshotDataProvider, logger);
 		}),
-		/**
-		 * Registers the `extester-runner.revealScreenshots` command.
-		 * Opens the resolved screenshots root directory in the OS file manager.
-		 */
-		vscode.commands.registerCommand('extester-runner.revealScreenshots', async () => {
+		vscode.commands.registerCommand('extester-runner.revealScreenshots', () => {
 			logger.debug('Command triggered: extester-runner.revealScreenshots');
-			const screenshotsPath = screenshotDataProvider.resolveScreenshotsPath();
-			if (!fs.existsSync(screenshotsPath)) {
-				vscode.window.showInformationMessage('No screenshots directory found yet.');
-				return;
-			}
-			await vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(screenshotsPath));
+			return revealResourceDirectory(screenshotDataProvider, logger);
 		}),
-		/**
-		 * Registers the `extester-runner.revealScreenshotsItem` command.
-		 * Opens the selected screenshot file or folder in the OS file manager.
-		 */
-		vscode.commands.registerCommand('extester-runner.revealScreenshotsItem', async (item: ScreenshotsResourcesItem) => {
+		vscode.commands.registerCommand('extester-runner.revealScreenshotsItem', (item: ScreenshotsResourcesItem) => {
 			logger.debug(`Command triggered: extester-runner.revealScreenshotsItem on ${item?.filePath}`);
-			if (!item?.filePath) {
-				return;
-			}
-			await vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(item.filePath));
+			return revealResourceItem(item, logger);
 		}),
 	);
 }

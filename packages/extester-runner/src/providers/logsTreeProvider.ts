@@ -63,6 +63,11 @@ export class LogsTreeProvider implements vscode.TreeDataProvider<LogsResourcesIt
 	 *
 	 * @returns {string} The resolved absolute path to the logs directory (`settings/logs`).
 	 */
+	/** Implements {@link ResourceProvider} — delegates to `resolveLogPath`. */
+	resolveRootPath(): string {
+		return this.resolveLogPath();
+	}
+
 	resolveLogPath(): string {
 		const configuration = vscode.workspace.getConfiguration('extesterRunner');
 		const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;

@@ -62,6 +62,11 @@ export class ScreenshotsTreeProvider implements vscode.TreeDataProvider<Screensh
 	 *
 	 * @returns {string} The resolved absolute path to the screenshots directory (`screenshots`).
 	 */
+	/** Implements {@link ResourceProvider} — delegates to `resolveScreenshotsPath`. */
+	resolveRootPath(): string {
+		return this.resolveScreenshotsPath();
+	}
+
 	resolveScreenshotsPath(): string {
 		const configuration = vscode.workspace.getConfiguration('extesterRunner');
 		const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
