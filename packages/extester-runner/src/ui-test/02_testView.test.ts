@@ -32,7 +32,11 @@ import {
 	COLLAPSE_ALL_BTN,
 	TEST_VIEW_REFRESH_BTN,
 	SCREENSHOTS_VIEW_REFRESH_BTN,
+	SCREENSHOTS_VIEW_REVEAL_BTN,
+	SCREENSHOTS_VIEW_CLEAR_BTN,
 	LOGS_VIEW_REFRESH_BTN,
+	LOGS_VIEW_REVEAL_BTN,
+	LOGS_VIEW_CLEAR_BTN,
 	TEMP_FOLDER_SETTINGS_ID,
 	getSection,
 	updateSettings,
@@ -153,12 +157,21 @@ describe('Empty View Tests', function () {
 		 */
 		it('action buttons are correct', async function () {
 			const actions = await section.getActions();
-			assert.equal(actions.length, 1);
+			assert.equal(actions.length, 4);
 
-			const [refreshBtn] = actions;
+			const [refreshBtn, revealBtn, clearBtn, collapseBtn] = actions;
 
 			assert.equal(await refreshBtn.getLabel(), SCREENSHOTS_VIEW_REFRESH_BTN);
 			assert.equal(await refreshBtn.isEnabled(), true);
+
+			assert.equal(await revealBtn.getLabel(), SCREENSHOTS_VIEW_REVEAL_BTN);
+			assert.equal(await revealBtn.isEnabled(), true);
+
+			assert.equal(await clearBtn.getLabel(), SCREENSHOTS_VIEW_CLEAR_BTN);
+			assert.equal(await clearBtn.isEnabled(), true);
+
+			assert.equal(await collapseBtn.getLabel(), COLLAPSE_ALL_BTN);
+			assert.equal(await collapseBtn.isEnabled(), false);
 		});
 	});
 
@@ -201,12 +214,18 @@ describe('Empty View Tests', function () {
 		 */
 		it('action buttons are correct', async function () {
 			const actions = await section.getActions();
-			assert.equal(actions.length, 2);
+			assert.equal(actions.length, 4);
 
-			const [refreshBtn, collapseBtn] = actions;
+			const [refreshBtn, revealBtn, clearBtn, collapseBtn] = actions;
 
 			assert.equal(await refreshBtn.getLabel(), LOGS_VIEW_REFRESH_BTN);
 			assert.equal(await refreshBtn.isEnabled(), true);
+
+			assert.equal(await revealBtn.getLabel(), LOGS_VIEW_REVEAL_BTN);
+			assert.equal(await revealBtn.isEnabled(), true);
+
+			assert.equal(await clearBtn.getLabel(), LOGS_VIEW_CLEAR_BTN);
+			assert.equal(await clearBtn.isEnabled(), true);
 
 			assert.equal(await collapseBtn.getLabel(), COLLAPSE_ALL_BTN);
 			assert.equal(await collapseBtn.isEnabled(), false);
