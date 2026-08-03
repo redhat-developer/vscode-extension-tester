@@ -150,13 +150,33 @@ describe('loadConfig', () => {
 					},
 				}),
 			);
+			// testFiles use forward slashes regardless of OS (glob-safe), plain paths use path.resolve.
+			const dirFwd = dir.split(path.sep).join('/');
 			try {
 				const cfg = await loadConfig(file);
 				assert.strictEqual(cfg.run?.settings, path.resolve(dir, 'vscode-settings.json'));
 				assert.strictEqual(cfg.run?.mochaConfig, path.resolve(dir, '.mocharc.js'));
 				assert.strictEqual(cfg.run?.customPageObjects, path.resolve(dir, 'out/locators.js'));
-				assert.deepStrictEqual(cfg.run?.testFiles, [path.resolve(dir, 'out/**/*.test.js')]);
+				assert.deepStrictEqual(cfg.run?.testFiles, [`${dirFwd}/out/**/*.test.js`]);
 				assert.deepStrictEqual(cfg.run?.resources, [path.resolve(dir, '.'), path.resolve(dir, 'fixtures')]);
+			} finally {
+				fs.rmSync(dir, { recursive: true });
+			}
+		});
+
+		it('preserves glob syntax including extglob patterns in testFiles', async () => {
+			const { dir, file } = makeTmpConfig(
+				JSON.stringify({
+					run: {
+						testFiles: ['./out/test/**/!(clipboard)*.test.js', './out/test/system/clipboard.test.js'],
+					},
+				}),
+			);
+			const dirFwd = dir.split(path.sep).join('/');
+			try {
+				const cfg = await loadConfig(file);
+				// The extglob !(clipboard) must be preserved exactly; no path.resolve on glob chars.
+				assert.deepStrictEqual(cfg.run?.testFiles, [`${dirFwd}/out/test/**/!(clipboard)*.test.js`, `${dirFwd}/out/test/system/clipboard.test.js`]);
 			} finally {
 				fs.rmSync(dir, { recursive: true });
 			}

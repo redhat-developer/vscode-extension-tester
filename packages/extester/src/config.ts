@@ -99,12 +99,44 @@ const SETUP_PATH_KEYS: (keyof ExTesterSetupConfig)[] = ['storage', 'extensionsDi
 /** Path-valued keys in ExTesterRunConfig that must be resolved relative to the config file. */
 const RUN_PATH_KEYS: (keyof ExTesterRunConfig)[] = ['storage', 'extensionsDir', 'settings', 'mochaConfig', 'customPageObjects'];
 
-/** Path-valued array keys in ExTesterRunConfig that must be resolved relative to the config file. */
-const RUN_PATH_ARRAY_KEYS: (keyof ExTesterRunConfig)[] = ['testFiles', 'resources'];
+/** Path-valued array keys in ExTesterRunConfig whose entries are plain paths (not glob patterns). */
+const RUN_PATH_ARRAY_KEYS: (keyof ExTesterRunConfig)[] = ['resources'];
+
+/**
+ * Resolves a glob pattern relative to a base directory while preserving the glob syntax.
+ *
+ * `path.resolve` converts separators to the OS native style (backslashes on Windows),
+ * which breaks glob engines that require forward slashes. Instead, this function resolves
+ * only the non-glob prefix of the pattern and re-appends the glob suffix with forward
+ * slashes, so patterns like `./out/**\/!(clipboard)*.test.js` work on all platforms.
+ */
+function resolveGlobPattern(baseDir: string, pattern: string): string {
+	if (path.isAbsolute(pattern)) {
+		// Already absolute — normalise separators to forward slashes and return as-is.
+		return pattern.split(path.sep).join('/');
+	}
+	// Split at the last path separator before the first glob character so that the
+	// directory boundary is preserved and re-attached with a forward slash.
+	const globChars = /[*?{!(|@+\[]/;
+	const firstGlob = pattern.search(globChars);
+	if (firstGlob === -1) {
+		// No glob characters — treat as a plain path, but normalise separators.
+		return path.resolve(baseDir, pattern).split(path.sep).join('/');
+	}
+	// Find the last separator before the first glob character to keep the full
+	// directory part as the static prefix (e.g. './out/test/' not './out/test').
+	const lastSepBeforeGlob = Math.max(pattern.lastIndexOf('/', firstGlob), pattern.lastIndexOf('\\', firstGlob));
+	const staticPrefix = lastSepBeforeGlob >= 0 ? pattern.slice(0, lastSepBeforeGlob) : '';
+	const globSuffix = lastSepBeforeGlob >= 0 ? pattern.slice(lastSepBeforeGlob + 1) : pattern;
+	const resolvedPrefix = path.resolve(baseDir, staticPrefix);
+	// Join with '/' regardless of OS so glob engines receive a valid glob string.
+	return resolvedPrefix.split(path.sep).join('/') + '/' + globSuffix;
+}
 
 /**
  * Resolves all path-valued fields in a config object relative to the given base directory.
- * Only string values that look like relative paths (i.e. not already absolute) are resolved.
+ * Only string values that are not already absolute are resolved.
+ * Glob patterns (testFiles) are resolved via resolveGlobPattern to preserve glob syntax.
  */
 function resolvePaths(config: ExTesterConfig, baseDir: string): ExTesterConfig {
 	if (config.setup) {
@@ -126,11 +158,16 @@ function resolvePaths(config: ExTesterConfig, baseDir: string): ExTesterConfig {
 				(run as Record<string, unknown>)[key] = path.resolve(baseDir, val);
 			}
 		}
+		// Plain path arrays (e.g. resources) — resolve with path.resolve.
 		for (const key of RUN_PATH_ARRAY_KEYS) {
 			const arr = run[key];
 			if (Array.isArray(arr)) {
 				(run as Record<string, unknown>)[key] = arr.map((v: string) => (typeof v === 'string' && !path.isAbsolute(v) ? path.resolve(baseDir, v) : v));
 			}
+		}
+		// Glob patterns — resolve preserving forward slashes and glob syntax.
+		if (Array.isArray(run.testFiles)) {
+			run.testFiles = run.testFiles.map((v: string) => (typeof v === 'string' ? resolveGlobPattern(baseDir, v) : v));
 		}
 		config = { ...config, run };
 	}
