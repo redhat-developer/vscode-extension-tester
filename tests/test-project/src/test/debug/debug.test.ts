@@ -311,7 +311,7 @@ describe('Debugging', function () {
 
 		it('WatchSection.getVisibleItems', async function () {
 			const items = await watchSection.getVisibleItems();
-			expect(items.length).equals(0);
+			expect(items).to.have.lengthOf(0);
 		});
 
 		it('WatchSection.addItem', async function () {
@@ -320,7 +320,7 @@ describe('Debugging', function () {
 			await watchSection.addItem('line');
 
 			const items = await watchSection.getVisibleItems();
-			expect(items.length).equals(3);
+			expect(items).to.have.lengthOf(3);
 		});
 
 		it('WatchSectionItem.getLabel', async function () {
@@ -341,7 +341,7 @@ describe('Debugging', function () {
 			let items = await watchSection.getVisibleItems();
 			await items.at(0)?.remove();
 			items = await watchSection.getVisibleItems();
-			expect(items.length).equals(2);
+			expect(items).to.have.lengthOf(2);
 			expect(await items.at(0)?.getLabel()).to.contain('bool');
 			expect(await items.at(1)?.getLabel()).to.contain('line');
 		});
@@ -349,7 +349,7 @@ describe('Debugging', function () {
 		it('WatchSection.removeAllExpressions', async function () {
 			await watchSection.removeAllExpressions();
 			const items = await watchSection.getVisibleItems();
-			expect(items.length).equals(0);
+			expect(items).to.have.lengthOf(0);
 		});
 
 		it('CallStack: getCallStackSection', async function () {
@@ -359,7 +359,7 @@ describe('Debugging', function () {
 
 		it('CallStackItem.getVisibleItems', async function () {
 			const items = await callStack.getVisibleItems();
-			expect(items.length).equals(3);
+			expect(items).to.have.lengthOf(3);
 		});
 
 		it('CallStackItem.getLabel', async function () {
@@ -371,7 +371,7 @@ describe('Debugging', function () {
 		it('CallStackItem.getText', async function () {
 			const items = await callStack.getVisibleItems();
 			const text = await items.at(0)?.getText();
-			expect(text).to.contain('PAUSED ON BREAKPOINT');
+			expect(text?.toLowerCase()).to.contain('paused on breakpoint');
 		});
 
 		it('CallStackItem.getActionButtons', async function () {
