@@ -36,7 +36,7 @@
     "@types/selenium-webdriver": "^4.35.6",
     "@types/targz": "^1.0.5",
     "@types/vscode": "^1.125.0",
-    "@typescript-eslint/eslint-plugin": "^8.65.0",
+    "@typescript-eslint/eslint-plugin": "^8.66.0",
     "@typescript-eslint/parser": "^8.65.0",
     "eslint": "^10.8.0",
     "eslint-config-prettier": "^10.1.8",
