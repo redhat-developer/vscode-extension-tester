@@ -16,6 +16,7 @@
  */
 
 import * as path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import * as fs from 'fs-extra';
 import { satisfies } from 'compare-versions';
 import { WebDriver, Builder, until, initPageObjects, logging, By, Browser } from '@redhat-developer/page-objects';
@@ -39,6 +40,7 @@ export class VSBrowser {
 	private readonly locale: string;
 	private static _instance: VSBrowser;
 	private readonly _startTimestamp: string;
+	private _sessionStartTime: number = 0;
 
 	private formatTimestamp(date: Date): string {
 		const pad = (num: number) => num.toString().padStart(2, '0');
@@ -70,7 +72,7 @@ export class VSBrowser {
 	 * Starts the vscode browser from a given path
 	 * @param codePath path to code binary
 	 */
-	async start(codePath: string): Promise<VSBrowser> {
+	async start(codePath: string, resources: string[] = []): Promise<VSBrowser> {
 		const settingsDir = path.join(this.storagePath, 'settings');
 		const userSettings = path.join(settingsDir, 'User');
 		const languagePacksPath = path.join(settingsDir, 'languagepacks.json');
@@ -157,6 +159,14 @@ export class VSBrowser {
 			args.push(`--extensionDevelopmentPath=${process.env.EXTENSION_DEV_PATH}`);
 		}
 
+		// Open initial resources with the launch itself instead of a post-launch
+		// second-instance CLI call: when such a call lands while VS Code is still
+		// starting up, VS Code >= 1.123.0 corrupts webview resource streaming for
+		// the whole window (microsoft/vscode#330243, #2454).
+		for (const resource of resources) {
+			args.push(VSBrowser.resourceToLaunchArg(resource));
+		}
+
 		const extraArgs = ['--skip-welcome', '--skip-sessions-welcome', '--skip-release-notes'];
 		let options = new Options().setChromeBinaryPath(codePath).addArguments(...args, ...extraArgs) as any;
 		options['options_'].windowTypes = ['webview'];
@@ -181,9 +191,21 @@ export class VSBrowser {
 			.setChromeOptions(options)
 			.build();
 		VSBrowser._instance = this;
+		this._sessionStartTime = Date.now();
 
 		initPageObjects(this.codeVersion, VSBrowser.baseVersion, getLocatorsPath(), this._driver, VSBrowser.browserName, this.customPageObjects?.locatorsPath);
 		return this;
+	}
+
+	/**
+	 * Convert a filesystem path into the VS Code CLI argument that opens it with
+	 * the initial launch: `--folder-uri` for directories, `--file-uri` for files.
+	 * @param resource path to a file or folder
+	 * @returns the launch argument string
+	 */
+	static resourceToLaunchArg(resource: string): string {
+		const isDirectory = fs.existsSync(resource) && fs.statSync(resource).isDirectory();
+		return `${isDirectory ? '--folder-uri' : '--file-uri'}=${pathToFileURL(path.resolve(resource)).href}`;
 	}
 
 	/**
@@ -308,6 +330,21 @@ export class VSBrowser {
 
 		if (paths.length === 0) {
 			return;
+		}
+
+		// CodeUtil.open spawns a second-instance CLI call; if it lands while
+		// VS Code is still starting up, VS Code >= 1.123.0 duplicates every
+		// 256 KiB chunk of every webview resource in the window and the webview
+		// service worker caches the corrupted responses, permanently poisoning
+		// the profile (microsoft/vscode#330243, #2454). The workbench element
+		// appears while that race window is still open, so early calls also wait
+		// for the instance to settle. Calls made later than the settle window pay
+		// no extra delay.
+		const settleMs = Number(process.env.EXTESTER_OPEN_RESOURCE_SETTLE_MS ?? 10_000);
+		const sinceSessionStart = Date.now() - this._sessionStartTime;
+		if (sinceSessionStart < settleMs) {
+			await this.waitForWorkbench();
+			await new Promise((resolve) => setTimeout(resolve, settleMs - sinceSessionStart));
 		}
 
 		const code = new CodeUtil(this.storagePath, this.releaseType, this.extensionsFolder);

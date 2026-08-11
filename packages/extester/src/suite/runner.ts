@@ -24,6 +24,7 @@ import * as path from 'node:path';
 import * as yaml from 'js-yaml';
 import sanitize from 'sanitize-filename';
 import { logging } from 'selenium-webdriver';
+import * as os from 'os';
 import { Coverage } from '../util/coverage';
 
 /**
@@ -38,6 +39,7 @@ export class VSRunner {
 	private readonly releaseType: ReleaseQuality;
 	private readonly customPageObjects?: CustomPageObjectsOptions;
 	private readonly locale: string | undefined;
+	private tmpLink = path.join(os.tmpdir(), 'extest-code');
 
 	constructor(
 		bin: string,
@@ -101,8 +103,11 @@ export class VSRunner {
 				}
 
 				const start = Date.now();
-				await browser.start(self.chromeBin);
-				await browser.openResources(...resources);
+				const binPath = process.platform === 'darwin' ? await self.createShortcut(code.getCodeFolder(), self.tmpLink) : self.chromeBin;
+				// resources are passed to the launch itself: opening them with a
+				// second-instance CLI call during startup triggers webview resource
+				// corruption on VS Code >= 1.123.0 (microsoft/vscode#330243, #2454)
+				await browser.start(binPath, resources);
 				await browser.waitForWorkbench();
 				console.log(`Browser ready in ${Date.now() - start} ms`);
 				console.log('Launching tests...');
@@ -111,6 +116,15 @@ export class VSRunner {
 			this.mocha.suite.afterAll(async function () {
 				this.timeout(180000);
 				await browser.quit();
+				if (process.platform === 'darwin') {
+					if (await fs.pathExists(self.tmpLink)) {
+						try {
+							fs.unlinkSync(self.tmpLink);
+						} catch (err) {
+							console.log(err);
+						}
+					}
+				}
 				if (code.coverageEnabled) {
 					await coverage?.write();
 				}
@@ -125,6 +139,28 @@ export class VSRunner {
 				resolve(process.exitCode);
 			});
 		});
+	}
+
+	private async createShortcut(src: string, dest: string): Promise<string> {
+		try {
+			await fs.ensureSymlink(src, dest, 'dir');
+		} catch (err) {
+			return this.chromeBin;
+		}
+
+		const dir = path.parse(src);
+		const segments = this.chromeBin.split(path.sep);
+		const newSegments = dest.split(path.sep);
+
+		let found = false;
+		for (const segment of segments) {
+			if (!found) {
+				found = segment === dir.base;
+			} else {
+				newSegments.push(segment);
+			}
+		}
+		return path.join(dir.root, ...newSegments);
 	}
 
 	private loadConfig(config?: string): Mocha.MochaOptions {
