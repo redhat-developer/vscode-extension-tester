@@ -91,8 +91,10 @@ export class VSRunner {
 
 				const start = Date.now();
 				const binPath = process.platform === 'darwin' ? await self.createShortcut(code.getCodeFolder(), self.tmpLink) : self.chromeBin;
-				await browser.start(binPath);
-				await browser.openResources(...resources);
+				// resources are passed to the launch itself: opening them with a
+				// second-instance CLI call during startup triggers webview resource
+				// corruption on VS Code >= 1.123.0 (microsoft/vscode#330243, #2454)
+				await browser.start(binPath, resources);
 				await browser.waitForWorkbench();
 				console.log(`Browser ready in ${Date.now() - start} ms`);
 				console.log('Launching tests...');
