@@ -43,22 +43,40 @@ Folder structure from logs is available inside
     - all folders are listed
     - empty folders don't have expand button
     - if no folder nor file is available, info message is showed inside TreeView
+Folders are sorted newest-first (by mtime)
+Timestamp-named folders (YYYY-MM-DD_HH-mm-ss) display a human-readable label with raw name as description
 Clicking on filename opens file in editor on line 0
 If new file/folder is created, explorer will update itself
 If file/folder is deleted, explorer will update itself
 If file/folder is changed, explorer will update itself
-Clicking on Refresh Test buttons will update explorer manually
+Clicking on Refresh button will update explorer manually
+Reveal in File Explorer button (folder-opened icon) opens logs directory in OS file manager
+    - if directory doesn't exist, info message is shown
+Clear Logs button (trash icon) removes all content from logs directory after confirmation
+    - confirmation dialog is shown before deletion
+Trash icon is available per-item on hover
+    - click deletes that specific file or folder (with confirmation)
+Right-click on item shows context menu with Delete and Reveal in File Explorer options
 Collapse All button is available
     - if no folder nor file is present, button is not clickable [TODO]
 
 ** Screenshots view **
-Screenshots structure from logs is available inside
+Screenshots structure is available inside
     - if no screenshot is available, info message is showed inside TreeView
+Folders are sorted newest-first (by mtime)
+Timestamp-named folders (YYYY-MM-DD_HH-mm-ss) display a human-readable label with raw name as description
 Clicking on filename opens screenshot
 If new screenshot is created, explorer will update itself
 If screenshot is deleted, explorer will update itself
 If screenshot is changed, explorer will update itself
-Clicking on Refresh Screenshots buttons will update explorer manually
+Clicking on Refresh Screenshots button will update explorer manually
+Reveal in File Explorer button (folder-opened icon) opens screenshots directory in OS file manager
+    - if directory doesn't exist, info message is shown
+Clear Screenshots button (trash icon) removes all content from screenshots directory after confirmation
+    - confirmation dialog is shown before deletion
+Trash icon is available per-item on hover
+    - click deletes that specific file or folder (with confirmation)
+Right-click on item shows context menu with Delete and Reveal in File Explorer options
 
 ** Settings ** 
 Settings are split into two categories - View Settings and Command Line Settings
@@ -73,7 +91,7 @@ Command Line Settings:
         - value is used to create path for running tests
         - 'out' is default value
     Root folder specifies root directory
-        - may be undefinde
+        - may be undefined
         - basically it's the part removed from path of .ts file while creating output .js path
     Temp Folder: 
         - if empty, default TMP_DIR location is used
@@ -84,7 +102,7 @@ Command Line Settings:
 Logs View settings:
     Hide Empty Log Folders:
         - when active, only folders with content are showed in Logs view
-Walkthrought: 
+Walkthrough: 
     Configure Root and Output Directories
         - links leads to relative workspace setting
     Configure Test File Pattern
@@ -95,11 +113,11 @@ Walkthrought:
         - links leads to relative workspace setting
     Additional Arguments
         - links leads to relative workspace setting
-    Addiutional Configuration Options
+    Additional Configuration Options
         - links leads to relative workspace setting
 
 ** Issues **
-Walkthrought is automatically showed only at first install, when extension is reinstalled, no walkthrought is showed (but it's accesible manually).
+Walkthrough is automatically showed only at first install, when extension is reinstalled, no walkthrough is showed (but it's accessible manually).
 
 ** To improve **
 Configuration of root and out can be read from tsconfig.json. 

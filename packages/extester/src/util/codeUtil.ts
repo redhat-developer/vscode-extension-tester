@@ -19,6 +19,7 @@ import * as childProcess from 'child_process';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as vsce from '@vscode/vsce';
+import type { IPackageOptions } from '@vscode/vsce';
 import { VSRunner } from '../suite/runner';
 import { Unpack } from './unpack';
 import { logging } from 'selenium-webdriver';
@@ -57,6 +58,8 @@ export interface RunOptions {
 	resources: string[];
 	/** custom page objects locator contribution to load at startup */
 	customPageObjects?: CustomPageObjectsOptions;
+	/** Display language locale for VS Code (e.g. 'ru', 'zh-cn', 'fr'). Requires the matching language pack extension to be installed. */
+	locale?: string;
 }
 
 /** defaults for the [[RunOptions]] */
@@ -255,6 +258,7 @@ export class CodeUtil {
 		if (this.extensionsFolder) {
 			command += ` --extensions-dir=${this.extensionsFolder}`;
 		}
+		command += ` --user-data-dir="${path.join(this.downloadFolder, 'settings')}"`;
 		childProcess.execSync(command, { stdio: 'inherit' });
 	}
 
@@ -288,12 +292,10 @@ export class CodeUtil {
 
 	/**
 	 * Package extension into a vsix file
-	 * @param useYarn false to use npm as packaging system, true to use yarn instead
+	 * @param packageOptions vsce IPackageOptions to pass directly to vsce.createVSIX()
 	 */
-	async packageExtension(useYarn?: boolean): Promise<void> {
-		await vsce.createVSIX({
-			useYarn,
-		});
+	async packageExtension(packageOptions?: IPackageOptions): Promise<void> {
+		await vsce.createVSIX(packageOptions ?? {});
 	}
 
 	/**
@@ -349,6 +351,7 @@ export class CodeUtil {
 			runOptions.customPageObjects,
 			this.parseSettings(runOptions.settings ?? DEFAULT_RUN_OPTIONS.settings),
 			runOptions.cleanup,
+			runOptions.locale,
 		);
 		return await runner.runTests(testFilesPattern, this, runOptions.resources, runOptions.logLevel);
 	}

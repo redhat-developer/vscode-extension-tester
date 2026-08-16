@@ -17,26 +17,37 @@
 
 import * as vscode from 'vscode';
 import { Logger } from '../logger/logger';
-import { LogsTreeProvider } from '../providers/logsTreeProvider';
+import { LogsTreeProvider, LogsResourcesItem } from '../providers/logsTreeProvider';
+import { clearResourceDirectory, deleteResourceItem, revealResourceDirectory, revealResourceItem } from './resourceCommands';
 
 /**
  * Registers Logs view related commands for the VS Code extension.
- *
- * This function registers commands for refreshing the logs tree view.
  *
  * @param {vscode.ExtensionContext} context - The extension context, used for registering commands.
  * @param {LogsTreeProvider} logsDataProvider - The tree data provider responsible for managing the logs view.
  * @param {Logger} logger - The logging utility for debugging and tracking command execution.
  */
 export function registerLogsCommands(context: vscode.ExtensionContext, logsDataProvider: LogsTreeProvider, logger: Logger) {
-	/**
-	 * Registers the `extester-runner.refreshLogs` command.
-	 * This command refreshes the test logs view by triggering an update on the tree data provider.
-	 */
 	context.subscriptions.push(
-		vscode.commands.registerCommand('extester-runner.refreshLogs', async () => {
+		vscode.commands.registerCommand('extester-runner.refreshLogs', () => {
 			logger.debug('Command triggered: extester-runner.refreshLogs');
 			logsDataProvider.refresh();
+		}),
+		vscode.commands.registerCommand('extester-runner.clearLogs', () => {
+			logger.debug('Command triggered: extester-runner.clearLogs');
+			return clearResourceDirectory(logsDataProvider, 'logs', logger);
+		}),
+		vscode.commands.registerCommand('extester-runner.deleteLogsItem', (item: LogsResourcesItem) => {
+			logger.debug(`Command triggered: extester-runner.deleteLogsItem on ${item?.filePath}`);
+			return deleteResourceItem(item, logsDataProvider, logger);
+		}),
+		vscode.commands.registerCommand('extester-runner.revealLogs', () => {
+			logger.debug('Command triggered: extester-runner.revealLogs');
+			return revealResourceDirectory(logsDataProvider, logger);
+		}),
+		vscode.commands.registerCommand('extester-runner.revealLogsItem', (item: LogsResourcesItem) => {
+			logger.debug(`Command triggered: extester-runner.revealLogsItem on ${item?.filePath}`);
+			return revealResourceItem(item, logger);
 		}),
 	);
 }

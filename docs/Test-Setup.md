@@ -41,6 +41,7 @@ Options:
   -c, --code_version <version>  # Version of VS Code to download
   -t, --type <type>             # Type of VS Code release (stable/insider)
   -n, --no_cache                # Disable caching of VS Code download (default: false)
+  --config <path>               # Path to extester.config.json configuration file
   -h, --help                    # output usage information
 ```
 
@@ -58,6 +59,7 @@ Options:
   -c, --code_version <version>  # Version of VS Code you want to run with the ChromeDriver
   -t, --type <type>             # Type of VS Code release (stable/insider)
   -n, --no_cache                # Disable caching of ChromeDriver download (default: false)
+  --config <path>               # Path to extester.config.json configuration file
   -h, --help                    # display help for command
 ```
 
@@ -74,8 +76,9 @@ Options:
   -s, --storage <storage>                      # Use this folder for all test resources
   -e, --extensions_dir <extensions_directory>  # VS Code will use this directory for managing extensions
   -f, --vsix_file <file>                       # path/URL to vsix file containing the extension
-  -y, --yarn                                   # Use yarn to build the extension via vsce instead of npm (default: false)
+  --package_options <json>                     # JSON string of vsce IPackageOptions (e.g. '{"useYarn":true,"followSymlinks":true}')
   -t, --type <type>                            # Type of VS Code release (stable/insider)
+  --config <path>                              # Path to extester.config.json configuration file
   -h, --help                                   # display help for command
 
 ```
@@ -94,6 +97,7 @@ Options:
   -e, --extensions_dir <extensions_directory>  # VS Code will use this directory for managing extensions
   -t, --type <type>                            # Type of VS Code release (stable/insider)
   -p, --pre_release                            # Installs the pre-release version of the extension
+  --config <path>                              # Path to extester.config.json configuration file
   -h, --help                                   # display help for command
 ```
 
@@ -111,9 +115,10 @@ Options:
   -e, --extensions_dir <extensions_directory>  # VS Code will use this directory for managing extensions
   -c, --code_version <version>                 # Version of VS Code to download
   -t, --type <type>                            # Type of VS Code release (stable/insider)
-  -y, --yarn                                   # Use yarn to build the extension via vsce instead of npm (default: false)
+  --package_options <json>                     # JSON string of vsce IPackageOptions (e.g. '{"useYarn":true,"followSymlinks":true}')
   -i, --install_dependencies                   # Automatically install extensions your extension depends on (default: false)
   -n, --no_cache                               # Disable caching of VS Code and ChromeDriver downloads (default: false)
+  --config <path>                              # Path to extester.config.json configuration file
   -h, --help                                   # display help for command
 ```
 
@@ -122,9 +127,9 @@ Options:
 To run test files
 
 ```shell
-Usage: extest run-tests [options] <testFiles>
+Usage: extest run-tests [options] [testFiles...]
 
-Run the tests files specified by a glob pattern
+Run the test files specified by glob pattern(s)
 
 Options:
   -s, --storage <storage>                      # Use this folder for all test resources
@@ -137,7 +142,9 @@ Options:
   -l, --log_level <level>                      # Log messages from webdriver with a given level (default: "Info")
   -f, --offline                                # Attempt to run without internet connection, make sure to have all requirements downloaded (default: false)
   -C, --coverage                               # Enable code coverage using c8
+  -L, --locale <locale>                        # Launch VS Code with the given display language (e.g. ru, zh-cn). Requires the language pack to be installed via -i. See [[Locale-Testing]]
   -p, --custom_page_objects <path>             # Path to a compiled JS locator contribution file for custom page objects
+  --config <path>                              # Path to extester.config.json configuration file
   -h, --help                                   # display help for command
 ```
 
@@ -146,9 +153,9 @@ Options:
 Perform all test setup and run tests in a single command
 
 ```shell
-Usage: extest setup-and-run [options] <testFiles>
+Usage: extest setup-and-run [options] [testFiles...]
 
-Perform all setup and run tests specified by glob pattern
+Perform all setup and run tests specified by glob pattern(s)
 
 Options:
   -s, --storage <storage>                      # Use this folder for all test resources
@@ -156,7 +163,7 @@ Options:
   -c, --code_version <version>                 # Version of VS Code to download
   -t, --type <type>                            # Type of VS Code release (stable/insider)
   -o, --code_settings <settings.json>          # Path to custom settings for VS Code json file
-  -y, --yarn                                   # Use yarn to build the extension via vsce instead of npm (default: false)
+  --package_options <json>                     # JSON string of vsce IPackageOptions (e.g. '{"useYarn":true,"followSymlinks":true}')
   -u, --uninstall_extension                    # Uninstall the extension after the test run (default: false)
   -m, --mocha_config <mocharc.js>              # Path to Mocha configuration file
   -i, --install_dependencies                   # Automatically install extensions your extension depends on (default: false)
@@ -164,8 +171,113 @@ Options:
   -f, --offline                                # Attempt to run without internet connection, make sure to have all requirements downloaded (default: false)
   -C, --coverage                               # Enable code coverage using c8
   -n, --no_cache                               # Disable caching of VS Code and ChromeDriver downloads (default: false)
+  -L, --locale <locale>                        # Launch VS Code with the given display language (e.g. ru, zh-cn). Requires the language pack to be installed via -i. See [[Locale-Testing]]
   -p, --custom_page_objects <path>             # Path to a compiled JS locator contribution file for custom page objects
+  --config <path>                              # Path to extester.config.json configuration file
   -h, --help                                   # display help for command
+```
+
+## Using a Config File
+
+Instead of repeating long CLI flag sequences, you can define all options in an `extester.config.json` file at the root of your project. ExTester automatically discovers it by walking up from the current working directory.
+
+### Quick start
+
+Create `extester.config.json` next to your `package.json`:
+
+```json
+{
+  "setup": {
+    "vscodeVersion": "latest",
+    "installDependencies": true
+  },
+  "run": {
+    "testFiles": ["./out/test/**/*.test.js"],
+    "resources": ["."],
+    "extensionsDir": "./test-extensions"
+  }
+}
+```
+
+Then replace your npm script:
+
+```jsonc
+// Before
+"ui-test": "extest setup-and-run './out/test/**/*.test.js' -i -r . -e ./test-extensions"
+
+// After
+"ui-test": "extest setup-and-run"
+```
+
+### Config file discovery
+
+ExTester searches for `extester.config.json` by walking up the directory tree from `cwd` (the same strategy used by `.mocharc.json` and similar tools). The first file found is used.
+
+To point to a specific file instead:
+
+```shell
+extest setup-and-run --config ./config/extester.config.json
+```
+
+### Precedence
+
+Settings are resolved in this order — later sources override earlier ones:
+
+```
+built-in defaults  ←  extester.config.json  ←  CLI flags
+```
+
+Environment variables (`CODE_VERSION`, `TEST_RESOURCES`, etc.) continue to apply at their existing layer inside ExTester and are not affected by the config file.
+
+### Config file reference
+
+All fields are optional. Paths are resolved relative to the config file's location.
+
+#### `setup` section
+
+Controls VS Code + ChromeDriver download and extension installation. Used by `get-vscode`, `get-chromedriver`, `install-vsix`, `setup-tests`, and `setup-and-run`.
+
+| Field                 | Type                      | Default                                       | CLI equivalent                  | Description                                             |
+| --------------------- | ------------------------- | --------------------------------------------- | ------------------------------- | ------------------------------------------------------- |
+| `vscodeVersion`       | string                    | `"latest"`                                    | `-c` / `--code_version`         | VS Code version: `latest`, `min`, `max`, or `1.X.Y`     |
+| `type`                | `"stable"` \| `"insider"` | `"stable"`                                    | `-t` / `--type`                 | VS Code release stream                                  |
+| `storage`             | string                    | `$TEST_RESOURCES` or `$TMPDIR/test-resources` | `-s` / `--storage`              | Folder for all downloaded test resources                |
+| `extensionsDir`       | string                    | —                                             | `-e` / `--extensions_dir`       | VS Code extensions directory override                   |
+| `packageOptions`      | object                    | —                                             | `--package_options`             | vsce `IPackageOptions` forwarded to `vsce.createVSIX()` |
+| `installDependencies` | boolean                   | `false`                                       | `-i` / `--install_dependencies` | Install marketplace dependencies automatically          |
+| `noCache`             | boolean                   | `false`                                       | `-n` / `--no_cache`             | Skip cached downloads                                   |
+
+#### `run` section
+
+Controls test execution inside VS Code. Used by `run-tests` and `setup-and-run`.
+
+| Field               | Type                      | Default                                       | CLI equivalent                 | Description                                                                                                                |
+| ------------------- | ------------------------- | --------------------------------------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| `testFiles`         | string[]                  | —                                             | positional `[testFiles...]`    | Glob pattern(s) for test files. Used when no CLI positional args are provided.                                             |
+| `vscodeVersion`     | string                    | `"latest"`                                    | `-c` / `--code_version`        | VS Code version: `latest`, `min`, `max`, or `1.X.Y`                                                                        |
+| `type`              | `"stable"` \| `"insider"` | `"stable"`                                    | `-t` / `--type`                | VS Code release stream                                                                                                     |
+| `storage`           | string                    | `$TEST_RESOURCES` or `$TMPDIR/test-resources` | `-s` / `--storage`             | Folder for all downloaded test resources                                                                                   |
+| `extensionsDir`     | string                    | —                                             | `-e` / `--extensions_dir`      | VS Code extensions directory override                                                                                      |
+| `settings`          | string                    | —                                             | `-o` / `--code_settings`       | Path to a custom VS Code `settings.json`                                                                                   |
+| `cleanup`           | boolean                   | `false`                                       | `-u` / `--uninstall_extension` | Uninstall the extension after the test run                                                                                 |
+| `mochaConfig`       | string                    | —                                             | `-m` / `--mocha_config`        | Path to a Mocha configuration file                                                                                         |
+| `logLevel`          | string                    | `"Info"`                                      | `-l` / `--log_level`           | Webdriver log level: `Debug`, `Info`, `Warning`, `Severe`, `OFF`, `ALL`                                                    |
+| `offline`           | boolean                   | `false`                                       | `-f` / `--offline`             | Run without internet access                                                                                                |
+| `coverage`          | boolean                   | `false`                                       | `-C` / `--coverage`            | Enable c8 code coverage                                                                                                    |
+| `resources`         | string[]                  | `[]`                                          | `-r` / `--open_resource`       | Files or folders to open in VS Code at startup                                                                             |
+| `customPageObjects` | string                    | —                                             | `-p` / `--custom_page_objects` | Path to a compiled JS locator contribution file                                                                            |
+| `locale`            | string                    | —                                             | `-L` / `--locale`              | Display language locale (e.g. `ru`, `zh-cn`). Requires the language pack extension to be installed. See [[Locale-Testing]] |
+
+### Editor autocomplete
+
+Add a `$schema` field to get inline validation and autocomplete in VS Code and other JSON-aware editors:
+
+```json
+{
+  "$schema": "./node_modules/vscode-extension-tester/resources/extester.schema.json",
+  "setup": { ... },
+  "run": { ... }
+}
 ```
 
 ### Caching Behavior
@@ -196,12 +308,38 @@ When the `--no_cache` option is enabled:
 
 The same actions are available in the `ExTester` class as API:
 
+### `packageOptions` / `--package_options`
+
+The `packageOptions` field (and its CLI counterpart `--package_options <json>`) accepts any option
+from the `IPackageOptions` interface of [`@vscode/vsce`](https://github.com/microsoft/vscode-vsce).
+The object is forwarded directly to `vsce.createVSIX()`, so every packaging option vsce supports
+is available without ExTester needing to enumerate them individually.
+
+Common examples:
+
+```typescript
+// Use yarn instead of npm
+{ useYarn: true }
+
+// Recurse into symlinked directories (fixes missing-symlink issues)
+{ followSymlinks: true }
+
+// Combine options freely
+{ useYarn: true, followSymlinks: true, preRelease: true }
+```
+
+CLI equivalent:
+
+```shell
+extest setup-and-run 'out/**/*.test.js' --package_options '{"useYarn":true,"followSymlinks":true}'
+```
+
 ```typescript
 export interface SetupOptions {
   /** version of VS Code to test against, defaults to latest */
   vscodeVersion?: string;
-  /** when true run `vsce package` with the `--yarn` flag */
-  useYarn?: boolean;
+  /** vsce packaging options passed directly to vsce.createVSIX() */
+  packageOptions?: IPackageOptions;
   /** install the extension's dependencies from the marketplace. Defaults to `false`. */
   installDependencies?: boolean;
   /** disable caching of VS Code and ChromeDriver downloads */
@@ -225,6 +363,8 @@ export interface RunOptions {
   logLevel?: VSBrowserLogLevel;
   /** try to perform all setup without internet connection, needs all requirements pre-downloaded manually */
   offline?: boolean;
+  /** display language locale for VS Code (e.g. 'ru', 'zh-cn'). Requires the matching language pack extension to be installed. See [[Locale-Testing]] */
+  locale?: string;
   /** custom page objects locator contribution to load at startup */
   customPageObjects?: CustomPageObjectsOptions;
 }

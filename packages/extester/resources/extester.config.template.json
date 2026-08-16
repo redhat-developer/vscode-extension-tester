@@ -1,0 +1,31 @@
+{
+  "$schema": "./node_modules/vscode-extension-tester/resources/extester.schema.json",
+  "setup": {
+    "vscodeVersion": "latest",
+    "type": "stable",
+    "storage": "./test-resources",
+    "extensionsDir": "./test-extensions",
+    "installDependencies": false,
+    "noCache": false,
+    "packageOptions": {
+      "useYarn": false,
+      "followSymlinks": false
+    }
+  },
+  "run": {
+    "testFiles": ["./out/test/**/*.test.js"],
+    "vscodeVersion": "latest",
+    "type": "stable",
+    "storage": "./test-resources",
+    "extensionsDir": "./test-extensions",
+    "settings": "./vscode-settings.json",
+    "cleanup": false,
+    "mochaConfig": "./.mocharc.js",
+    "logLevel": "Info",
+    "offline": false,
+    "coverage": false,
+    "resources": ["."],
+    "customPageObjects": "./out/test/customPageObjects/locators.js",
+    "locale": ""
+  }
+}

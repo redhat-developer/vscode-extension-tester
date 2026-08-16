@@ -229,7 +229,7 @@ describe('TextEditor', function () {
 					[2, 12],
 					[3, 15],
 				]) {
-					(param.indent === 'tabs' ? it.skip : it)(`set cursor to position [Ln ${coor[0]}, Col ${coor[1]}]`, async function () {
+					it(`set cursor to position [Ln ${coor[0]}, Col ${coor[1]}]`, async function () {
 						this.timeout(30000);
 						await editor.setCursor(coor[0], coor[1]);
 						expect(await editor.getCoordinates()).to.deep.equal(coor);
@@ -244,7 +244,7 @@ describe('TextEditor', function () {
 			const ew = new EditorView();
 			const editors = await ew.getOpenEditorTitles();
 			editor = (await ew.openEditor(editors[0])) as TextEditor;
-			await editor.setText('aline\nbline\ncline\ndline\nnope\neline1 eline2\nnope again\nfline');
+			await editor.setText('aline\n    bline\n\tcline\ndline\nnope\neline1 eline2\nnope again\nfline');
 		});
 
 		it('getLineOfText works', async function () {
@@ -286,8 +286,14 @@ describe('TextEditor', function () {
 			expect(cursor).to.deep.equal([6, 13]);
 		});
 
-		it('selected text can be get', async function () {
+		it('selected text can be get (spaces)', async function () {
 			const text = 'bline';
+			await editor.selectText(text);
+			expect(await editor.getSelectedText()).equals(text);
+		});
+
+		it('selected text can be get (tabs)', async function () {
+			const text = 'cline';
 			await editor.selectText(text);
 			expect(await editor.getSelectedText()).equals(text);
 		});

@@ -40,7 +40,6 @@ await editor.formatDocument();
 // move the cursor to the given coordinates
 await editor.moveCursor(3, 6);
 // set cursor to given position using command prompt :Ln,Col
-// Note: the setCursor approach is not properly working for tabs indentation in VS Code text editor, see https://github.com/microsoft/vscode/issues/198780
 await editor.setCursor(2, 5);
 // get the current cursor coordinates as number array [x,y]
 const coords = await editor.getCoordinates();

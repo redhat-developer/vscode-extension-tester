@@ -63,7 +63,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	logger.debug('Registering screenshot tree view.');
 	vscode.window.createTreeView('extesterResourcesScreenshotsView', {
 		treeDataProvider: screenshotsDataProvider,
-		showCollapseAll: false,
+		showCollapseAll: true,
 	});
 
 	// logs view

@@ -17,26 +17,37 @@
 
 import * as vscode from 'vscode';
 import { Logger } from '../logger/logger';
-import { ScreenshotsTreeProvider } from '../providers/screenshotsTreeProvider';
+import { ScreenshotsTreeProvider, ScreenshotsResourcesItem } from '../providers/screenshotsTreeProvider';
+import { clearResourceDirectory, deleteResourceItem, revealResourceDirectory, revealResourceItem } from './resourceCommands';
 
 /**
  * Registers Screenshots view related commands for the VS Code extension.
- *
- * This function registers commands for refreshing the screenshot tree view.
  *
  * @param {vscode.ExtensionContext} context - The extension context, used for registering commands.
  * @param {ScreenshotsTreeProvider} screenshotDataProvider - The tree data provider responsible for managing the screenshot view.
  * @param {Logger} logger - The logging utility for debugging and tracking command execution.
  */
 export function registerScreenshotsCommands(context: vscode.ExtensionContext, screenshotDataProvider: ScreenshotsTreeProvider, logger: Logger) {
-	/**
-	 * Registers the `extester-runner.refreshScreenshots` command.
-	 * This command refreshes the screenshots view by triggering an update on the tree data provider.
-	 */
 	context.subscriptions.push(
-		vscode.commands.registerCommand('extester-runner.refreshScreenshots', async () => {
+		vscode.commands.registerCommand('extester-runner.refreshScreenshots', () => {
 			logger.debug('Command triggered: extester-runner.refreshScreenshots');
 			screenshotDataProvider.refresh();
+		}),
+		vscode.commands.registerCommand('extester-runner.clearScreenshots', () => {
+			logger.debug('Command triggered: extester-runner.clearScreenshots');
+			return clearResourceDirectory(screenshotDataProvider, 'screenshots', logger);
+		}),
+		vscode.commands.registerCommand('extester-runner.deleteScreenshotsItem', (item: ScreenshotsResourcesItem) => {
+			logger.debug(`Command triggered: extester-runner.deleteScreenshotsItem on ${item?.filePath}`);
+			return deleteResourceItem(item, screenshotDataProvider, logger);
+		}),
+		vscode.commands.registerCommand('extester-runner.revealScreenshots', () => {
+			logger.debug('Command triggered: extester-runner.revealScreenshots');
+			return revealResourceDirectory(screenshotDataProvider, logger);
+		}),
+		vscode.commands.registerCommand('extester-runner.revealScreenshotsItem', (item: ScreenshotsResourcesItem) => {
+			logger.debug(`Command triggered: extester-runner.revealScreenshotsItem on ${item?.filePath}`);
+			return revealResourceItem(item, logger);
 		}),
 	);
 }
