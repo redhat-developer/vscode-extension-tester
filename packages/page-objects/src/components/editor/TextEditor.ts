@@ -134,7 +134,6 @@ export class TextEditor extends Editor {
 			}
 
 			// Store current position
-			await this.click();
 			const [line, col] = await this.getCoordinates();
 
 			// Select/copy contents
