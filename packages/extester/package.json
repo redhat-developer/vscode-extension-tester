@@ -71,7 +71,7 @@
     "hpagent": "^1.2.0",
     "js-yaml": "^5.2.2",
     "sanitize-filename": "^1.6.4",
-    "selenium-webdriver": "^4.46.0",
+    "selenium-webdriver": "^4.47.0",
     "targz": "^1.0.1",
     "unzipper": "^0.12.5"
   },
