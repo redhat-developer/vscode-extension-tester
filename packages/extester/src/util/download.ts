@@ -50,8 +50,8 @@ const options = {
 		https: httpsProxyAgent,
 	},
 	timeout: {
-		request: 180_000,
-		response: 120_000,
+		request: 300_000, // 5 minutes
+		response: 120_000, // 2 minutes
 	},
 	retry: {
 		limit: retryCount,
