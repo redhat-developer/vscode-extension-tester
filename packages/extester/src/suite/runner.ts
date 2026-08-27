@@ -24,7 +24,7 @@ import * as path from 'node:path';
 import * as yaml from 'js-yaml';
 import sanitize from 'sanitize-filename';
 import { logging } from 'selenium-webdriver';
-import * as os from 'os';
+import * as os from 'node:os';
 import { Coverage } from '../util/coverage';
 
 /**
@@ -39,7 +39,7 @@ export class VSRunner {
 	private readonly releaseType: ReleaseQuality;
 	private readonly customPageObjects?: CustomPageObjectsOptions;
 	private readonly locale: string | undefined;
-	private tmpLink = path.join(os.tmpdir(), 'extest-code');
+	private readonly tmpLink = path.join(os.tmpdir(), 'extest-code');
 
 	constructor(
 		bin: string,
