@@ -40,7 +40,6 @@ export class VSBrowser {
 	private readonly locale: string;
 	private static _instance: VSBrowser;
 	private readonly _startTimestamp: string;
-	private _sessionStartTime: number = 0;
 
 	private formatTimestamp(date: Date): string {
 		const pad = (num: number) => num.toString().padStart(2, '0');
@@ -191,7 +190,6 @@ export class VSBrowser {
 			.setChromeOptions(options)
 			.build();
 		VSBrowser._instance = this;
-		this._sessionStartTime = Date.now();
 
 		initPageObjects(this.codeVersion, VSBrowser.baseVersion, getLocatorsPath(), this._driver, VSBrowser.browserName, this.customPageObjects?.locatorsPath);
 		return this;
@@ -330,21 +328,6 @@ export class VSBrowser {
 
 		if (paths.length === 0) {
 			return;
-		}
-
-		// CodeUtil.open spawns a second-instance CLI call; if it lands while
-		// VS Code is still starting up, VS Code >= 1.123.0 duplicates every
-		// 256 KiB chunk of every webview resource in the window and the webview
-		// service worker caches the corrupted responses, permanently poisoning
-		// the profile (microsoft/vscode#330243, #2454). The workbench element
-		// appears while that race window is still open, so early calls also wait
-		// for the instance to settle. Calls made later than the settle window pay
-		// no extra delay.
-		const settleMs = Number(process.env.EXTESTER_OPEN_RESOURCE_SETTLE_MS ?? 10_000);
-		const sinceSessionStart = Date.now() - this._sessionStartTime;
-		if (sinceSessionStart < settleMs) {
-			await this.waitForWorkbench();
-			await new Promise((resolve) => setTimeout(resolve, settleMs - sinceSessionStart));
 		}
 
 		const code = new CodeUtil(this.storagePath, this.releaseType, this.extensionsFolder);
