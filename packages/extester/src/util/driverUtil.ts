@@ -50,6 +50,11 @@ export class DriverUtil {
 	 * @param version version to download
 	 */
 	async downloadChromeDriver(version: string, noCache: boolean = false): Promise<string> {
+		// The version string originates from external sources (CLI input, remote
+		// release metadata, the browser's build info). Replace it with a value
+		// rebuilt from its parsed numeric components before it flows into URLs,
+		// filesystem paths, process arguments or log output.
+		version = DriverUtil.sanitizeVersion(version);
 		const url = this.getChromeDriverURL(version);
 		const driverBinary = this.getChromeDriverBinaryPath(version);
 
@@ -62,7 +67,7 @@ export class DriverUtil {
 			}
 			if (localVersion.startsWith(version)) {
 				console.log(`ChromeDriver ${version} exists in local cache, skipping download`);
-				return '';
+				return driverBinary;
 			}
 		}
 
@@ -71,12 +76,17 @@ export class DriverUtil {
 		if (!noCache && fs.existsSync(fileName)) {
 			console.log(`ChromeDriver ${version} exists in storage folder, skipping download`);
 		} else {
-			console.log(`Downloading ChromeDriver ${version} from: ${url}`);
+			console.log(`Downloading ChromeDriver ${version}`);
 			await Download.getFile(url, fileName, true);
 		}
 
-		console.log(`Unpacking ChromeDriver ${version} into ${this.downloadFolder}`);
-		await Unpack.unpack(fileName, this.downloadFolder);
+		// Only unpack if the binary doesn't exist yet or its version doesn't match
+		if (!fs.existsSync(driverBinary) || !(await this.isLocalVersionMatch(version))) {
+			console.log(`Unpacking ChromeDriver ${version} into ${this.downloadFolder}`);
+			await Unpack.unpack(fileName, this.downloadFolder);
+		} else {
+			console.log(`ChromeDriver ${version} binary already present, skipping unpack`);
+		}
 
 		if (process.platform !== 'win32') {
 			fs.chmodSync(driverBinary, 0o755);
@@ -152,16 +162,51 @@ export class DriverUtil {
 	/**
 	 * Check local chrome driver version
 	 */
+	private async isLocalVersionMatch(version: string): Promise<boolean> {
+		try {
+			const local = await this.getLocalDriverVersion(version);
+			return local.startsWith(version);
+		} catch {
+			return false;
+		}
+	}
+
 	private async getLocalDriverVersion(version: string): Promise<string> {
-		const command = `${this.getChromeDriverBinaryPath(version)} -v`;
+		// Invoke the binary directly (no shell) so the path is passed as-is and
+		// cannot be interpreted as shell syntax. The version component is rebuilt
+		// from parsed integers, and the resolved binary path must stay inside the
+		// storage folder — a crafted version or storage value cannot traverse out
+		// or smuggle shell syntax anywhere.
+		version = DriverUtil.sanitizeVersion(version);
+		const binaryPath = path.resolve(this.getChromeDriverBinaryPath(version));
+		const storageRoot = path.resolve(this.downloadFolder) + path.sep;
+		if (!binaryPath.startsWith(storageRoot)) {
+			throw new Error('Resolved ChromeDriver binary path escapes the storage folder');
+		}
 		return new Promise<string>((resolve, reject) => {
-			childProcess.exec(command, (err, stdout) => {
+			childProcess.execFile(binaryPath, ['-v'], { timeout: 15_000 }, (err, stdout) => {
 				if (err) {
 					return reject(new Error(err.message));
 				}
 				resolve(stdout.split(' ')[1]);
 			});
 		});
+	}
+
+	/**
+	 * Parse a ChromeDriver version string (a plain dotted number sequence such
+	 * as 114 or 114.0.5735.90) and rebuild it from its numeric components.
+	 * Throws for any other shape. Returning a string reconstructed from parsed
+	 * integers — never the original input — guarantees that whatever reaches
+	 * URLs, filesystem paths, process arguments or log messages contains only
+	 * digits and dots, regardless of where the input came from.
+	 */
+	private static sanitizeVersion(version: string): string {
+		const parts = version.trim().split('.');
+		if (parts.length === 0 || parts.length > 4 || parts.some((part) => !/^\d{1,10}$/.test(part))) {
+			throw new Error('Invalid ChromeDriver version format');
+		}
+		return parts.map((part) => Number.parseInt(part, 10)).join('.');
 	}
 
 	/**

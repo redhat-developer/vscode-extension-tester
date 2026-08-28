@@ -16,15 +16,18 @@
  */
 
 import * as fs from 'fs-extra';
-import { promisify } from 'util';
-import stream from 'stream';
+import { promisify } from 'node:util';
+import stream from 'node:stream';
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
 
-const retryCount = 3;
+const retryCount = 5;
+const noProxy = process.env.NO_PROXY || process.env.no_proxy;
+
 const httpProxyAgent = !process.env.HTTP_PROXY
 	? undefined
 	: new HttpProxyAgent({
 			proxy: process.env.HTTP_PROXY,
+			...(noProxy ? { noProxy } : {}),
 		});
 
 const rejectUnauthorized = +(process.env.HTTPS_TLS_REJECT_UNAUTHORIZED ?? 1) >= 1;
@@ -32,6 +35,7 @@ const httpsProxyAgent = !process.env.HTTPS_PROXY
 	? undefined
 	: new HttpsProxyAgent({
 			proxy: process.env.HTTPS_PROXY,
+			...(noProxy ? { noProxy } : {}),
 		});
 
 const options = {
@@ -45,33 +49,72 @@ const options = {
 		http: httpProxyAgent,
 		https: httpsProxyAgent,
 	},
+	timeout: {
+		request: 180_000,
+		response: 120_000,
+	},
 	retry: {
 		limit: retryCount,
+		// The default errorCodes list does not include the content-length mismatch
+		// error that `got` raises as ERR_HTTP_CONTENT_LENGTH_MISMATCH (a ReadError).
+		// This intermittent network error is the root cause of flaky VS Code downloads
+		// on CI runners, so we add it (and its generic fallback) here so that got's
+		// built-in exponential-backoff retry fires automatically on these transient
+		// failures instead of surfacing them as fatal errors.
+		errorCodes: [
+			'ETIMEDOUT',
+			'ECONNRESET',
+			'EADDRINUSE',
+			'ECONNREFUSED',
+			'EPIPE',
+			'ENOTFOUND',
+			'ENETUNREACH',
+			'EAI_AGAIN',
+			'ERR_HTTP_CONTENT_LENGTH_MISMATCH',
+			'ERR_READING_RESPONSE_STREAM',
+		],
 	},
 };
 
 export class Download {
 	/**
 	 * Check whether a URL is reachable (HTTP 2xx) without downloading the body.
-	 * Throws if the URL returns a non-2xx status or a network error.
+	 * Retries up to 3 times to handle transient CDN/DNS failures that would
+	 * otherwise cause ChromeDriver version resolution to fall back silently.
 	 */
 	static async checkURL(uri: string): Promise<void> {
 		const got = (await import('got')).default;
-		await got.head(uri, { ...options, retry: { limit: 0 } });
+		await got.head(uri, { ...options, retry: { ...options.retry, limit: 3 } });
 	}
 
-	static async getText(uri: string): Promise<string> {
+	/**
+	 * Fetch text content from a URL and parse it as JSON.
+	 */
+	static async getJSON<T = unknown>(uri: string): Promise<T> {
 		const got = (await import('got')).default;
 		const body = await got(uri, options).text();
-		return JSON.parse(body as string);
+		return JSON.parse(body) as T;
 	}
 
+	/**
+	 * Fetch raw text content from a URL.
+	 */
+	static async getText(uri: string): Promise<string> {
+		const got = (await import('got')).default;
+		return await got(uri, options).text();
+	}
+
+	/**
+	 * Download a file to disk atomically: writes to a `.tmp` file first, then
+	 * renames on success. This prevents partial/truncated downloads from being
+	 * treated as valid cached archives.
+	 */
 	static async getFile(uri: string, destination: string, progress = false): Promise<void> {
+		const tmpDest = `${destination}.tmp`;
 		let lastTick = 0;
 		const got = (await import('got')).default;
 		const dlStream = got.stream(uri, options);
-		// needed in order to enable retry feature:
-		dlStream.once('retry', (newRetryCount: number, error) => {
+		dlStream.on('retry', (newRetryCount: number, error) => {
 			console.warn(`retry(${newRetryCount}): Failed getting ${uri} due to ${error}`);
 		});
 		if (progress) {
@@ -83,8 +126,14 @@ export class Download {
 				}
 			});
 		}
-		const writeStream = fs.createWriteStream(destination);
+		const writeStream = fs.createWriteStream(tmpDest);
 
-		return await promisify(stream.pipeline)(dlStream, writeStream);
+		try {
+			await promisify(stream.pipeline)(dlStream, writeStream);
+			await fs.rename(tmpDest, destination);
+		} catch (err) {
+			await fs.remove(tmpDest).catch(() => {});
+			throw err;
+		}
 	}
 }

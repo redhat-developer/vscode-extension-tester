@@ -19,7 +19,7 @@ import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as fs from 'fs-extra';
 import { satisfies } from 'compare-versions';
-import { WebDriver, Builder, until, initPageObjects, logging, By, Browser } from '@redhat-developer/page-objects';
+import { WebDriver, Builder, initPageObjects, logging, By, Browser, EditorView, Workbench } from '@redhat-developer/page-objects';
 import { Options, ServiceBuilder } from 'selenium-webdriver/chrome';
 import { getLocatorsPath } from '@redhat-developer/locators';
 import { CodeUtil, CustomPageObjectsOptions, ReleaseQuality } from './util/codeUtil';
@@ -40,6 +40,7 @@ export class VSBrowser {
 	private readonly locale: string;
 	private static _instance: VSBrowser;
 	private readonly _startTimestamp: string;
+	private static _signalHandlersRegistered = false;
 
 	private formatTimestamp(date: Date): string {
 		const pad = (num: number) => num.toString().padStart(2, '0');
@@ -104,6 +105,14 @@ export class VSBrowser {
 		}
 
 		let defaultSettings = {
+			// Never let the tested VS Code instance update itself mid-run: on macOS
+			// the background updater replaces application files while tests execute,
+			// which manifests as "Your Code installation appears to be corrupt" and a
+			// dead extension host ("version mismatch") partway through a session.
+			'update.mode': 'none',
+			'update.showReleaseNotes': false,
+			'extensions.autoUpdate': false,
+			'extensions.autoCheckUpdates': false,
 			'workbench.editor.enablePreview': false,
 			'workbench.startupEditor': 'none',
 			'window.titleBarStyle': 'custom',
@@ -189,10 +198,51 @@ export class VSBrowser {
 			.forBrowser(Browser.CHROME)
 			.setChromeOptions(options)
 			.build();
+
+		await this._driver.manage().setTimeouts({
+			implicit: 0,
+			pageLoad: 60_000,
+			script: 30_000,
+		});
+
 		VSBrowser._instance = this;
 
 		initPageObjects(this.codeVersion, VSBrowser.baseVersion, getLocatorsPath(), this._driver, VSBrowser.browserName, this.customPageObjects?.locatorsPath);
+		VSBrowser.registerSignalHandlers();
 		return this;
+	}
+
+	/**
+	 * Register process signal handlers to ensure the WebDriver session is
+	 * terminated when the process exits unexpectedly (Ctrl+C, kill, crash).
+	 * Prevents orphaned ChromeDriver and VS Code processes on CI.
+	 */
+	private static registerSignalHandlers(): void {
+		if (VSBrowser._signalHandlersRegistered) {
+			return;
+		}
+		VSBrowser._signalHandlersRegistered = true;
+
+		const emergencyShutdown = async (reason: string, exitCode: number) => {
+			console.error(`Emergency browser shutdown triggered by ${reason}`);
+			try {
+				if (VSBrowser._instance?._driver) {
+					// Bound the quit call — if ChromeDriver is unresponsive (likely when the
+					// process is being killed), waiting on it forever would defeat the purpose
+					// of this handler and stall the CI runner's shutdown.
+					await Promise.race([VSBrowser._instance._driver.quit(), new Promise((res) => setTimeout(res, 5_000))]);
+				}
+			} catch {
+				// best-effort; process is already dying
+			}
+			process.exit(exitCode);
+		};
+
+		// NOTE: deliberately no 'uncaughtException' handler here — Mocha installs its own
+		// to fail the current test and continue the run; exiting the process from a second
+		// handler would abort the whole suite on any stray async error.
+		process.on('SIGINT', () => void emergencyShutdown('SIGINT', 130));
+		process.on('SIGTERM', () => void emergencyShutdown('SIGTERM', 143));
 	}
 
 	/**
@@ -252,16 +302,51 @@ export class VSBrowser {
 	 * });
 	 */
 	async waitForWorkbench(timeout: number = 30_000, waitForFn?: () => void | Promise<any>): Promise<void> {
-		// Workaround/patch for https://github.com/redhat-developer/vscode-extension-tester/issues/466
-		try {
-			await this._driver.wait(until.elementLocated(By.className('monaco-workbench')), timeout, `Workbench was not loaded properly after ${timeout} ms.`);
-		} catch (err) {
-			if ((err as Error).name === 'WebDriverError') {
-				await new Promise((res) => setTimeout(res, 3000));
-			} else {
-				throw err;
-			}
-		}
+		// Errors that indicate the workbench is not (or no longer) present rather than a
+		// broken session: the window may be mid-reload (e.g. a folder was just opened,
+		// which reloads the whole workbench), so keep polling instead of failing.
+		const transientErrors = new Set(['NoSuchElementError', 'StaleElementReferenceError', 'WebDriverError', 'NoSuchWindowError']);
+		// Require the workbench to stay present across two checks ~500ms apart:
+		// right before a window reload the OLD document is still visible for an
+		// instant, and returning at that moment hands callers elements that die
+		// immediately after.
+		let presentSince = 0;
+		await this._driver.wait(
+			async () => {
+				try {
+					const workbench = await this._driver.findElements(By.className('monaco-workbench'));
+					const present = workbench.length > 0 && (await workbench[0].isDisplayed());
+					if (!present) {
+						presentSince = 0;
+						return false;
+					}
+					if (presentSince === 0) {
+						presentSince = Date.now();
+						return false;
+					}
+					return Date.now() - presentSince >= 500;
+				} catch (err) {
+					presentSince = 0;
+					const name = (err as Error).name;
+					if (name === 'NoSuchWindowError') {
+						// The window handle died (e.g. replaced during a reload) — re-attach
+						// to the first available window and keep polling.
+						const handles = await this._driver.getAllWindowHandles().catch(() => [] as string[]);
+						if (handles.length > 0) {
+							await this._driver.switchTo().window(handles[0]);
+						}
+						return false;
+					}
+					if (transientErrors.has(name)) {
+						return false;
+					}
+					throw err;
+				}
+			},
+			timeout,
+			`Workbench was not loaded properly after ${timeout} ms.`,
+		);
+
 		if (waitForFn) {
 			await waitForFn();
 		}
@@ -271,16 +356,24 @@ export class VSBrowser {
 	 * Terminates the webdriver/browser
 	 */
 	async quit(): Promise<void> {
-		const entries = await this._driver.manage().logs().get(logging.Type.DRIVER);
-		const logFile = path.join(this.storagePath, 'test.log');
-		const stream = fs.createWriteStream(logFile, { flags: 'w' });
-		for (const entry of entries) {
-			stream.write(`[${new Date(entry.timestamp).toLocaleTimeString()}][${entry.level.name}] ${entry.message}`);
+		try {
+			const entries = await this._driver.manage().logs().get(logging.Type.DRIVER);
+			const logFile = path.join(this.storagePath, 'test.log');
+			const logStream = fs.createWriteStream(logFile, { flags: 'w' });
+			for (const entry of entries) {
+				logStream.write(`[${new Date(entry.timestamp).toLocaleTimeString()}][${entry.level.name}] ${entry.message}`);
+			}
+			logStream.end();
+		} catch (err) {
+			console.error('Failed to collect driver logs before shutdown:', err);
+		} finally {
+			console.log('Shutting down the browser');
+			try {
+				await this._driver.quit();
+			} catch (quitErr) {
+				console.error('Error while quitting the driver:', quitErr);
+			}
 		}
-		stream.end();
-
-		console.log('Shutting down the browser');
-		await this._driver.quit();
 	}
 
 	/**
@@ -333,5 +426,54 @@ export class VSBrowser {
 		const code = new CodeUtil(this.storagePath, this.releaseType, this.extensionsFolder);
 		code.open(...paths);
 		await this.waitForWorkbench(undefined, waitForFn);
+
+		// The CLI open request can occasionally get lost by the running VS Code instance
+		// (observed on macOS after a workspace switch reloaded the window). Verify that
+		// each file resource actually shows up as an editor tab and retry the open once
+		// before giving up, so callers fail fast with a clear error instead of timing
+		// out later on a missing editor.
+		const files = paths.filter((p) => fs.existsSync(p) && fs.statSync(p).isFile());
+		if (files.length > 0 && !(await this.filesOpenedInEditor(files, 15_000))) {
+			console.warn(`Opened resources did not appear in the editor, retrying: ${files.join(', ')}`);
+			code.open(...paths);
+			await this.waitForWorkbench();
+			if (!(await this.filesOpenedInEditor(files, 10_000))) {
+				// The running instance can drop CLI open requests entirely mid-session
+				// (observed repeatedly on macOS). Fall back to opening each file through
+				// the workbench quick open box, which does not depend on the CLI channel.
+				console.warn(`CLI open request was dropped, opening file(s) via quick open: ${files.join(', ')}`);
+				for (const file of files) {
+					const input = await new Workbench().openCommandPrompt();
+					await input.setText(file);
+					await input.confirm();
+				}
+				if (!(await this.filesOpenedInEditor(files, 10_000))) {
+					throw new Error(`Failed to open resource(s) in the editor: ${files.join(', ')}`);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Best-effort check that every given file is open as an editor tab.
+	 * Resolves to true once all file basenames are found among the open editor titles
+	 * in any editor group, false if that does not happen within the given timeout.
+	 */
+	private async filesOpenedInEditor(files: string[], timeout: number): Promise<boolean> {
+		const names = files.map((f) => path.basename(f));
+		try {
+			await this._driver.wait(async () => {
+				try {
+					const titles = await new EditorView().getOpenEditorTitles();
+					return names.every((name) => titles.some((title) => title === name || title.startsWith(name)));
+				} catch {
+					// Editor area may not exist yet (empty window) or may be mid-reload
+					return false;
+				}
+			}, timeout);
+			return true;
+		} catch {
+			return false;
+		}
 	}
 }

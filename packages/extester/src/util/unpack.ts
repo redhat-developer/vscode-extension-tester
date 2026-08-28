@@ -40,7 +40,7 @@ export class Unpack {
 				);
 			} else if (input.toString().endsWith('.zip')) {
 				if (process.platform === 'darwin' || process.platform === 'linux') {
-					exec(`unzip -qo ${input.toString()}`, { cwd: target.toString() }, (err) => {
+					exec(`unzip -qo "${input.toString()}"`, { cwd: target.toString(), timeout: 120_000 }, (err) => {
 						if (err) {
 							reject(new Error(err.message));
 						} else {
@@ -61,7 +61,7 @@ export class Unpack {
 						});
 				}
 			} else {
-				reject(`Unsupported extension for '${input}'`);
+				reject(new Error(`Unsupported extension for '${input}'`));
 			}
 		});
 	}
