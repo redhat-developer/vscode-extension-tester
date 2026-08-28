@@ -16,7 +16,7 @@
  */
 
 import { Key } from 'selenium-webdriver';
-import { Editor, InputBox, WebView } from '../..';
+import { Editor, EditorGroup, EditorView, InputBox, WebView } from '../..';
 
 /**
  * Page object for custom editors
@@ -27,7 +27,7 @@ export class CustomEditor extends Editor {
 	 * @returns WebView page object
 	 */
 	getWebView(): WebView {
-		return new WebView();
+		return new WebView(this.enclosingItem as EditorView | EditorGroup);
 	}
 
 	/**
