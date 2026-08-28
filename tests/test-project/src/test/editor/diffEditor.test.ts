@@ -19,6 +19,7 @@ import * as path from 'path';
 import { expect } from 'chai';
 import { EditorView, Workbench, DiffEditor, QuickOpenBox, InputBox, VSBrowser } from 'vscode-extension-tester';
 import { satisfies } from 'compare-versions';
+import { waitFor } from '../testUtils';
 
 (satisfies(VSBrowser.instance.version, '>=1.101.0') ? describe.skip : describe)('DiffEditor', async () => {
 	let editor: DiffEditor;
@@ -28,11 +29,17 @@ import { satisfies } from 'compare-versions';
 		await VSBrowser.instance.openResources(
 			path.resolve(__dirname, '..', '..', '..', 'resources', 'test-file-a.txt'),
 			path.resolve(__dirname, '..', '..', '..', 'resources', 'test-file-b.txt'),
-			async () => {
-				await VSBrowser.instance.driver.sleep(3_000);
-			},
 		);
-		await new EditorView().openEditor('test-file-b.txt');
+		const ew = new EditorView();
+		await waitFor(
+			async () => {
+				const titles = await ew.getOpenEditorTitles();
+				return titles.includes('test-file-a.txt') && titles.includes('test-file-b.txt');
+			},
+			{ timeout: 15000, message: 'Resources test-file-a.txt or test-file-b.txt did not open' },
+		);
+
+		await ew.openEditor('test-file-b.txt');
 		await new Workbench().executeCommand('File: Compare Active File With...');
 		let quickOpen: QuickOpenBox | InputBox;
 		if (satisfies(VSBrowser.instance.version, '>=1.44.0')) {
@@ -43,14 +50,23 @@ import { satisfies } from 'compare-versions';
 		await quickOpen.setText('test-file-a.txt');
 		await quickOpen.confirm();
 
+		await waitFor(
+			async () => {
+				const titles = await ew.getOpenEditorTitles();
+				return titles.some((t) => t.includes('test-file-b.txt') && t.includes('test-file-a.txt'));
+			},
+			{ timeout: 10000, message: 'Diff editor did not open' },
+		);
+
 		editor = new DiffEditor();
 	});
 
 	after(async () => {
-		await new Workbench().executeCommand('View: Close Editor');
-		await new Promise((res) => {
-			setTimeout(res, 500);
-		});
+		try {
+			await new Workbench().executeCommand('View: Close Editor');
+		} catch {
+			// ignore
+		}
 		await new EditorView().closeAllEditors();
 	});
 

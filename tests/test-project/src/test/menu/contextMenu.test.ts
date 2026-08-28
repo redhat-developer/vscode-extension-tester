@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { TitleBar, ContextMenu, before, beforeEach, VSBrowser } from 'vscode-extension-tester';
+import { TitleBar, ContextMenu, VSBrowser } from 'vscode-extension-tester';
 import { expect } from 'chai';
 import * as path from 'path';
 
@@ -23,7 +23,7 @@ import * as path from 'path';
 	let bar: TitleBar;
 	let menu: ContextMenu;
 
-	before(async () => {
+	before(async function () {
 		this.timeout(30000);
 		await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-folder'), async () => {
 			await VSBrowser.instance.driver.sleep(3_000);
@@ -31,8 +31,20 @@ import * as path from 'path';
 	});
 
 	beforeEach(async function () {
+		this.timeout(10000);
 		bar = new TitleBar();
 		menu = (await bar.select('File')) as ContextMenu;
+	});
+
+	afterEach(async function () {
+		// Ensure no stray menu is left open between tests
+		try {
+			if (menu && (await menu.isDisplayed())) {
+				await menu.close();
+			}
+		} catch {
+			// menu already gone
+		}
 	});
 
 	it('getItems finds all menu items', async function () {

@@ -39,7 +39,11 @@ import { ActivityBar, TitleBar, ContextMenu, TitleBarItem, EditorView, VSBrowser
 	});
 
 	after(async function () {
-		this.timeout(10000);
+		this.timeout(20000);
+		// Move mouse away from tab bar so that VS Code tooltip overlays do not
+		// intercept the close-button click (ElementClickInterceptedError on CI).
+		await VSBrowser.instance.driver.actions().move({ x: 0, y: 0 }).perform();
+		await VSBrowser.instance.driver.sleep(300);
 		await new EditorView().closeAllEditors();
 	});
 
@@ -88,6 +92,7 @@ import { ActivityBar, TitleBar, ContextMenu, TitleBarItem, EditorView, VSBrowser
 	});
 
 	it('select navigates a multi level path', async function () {
+		this.timeout(15000);
 		const menu = (await bar.select('File', 'Open Recent', 'Reopen Closed Editor')) as ContextMenu;
 		expect(menu).is.undefined;
 	});

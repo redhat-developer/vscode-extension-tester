@@ -22,7 +22,7 @@ import { getWaitHelper, waitFor } from '../testUtils';
 describe('Settings Editor', function () {
 	let editor: SettingsEditor;
 
-	before(async () => {
+	before(async function (this: Mocha.Context) {
 		this.timeout(30000);
 		const wait = getWaitHelper();
 		editor = await new Workbench().openSettings();
@@ -55,7 +55,7 @@ describe('Settings Editor', function () {
 	describe('combo setting', function () {
 		let setting: ComboSetting;
 
-		before(async () => {
+		before(async function (this: Mocha.Context) {
 			this.timeout(15000);
 			setting = (await editor.findSetting('Title Bar Style', 'Window')) as ComboSetting;
 		});
@@ -102,7 +102,7 @@ describe('Settings Editor', function () {
 	describe('text setting', function () {
 		let setting: TextSetting;
 
-		before(async () => {
+		before(async function (this: Mocha.Context) {
 			this.timeout(15000);
 			setting = (await editor.findSetting('Auto Save Delay', 'Files')) as TextSetting;
 		});
@@ -122,7 +122,7 @@ describe('Settings Editor', function () {
 	describe('checkbox setting', function () {
 		let setting: CheckboxSetting;
 
-		before(async () => {
+		before(async function (this: Mocha.Context) {
 			this.timeout(15000);
 			setting = (await editor.findSetting('Code Lens', 'Editor')) as CheckboxSetting;
 		});
@@ -142,7 +142,7 @@ describe('Settings Editor', function () {
 	describe('array setting', function () {
 		let setting: ArraySetting;
 
-		before(async () => {
+		before(async function (this: Mocha.Context) {
 			this.timeout(15000);
 			setting = (await editor.findSetting('Hello World Array', 'Test Project', 'General')) as ArraySetting;
 		});

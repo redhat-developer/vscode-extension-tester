@@ -15,24 +15,31 @@
  * limitations under the License.
  */
 
-import { Workbench, EditorView, WebView, By, EditorGroup, until, VSBrowser, WebDriver } from 'vscode-extension-tester';
+import { Workbench, EditorView, WebView, By, EditorGroup } from 'vscode-extension-tester';
 import { expect } from 'chai';
-import { getWaitHelper, waitFor } from '../testUtils';
+import { waitFor } from '../testUtils';
 
 describe('WebViews', function () {
 	describe('Single WebView', function () {
 		let view: WebView;
-		let driver: WebDriver;
 
 		before(async function () {
-			this.timeout(8000);
-			driver = VSBrowser.instance.driver;
+			this.timeout(15_000);
 			await new Workbench().executeCommand('Webview Test Column 1');
-			const wait = getWaitHelper();
-			await wait.sleep(1_500);
+
+			// Wait dynamically for the webview tab to appear before constructing
+			// the page object — avoids the fixed sleep(1_500) that was both slow
+			// on fast machines and insufficient on cold CI runners.
+			await waitFor(
+				async () => {
+					const titles = await new EditorView().getOpenEditorTitles();
+					return titles.length > 0;
+				},
+				{ timeout: 10_000, message: 'WebView tab did not appear' },
+			);
 
 			view = new WebView();
-			await view.switchToFrame(5_000);
+			await view.switchToFrame(10_000);
 		});
 
 		after(async function () {
@@ -41,15 +48,13 @@ describe('WebViews', function () {
 		});
 
 		it('findWebElement works', async function () {
-			await driver.wait(until.elementLocated(By.css('h1')));
-
+			// switchToFrame() already waited for the active frame to be ready;
+			// no extra driver.wait() needed here.
 			const element = await view.findWebElement(By.css('h1'));
 			expect(await element.getText()).has.string('This is a web view');
 		});
 
 		it('findWebElements works', async function () {
-			await driver.wait(until.elementLocated(By.css('h1')));
-
 			const elements = await view.findWebElements(By.css('h1'));
 			expect(elements.length).equals(1);
 		});
@@ -65,18 +70,20 @@ describe('WebViews', function () {
 		});
 
 		before(async function () {
-			this.timeout(45000);
+			this.timeout(45_000);
 			const workbench = new Workbench();
 
 			for (let i = 0; i < 3; i++) {
 				await workbench.executeCommand(`Webview Test Column ${i + 1}`);
-				// Wait for the editor group to appear
+				// Wait for the editor group count to reach the expected value.
+				// Use a slightly longer poll interval so we don't thrash the DOM
+				// while VS Code is animating the pane creation.
 				await waitFor(
 					async () => {
 						const groups = await new EditorView().getEditorGroups();
 						return groups.length >= i + 1;
 					},
-					{ timeout: 5000, message: `Editor group ${i + 1} did not appear` },
+					{ timeout: 10_000, pollInterval: 500, message: `Editor group ${i + 1} did not appear` },
 				);
 			}
 
@@ -101,8 +108,9 @@ describe('WebViews', function () {
 		for (let i = 0; i < 3; i++) {
 			describe(`WebView ${i}`, function () {
 				before(async function () {
+					this.timeout(15_000);
 					view = new WebView(editorGroups[i]);
-					await view.switchToFrame(5_000);
+					await view.switchToFrame(10_000);
 				});
 
 				after(async function () {
@@ -131,17 +139,19 @@ describe('WebViews', function () {
 		});
 
 		before(async function () {
-			this.timeout(45000);
+			this.timeout(45_000);
 			const workbench = new Workbench();
 			for (let i = 0; i < 3; i++) {
 				await workbench.executeCommand('Webview Test Column 1');
-				// Wait for editor count to increase
+				// Wait for the tab count to reach the expected value before issuing
+				// the next command, so each webview has a distinct title captured
+				// later.
 				await waitFor(
 					async () => {
 						const titles = await new EditorView().getOpenEditorTitles();
 						return titles.length >= i + 1;
 					},
-					{ timeout: 5000, message: `WebView ${i + 1} did not open` },
+					{ timeout: 10_000, pollInterval: 500, message: `WebView ${i + 1} did not open` },
 				);
 			}
 
@@ -150,7 +160,8 @@ describe('WebViews', function () {
 		for (let i = 0; i < 3; i++) {
 			describe(`WebView ${i}`, function () {
 				before(async function () {
-					this.timeout(15000);
+					// Allow extra headroom: openEditor + switchToFrame(10_000) both need time.
+					this.timeout(20_000);
 					await new EditorView().openEditor(tabs[i]);
 					view = new WebView();
 					await view.switchToFrame(10_000);

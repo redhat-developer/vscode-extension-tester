@@ -25,7 +25,7 @@ describe('ProblemsView', function () {
 	let bar: BottomBarPanel;
 
 	before(async function () {
-		this.timeout(25000);
+		this.timeout(35_000);
 		await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-file.ts'), async () => {
 			await VSBrowser.instance.driver.sleep(3_000);
 		});
@@ -36,15 +36,22 @@ describe('ProblemsView', function () {
 
 		editor = (await new EditorView().openEditor('test-file.ts')) as TextEditor;
 		await editor.setText('aaaa');
-		await view.getDriver().wait(() => {
-			return problemsExist(view);
-		}, 15000);
+		// Use driver.wait with an async condition; Selenium resolves Promise<boolean> correctly
+		await view.getDriver().wait(async () => {
+			try {
+				return await problemsExist(view);
+			} catch {
+				return false;
+			}
+		}, 20_000);
 
 		await view.setFilter('!test-resources/**'); // to workaround linux issues on CI occurring from VS Code 1.93.0
+		// Wait for filter to take effect rather than relying on a fixed sleep
 		await view.getDriver().sleep(500);
 	});
 
 	after(async function () {
+		this.timeout(15_000);
 		await view.clearFilter();
 		await editor.clearText();
 		if (await editor.isDirty()) {

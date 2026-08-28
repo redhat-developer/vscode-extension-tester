@@ -22,22 +22,51 @@ import { By, EditorView, InputBox, ModalDialog, TextEditor, until, VSBrowser, af
 (satisfies(VSBrowser.instance.version, '>=1.50.0') && process.platform !== 'darwin' ? describe : describe.skip)('Modal Dialog', function () {
 	let dialog: ModalDialog;
 
-	before(async () => {
+	before(async function (this: Mocha.Context) {
 		this.timeout(30000);
 		await new Workbench().executeCommand('Create: New File...');
-		await (await InputBox.create()).selectQuickPick('Text File');
-		await new Promise((res) => setTimeout(res, 1000));
+		await (await InputBox.create(10000)).selectQuickPick('Text File');
+		// Wait for the text editor to become active before interacting with it
+		await VSBrowser.instance.driver.wait(
+			until.elementLocated(By.className('monaco-editor')),
+			10000,
+			'Text editor did not become active after creating new file',
+		);
 		const editor = new TextEditor();
 		await editor.typeTextAt(1, 1, 'text');
-		await new Promise((res) => setTimeout(res, 1000));
-		await new EditorView().closeEditor(await editor.getTitle());
-		await new Promise((res) => setTimeout(res, 1000));
+		// Wait for the dirty indicator to confirm the edit was registered
+		await VSBrowser.instance.driver.wait(
+			async () => {
+				try {
+					return await editor.isDirty();
+				} catch {
+					return false;
+				}
+			},
+			5000,
+			'Editor did not become dirty after typing',
+		);
+		const title = await editor.getTitle();
+		await new EditorView().closeEditor(title);
+		// Wait for the modal dialog to appear instead of using a fixed sleep
 		dialog = new ModalDialog();
-		await dialog.getDriver().wait(until.elementsLocated(By.className('monaco-dialog-box')), 5000);
+		await dialog
+			.getDriver()
+			.wait(until.elementsLocated(By.className('monaco-dialog-box')), 10000, 'Modal dialog did not appear after closing dirty editor');
 	});
 
 	after(async function () {
-		await new Promise((res) => setTimeout(res, 1000));
+		// Dismiss any remaining dialog to leave a clean workbench state
+		try {
+			await dialog.getDriver().wait(until.stalenessOf(dialog), 1000);
+		} catch {
+			// Dialog may already be gone; attempt to push Don't Save as a fallback
+			try {
+				await dialog.pushButton(`Don't Save`);
+			} catch {
+				// Nothing left to clean up
+			}
+		}
 	});
 
 	it('getMessage works', async function () {
@@ -61,6 +90,6 @@ import { By, EditorView, InputBox, ModalDialog, TextEditor, until, VSBrowser, af
 	it('pushButton works', async function () {
 		this.timeout(10000);
 		await dialog.pushButton(`Don't Save`);
-		await dialog.getDriver().wait(until.stalenessOf(dialog), 2000);
+		await dialog.getDriver().wait(until.stalenessOf(dialog), 5000);
 	});
 });

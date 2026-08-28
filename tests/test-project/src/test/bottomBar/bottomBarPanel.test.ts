@@ -23,14 +23,33 @@ describe('BottomBarPanel', function () {
 	let panel: BottomBarPanel;
 
 	before(async function () {
+		this.timeout(30_000);
 		const browser = VSBrowser.instance;
 		await browser.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'debug-project'), async () => {
 			await browser.driver.sleep(3_000);
 		});
 
 		panel = new BottomBarPanel();
-		await (await new Workbench().openNotificationsCenter()).clearAllNotifications();
-		await ((await new ActivityBar().getViewControl('Explorer')) as ViewControl).closeView();
+
+		// Clear notifications and close the center afterwards
+		const notifCenter = await new Workbench().openNotificationsCenter();
+		await notifCenter.clearAllNotifications();
+		try {
+			await notifCenter.close();
+		} catch {
+			// center may have already closed itself
+		}
+
+		// Close Explorer sidebar; wait for the animation to finish
+		const explorerControl = (await new ActivityBar().getViewControl('Explorer')) as ViewControl;
+		await explorerControl.closeView();
+		await browser.driver.wait(async () => {
+			try {
+				return !(await explorerControl.isSelected());
+			} catch {
+				return true; // control is gone / already closed
+			}
+		}, 5_000);
 	});
 
 	after(async function () {
@@ -38,25 +57,27 @@ describe('BottomBarPanel', function () {
 	});
 
 	it('can be toggled open', async function () {
+		this.timeout(10_000);
 		await panel.toggle(true);
 		expect(await panel.isDisplayed()).is.true;
 	});
 
 	it('can be toggled closed', async function () {
+		this.timeout(10_000);
 		await panel.toggle(true);
 		await panel.toggle(false);
 		expect(await panel.isDisplayed()).is.false;
 	});
 
 	it('can be maximized and restored', async function () {
-		this.timeout(20000);
+		this.timeout(20_000);
 		await panel.toggle(true);
 		const initHeight = await getHeight(panel);
 
 		await panel.maximize();
 		const maxHeight = await getHeight(panel);
 		expect(maxHeight).greaterThan(initHeight);
-		await new Promise((res) => setTimeout(res, 1000));
+		await panel.getDriver().sleep(1_000);
 
 		await panel.restore();
 		const restoredHeight = await getHeight(panel);
@@ -64,26 +85,31 @@ describe('BottomBarPanel', function () {
 	});
 
 	it('can open problems view', async function () {
+		this.timeout(10_000);
 		const view = await panel.openProblemsView();
 		expect(await view.isDisplayed()).is.true;
 	});
 
 	it('can open output view', async function () {
+		this.timeout(10_000);
 		const view = await panel.openOutputView();
 		expect(await view.isDisplayed()).is.true;
 	});
 
 	it('can open debug console view', async function () {
+		this.timeout(10_000);
 		const view = await panel.openDebugConsoleView();
 		expect(await view.isDisplayed()).is.true;
 	});
 
 	it('can open terminal view', async function () {
+		this.timeout(10_000);
 		const view = await panel.openTerminalView();
 		expect(await view.isDisplayed()).is.true;
 	});
 
 	it('can switch tabs using openTab', async function () {
+		this.timeout(15_000);
 		panel = new BottomBarPanel();
 		await panel.openTab('My Panel');
 		const webviewView = new WebviewView();

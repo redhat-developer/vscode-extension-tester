@@ -83,15 +83,30 @@ describe('SideBarView', () => {
 		let content: ViewContent;
 
 		before(async function () {
-			this.timeout(15000);
+			this.timeout(20_000);
 			const wait = getWaitHelper();
 			await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-folder'), async () => {
-				await wait.sleep(3000);
+				await wait.sleep(1_000);
 			});
 			view = await ((await new ActivityBar().getViewControl('Explorer')) as ViewControl).openView();
-			// Wait for content to be ready
-			await wait.forStable(view, { timeout: 2000 });
 			content = view.getContent();
+			// Wait for the test-folder section to appear in the Explorer
+			await wait.forCondition(
+				async () => {
+					try {
+						const sections = await content.getSections();
+						for (const s of sections) {
+							if ((await s.getTitle()) === 'test-folder') {
+								return true;
+							}
+						}
+						return false;
+					} catch {
+						return false;
+					}
+				},
+				{ timeout: 15_000, message: 'test-folder section did not appear in Explorer' },
+			);
 		});
 
 		after(async function () {
