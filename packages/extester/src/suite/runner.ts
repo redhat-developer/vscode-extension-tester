@@ -69,7 +69,7 @@ export class VSRunner {
 	 * @return The exit code of the mocha process
 	 */
 	runTests(testFilesPattern: string[], code: CodeUtil, resources: string[], logLevel: logging.Level = logging.Level.INFO): Promise<number> {
-		return new Promise((resolve) => {
+		return new Promise((resolve, reject) => {
 			const self = this;
 			const browser: VSBrowser = new VSBrowser(this.codeVersion, this.releaseType, this.customSettings, logLevel, this.customPageObjects, this.locale);
 			let coverage: Coverage | undefined;
@@ -83,8 +83,11 @@ export class VSRunner {
 			}
 
 			testFiles.forEach((file) => this.mocha.addFile(file));
+
 			this.mocha.suite.afterEach(async function () {
-				if (this.currentTest && this.currentTest.state !== 'passed') {
+				// Screenshot only genuinely failed tests — 'pending' (skipped) tests
+				// would otherwise produce misleading failure screenshots in CI artifacts.
+				if (this.currentTest?.state === 'failed') {
 					try {
 						const filename = sanitize(this.currentTest.fullTitle());
 						await browser.takeScreenshot(filename);
@@ -115,29 +118,49 @@ export class VSRunner {
 
 			this.mocha.suite.afterAll(async function () {
 				this.timeout(180000);
-				await browser.quit();
+
+				try {
+					await browser.quit();
+				} catch (err) {
+					console.error('Error shutting down browser:', err);
+				}
+
 				if (process.platform === 'darwin') {
-					if (await fs.pathExists(self.tmpLink)) {
-						try {
+					try {
+						if (await fs.pathExists(self.tmpLink)) {
 							fs.unlinkSync(self.tmpLink);
-						} catch (err) {
-							console.log(err);
 						}
+					} catch (err) {
+						console.error('Error removing macOS symlink:', err);
 					}
 				}
+
 				if (code.coverageEnabled) {
-					await coverage?.write();
+					try {
+						await coverage?.write();
+					} catch (err) {
+						console.error('Error writing coverage data:', err);
+					}
 				}
-				code.uninstallExtension(self.cleanup);
+
+				try {
+					code.uninstallExtension(self.cleanup);
+				} catch (err) {
+					console.error('Error uninstalling extension:', err);
+				}
 			});
 
-			this.mocha.run((failures) => {
-				process.exitCode = failures ? 1 : 0;
-				if (process.exitCode) {
-					console.log('\x1b[33m%s\x1b[0m', `INFO: Screenshots of failures can be found in: ${browser.getScreenshotsDir()}\n`);
-				}
-				resolve(process.exitCode);
-			});
+			try {
+				this.mocha.run((failures) => {
+					process.exitCode = failures ? 1 : 0;
+					if (process.exitCode) {
+						console.log('\x1b[33m%s\x1b[0m', `INFO: Screenshots of failures can be found in: ${browser.getScreenshotsDir()}\n`);
+					}
+					resolve(process.exitCode);
+				});
+			} catch (err) {
+				reject(err);
+			}
 		});
 	}
 
@@ -166,6 +189,7 @@ export class VSRunner {
 	private loadConfig(config?: string): Mocha.MochaOptions {
 		const defaultFiles = ['.mocharc.js', '.mocharc.json', '.mocharc.yml', '.mocharc.yaml'];
 		let conf: Mocha.MochaOptions = {};
+		const isExplicit = !!config;
 		let file = config;
 		if (!config) {
 			file = path.resolve('.');
@@ -183,16 +207,26 @@ export class VSRunner {
 				try {
 					conf = yaml.load(fs.readFileSync(file, 'utf-8')) as Mocha.MochaOptions;
 				} catch (err) {
-					console.log('Invalid mocha configuration file, will be ignored');
+					if (isExplicit) {
+						throw new Error(`Failed to parse mocha configuration ${file}: ${err}`);
+					}
+					console.log(`Invalid mocha configuration file ${file}, will be ignored:`, err);
 				}
 			} else if (/\.(js|json)$/.test(file)) {
 				try {
 					conf = require(path.resolve(file));
 				} catch (err) {
-					console.log('Invalid mocha configuration file, will be ignored');
+					if (isExplicit) {
+						throw new Error(`Failed to load mocha configuration ${file}: ${err}`);
+					}
+					console.log(`Invalid mocha configuration file ${file}, will be ignored:`, err);
 				}
 			} else {
-				console.log('Unsupported mocha configuration file extension, make sure to use .js, .json, .yml or .yaml file');
+				const msg = `Unsupported mocha configuration file extension: ${file}. Use .js, .json, .yml or .yaml.`;
+				if (isExplicit) {
+					throw new Error(msg);
+				}
+				console.log(msg);
 			}
 		}
 

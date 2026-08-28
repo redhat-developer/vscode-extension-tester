@@ -261,6 +261,7 @@ program
 					cleanup: cmd.uninstall_extension || run.cleanup,
 					config: cmd.mocha_config ?? run.mochaConfig,
 					logLevel: cmd.log_level ?? run.logLevel,
+					offline: cmd.offline || run.offline,
 					resources: cmd.open_resource ?? run.resources ?? [],
 					customPageObjects: customPageObjectsPath ? { locatorsPath: customPageObjectsPath } : undefined,
 					locale: cmd.locale ?? run.locale,

@@ -96,13 +96,10 @@ export class ExTester {
 	} = {}): Promise<void> {
 		let target = vsixFile;
 		if (vsixFile) {
-			try {
-				// Attempt to handle vsixFile as a URL
-				const uri = new URL(vsixFile);
-				target = await this.code.downloadExtension(uri.toString());
+			if (ExTester.isURL(vsixFile)) {
+				target = await this.code.downloadExtension(vsixFile);
 				this.code.installExtension(target);
-			} catch (urlError) {
-				//Convert Windows-style paths to Unix-style for glob
+			} else {
 				const normalizedPattern = vsixFile.replace(/\\/g, '/');
 				const vsixFiles = globSync(normalizedPattern);
 
@@ -111,13 +108,9 @@ export class ExTester {
 				}
 
 				for (const file of vsixFiles) {
-					try {
-						const normalizedPath = path.normalize(file);
-						const target = await this.processVsixFile(normalizedPath);
-						this.code.installExtension(target);
-					} catch (error) {
-						console.error(`Error installing ${file}:`, error);
-					}
+					const normalizedPath = path.normalize(file);
+					const processedTarget = await this.processVsixFile(normalizedPath);
+					this.code.installExtension(processedTarget);
 				}
 			}
 		} else {
@@ -127,6 +120,15 @@ export class ExTester {
 
 		if (installDependencies) {
 			this.code.installDependencies();
+		}
+	}
+
+	private static isURL(value: string): boolean {
+		try {
+			const url = new URL(value);
+			return url.protocol === 'http:' || url.protocol === 'https:';
+		} catch {
+			return false;
 		}
 	}
 
@@ -189,8 +191,9 @@ export class ExTester {
 			await this.downloadChromeDriver(vscodeParsedVersion, noCache);
 		} else {
 			console.log('Attempting Setup in offline mode');
-			const expectedChromeVersion = this.code.checkOfflineRequirements().split('.')[0];
-			const actualChromeVersion = (await this.chrome.checkDriverVersionOffline(vscodeParsedVersion)).split('.')[0];
+			const chromiumVersion = this.code.checkOfflineRequirements();
+			const expectedChromeVersion = chromiumVersion.split('.')[0];
+			const actualChromeVersion = (await this.chrome.checkDriverVersionOffline(chromiumVersion)).split('.')[0];
 			if (expectedChromeVersion !== actualChromeVersion) {
 				console.log(
 					'\x1b[33m%s\x1b[0m',
