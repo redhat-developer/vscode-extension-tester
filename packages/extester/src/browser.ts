@@ -127,6 +127,12 @@ export class VSBrowser {
 			'workbench.welcomePage.experimentalOnboarding': false,
 			'workbench.welcomePage.walkthroughs.openOnInstall': false,
 			'workbench.editor.useModal': 'off',
+			// Disable workbench animations: VS Code >=1.133 fades the quick input
+			// out over 0.15s on close, so an isDisplayed() check right after
+			// accepting a pick still sees the widget. Whether motion is on depends
+			// on the OS reduced-motion preference (GitHub windows/macos runners
+			// report it, Xvfb linux does not), making runs environment-dependent.
+			'workbench.reduceMotion': 'on',
 			...(satisfies(this.codeVersion, '>=1.101.0') ? { 'window.menuStyle': 'custom' } : {}),
 		};
 		if (Object.keys(this.customSettings).length > 0) {
