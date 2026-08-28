@@ -16,7 +16,7 @@
  */
 
 import { AbstractElement } from '../../AbstractElement';
-import { Key, WebElement } from 'selenium-webdriver';
+import { Key, WebElement, By } from 'selenium-webdriver';
 import { NullAttributeError, QuickOpenBox } from '../../..';
 import { sep } from 'path';
 
@@ -87,6 +87,75 @@ export abstract class Input extends AbstractElement {
 		const input = await this.findElement(Input.locators.Input.inputBox).findElement(Input.locators.Input.input);
 		await input.click();
 		await input.sendKeys(Key.ENTER);
+	}
+
+	/**
+	 * Confirm path selection for file/folder dialog.
+	 *
+	 * VS Code's file picker auto-navigates as text is typed: when a full path such as
+	 * `/dir/file.txt` is in the input, the picker shows the parent directory contents
+	 * with the filename filtered in the list. A single Enter press navigates into the
+	 * matched list entry. A subsequent click on the OK button (or a second Enter) then
+	 * confirms the selection and closes the dialog.
+	 *
+	 * When the path is not formatted to OS specifics there may first be a 'Select' step.
+	 * See also https://github.com/redhat-developer/vscode-extension-tester/issues/1778
+	 */
+	async confirmPath(): Promise<void> {
+		// Step 1 — drive VS Code's file picker to navigate into the typed path.
+		// Sending Enter selects the highlighted entry in the suggestion list, which
+		// causes the picker to consume the directory portion and reveal the target file.
+		const inputEl = await this.findElement(Input.locators.Input.inputBox).findElement(Input.locators.Input.input);
+		await inputEl.sendKeys(Key.ENTER);
+
+		// When the typed path uniquely resolves the target, the first Enter both
+		// navigates and confirms — the picker closes on its own and no second step
+		// is needed (attempting one would hit a hidden input).
+		if (!(await this.isPickerOpen())) {
+			return;
+		}
+
+		// Step 2 — click the OK button to confirm and close the dialog.
+		// Use a JS click to bypass any overlay that may intercept a normal WebDriver click.
+		// Falls back to a second Enter if no matching button is found.
+		try {
+			const buttons = await this.findElements(By.className('monaco-button'));
+			for (const btn of buttons) {
+				if (await btn.isDisplayed()) {
+					const label = ((await btn.getText()) || (await btn.getAttribute('aria-label')) || '').trim();
+					if (label === 'Select' || label === 'Ok' || label === 'OK') {
+						await Input.driver.executeScript('arguments[0].click()', btn);
+						return;
+					}
+				}
+			}
+		} catch (error) {
+			// ignore if button is not found or stale
+		}
+		if (!(await this.isPickerOpen())) {
+			return;
+		}
+		try {
+			await inputEl.sendKeys(Key.ENTER);
+		} catch (err) {
+			// The picker can close in the instant between the check above and the
+			// keystroke — a failure only matters while the picker is still open.
+			if (await this.isPickerOpen()) {
+				throw err;
+			}
+		}
+	}
+
+	/**
+	 * Best-effort check whether this input/picker widget is still displayed.
+	 * A hidden, detached or stale widget counts as closed.
+	 */
+	private async isPickerOpen(): Promise<boolean> {
+		try {
+			return await this.isDisplayed();
+		} catch {
+			return false;
+		}
 	}
 
 	/**

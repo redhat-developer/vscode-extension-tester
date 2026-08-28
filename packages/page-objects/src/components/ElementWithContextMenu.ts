@@ -27,25 +27,27 @@ export abstract class ElementWithContextMenu extends AbstractElement {
 	 * Open context menu on the element
 	 */
 	async openContextMenu(): Promise<ContextMenu> {
-		const workbench = await this.getDriver().findElement(ElementWithContextMenu.locators.Workbench.constructor);
-		const menus = await workbench.findElements(ElementWithContextMenu.locators.ContextMenu.contextView);
+		return await this.withRecovery(async (self) => {
+			const workbench = await self.getDriver().findElement(ElementWithContextMenu.locators.Workbench.constructor);
+			const menus = await workbench.findElements(ElementWithContextMenu.locators.ContextMenu.contextView);
 
-		if (menus.length < 1) {
-			await this.getDriver().actions().contextClick(this).perform();
-			await this.getDriver().wait(until.elementLocated(ElementWithContextMenu.locators.ContextMenu.contextView), 2000);
-			return new ContextMenu(workbench).wait();
-		} else if ((await workbench.findElements(ElementWithContextMenu.locators.ContextMenu.viewBlock)).length > 0) {
-			await this.getDriver().actions().contextClick(this).perform();
-			try {
-				await this.getDriver().wait(until.elementIsNotVisible(this), 1000);
-			} catch (err) {
-				if (!(err instanceof error.StaleElementReferenceError)) {
-					throw err;
+			if (menus.length < 1) {
+				await self.getDriver().actions().contextClick(self).perform();
+				await self.getDriver().wait(until.elementLocated(ElementWithContextMenu.locators.ContextMenu.contextView), 2000);
+				return new ContextMenu(workbench).wait();
+			} else if ((await workbench.findElements(ElementWithContextMenu.locators.ContextMenu.viewBlock)).length > 0) {
+				await self.getDriver().actions().contextClick(self).perform();
+				try {
+					await self.getDriver().wait(until.elementIsNotVisible(self), 1000);
+				} catch (err) {
+					if (!(err instanceof error.StaleElementReferenceError)) {
+						throw err;
+					}
 				}
 			}
-		}
-		await this.getDriver().actions().contextClick(this).perform();
+			await self.getDriver().actions().contextClick(self).perform();
 
-		return new ContextMenu(workbench).wait();
+			return new ContextMenu(workbench).wait();
+		});
 	}
 }

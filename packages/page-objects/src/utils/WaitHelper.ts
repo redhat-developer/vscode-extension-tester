@@ -83,8 +83,16 @@ export class WaitHelper {
 					return result;
 				}
 			} catch (e) {
-				// Store error but continue retrying for transient errors
-				if (e instanceof error.StaleElementReferenceError || e instanceof error.NoSuchElementError) {
+				// Store error but continue retrying for transient failures.
+				// TimeoutError from driver.wait(until.elementIsVisible) means the element
+				// exists but is not yet visible — the condition should be retried rather
+				// than aborting the outer poll loop.
+				if (
+					e instanceof error.StaleElementReferenceError ||
+					e instanceof error.NoSuchElementError ||
+					e instanceof error.TimeoutError ||
+					(e as Error)?.name === 'TimeoutError'
+				) {
 					lastError = e as Error;
 				} else {
 					throw e;

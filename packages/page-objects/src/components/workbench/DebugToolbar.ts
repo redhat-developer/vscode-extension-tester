@@ -43,7 +43,7 @@ export class DebugToolbar extends AbstractElement {
 	 * Wait for the execution to pause at the next breakpoint
 	 */
 	async waitForBreakPoint(timeout: number = 10_000): Promise<void> {
-		let btn = await this.getDriver().wait(until.elementLocated(DebugToolbar.locators.DebugToolbar.button('continue')));
+		let btn = await this.getDriver().wait(until.elementLocated(DebugToolbar.locators.DebugToolbar.button('continue')), timeout);
 		await this.getDriver().wait(async () => {
 			try {
 				const enabled = await btn.isEnabled();

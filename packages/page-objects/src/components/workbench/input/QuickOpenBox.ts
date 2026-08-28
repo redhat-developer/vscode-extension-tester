@@ -32,7 +32,7 @@ export class QuickOpenBox extends Input {
 	 * Use when a quick open box is scheduled to appear.
 	 */
 	static async create(): Promise<QuickOpenBox> {
-		await QuickOpenBox.driver.wait(until.elementLocated(QuickOpenBox.locators.QuickOpenBox.constructor));
+		await QuickOpenBox.driver.wait(until.elementLocated(QuickOpenBox.locators.QuickOpenBox.constructor), 10_000);
 		return new QuickOpenBox().wait();
 	}
 

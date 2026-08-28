@@ -93,6 +93,7 @@ export abstract class TreeItem extends ViewItem {
 	async expand(): Promise<void> {
 		if ((await this.isExpandable()) && !(await this.isExpanded())) {
 			await (await this.findTwistie()).click();
+			await this.getDriver().wait(() => this.isExpanded(), 5000, 'Tree item did not expand within 5s');
 		}
 	}
 

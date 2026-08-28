@@ -48,7 +48,12 @@ export class NotificationsCenter extends AbstractElement {
 	 * @returns Promise resolving when the clear all button is pressed
 	 */
 	async clearAllNotifications(): Promise<void> {
-		await this.findElement(NotificationsCenter.locators.NotificationsCenter.clear).click();
+		const btn = await this.findElement(NotificationsCenter.locators.NotificationsCenter.clear);
+		const classes = (await btn.getAttribute('class')) ?? '';
+		if (classes.includes('disabled')) {
+			return;
+		}
+		await this.getDriver().executeScript('arguments[0].click()', btn);
 	}
 
 	/**

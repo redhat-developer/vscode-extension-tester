@@ -185,7 +185,8 @@ export abstract class AbstractElement extends WebElement {
 				const isRecoverable =
 					err.name === 'StaleElementReferenceError' ||
 					err.name === 'ElementNotInteractableError' ||
-					/element.*(detached|not interactable)/i.test(err.message);
+					err.name === 'ElementClickInterceptedError' ||
+					/element.*(detached|not interactable|click intercepted)/i.test(err.message);
 
 				if (isRecoverable && attempt < maxRetries) {
 					try {

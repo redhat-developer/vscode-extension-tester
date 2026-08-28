@@ -626,16 +626,42 @@ export function fromText(locator?: By): (el: WebElement) => Promise<string> {
 }
 
 export async function findBestContainingElement(container: IRectangle, testElements: WebElement[]): Promise<WebElement | undefined> {
-	const areas: number[] = await Promise.all(
-		testElements.map(async (value) => {
-			const rect = await value.getRect();
-			const ax = Math.max(container.x, rect.x);
-			const ay = Math.max(container.y, rect.y);
-			const bx = Math.min(container.x + container.width, rect.x + rect.width);
-			const by = Math.min(container.y + container.height, rect.y + rect.height);
-			return (bx - ax) * (by - ay);
-		}),
-	);
+	if (testElements.length === 0) {
+		return undefined;
+	}
+
+	// Short-circuit: single candidate needs no geometry.
+	if (testElements.length === 1) {
+		return testElements[0];
+	}
+
+	const rects = await Promise.all(testElements.map((el) => el.getRect()));
+
+	// When the container has not been laid out yet its rect is {0,0,0,0}.
+	// In that case overlap with any non-zero-position iframe would be negative
+	// for all candidates, causing the function to incorrectly return undefined.
+	// Fall back to picking the element with the largest own area so that the
+	// poll loop in switchToFrame can still make progress.
+	const containerArea = container.width * container.height;
+	if (containerArea === 0) {
+		let bestIdx = 0;
+		for (let i = 1; i < rects.length; i++) {
+			if (rects[i].width * rects[i].height > rects[bestIdx].width * rects[bestIdx].height) {
+				bestIdx = i;
+			}
+		}
+		return testElements[bestIdx];
+	}
+
+	// Normal case: pick the iframe whose intersection with the container is largest.
+	const areas = rects.map((rect) => {
+		const ax = Math.max(container.x, rect.x);
+		const ay = Math.max(container.y, rect.y);
+		const bx = Math.min(container.x + container.width, rect.x + rect.width);
+		const by = Math.min(container.y + container.height, rect.y + rect.height);
+		return (bx - ax) * (by - ay);
+	});
+
 	let bestIdx: number = -1;
 	for (let i = 0; i < testElements.length; i++) {
 		if (areas[i] < 0) {

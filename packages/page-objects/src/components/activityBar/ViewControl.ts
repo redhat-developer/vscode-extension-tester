@@ -25,6 +25,12 @@ import { satisfies } from 'compare-versions';
  * Page object representing a view container item in the activity bar
  */
 export class ViewControl extends ElementWithContextMenu {
+	/**
+	 * Title of this control, cached on the first successful getTitle() call so the
+	 * control can be re-located in the activity bar after its element goes stale.
+	 */
+	private cachedTitle: string | undefined;
+
 	constructor(element: WebElement, bar: ActivityBar) {
 		super(element, bar);
 	}
@@ -34,15 +40,19 @@ export class ViewControl extends ElementWithContextMenu {
 	 * @returns Promise resolving to SideBarView object representing the opened view
 	 */
 	async openView(): Promise<SideBarView> {
-		// Check whether view is already open
-		const klass = (await this.getAttribute(ViewControl.locators.ViewControl.attribute))!;
+		// Use safeGetKlass so a stale reference is transparently re-fetched.
+		const klass = await this.safeGetKlass();
 		if (klass.indexOf(ViewControl.locators.ViewControl.klass) < 0) {
-			await this.click();
+			await this.safeClick();
 			// Wait for view to be marked as active
 			await this.getWaitHelper().forCondition(
 				async () => {
-					const newKlass = (await this.getAttribute(ViewControl.locators.ViewControl.attribute))!;
-					return newKlass.includes(ViewControl.locators.ViewControl.klass);
+					try {
+						const newKlass = await this.safeGetKlass();
+						return newKlass.includes(ViewControl.locators.ViewControl.klass);
+					} catch {
+						return false;
+					}
 				},
 				{ timeout: 2000, pollInterval: 100 },
 			);
@@ -65,9 +75,9 @@ export class ViewControl extends ElementWithContextMenu {
 	 * @returns Promise resolving when the view closes
 	 */
 	async closeView(): Promise<void> {
-		const klass = (await this.getAttribute(ViewControl.locators.ViewControl.attribute))!;
+		const klass = await this.safeGetKlass();
 		if (klass.indexOf(ViewControl.locators.ViewControl.klass) > -1) {
-			await this.click();
+			await this.safeClick();
 		}
 	}
 
@@ -76,6 +86,35 @@ export class ViewControl extends ElementWithContextMenu {
 	 */
 	async getTitle(): Promise<string> {
 		const badge = await this.findElement(ViewControl.locators.ViewControl.badge);
-		return (await badge.getAttribute('aria-label'))!;
+		const title = (await badge.getAttribute('aria-label'))!;
+		this.cachedTitle = title;
+		return title;
+	}
+
+	/**
+	 * Re-locate this control in the activity bar by its cached title.
+	 * Used by withRecovery()-based helpers (safeClick, safeGetKlass) when the
+	 * stored element reference goes stale, e.g. after the activity bar re-renders.
+	 */
+	protected override async reinitialize(): Promise<this> {
+		if (!this.cachedTitle) {
+			throw new Error(`ViewControl: element is stale and no cached title is available to re-locate it`);
+		}
+		// getViewControls() always queries live elements, so the new reference is fresh.
+		const fresh = await new ActivityBar().getViewControl(this.cachedTitle);
+		if (!fresh) {
+			throw new Error(`ViewControl: could not re-locate stale element '${this.cachedTitle}' in the activity bar`);
+		}
+		return fresh as this;
+	}
+
+	/**
+	 * Read the CSS class attribute from this element, recovering transparently if
+	 * the stored reference has become stale.
+	 */
+	private async safeGetKlass(): Promise<string> {
+		return await this.withRecovery(async (self) => {
+			return (await self.getAttribute(ViewControl.locators.ViewControl.attribute))!;
+		});
 	}
 }

@@ -65,9 +65,11 @@ export abstract class Menu extends AbstractElement {
 			if (!item) {
 				return parent;
 			}
+			// Guard with an explicit timeout so the wait never hangs indefinitely
+			// on CI where the implicit/default Selenium timeout may be 0 or very low.
 			await Menu.driver.wait(async function () {
 				return (await item.isDisplayed()) && (await item.isEnabled());
-			});
+			}, 5000);
 			const submenu = await item.select();
 			if (submenu) {
 				parent = submenu;
