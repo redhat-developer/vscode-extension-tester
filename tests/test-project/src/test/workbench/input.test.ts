@@ -19,28 +19,42 @@ import { expect } from 'chai';
 import { satisfies } from 'compare-versions';
 import { QuickOpenBox, Workbench, QuickPickItem, InputBox, StatusBar, EditorView, VSBrowser } from 'vscode-extension-tester';
 import { getWaitHelper, waitFor } from '../testUtils';
+import * as path from 'path';
 
 describe('QuickOpenBox', () => {
 	let input: QuickOpenBox;
 
-	before(async () => {
+	// Re-open the command prompt before each test so we always hold a fresh,
+	// interactable reference. The single shared reference from `before` goes stale
+	// after tests that scroll through quick picks or close/reopen the prompt.
+	beforeEach(async function () {
+		this.timeout(8000);
+		try {
+			// Close whatever may be open first to get a clean state
+			await input?.cancel();
+		} catch {
+			// ignore – prompt may already be closed
+		}
 		input = await new Workbench().openCommandPrompt();
 	});
 
 	after(async () => {
-		await input.cancel();
+		try {
+			await input?.cancel();
+		} catch {
+			// ignore
+		}
 	});
 
 	it('selectQuickPick works', async function () {
-		this.timeout(5000);
+		this.timeout(8000);
 		await input.setText('>hello world');
 		await input.selectQuickPick('Hello World');
 		expect(await input.isDisplayed()).is.false;
-		input = await new Workbench().openCommandPrompt();
 	});
 
 	it('can set and retrieve the text', async function () {
-		this.timeout(5000);
+		this.timeout(8000);
 		const testText = 'test-text';
 		await input.setText(testText);
 		const text = await input.getText();
@@ -48,7 +62,7 @@ describe('QuickOpenBox', () => {
 	});
 
 	it('getPlaceholder returns placeholder text', async function () {
-		this.timeout(5000);
+		this.timeout(8000);
 		await input.setText('');
 		const holder = await input.getPlaceHolder();
 
@@ -59,12 +73,14 @@ describe('QuickOpenBox', () => {
 		expect(holder).has.string(searchString);
 	});
 
-	it('hasProgress checks for progress bar', async () => {
+	it('hasProgress checks for progress bar', async function () {
+		this.timeout(8000);
 		const prog = await input.hasProgress();
 		expect(prog).is.false;
 	});
 
-	it('getQuickPicks finds quick pick options', async () => {
+	it('getQuickPicks finds quick pick options', async function () {
+		this.timeout(8000);
 		await input.setText('>hello world');
 		const picks = await input.getQuickPicks();
 		expect(picks).not.empty;
@@ -134,7 +150,7 @@ describe('QuickPickItem', () => {
 		const labels = await Promise.all(items.map((item) => item.getLabel()));
 		const filteredItems = items.filter((_, i) => labels[i] !== 'Remove from Recently Used');
 
-		expect(filteredItems.length).equals(1);
+		expect(filteredItems).to.have.lengthOf(1);
 	});
 
 	it('getLabel of Action Button works', async function () {
@@ -152,19 +168,19 @@ describe('InputBox', () => {
 	let input: InputBox;
 
 	before(async function () {
-		this.timeout(6000);
+		this.timeout(20000);
 		await new Workbench().executeCommand('Create: New File...');
-		await (await InputBox.create()).selectQuickPick('Text File');
-		// Wait for editor to be ready
+		await (await InputBox.create(8000)).selectQuickPick('Text File');
+		// Wait for editor to be ready before opening the language selection
 		await waitFor(
 			async () => {
 				const ew = new EditorView();
 				return (await ew.getOpenEditorTitles()).length > 0;
 			},
-			{ timeout: 3000 },
+			{ timeout: 8000 },
 		);
 		await new StatusBar().openLanguageSelection();
-		input = await InputBox.create();
+		input = await InputBox.create(8000);
 	});
 
 	after(async () => {
@@ -213,23 +229,40 @@ describe('InputBox - works for path', () => {
 	let input: InputBox;
 
 	before(async function () {
-		this.timeout(10000);
+		this.timeout(20000);
 		await new Workbench().executeCommand('File: Open Folder...');
-		input = await InputBox.create();
+		input = await InputBox.create(10000);
+		const resourcesPath = path.resolve(__dirname, '..', '..', '..', 'resources');
+		await input.setText(resourcesPath + path.sep);
 	});
 
 	after(async () => {
+		await input.cancel();
 		await new EditorView().closeAllEditors();
 	});
 
 	it('findQuickPick works', async function () {
-		const quickpick = await input.findQuickPick('test-folder');
+		let quickpick: QuickPickItem | undefined;
+		await waitFor(
+			async () => {
+				quickpick = await input.findQuickPick('test-folder');
+				return quickpick !== undefined;
+			},
+			{ timeout: 8000, message: 'Could not find quick pick with text "test-folder"' },
+		);
 		expect(quickpick).to.not.be.undefined;
 	});
 
 	it('selectQuickPick works', async function () {
 		await input.selectQuickPick('test-folder');
-		const quickpick2 = await input.findQuickPick('foolder');
+		let quickpick2: QuickPickItem | undefined;
+		await waitFor(
+			async () => {
+				quickpick2 = await input.findQuickPick('foolder');
+				return quickpick2 !== undefined;
+			},
+			{ timeout: 8000, message: 'Could not find quick pick with text "foolder" after selecting "test-folder"' },
+		);
 		expect(quickpick2).to.not.be.undefined;
 	});
 });
@@ -237,12 +270,13 @@ describe('InputBox - works for path', () => {
 describe('Multiple selection input', () => {
 	let input: InputBox;
 
-	before(async () => {
+	before(async function () {
+		this.timeout(15000);
 		const wait = getWaitHelper();
 		await new Workbench().executeCommand('Test Quickpicks');
 		// Wait for input box to appear and stabilize
-		input = await InputBox.create();
-		await wait.forStable(input, { timeout: 1000 });
+		input = await InputBox.create(8000);
+		await wait.forStable(input, { timeout: 2000 });
 	});
 
 	after(async () => {

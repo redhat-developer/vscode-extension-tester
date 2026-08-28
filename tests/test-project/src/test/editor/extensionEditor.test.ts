@@ -29,6 +29,8 @@ import {
 	WebDriver,
 	Workbench,
 	BottomBarPanel,
+	after,
+	before,
 } from 'vscode-extension-tester';
 import * as pjson from '../../../package.json';
 import * as path from 'path';
@@ -40,55 +42,113 @@ describe('Extension Editor', function () {
 	let extensionsView: SideBarView;
 	let item: ExtensionsViewItem;
 
-	let section: ExtensionsViewSection;
-
 	let extensionEditor: ExtensionEditorView;
 	let extensionEditorDetails: ExtensionEditorDetailsSection;
 
-	before(async function () {
-		this.timeout(20000);
+	before(async function (this: Mocha.Context) {
+		this.timeout(60000);
 
 		driver = VSBrowser.instance.driver;
-		await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-folder'), async () => {
-			await driver.sleep(3_000);
-		});
-		viewControl = (await new ActivityBar().getViewControl('Extensions')) as ViewControl;
-		extensionsView = await viewControl.openView();
+		await driver.switchTo().defaultContent();
+		await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..', 'resources', 'test-folder'));
+		await VSBrowser.instance.waitForWorkbench();
+		// Page objects constructed in the instant before the reload's DOM teardown
+		// die on first use — retry the whole acquisition until the view opens.
+		await driver.wait(
+			async () => {
+				try {
+					viewControl = (await new ActivityBar().getViewControl('Extensions')) as ViewControl;
+					extensionsView = await viewControl.openView();
+					return true;
+				} catch {
+					return false;
+				}
+			},
+			30000,
+			'Could not open the Extensions view',
+		);
 		await driver.wait(async function () {
 			return (await extensionsView.getContent().getSections()).length > 0;
-		});
+		}, 15000);
 
 		const view = await viewControl.openView();
 
 		await driver.wait(async function () {
 			return (await view.getContent().getSections()).length > 0;
-		});
-		section = (await view.getContent().getSection('Installed')) as ExtensionsViewSection;
-
+		}, 15000);
 		await driver.wait(async function () {
-			item = (await section.findItem(`@installed ${pjson.displayName}`)) as ExtensionsViewItem;
-			return item !== undefined;
-		});
+			try {
+				const currentView = await viewControl.openView();
+				const currentSection = (await currentView.getContent().getSection('Installed')) as ExtensionsViewSection;
+				item = (await currentSection.findItem(`@installed ${pjson.displayName}`)) as ExtensionsViewItem;
+				return item !== undefined;
+			} catch (e: any) {
+				if (e.name === 'StaleElementReferenceError') {
+					return false;
+				}
+				throw e;
+			}
+		}, 30000);
 
-		await item.click();
+		await driver.wait(
+			async () => {
+				// Every step in this poll can hit a stale element while the extensions
+				// list or editor area re-renders — treat any failure as "not yet" and
+				// retry on the next tick rather than failing the whole hook.
+				try {
+					try {
+						await item.click();
+					} catch {
+						// The extensions list re-renders asynchronously (marketplace queries,
+						// filter refreshes) and stales the item reference — re-locate it
+						// before the next attempt instead of clicking a dead element.
+						const currentView = await viewControl.openView();
+						const currentSection = (await currentView.getContent().getSection('Installed')) as ExtensionsViewSection;
+						item = (await currentSection.findItem(`@installed ${pjson.displayName}`)) as ExtensionsViewItem;
+					}
+					const titles = await new EditorView().getOpenEditorTitles();
+					return titles.some((title) => title.includes('Extension:'));
+				} catch {
+					return false;
+				}
+			},
+			30000,
+			'Extension editor did not open after click',
+		);
 	});
 
 	// ensure clean workbench
-	before(async function () {
+	before(async function (this: Mocha.Context) {
+		this.timeout(15000);
 		const panel = new BottomBarPanel();
 		if (await panel.isDisplayed()) {
 			await panel.toggle(false);
 		}
-		await (await new Workbench().openNotificationsCenter()).clearAllNotifications();
+		try {
+			await (await new Workbench().openNotificationsCenter()).clearAllNotifications();
+		} catch {
+			// Notifications center may already be empty or not accessible
+		}
 	});
 
-	after(async function () {
-		await viewControl.closeView();
+	after(async function (this: Mocha.Context) {
+		this.timeout(30000);
+		// viewControl stays undefined when the before() hook failed early —
+		// cleanup must not mask the original failure with a TypeError.
+		if (viewControl) {
+			await viewControl.closeView();
+		}
 		await new EditorView().closeAllEditors();
+		// Re-open the original workspace. The first before() hook changed
+		// the workspace to test-folder via openResources — subsequent test
+		// files (settingsEditor, textEditor) need the workspace to be the
+		// test-project root so their CLI-based file opens can succeed.
+		await VSBrowser.instance.openResources(path.resolve(__dirname, '..', '..', '..'));
+		await VSBrowser.instance.waitForWorkbench();
 	});
 
 	describe('ExtensionEditorView', function () {
-		before(async function () {
+		before(async function (this: Mocha.Context) {
 			extensionEditor = new ExtensionEditorView();
 		});
 
@@ -127,7 +187,7 @@ describe('Extension Editor', function () {
 	});
 
 	describe('ExtensionEditorDetailsSections', function () {
-		before(async function () {
+		before(async function (this: Mocha.Context) {
 			await extensionEditor.switchToTab('Details');
 			extensionEditorDetails = new ExtensionEditorDetailsSection();
 		});

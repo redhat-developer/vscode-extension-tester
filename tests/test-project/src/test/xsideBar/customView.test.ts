@@ -33,6 +33,7 @@ import {
 	WelcomeContentSection,
 	Workbench,
 } from 'vscode-extension-tester';
+import { waitFor } from '../testUtils';
 
 describe('CustomTreeSection', () => {
 	let section: CustomTreeSection;
@@ -41,12 +42,18 @@ describe('CustomTreeSection', () => {
 	let content: ViewContent;
 
 	before(async function () {
-		this.timeout(5000);
+		this.timeout(20_000);
 		const view = await ((await new ActivityBar().getViewControl('Explorer')) as ViewControl).openView();
-		await new Promise((res) => {
-			setTimeout(res, 1000);
-		});
 		content = view.getContent();
+		// Wait for the extension's tree-view providers to register their sections
+		await waitFor(
+			async () => {
+				const sections = await content.getSections();
+				const titles = await Promise.all(sections.map((s) => s.getTitle()));
+				return titles.includes('Test View') && titles.includes('Test View 2') && titles.includes('Empty View');
+			},
+			{ timeout: 15_000, message: 'Custom view sections did not appear in Explorer' },
+		);
 		section = await content.getSection('Test View');
 		emptySection = await content.getSection('Test View 2');
 		await emptySection.expand();
@@ -55,9 +62,6 @@ describe('CustomTreeSection', () => {
 
 	after(async () => {
 		await ((await new ActivityBar().getViewControl('Explorer')) as ViewControl).closeView();
-		await new Promise((res) => {
-			setTimeout(res, 1000);
-		});
 	});
 
 	it('getTitle works', async () => {
@@ -69,7 +73,6 @@ describe('CustomTreeSection', () => {
 		await section.collapse();
 		expect(await section.isExpanded()).is.false;
 
-		await new Promise((res) => setTimeout(res, 500));
 		await section.expand();
 		expect(await section.isExpanded()).is.true;
 	});
@@ -172,11 +175,14 @@ describe('CustomTreeSection', () => {
 	describe('WelcomeContentButton', () => {
 		it('takeAction executes the command', async function () {
 			this.timeout(10_000);
-			await new Promise((res) => setTimeout(res, 500));
 			const button = await ((await emptyViewSection.findWelcomeContent()) as WelcomeContentSection).getButton('Add stuff into this View');
 			expect(button).to.be.not.be.undefined;
 			await button?.click();
-			await new Promise((res) => setTimeout(res, 1_000));
+			// Wait until welcome content disappears (items were added to the view)
+			await waitFor(async () => (await emptyViewSection.findWelcomeContent()) === undefined, {
+				timeout: 8_000,
+				message: 'Welcome content did not disappear after clicking action button',
+			});
 			expect(await emptyViewSection.findWelcomeContent()).to.be.undefined;
 		});
 	});
@@ -262,11 +268,22 @@ describe('CustomTreeSection', () => {
 			let bench: Workbench;
 
 			before(async function () {
+				this.timeout(15_000);
 				const view = await ((await new ActivityBar().getViewControl('Explorer')) as ViewControl).openView();
-				await view.getDriver().sleep(1_000);
 				content = view.getContent();
-				section = await content.getSection('Test View');
-				dItem = await section.findItem('d');
+				// Wait for Test View section to be ready before looking for items
+				await waitFor(
+					async () => {
+						try {
+							section = await content.getSection('Test View');
+							dItem = await section.findItem('d');
+							return dItem !== undefined;
+						} catch {
+							return false;
+						}
+					},
+					{ timeout: 12_000, message: 'Item "d" not found in Test View' },
+				);
 				bench = new Workbench();
 			});
 

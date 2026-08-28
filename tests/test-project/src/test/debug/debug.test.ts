@@ -111,7 +111,9 @@ describe('Debugging', function () {
 
 		after(async function () {
 			this.timeout(15000);
-			if (await debugBar.isDisplayed()) {
+			// debugBar stays undefined when 'start the debug session' failed —
+			// cleanup must not mask the original failure with a TypeError.
+			if (debugBar && (await debugBar.isDisplayed().catch(() => false))) {
 				await debugBar.stop();
 			}
 		});
@@ -127,6 +129,10 @@ describe('Debugging', function () {
 		});
 
 		it('start the debug session', async function () {
+			// The debug adapter can take a while to spin up on slow CI runners —
+			// give the internal waits (toolbar creation + breakpoint pause, up to
+			// ~30s combined) more room than the global 10s mocha timeout.
+			this.timeout(40000);
 			await view.start();
 			debugBar = await DebugToolbar.create(10000);
 			await debugBar.waitForBreakPoint();
@@ -153,21 +159,30 @@ describe('Debugging', function () {
 		it('TextEditor: getBreakpoints works', async function () {
 			editor = (await new EditorView().openEditor('test.js')) as TextEditor;
 			const breakpoints = (await driver.wait<Breakpoint[]>(
-				async () => await editor.getBreakpoints(),
+				async () => {
+					const bps = await editor.getBreakpoints();
+					return bps.length === 2 ? bps : null;
+				},
 				10000,
-				'could not find breakpoints',
+				'could not find 2 breakpoints',
 			)) as Breakpoint[];
 			expect(breakpoints.length).equals(2);
 			expect(await breakpoints.at(0)?.getLineNumber()).equals(7);
 		});
 
 		it('Breakpoint: getLineNumber works', async function () {
-			breakpoint = (await driver.wait<Breakpoint>(
-				async () => await editor.getPausedBreakpoint(),
+			// The paused-marker-to-line mapping matches elements by their CSS top
+			// value, which can transiently mis-pair while the glyph margin
+			// re-renders — poll until the paused breakpoint reports the expected
+			// line instead of asserting a single sample.
+			await driver.wait(
+				async () => {
+					breakpoint = (await editor.getPausedBreakpoint()) as Breakpoint;
+					return breakpoint !== undefined && (await breakpoint.getLineNumber()) === line;
+				},
 				10000,
-				'could not find paused breakpoint',
-			)) as Breakpoint;
-			expect(await breakpoint.getLineNumber()).equals(line);
+				`paused breakpoint did not report line ${line}`,
+			);
 		});
 
 		it('Breakpoint: isPaused works', async function () {
@@ -413,7 +428,7 @@ describe('Debugging', function () {
 
 		it('stop the debug session', async function () {
 			await debugBar.stop();
-			await editor.getDriver().wait(until.elementIsNotVisible(debugBar));
+			await editor.getDriver().wait(until.elementIsNotVisible(debugBar), 5000, 'Debug toolbar did not disappear after stopping the session');
 		});
 
 		it('remove the second breakpoint', async function () {

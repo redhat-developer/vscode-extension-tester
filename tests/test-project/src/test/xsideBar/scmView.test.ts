@@ -20,23 +20,43 @@ import * as path from 'path';
 import { expect } from 'chai';
 import * as fs from 'fs-extra';
 import { satisfies } from 'compare-versions';
+import { waitFor } from '../testUtils';
 
 (satisfies(VSBrowser.instance.version, '>=1.38.0') ? describe : describe.skip)('SCM View', () => {
 	let view: ScmView;
 
 	before(async function () {
-		this.timeout(15000);
+		this.timeout(30_000);
 		fs.writeFileSync(path.resolve('.', 'testfile'), 'content');
 		await VSBrowser.instance.openResources(path.resolve('..', '..'), async () => {
-			await VSBrowser.instance.driver.sleep(3_000);
+			await VSBrowser.instance.driver.sleep(1_000);
 		});
 		await VSBrowser.instance.waitForWorkbench();
 		view = (await ((await new ActivityBar().getViewControl('Source Control')) as ViewControl).openView()) as ScmView;
-		await view.getDriver().sleep(5_000); // wait until scm changes are loaded
+		// Wait until SCM changes are loaded (at least one provider with changes)
+		await waitFor(
+			async () => {
+				try {
+					const providers = await view.getProviders();
+					if (providers.length === 0) {
+						return false;
+					}
+					const changes = await providers[0].getChanges(false);
+					return changes.length > 0;
+				} catch {
+					return false;
+				}
+			},
+			{ timeout: 20_000, message: 'SCM changes did not load' },
+		);
 	});
 
 	after(() => {
-		fs.unlinkSync(path.resolve('.', 'testfile'));
+		try {
+			fs.unlinkSync(path.resolve('.', 'testfile'));
+		} catch {
+			// the file may not exist if the before hook failed part-way
+		}
 	});
 
 	it('getProviders works', async () => {
@@ -133,7 +153,12 @@ import { satisfies } from 'compare-versions';
 				const act = await change.takeAction('Open File');
 				expect(act).to.be.true;
 
-				expect(await new EditorView().getOpenEditorTitles()).contains('testfile');
+				const editorView = new EditorView();
+				await waitFor(async () => (await editorView.getOpenEditorTitles()).includes('testfile'), {
+					timeout: 5_000,
+					message: 'Editor tab for "testfile" did not open',
+				});
+				expect(await editorView.getOpenEditorTitles()).contains('testfile');
 			});
 		});
 	});

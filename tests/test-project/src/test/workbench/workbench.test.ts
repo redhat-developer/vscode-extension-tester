@@ -17,6 +17,7 @@
 
 import { expect } from 'chai';
 import { EditorView, Workbench } from 'vscode-extension-tester';
+import { waitFor } from '../testUtils';
 
 describe('Workbench', () => {
 	let bench: Workbench;
@@ -73,9 +74,16 @@ describe('Workbench', () => {
 		await prompt.cancel();
 	});
 
-	it('executeCommand works', async () => {
+	it('executeCommand works', async function () {
+		this.timeout(15000);
 		await bench.executeCommand('Hello World');
-		await bench.getDriver().sleep(500);
+		await waitFor(
+			async () => {
+				const notifications = await bench.getNotifications();
+				return notifications.length > 0;
+			},
+			{ timeout: 8000, message: 'Notification did not appear after executeCommand "Hello World"' },
+		);
 		const notifications = await bench.getNotifications();
 		expect(notifications).not.empty;
 
@@ -84,7 +92,7 @@ describe('Workbench', () => {
 	});
 
 	it('openSettings opens the settings editor', async function () {
-		this.timeout(8000);
+		this.timeout(15000);
 		const editor = await bench.openSettings();
 		expect(await editor.getTitle()).equals('Settings');
 		await new EditorView().closeAllEditors();

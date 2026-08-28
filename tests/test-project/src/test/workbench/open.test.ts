@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 
-import { EditorView, VSBrowser, Workbench } from 'vscode-extension-tester';
+import { EditorView, VSBrowser, Workbench, InputBox } from 'vscode-extension-tester';
 import * as path from 'path';
+import { waitFor } from '../testUtils';
 
 describe('Simple open file dialog', function () {
 	const filePath = path.resolve('.', 'package.json');
@@ -26,15 +27,32 @@ describe('Simple open file dialog', function () {
 	});
 
 	it('Opens a file', async function () {
-		this.timeout(30000);
+		this.timeout(60000);
 		const input = await new Workbench().openCommandPrompt();
 		await input.setText('>File: Open File...');
+		await waitFor(
+			async () => {
+				const pick = await input.findQuickPick('File: Open File...');
+				return pick !== undefined;
+			},
+			{ timeout: 8000, message: 'Could not find quick pick "File: Open File..."' },
+		);
 		await input.selectQuickPick('File: Open File...');
-		await new Promise((res) => setTimeout(res, 1000));
-		await input.setText(filePath);
-		await new Promise((res) => setTimeout(res, 1000));
-		await input.selectQuickPick('package.json');
-		await new Promise((res) => setTimeout(res, 1000));
+
+		// Give VS Code time to switch from command mode to the file-open dialog —
+		// InputBox.create uses a fixed 5 s default which is too tight on slow CI runners.
+		const prompt = await InputBox.create(15000);
+		await waitFor(
+			async () => {
+				const text = await prompt.getText();
+				return !text.startsWith('>');
+			},
+			{ timeout: 8000, message: 'Input box did not transition from command prompt to file dialog' },
+		);
+
+		await prompt.setText(filePath);
+		await prompt.getDriver().sleep(500);
+		await prompt.confirmPath();
 
 		await VSBrowser.instance.driver.wait(
 			async () => {
@@ -45,7 +63,7 @@ describe('Simple open file dialog', function () {
 					return false;
 				}
 			},
-			this.timeout() - 10000,
+			20000,
 			`No editor with title 'package.json' available.`,
 		);
 	});

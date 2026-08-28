@@ -18,6 +18,7 @@
 import { expect } from 'chai';
 import { satisfies } from 'compare-versions';
 import { StatusBar, EditorView, InputBox, QuickOpenBox, Workbench, VSBrowser } from 'vscode-extension-tester';
+import { waitFor } from '../testUtils';
 
 describe('StatusBar', () => {
 	let bar: StatusBar;
@@ -35,9 +36,11 @@ describe('StatusBar', () => {
 
 	it('can open and close the notification center', async () => {
 		const center = await bar.openNotificationsCenter();
+		await waitFor(async () => await center.isDisplayed(), { timeout: 10000, message: 'Notifications center did not open' });
 		expect(await center.isDisplayed()).is.true;
 
 		await bar.closeNotificationsCenter();
+		await waitFor(async () => !(await center.isDisplayed()), { timeout: 10000, message: 'Notifications center did not close' });
 		expect(await center.isDisplayed()).is.false;
 	});
 

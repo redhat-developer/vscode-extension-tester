@@ -36,23 +36,30 @@ describe('Output View/Text Views', function () {
 	});
 
 	before(async function () {
-		this.timeout(15000);
+		this.timeout(20_000);
 		const wait = getWaitHelper();
 		const center = await new Workbench().openNotificationsCenter();
 		await center.clearAllNotifications();
-		await center.close();
+		try {
+			await center.close();
+		} catch {
+			// center may have already closed itself
+		}
 		panel = new BottomBarPanel();
 		await panel.toggle(true);
 		await panel.maximize();
+		// Wait for maximize animation to settle before opening the view
+		await wait.forStable(panel, { timeout: 2000 });
 		view = await panel.openOutputView();
 		// Wait for output view to stabilize
 		await wait.forStable(view, { timeout: 3000 });
 	});
 
 	after(async function () {
+		this.timeout(10_000);
 		const wait = getWaitHelper();
 		await panel.restore();
-		await wait.forStable(panel, { timeout: 1000 });
+		await wait.forStable(panel, { timeout: 2000 });
 		await panel.toggle(false);
 	});
 
@@ -106,11 +113,13 @@ describe('Output View/Text Views', function () {
 		let terminalName = process.platform === 'win32' ? (satisfies(VSBrowser.instance.version, '>=1.53.0') ? 'pwsh' : 'powershell') : 'bash';
 
 		before(async function () {
-			this.timeout(15_000);
+			this.timeout(20_000);
 			const wait = getWaitHelper();
+			// Ensure bottom bar is open before switching to terminal
+			await panel.toggle(true);
 			terminal = await panel.openTerminalView();
 			// Wait for terminal to stabilize
-			await wait.forStable(terminal, { timeout: 3000 });
+			await wait.forStable(terminal, { timeout: 5000 });
 		});
 
 		it('getText returns all current text', async function () {

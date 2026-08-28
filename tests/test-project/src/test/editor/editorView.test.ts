@@ -33,6 +33,7 @@ import {
 	NotificationType,
 	ContextMenu,
 } from 'vscode-extension-tester';
+import { waitFor } from '../testUtils';
 
 describe('EditorView', function () {
 	let view: EditorView;
@@ -44,9 +45,21 @@ describe('EditorView', function () {
 		await newUntitledFile('Untitled-1');
 		await newUntitledFile('Untitled-2');
 		await new Workbench().executeCommand('Webview Test Column 1');
-		await view.getDriver().sleep(2500);
+		await waitFor(
+			async () => {
+				const titles = await view.getOpenEditorTitles();
+				return titles.some((title) => title.startsWith('Test WebView'));
+			},
+			{ timeout: 15000, message: 'Webview Test Column 1 tab not found' },
+		);
 		await new Workbench().executeCommand('Open Settings UI');
-		await view.getDriver().sleep(500);
+		await waitFor(
+			async () => {
+				const titles = await view.getOpenEditorTitles();
+				return titles.includes('Settings');
+			},
+			{ timeout: 10000, message: 'Settings tab not found' },
+		);
 	});
 
 	after(async function () {
@@ -90,10 +103,25 @@ describe('EditorView', function () {
 		}
 		await quickOpen.setText('Untitled-1');
 		await quickOpen.confirm();
-		await quickOpen.getDriver().sleep(500);
+		await waitFor(
+			async () => {
+				const titles = await view.getOpenEditorTitles();
+				return titles.includes('Untitled-2 ↔ Untitled-1');
+			},
+			{ timeout: 10000, message: 'Diff editor tab not found' },
+		);
 
 		const diffEditor = (await view.openEditor('Untitled-2 ↔ Untitled-1')) as DiffEditor;
-		await diffEditor.getDriver().sleep(1000);
+		await waitFor(
+			async () => {
+				try {
+					return (await diffEditor.getOriginalEditor()) !== undefined && (await diffEditor.getModifiedEditor()) !== undefined;
+				} catch {
+					return false;
+				}
+			},
+			{ timeout: 10000, message: 'Original or Modified editor in DiffEditor did not load' },
+		);
 		expect(await diffEditor.getOriginalEditor()).not.undefined;
 		expect(await diffEditor.getModifiedEditor()).not.undefined;
 	});
@@ -112,6 +140,13 @@ describe('EditorView', function () {
 
 	it('closeEditor works', async function () {
 		await view.closeEditor('Untitled-1');
+		await waitFor(
+			async () => {
+				const tabs = await view.getOpenEditorTitles();
+				return !tabs.includes('Untitled-1');
+			},
+			{ timeout: 5000, message: 'Untitled-1 tab was not closed' },
+		);
 		const tabs = await view.getOpenEditorTitles();
 		expect(tabs).not.contains('Untitled-1');
 	});
@@ -229,10 +264,21 @@ describe('EditorView', function () {
 		});
 
 		it('closeEditor works for different groups', async function () {
-			await view.getDriver().actions().keyDown(EditorView.ctlKey).sendKeys('\\').perform();
-			await view.getDriver().sleep(500);
+			await view.getDriver().actions().keyDown(EditorView.ctlKey).sendKeys('\\').keyUp(EditorView.ctlKey).perform();
+			await waitFor(
+				async () => {
+					return (await view.getEditorGroups()).length === 3;
+				},
+				{ timeout: 10000, message: 'Expected 3 editor groups after split' },
+			);
 
 			await view.closeEditor(testFile, 2);
+			await waitFor(
+				async () => {
+					return (await view.getEditorGroups()).length === 2;
+				},
+				{ timeout: 5000, message: 'Expected 2 editor groups after closing' },
+			);
 			expect((await view.getEditorGroups()).length).equals(2);
 		});
 

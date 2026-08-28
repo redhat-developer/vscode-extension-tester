@@ -32,23 +32,23 @@ describe('NotificationsCenter', () => {
 	});
 
 	it('getNotifications works', async function () {
-		this.timeout(4000);
+		this.timeout(10000);
 		await new Workbench().executeCommand('Hello World');
-		// Wait for notification to appear
+		// Re-open the center after triggering the command so the notification is visible
 		center = await new Workbench().openNotificationsCenter();
 		await waitFor(
 			async () => {
 				const notifications = await center.getNotifications(NotificationType.Any);
 				return notifications.length > 0;
 			},
-			{ timeout: 2000, message: 'Notifications did not appear' },
+			{ timeout: 5000, message: 'Notifications did not appear' },
 		);
 		const notifications = await center.getNotifications(NotificationType.Any);
 		expect(notifications).not.empty;
 	});
 
 	it('clearAllNotifications works', async function () {
-		this.timeout(8000);
+		this.timeout(15000);
 		await new Workbench().executeCommand('Hello World');
 		center = await new Workbench().openNotificationsCenter();
 		// Wait for notification to appear
@@ -57,13 +57,13 @@ describe('NotificationsCenter', () => {
 				const notifications = await center.getNotifications(NotificationType.Any);
 				return notifications.length > 0;
 			},
-			{ timeout: 2000 },
+			{ timeout: 5000 },
 		);
 		const notifications = await center.getNotifications(NotificationType.Any);
 		expect(notifications).not.empty;
 
 		await center.clearAllNotifications();
-		// Wait for center to close
+		// Wait for center to close after clearing
 		await waitFor(
 			async () => {
 				try {
@@ -72,7 +72,7 @@ describe('NotificationsCenter', () => {
 					return true;
 				}
 			},
-			{ timeout: 3000 },
+			{ timeout: 6000 },
 		);
 		expect(await center.isDisplayed()).is.false;
 	});
@@ -80,16 +80,17 @@ describe('NotificationsCenter', () => {
 	describe('Notification', () => {
 		let notification: Notification;
 
-		before(async () => {
+		before(async function () {
+			this.timeout(12000);
 			await new Workbench().executeCommand('Test Notification');
 			center = await new Workbench().openNotificationsCenter();
-			// Wait for notification to appear
+			// Wait for the 'Test Notification' to appear in the center
 			await waitFor(
 				async () => {
 					const notifications = await center.getNotifications(NotificationType.Any);
 					return notifications.length > 0;
 				},
-				{ timeout: 2000 },
+				{ timeout: 6000 },
 			);
 			notification = (await center.getNotifications(NotificationType.Any))[0];
 		});
@@ -139,10 +140,11 @@ describe('NotificationsCenter', () => {
 			await driver.wait(until.stalenessOf(notification));
 		});
 
-		it('dismiss works', async () => {
+		it('dismiss works', async function () {
+			this.timeout(15000);
 			await new Workbench().executeCommand('Test Notification');
 			center = await new Workbench().openNotificationsCenter();
-			await waitFor(async () => (await center.getNotifications(NotificationType.Any)).length > 0, { timeout: 2000 });
+			await waitFor(async () => (await center.getNotifications(NotificationType.Any)).length > 0, { timeout: 6000 });
 			notification = (await center.getNotifications(NotificationType.Any))[0];
 
 			const driver = notification.getDriver();
@@ -150,10 +152,11 @@ describe('NotificationsCenter', () => {
 			await driver.wait(until.stalenessOf(notification));
 		});
 
-		it('get warning notification works', async () => {
+		it('get warning notification works', async function () {
+			this.timeout(15000);
 			await new Workbench().executeCommand('Warning Message');
 			center = await new Workbench().openNotificationsCenter();
-			await waitFor(async () => (await center.getNotifications(NotificationType.Warning)).length > 0, { timeout: 2000 });
+			await waitFor(async () => (await center.getNotifications(NotificationType.Warning)).length > 0, { timeout: 6000 });
 			notification = (await center.getNotifications(NotificationType.Warning))[0];
 
 			expect(await notification.getMessage()).to.equal('This is a warning!');
@@ -162,10 +165,11 @@ describe('NotificationsCenter', () => {
 			await center.getDriver().wait(until.stalenessOf(notification));
 		});
 
-		it('get error notification works', async () => {
+		it('get error notification works', async function () {
+			this.timeout(15000);
 			await new Workbench().executeCommand('Error Message');
 			center = await new Workbench().openNotificationsCenter();
-			await waitFor(async () => (await center.getNotifications(NotificationType.Error)).length > 0, { timeout: 2000 });
+			await waitFor(async () => (await center.getNotifications(NotificationType.Error)).length > 0, { timeout: 6000 });
 			notification = (await center.getNotifications(NotificationType.Error))[0];
 
 			expect(await notification.getMessage()).to.equal('This is an error!');
