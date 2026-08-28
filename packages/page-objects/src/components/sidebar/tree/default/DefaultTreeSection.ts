@@ -45,7 +45,13 @@ export class DefaultTreeSection extends TreeSection {
 		const container = await this.findElement(DefaultTreeSection.locators.DefaultTreeSection.rowContainer);
 		await container.sendKeys(Key.HOME);
 		let item: TreeItem | undefined = undefined;
+		const maxIterations = 500;
+		let iteration = 0;
 		do {
+			if (iteration++ >= maxIterations) {
+				console.warn(`findItem('${label}'): exceeded ${maxIterations} scroll iterations, giving up`);
+				break;
+			}
 			const temp = await container.findElements(DefaultTreeSection.locators.DefaultTreeItem.ctor(label));
 			if (temp.length > 0) {
 				const level = +(await temp[0].getAttribute(DefaultTreeSection.locators.ViewSection.level))!;

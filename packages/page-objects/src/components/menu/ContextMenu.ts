@@ -84,7 +84,7 @@ export class ContextMenu extends Menu {
 		await actions.clear();
 		await this.getDriver().actions().sendKeys(Key.ESCAPE).perform();
 		try {
-			await this.getDriver().wait(until.elementIsNotVisible(this));
+			await this.getDriver().wait(until.elementIsNotVisible(this), 5_000);
 		} catch (err) {
 			if (!(err instanceof error.StaleElementReferenceError)) {
 				throw err;
@@ -144,7 +144,7 @@ export class ContextMenuItem extends MenuItem {
 				const actions = this.getDriver().actions();
 				await actions.clear();
 				await this.getDriver().actions().sendKeys(Key.ESCAPE).perform();
-				await this.getDriver().wait(until.elementIsNotVisible(this));
+				await this.getDriver().wait(until.elementIsNotVisible(this), 5_000);
 			}
 		} catch (err) {
 			if (!(err instanceof error.StaleElementReferenceError)) {

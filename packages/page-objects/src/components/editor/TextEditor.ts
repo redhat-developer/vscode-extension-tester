@@ -17,7 +17,7 @@
 
 import { ContentAssist, ContextMenu, InputBox, Workbench } from '../..';
 import { Key, until, WebElement } from 'selenium-webdriver';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 import { StatusBar } from '../statusBar/StatusBar';
 import { Editor } from './Editor';
 import { ElementWithContextMenu } from '../ElementWithContextMenu';
@@ -41,7 +41,7 @@ export class TextEditor extends Editor {
 	async isDirty(): Promise<boolean> {
 		const tab = await this.enclosingItem.findElement(TextEditor.locators.TextEditor.activeTab);
 		const klass = (await tab.getAttribute('class'))!;
-		return klass.indexOf('dirty') >= 0;
+		return klass.includes('dirty');
 	}
 
 	/**
@@ -186,6 +186,13 @@ export class TextEditor extends Editor {
 	 * @returns Promise resolving once the text is deleted
 	 */
 	async clearText(): Promise<void> {
+		// Dismiss any open menu or overlay first (e.g. context menu left open after
+		// formatDocument), then focus the editor container so the inputArea becomes
+		// interactable.  We press Escape via the driver (safe regardless of focus) and
+		// click the outer editor element — NOT the native-edit-context, which cannot
+		// receive a synthetic click when it is not the active focus target.
+		await this.getDriver().actions().sendKeys(Key.ESCAPE).perform();
+		await this.enclosingItem.click();
 		return this.withRecovery(async (self) => {
 			const input = await self.findElement(TextEditor.locators.Editor.inputArea);
 			await input.sendKeys(Key.chord(TextEditor.ctlKey, 'a'));
@@ -364,15 +371,18 @@ export class TextEditor extends Editor {
 	async setCursor(line: number, column: number, timeout: number = 2_500): Promise<void> {
 		const input = await new Workbench().openCommandPrompt();
 		await input.setText(`:${line},${column}`);
-		// Wait for input to be processed - check for quick picks appearing
-		await this.getWaitHelper().forCondition(
-			async () => {
-				const picks = await input.getQuickPicks().catch(() => []);
-				return picks.length > 0;
-			},
-			{ timeout: 1000, pollInterval: 50 },
-		);
-		await input.selectQuickPick(0);
+		try {
+			await this.getWaitHelper().forCondition(
+				async () => {
+					const picks = await input.getQuickPicks().catch(() => []);
+					return picks.length > 0;
+				},
+				{ timeout: 2000, pollInterval: 50 },
+			);
+			await input.selectQuickPick(0);
+		} catch {
+			await input.confirm();
+		}
 		await this.waitForCursorPositionAt(line, column, timeout);
 	}
 
@@ -613,15 +623,33 @@ export class TextEditor extends Editor {
 	 * Get the cursor's coordinates as an array of two numbers: `[line, column]`
 	 *
 	 * **Caution** line & column coordinates do not start at `0` but at `1`!
+	 *
+	 * @param timeout ms to wait for the status bar to show a valid position (default 5000)
 	 */
-	async getCoordinates(): Promise<[number, number]> {
-		const coords: number[] = [];
+	async getCoordinates(timeout: number = 5_000): Promise<[number, number]> {
 		const statusBar = new StatusBar();
-		const coordinates = <RegExpMatchArray>(await statusBar.getCurrentPosition()).match(/\d+/g);
-		for (const c of coordinates) {
-			coords.push(+c);
-		}
-		return [coords[0], coords[1]];
+		// The status bar position item may not update immediately after a cursor move,
+		// especially on slow CI runners. Poll until it returns a valid "Ln X, Col Y" string.
+		let positionText: string = '';
+		await this.getDriver().wait(
+			async () => {
+				try {
+					const text = await statusBar.getCurrentPosition();
+					const match = text.match(/\d+/g);
+					if (match && match.length >= 2) {
+						positionText = text;
+						return true;
+					}
+				} catch {
+					// Status bar item not yet available — keep polling
+				}
+				return false;
+			},
+			timeout,
+			`Status bar did not show a valid cursor position within ${timeout}ms`,
+		);
+		const coordinates = <RegExpMatchArray>positionText.match(/\d+/g);
+		return [+coordinates[0], +coordinates[1]];
 	}
 
 	private async getTabSize(): Promise<number> {
@@ -648,7 +676,7 @@ export class TextEditor extends Editor {
 			: lineOverlay;
 		const breakPoint = await breakpointContainer.findElements(TextEditor.locators.TextEditor.breakpoint.generalSelector);
 		if (breakPoint.length > 0) {
-			if (this.breakPoints.indexOf(line) !== -1) {
+			if (this.breakPoints.includes(line)) {
 				await breakPoint[this.breakPoints.indexOf(line)].click();
 				// Wait for breakpoint to be removed
 				await this.getWaitHelper().forCondition(
@@ -741,16 +769,25 @@ export class TextEditor extends Editor {
 		const breakpoints: Breakpoint[] = [];
 
 		const breakpointLocators = Breakpoint.locators.TextEditor.breakpoint;
-		const breakpointContainer = satisfies(TextEditor.versionInfo.version, '>=1.80.0')
-			? await this.findElement(TextEditor.locators.TextEditor.glyphMarginWidget)
-			: this;
+		const isNewVersion = satisfies(TextEditor.versionInfo.version, '>=1.80.0');
+		const breakpointContainer = isNewVersion ? await this.findElement(TextEditor.locators.TextEditor.glyphMarginWidget) : this;
 		const breakpointsSelectors = await breakpointContainer.findElements(breakpointLocators.generalSelector);
+
+		// When a debug session is paused at a breakpoint, VS Code renders two overlapping
+		// elements with the `codicon-debug-breakpoint` class at the same vertical position
+		// (the regular breakpoint dot and the stackframe arrow). Deduplicate by `top` so
+		// that each line contributes at most one Breakpoint.
+		const seenTops = new Set<string>();
 
 		for (const breakpointSelector of breakpointsSelectors) {
 			try {
 				let lineElement: WebElement;
-				if (satisfies(TextEditor.versionInfo.version, '>=1.80.0')) {
+				if (isNewVersion) {
 					const styleTopAttr = await breakpointSelector.getCssValue('top');
+					if (seenTops.has(styleTopAttr)) {
+						continue;
+					}
+					seenTops.add(styleTopAttr);
 					lineElement = await this.findElement(TextEditor.locators.TextEditor.marginArea).findElement(
 						TextEditor.locators.TextEditor.lineElement(styleTopAttr),
 					);
@@ -774,13 +811,22 @@ export class TextEditor extends Editor {
 	 */
 	async getCodeLenses(): Promise<CodeLens[]> {
 		const lenses: CodeLens[] = [];
-		const widgets = await this.findElement(TextEditor.locators.TextEditor.contentWidgets);
-		const items = await widgets.findElements(TextEditor.locators.TextEditor.contentWidgetsElements);
+		// Use findElements so that a missing/not-yet-visible contentWidgets container
+		// returns an empty array rather than throwing a TimeoutError.  The caller
+		// (or the before-hook poll loop) is responsible for retrying until lenses appear.
+		const widgetContainers = await this.findElements(TextEditor.locators.TextEditor.contentWidgets);
+		if (widgetContainers.length === 0) {
+			return lenses;
+		}
+		const items = await widgetContainers[0].findElements(TextEditor.locators.TextEditor.contentWidgetsElements);
 		for (const item of items) {
 			try {
 				lenses.push(await new CodeLens(item, this).wait());
 			} catch (e: any) {
-				if (e.name === 'StaleElementReferenceError') {
+				// Skip stale or not-yet-visible lens elements.  TimeoutError means the
+				// lens widget exists in the DOM but is not visible yet (e.g. the editor
+				// is still rendering); the caller's poll loop will retry the whole call.
+				if (e.name === 'StaleElementReferenceError' || e.name === 'TimeoutError') {
 					continue;
 				}
 				throw e;
@@ -862,7 +908,7 @@ class Selection extends ElementWithContextMenu {
 			let shadowRoot;
 			const webdriverCapabilities = await (this.getDriver() as ChromiumWebDriver).getCapabilities();
 			const chromiumVersion = webdriverCapabilities.getBrowserVersion();
-			if (chromiumVersion && parseInt(chromiumVersion.split('.')[0]) >= 96) {
+			if (chromiumVersion && Number.parseInt(chromiumVersion.split('.')[0]) >= 96) {
 				shadowRoot = await shadowRootHost[0].getShadowRoot();
 				return new ContextMenu(await shadowRoot.findElement(TextEditor.locators.TextEditor.monacoMenuContainer)).wait();
 			} else {
@@ -1072,8 +1118,12 @@ export class FindWidget extends AbstractElement {
 
 		const btn = await element.findElement(FindWidget.locators.FindWidget.button(title));
 		await btn.click();
-		// Wait for button action to complete
-		await this.getWaitHelper().forStable(element, { timeout: 500 });
+		// Give the widget a moment to settle after the action (animations, relayout).
+		// Best-effort: a slow animation must not fail the interaction that already
+		// happened, so a stability timeout is not an error here.
+		await this.getWaitHelper()
+			.forStable(element, { timeout: 2000 })
+			.catch(() => undefined);
 	}
 
 	private async setText(text: string, composite: WebElement) {

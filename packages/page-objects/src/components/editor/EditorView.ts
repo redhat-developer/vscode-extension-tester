@@ -72,7 +72,8 @@ export class EditorView extends AbstractElement {
 			return groups[groupIndex].closeAllEditors();
 		}
 
-		while (groups.length > 0 && (await groups[0].getOpenEditorTitles()).length > 0) {
+		const deadline = Date.now() + 60000;
+		while (groups.length > 0 && (await groups[0].getOpenEditorTitles()).length > 0 && Date.now() < deadline) {
 			await groups[0].closeAllEditors();
 			// Brief wait for DOM to settle after closing editors
 			await this.getWaitHelper().sleep(500);
@@ -272,7 +273,28 @@ export class EditorGroup extends AbstractElement {
 	async closeEditor(title: string): Promise<void> {
 		const tab = await this.getTabByTitle(title);
 		const closeButton = await tab.findElement(EditorView.locators.EditorView.closeTab);
-		await closeButton.click();
+		// VS Code renders hover tooltip overlays (<div class="hover-contents">) that can
+		// intercept the click (ElementClickInterceptedError) on CI. Retry with an
+		// increasing delay; fall back to a JS-executor click on the last attempt which
+		// bypasses overlay elements entirely.
+		const maxAttempts = 3;
+		for (let attempt = 0; attempt < maxAttempts; attempt++) {
+			try {
+				await closeButton.click();
+				return;
+			} catch (err: any) {
+				if (err.name !== 'ElementClickInterceptedError' || attempt === maxAttempts - 1) {
+					// On the final attempt use executeScript to bypass the overlay, then return.
+					if (err.name === 'ElementClickInterceptedError') {
+						await this.getDriver().executeScript('arguments[0].click()', closeButton);
+						return;
+					}
+					throw err;
+				}
+				// Brief back-off so the tooltip has time to dismiss before the next attempt.
+				await this.getWaitHelper().sleep(300 * (attempt + 1));
+			}
+		}
 	}
 
 	/**
@@ -280,8 +302,10 @@ export class EditorGroup extends AbstractElement {
 	 * @returns Promise resolving once all tabs have had their close button pressed
 	 */
 	async closeAllEditors(): Promise<void> {
+		const deadline = Date.now() + 30000;
 		let titles = await this.getOpenEditorTitles();
-		while (titles.length > 0) {
+		while (titles.length > 0 && Date.now() < deadline) {
+			const previousCount = titles.length;
 			await this.closeEditor(titles[0]);
 			try {
 				// check if the group still exists
@@ -290,6 +314,18 @@ export class EditorGroup extends AbstractElement {
 				break;
 			}
 			titles = await this.getOpenEditorTitles();
+			if (titles.length >= previousCount) {
+				try {
+					await this.getDriver().actions().sendKeys('\uE00C').perform();
+					await this.getWaitHelper().sleep(500);
+				} catch {
+					/* ignore */
+				}
+				titles = await this.getOpenEditorTitles();
+				if (titles.length >= previousCount) {
+					break;
+				}
+			}
 		}
 	}
 

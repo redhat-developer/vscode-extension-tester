@@ -93,7 +93,24 @@ export class SettingsEditor extends Editor {
 			{ timeout: 5000, stabilityInterval: 300, stableChecks: 2 },
 		);
 
+		// The count can stabilize before the search filter has been applied on slow
+		// machines — poll the rendered rows until the requested setting shows up
+		// instead of sampling them a single time.
+		const deadline = Date.now() + 10_000;
 		let setting!: Setting;
+		for (;;) {
+			const found = await this.scanForSettingItem(title, category);
+			if (found) {
+				return found;
+			}
+			if (Date.now() >= deadline) {
+				return setting;
+			}
+			await this.getWaitHelper().sleep(500);
+		}
+	}
+
+	private async scanForSettingItem(title: string, category: string): Promise<Setting | undefined> {
 		const items = await this.findElements(SettingsEditor.locators.SettingsEditor.itemRow);
 		for (const item of items) {
 			try {
@@ -117,7 +134,7 @@ export class SettingsEditor extends Editor {
 				// do nothing
 			}
 		}
-		return setting;
+		return undefined;
 	}
 
 	/**

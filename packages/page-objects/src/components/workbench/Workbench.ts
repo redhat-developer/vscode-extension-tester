@@ -123,7 +123,7 @@ export class Workbench extends AbstractElement {
 	async openSettings(): Promise<SettingsEditor> {
 		await this.executeCommand('Preferences: Open User Settings');
 		await new EditorView().openEditor('Settings');
-		await Workbench.driver.wait(until.elementLocated(Workbench.locators.Editor.constructor));
+		await Workbench.driver.wait(until.elementLocated(Workbench.locators.Editor.constructor), 10_000);
 		// Wait for settings editor to fully load
 		const editor = new SettingsEditor();
 		await this.getWaitHelper().forStable(editor, { timeout: 2000 });

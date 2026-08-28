@@ -31,34 +31,123 @@ export class ContentAssist extends Menu {
 	 * until the item is found, or the end is reached
 	 *
 	 * @param name name/text to search by
+	 * @param timeout overall time budget in ms for the search (default 30000)
 	 * @returns Promise resolving to ContentAssistItem object if found, undefined otherwise
 	 */
-	async getItem(name: string): Promise<ContentAssistItem | undefined> {
-		let lastItem = false;
+	async getItem(name: string, timeout: number = 30000): Promise<ContentAssistItem | undefined> {
+		const deadline = Date.now() + timeout;
 		const scrollable = await this.findElement(ContentAssist.locators.ContentAssist.itemList);
 
+		await this.getDriver().wait(
+			async () => {
+				return (await this.isLoaded()) && (await this.findElements(ContentAssist.locators.ContentAssist.itemRow)).length > 0;
+			},
+			Math.min(10000, Math.max(1000, deadline - Date.now())),
+			'Content assist item list did not populate',
+		);
+
+		// Scroll back to the top of the list in case it is not there already
 		let firstItem = await this.findElements(ContentAssist.locators.ContentAssist.firstItem);
-		while (firstItem.length < 1) {
+		while (firstItem.length < 1 && Date.now() < deadline) {
 			await scrollable.sendKeys(Key.PAGE_UP, Key.NULL);
+			await this.getWaitHelper().sleep(100);
 			firstItem = await this.findElements(ContentAssist.locators.ContentAssist.firstItem);
 		}
 
-		while (!lastItem) {
-			const items = await this.getItems();
-
-			for (const item of items) {
-				if ((await item.getLabel()) === name) {
-					return item;
+		while (Date.now() < deadline) {
+			let rows: ContentAssistRowSnapshot[];
+			try {
+				rows = await this.snapshotVisibleRows();
+			} catch (err) {
+				if (err instanceof error.StaleElementReferenceError) {
+					// The list re-rendered mid-read — take a fresh snapshot
+					continue;
 				}
-				lastItem = lastItem || (await item.getAttribute('data-last-element')) === 'true';
+				throw err;
 			}
-			if (!lastItem) {
-				await scrollable.sendKeys(Key.PAGE_DOWN);
-				// Minimal delay for scroll to render new items
-				await this.getWaitHelper().sleep(100);
+			const match = rows.find((row) => row.label === name);
+			if (match) {
+				try {
+					return await new ContentAssistItem(match.element, this).wait();
+				} catch (err) {
+					if (err instanceof error.StaleElementReferenceError) {
+						continue;
+					}
+					throw err;
+				}
 			}
+			if (rows.some((row) => row.last)) {
+				// Reached the end of the list without finding the item
+				return undefined;
+			}
+			const maxIndex = rows.reduce((max, row) => Math.max(max, row.index), -1);
+			await scrollable.sendKeys(Key.PAGE_DOWN);
+			// Wait for the visible range to actually move instead of sleeping a fixed amount
+			await this.getDriver()
+				.wait(
+					async () => {
+						const next = await this.snapshotVisibleRows().catch(() => undefined);
+						return next !== undefined && (next.some((row) => row.last) || next.reduce((max, row) => Math.max(max, row.index), -1) > maxIndex);
+					},
+					Math.min(2000, Math.max(200, deadline - Date.now())),
+				)
+				.catch(() => {
+					// The list did not move — keep looping, the deadline will end the search
+				});
 		}
+		return undefined;
 	}
+
+	/**
+	 * Read all currently rendered suggestion rows in a single script call.
+	 * Returns the row elements together with their label text, virtual list index
+	 * and whether the row is marked as the last element of the list.
+	 */
+	private async snapshotVisibleRows(): Promise<ContentAssistRowSnapshot[]> {
+		const container = await this.findElement(ContentAssist.locators.ContentAssist.itemRows);
+		const rowLocator = ContentAssist.locators.ContentAssist.itemRow as unknown as SerializableLocator;
+		const labelLocator = ContentAssist.locators.ContentAssist.itemLabel as unknown as SerializableLocator;
+		const raw = (await this.getDriver().executeScript(
+			ContentAssist.SNAPSHOT_ROWS_SCRIPT,
+			container,
+			rowLocator.using,
+			rowLocator.value,
+			labelLocator.using,
+			labelLocator.value,
+		)) as { element: WebElement; label: string; index: number; last: boolean }[];
+		return raw.map((row) => ({ element: row.element, label: row.label, index: row.index, last: row.last }));
+	}
+
+	private static readonly SNAPSHOT_ROWS_SCRIPT = `
+		var container = arguments[0];
+		var rowUsing = arguments[1], rowValue = arguments[2];
+		var labelUsing = arguments[3], labelValue = arguments[4];
+		function findAll(root, using, value) {
+			if (using === 'xpath') {
+				var out = [];
+				var it = document.evaluate(value, root, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+				for (var i = 0; i < it.snapshotLength; i++) { out.push(it.snapshotItem(i)); }
+				return out;
+			}
+			return Array.prototype.slice.call(root.querySelectorAll(value));
+		}
+		function findOne(root, using, value) {
+			if (using === 'xpath') {
+				return document.evaluate(value, root, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+			}
+			return root.querySelector(value);
+		}
+		return findAll(container, rowUsing, rowValue).map(function (row) {
+			var labelEl = findOne(row, labelUsing, labelValue);
+			var label = labelEl ? (labelEl.innerText !== undefined ? labelEl.innerText : labelEl.textContent) : '';
+			return {
+				element: row,
+				label: (label || '').trim(),
+				index: parseInt(row.getAttribute('data-index') || '-1', 10),
+				last: row.getAttribute('data-last-element') === 'true'
+			};
+		});
+	`;
 
 	/**
 	 * Get all visible content assist items
@@ -102,6 +191,18 @@ export class ContentAssist extends Menu {
 		}
 		return true;
 	}
+}
+
+interface SerializableLocator {
+	using: string;
+	value: string;
+}
+
+interface ContentAssistRowSnapshot {
+	element: WebElement;
+	label: string;
+	index: number;
+	last: boolean;
 }
 
 /**

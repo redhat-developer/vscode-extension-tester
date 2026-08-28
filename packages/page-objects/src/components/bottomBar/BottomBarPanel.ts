@@ -47,7 +47,7 @@ export class BottomBarPanel extends AbstractElement {
 				await this.wait();
 			} else {
 				await this.closePanel();
-				await this.getDriver().wait(until.elementIsNotVisible(this));
+				await this.getDriver().wait(until.elementIsNotVisible(this), 5_000);
 			}
 		}
 	}
@@ -128,17 +128,35 @@ export class BottomBarPanel extends AbstractElement {
 
 	private async resize(label: string) {
 		await this.toggle(true);
-		let action!: WebElement;
-		try {
-			action = await this.findElement(BottomBarPanel.locators.BottomBarPanel.globalActions).findElement(
-				BottomBarPanel.locators.BottomBarPanel.action(label),
-			);
-		} catch (err) {
-			// the panel is already maximized
-		}
-		if (action) {
-			await action.click();
-		}
+		// The resize action button may briefly be non-interactable (or get replaced)
+		// while the panel's open/maximize animation is running — poll the click
+		// instead of failing on the first attempt.
+		await this.getDriver()
+			.wait(
+				async () => {
+					let action: WebElement;
+					try {
+						action = await this.findElement(BottomBarPanel.locators.BottomBarPanel.globalActions).findElement(
+							BottomBarPanel.locators.BottomBarPanel.action(label),
+						);
+					} catch (err) {
+						// the panel is already maximized/restored — the action is absent
+						return true;
+					}
+					try {
+						await action.click();
+						return true;
+					} catch (err) {
+						// not interactable or stale mid-animation — retry
+						return false;
+					}
+				},
+				5000,
+				`BottomBarPanel: could not click the '${label}' action`,
+			)
+			.catch(() => {
+				// keep previous lenient behavior — resize is best-effort
+			});
 	}
 
 	public async closePanel() {

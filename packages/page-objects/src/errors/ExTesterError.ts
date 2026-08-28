@@ -122,7 +122,7 @@ export class ElementNotInteractableError extends ExTesterError {
 export class StaleElementError extends ExTesterError {
 	constructor(message: string, context: ErrorContext = {}) {
 		super(message, context);
-		this.name = 'StaleElementError';
+		this.name = 'StaleElementReferenceError';
 	}
 }
 
