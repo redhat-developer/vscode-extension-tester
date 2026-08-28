@@ -251,7 +251,20 @@
     "lint": "eslint --fix --fix-type layout src",
     "cb-init": "echo hello_ExTester | clipboard",
     "ui-test": "npm run cb-init && extest setup-and-run --config ./extester.config.json",
-    "ui-test:coverage": "MOCHA_GREP='order|clipboard|ExtensionsView|TitleBar' MOCHA_INVERT=true extest setup-and-run --config ./extester.config.coverage.json"
+    "ui-test:coverage": "MOCHA_GREP='order|clipboard|ExtensionsView|TitleBar' MOCHA_INVERT=true extest setup-and-run --config ./extester.config.coverage.json",
+    "test:01_general": "npm run cb-init && extest setup-and-run \"./out/test/*.test.js\" \"./out/test/01_general/**/*.test.js\" --config ./extester.config.json",
+    "test:activityBar": "npm run cb-init && extest setup-and-run \"./out/test/activityBar/**/*.test.js\" --config ./extester.config.json",
+    "test:bottomBar": "npm run cb-init && extest setup-and-run \"./out/test/bottomBar/**/*.test.js\" --config ./extester.config.json",
+    "test:cli": "npm run cb-init && extest setup-and-run \"./out/test/cli/order-3.test.js\" \"./out/test/cli/order-2.test.js\" \"./out/test/cli/order-1.test.js\" --config ./extester.config.json",
+    "test:debug": "npm run cb-init && extest setup-and-run \"./out/test/debug/**/*.test.js\" --config ./extester.config.json",
+    "test:dialog": "npm run cb-init && extest setup-and-run \"./out/test/dialog/**/*.test.js\" --config ./extester.config.json",
+    "test:editor": "npm run cb-init && extest setup-and-run \"./out/test/editor/**/*.test.js\" --config ./extester.config.json",
+    "test:menu": "npm run cb-init && extest setup-and-run \"./out/test/menu/**/*.test.js\" --config ./extester.config.json",
+    "test:statusBar": "npm run cb-init && extest setup-and-run \"./out/test/statusBar/**/*.test.js\" --config ./extester.config.json",
+    "test:system": "npm run cb-init && extest setup-and-run \"./out/test/system/**/*.test.js\" --config ./extester.config.json",
+    "test:webview": "npm run cb-init && extest setup-and-run \"./out/test/webview/**/*.test.js\" --config ./extester.config.json",
+    "test:workbench": "npm run cb-init && extest setup-and-run \"./out/test/workbench/**/*.test.js\" --config ./extester.config.json",
+    "test:xsideBar": "npm run cb-init && extest setup-and-run \"./out/test/xsideBar/**/*.test.js\" --config ./extester.config.json"
   },
   "devDependencies": {
     "chai": "^4.5.0",

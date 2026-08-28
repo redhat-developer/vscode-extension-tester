@@ -19,7 +19,20 @@
     "test:build": "npm run build:changed && npm install --workspace=extester-test && npm test",
     "test:runner:unit": "npm test --workspace=extester-runner",
     "test:runner:ui": "npm run ui-test --workspace=extester-runner",
-    "test:unit": "npm run test:unit --workspace=vscode-extension-tester"
+    "test:unit": "npm run test:unit --workspace=vscode-extension-tester",
+    "test:01_general": "npm run test:01_general --workspace=extester-test",
+    "test:activityBar": "npm run test:activityBar --workspace=extester-test",
+    "test:bottomBar": "npm run test:bottomBar --workspace=extester-test",
+    "test:cli": "npm run test:cli --workspace=extester-test",
+    "test:debug": "npm run test:debug --workspace=extester-test",
+    "test:dialog": "npm run test:dialog --workspace=extester-test",
+    "test:editor": "npm run test:editor --workspace=extester-test",
+    "test:menu": "npm run test:menu --workspace=extester-test",
+    "test:statusBar": "npm run test:statusBar --workspace=extester-test",
+    "test:system": "npm run test:system --workspace=extester-test",
+    "test:webview": "npm run test:webview --workspace=extester-test",
+    "test:workbench": "npm run test:workbench --workspace=extester-test",
+    "test:xsideBar": "npm run test:xsideBar --workspace=extester-test"
   },
   "workspaces": [
     "packages/*",
