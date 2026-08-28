@@ -27,7 +27,12 @@ import { findBestContainingElement } from '../../locators/locators';
 class WebViewBase extends Editor {
 	async getViewToSwitchTo(): Promise<WebElement | undefined> {
 		const frames = await this.getDriver().findElements(WebViewBase.locators.WebView.iframe);
-		return findBestContainingElement(await this.getRect(), frames);
+		if (frames.length === 0) {
+			return undefined;
+		}
+		// Try geometry-based selection first; fall back to the first available frame
+		// when the editor container has not been laid out yet (common on slow CI runners).
+		return (await findBestContainingElement(await this.getRect(), frames)) ?? frames[0];
 	}
 }
 

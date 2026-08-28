@@ -220,7 +220,7 @@ const editor = {
 		modifiedEditor: By.className('modified-in-monaco-diff-editor'),
 	},
 	WebView: {
-		iframe: By.css(`iframe[class='webview ready']`),
+		iframe: By.css(`iframe.webview.ready`),
 		activeFrame: By.id('active-frame'),
 	},
 	ExtensionEditorView: {
