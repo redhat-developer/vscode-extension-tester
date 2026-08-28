@@ -32,6 +32,10 @@ jobs:
       - name: 👷🏻 Checkout Repository
         uses: actions/checkout@v7
 
+      - name: ⚙️ Set TEST_RESOURCES path
+        run: echo "TEST_RESOURCES=${{ runner.temp }}/test-resources" >> $GITHUB_ENV
+        shell: bash
+
       - name: ⚙️ Setup NodeJS
         uses: actions/setup-node@v7
         with:
@@ -45,7 +49,7 @@ jobs:
         run: npm run build
 
       - name: ✨ Code Formatter - Prettier
-        run: npx prettier . --check
+        run: ./node_modules/.bin/prettier . --check
 
       - name: 🔧 Install - ExTester Runner
         run: npm install --workspace=extester-runner

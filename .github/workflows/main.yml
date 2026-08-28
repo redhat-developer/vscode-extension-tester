@@ -43,15 +43,83 @@ jobs:
       - name: 🔍 Run Unit Tests
         run: npm run test:unit
 
-  main:
-    name: ${{ matrix.version }}
-    strategy:
-      fail-fast: false
-      matrix:
-        version: [min, max]
-    uses: ./.github/workflows/template-main.yaml
+  group_01_general:
+    name: 🧪 01_general
+    uses: ./.github/workflows/template-suite.yaml
     with:
-      version: ${{ matrix.version }}
+      test_group: 01_general
+
+  group_activityBar:
+    name: 🧪 activityBar
+    uses: ./.github/workflows/template-suite.yaml
+    with:
+      test_group: activityBar
+
+  group_bottomBar:
+    name: 🧪 bottomBar
+    uses: ./.github/workflows/template-suite.yaml
+    with:
+      test_group: bottomBar
+
+  group_cli:
+    name: 🧪 cli
+    uses: ./.github/workflows/template-suite.yaml
+    with:
+      test_group: cli
+
+  group_debug:
+    name: 🧪 debug
+    uses: ./.github/workflows/template-suite.yaml
+    with:
+      test_group: debug
+
+  group_dialog:
+    name: 🧪 dialog
+    uses: ./.github/workflows/template-suite.yaml
+    with:
+      test_group: dialog
+
+  group_editor:
+    name: 🧪 editor
+    uses: ./.github/workflows/template-suite.yaml
+    with:
+      test_group: editor
+
+  group_menu:
+    name: 🧪 menu
+    uses: ./.github/workflows/template-suite.yaml
+    with:
+      test_group: menu
+
+  group_statusBar:
+    name: 🧪 statusBar
+    uses: ./.github/workflows/template-suite.yaml
+    with:
+      test_group: statusBar
+
+  group_system:
+    name: 🧪 system
+    uses: ./.github/workflows/template-suite.yaml
+    with:
+      test_group: system
+
+  group_webview:
+    name: 🧪 webview
+    uses: ./.github/workflows/template-suite.yaml
+    with:
+      test_group: webview
+
+  group_workbench:
+    name: 🧪 workbench
+    uses: ./.github/workflows/template-suite.yaml
+    with:
+      test_group: workbench
+
+  group_xsideBar:
+    name: 🧪 xsideBar
+    uses: ./.github/workflows/template-suite.yaml
+    with:
+      test_group: xsideBar
 
   runner:
     uses: ./.github/workflows/template-runner.yaml
@@ -62,20 +130,77 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     name: 🚦 Status Check
-    needs: [main, runner, unit]
+    needs:
+      - unit
+      - runner
+      - group_01_general
+      - group_activityBar
+      - group_bottomBar
+      - group_cli
+      - group_debug
+      - group_dialog
+      - group_editor
+      - group_menu
+      - group_statusBar
+      - group_system
+      - group_webview
+      - group_workbench
+      - group_xsideBar
     steps:
       - name: ℹ️ Test Matrix Result
         run: |
-          echo Unit Test result = ${{ needs.unit.result }}
-          echo Main Test result = ${{ needs.main.result }}
-          echo Runner Test result = ${{ needs.runner.result }}
+          echo Unit Test result              = ${{ needs.unit.result }}
+          echo Runner Test result            = ${{ needs.runner.result }}
+          echo 01_general Test result        = ${{ needs.group_01_general.result }}
+          echo activityBar Test result       = ${{ needs.group_activityBar.result }}
+          echo bottomBar Test result         = ${{ needs.group_bottomBar.result }}
+          echo cli Test result               = ${{ needs.group_cli.result }}
+          echo debug Test result             = ${{ needs.group_debug.result }}
+          echo dialog Test result            = ${{ needs.group_dialog.result }}
+          echo editor Test result            = ${{ needs.group_editor.result }}
+          echo menu Test result              = ${{ needs.group_menu.result }}
+          echo statusBar Test result         = ${{ needs.group_statusBar.result }}
+          echo system Test result            = ${{ needs.group_system.result }}
+          echo webview Test result           = ${{ needs.group_webview.result }}
+          echo workbench Test result         = ${{ needs.group_workbench.result }}
+          echo xsideBar Test result          = ${{ needs.group_xsideBar.result }}
       - name: ✅ Status Check - success
-        if: ${{ needs.main.result == 'success' && needs.runner.result == 'success' && needs.unit.result == 'success' }}
+        if: |
+          needs.unit.result == 'success' &&
+          needs.runner.result == 'success' &&
+          needs.group_01_general.result == 'success' &&
+          needs.group_activityBar.result == 'success' &&
+          needs.group_bottomBar.result == 'success' &&
+          needs.group_cli.result == 'success' &&
+          needs.group_debug.result == 'success' &&
+          needs.group_dialog.result == 'success' &&
+          needs.group_editor.result == 'success' &&
+          needs.group_menu.result == 'success' &&
+          needs.group_statusBar.result == 'success' &&
+          needs.group_system.result == 'success' &&
+          needs.group_webview.result == 'success' &&
+          needs.group_workbench.result == 'success' &&
+          needs.group_xsideBar.result == 'success'
         run: |
           echo "All tests successfully completed!"
           exit 0
       - name: ❌ Status Check - failure
-        if: ${{ needs.main.result != 'success' || needs.runner.result != 'success' || needs.unit.result != 'success' }}
+        if: |
+          needs.unit.result != 'success' ||
+          needs.runner.result != 'success' ||
+          needs.group_01_general.result != 'success' ||
+          needs.group_activityBar.result != 'success' ||
+          needs.group_bottomBar.result != 'success' ||
+          needs.group_cli.result != 'success' ||
+          needs.group_debug.result != 'success' ||
+          needs.group_dialog.result != 'success' ||
+          needs.group_editor.result != 'success' ||
+          needs.group_menu.result != 'success' ||
+          needs.group_statusBar.result != 'success' ||
+          needs.group_system.result != 'success' ||
+          needs.group_webview.result != 'success' ||
+          needs.group_workbench.result != 'success' ||
+          needs.group_xsideBar.result != 'success'
         run: |
           echo "Status Check failed!"
           exit 1
