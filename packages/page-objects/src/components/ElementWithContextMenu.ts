@@ -17,7 +17,8 @@
 
 import { AbstractElement } from './AbstractElement';
 import { ContextMenu } from '..';
-import { until, error } from 'selenium-webdriver';
+import { until, error, WebElement } from 'selenium-webdriver';
+import { ChromiumWebDriver } from 'selenium-webdriver/chromium';
 
 /**
  * Abstract element that has a context menu
@@ -49,5 +50,55 @@ export abstract class ElementWithContextMenu extends AbstractElement {
 
 			return new ContextMenu(workbench).wait();
 		});
+	}
+
+	/**
+	 * Since VS Code ~1.133 some context menus (notably the text editor's) render
+	 * inside an open shadow root on a `.shadow-root-host` element attached
+	 * directly to the workbench, instead of the document-level `.context-view`
+	 * container. Which shape a given install uses is not strictly version-bound,
+	 * so poll for either: resolve the menu from the shadow root when it appears,
+	 * or return undefined as soon as the legacy container shows up (or the
+	 * timeout runs out) so the caller can take the regular `.context-view` path.
+	 */
+	protected async waitForShadowRootMenu(timeout: number = 2000): Promise<ContextMenu | undefined> {
+		const driver = this.getDriver();
+		const end = Date.now() + timeout;
+		while (Date.now() < end) {
+			const hosts = await driver.findElements(ElementWithContextMenu.locators.ContextMenu.shadowRootHost);
+			for (const host of hosts) {
+				try {
+					const container = await this.menuContainerInShadowRoot(host);
+					if (container && (await container.isDisplayed())) {
+						return await new ContextMenu(host, container).wait();
+					}
+				} catch (err) {
+					// the host or menu got removed mid-check - keep polling
+				}
+			}
+			const legacy = await driver.findElements(ElementWithContextMenu.locators.ContextMenu.contextView);
+			for (const view of legacy) {
+				if (await view.isDisplayed().catch(() => false)) {
+					return undefined;
+				}
+			}
+			await new Promise((res) => setTimeout(res, 100));
+		}
+		return undefined;
+	}
+
+	private async menuContainerInShadowRoot(host: WebElement): Promise<WebElement | undefined> {
+		const driver = this.getDriver();
+		const capabilities = await (driver as ChromiumWebDriver).getCapabilities();
+		const chromiumVersion = capabilities.getBrowserVersion();
+		if (chromiumVersion && Number.parseInt(chromiumVersion.split('.')[0]) >= 96) {
+			const shadowRoot = await host.getShadowRoot();
+			const containers = await shadowRoot.findElements(ElementWithContextMenu.locators.ContextMenu.constructor);
+			return containers.length > 0 ? containers[0] : undefined;
+		}
+		return (await driver.executeScript(
+			'return arguments[0].shadowRoot ? arguments[0].shadowRoot.querySelector(".monaco-menu-container") : undefined;',
+			host,
+		)) as WebElement | undefined;
 	}
 }

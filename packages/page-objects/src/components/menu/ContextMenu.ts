@@ -22,8 +22,11 @@ import { WebElement, Key, until, error } from 'selenium-webdriver';
  * Object representing a context menu
  */
 export class ContextMenu extends Menu {
-	constructor(containingElement: WebElement) {
-		super(ContextMenu.locators.ContextMenu.constructor, containingElement);
+	constructor(containingElement: WebElement, menuElement?: WebElement) {
+		// menuElement covers menus whose container cannot be found by locator
+		// from the containing element, e.g. the menu inside a shadow root where
+		// the root's only child IS the menu container.
+		super(menuElement ?? ContextMenu.locators.ContextMenu.constructor, containingElement);
 	}
 
 	/**

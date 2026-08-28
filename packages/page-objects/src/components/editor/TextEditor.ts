@@ -23,7 +23,6 @@ import { Editor } from './Editor';
 import { ElementWithContextMenu } from '../ElementWithContextMenu';
 import { AbstractElement } from '../AbstractElement';
 import { Breakpoint } from './Breakpoint';
-import { ChromiumWebDriver } from 'selenium-webdriver/chromium';
 import { satisfies } from 'compare-versions';
 
 export class BreakpointError extends Error {}
@@ -602,19 +601,9 @@ export class TextEditor extends Editor {
 
 	async openContextMenu(): Promise<ContextMenu> {
 		await this.getDriver().actions().contextClick(this).perform();
-		const shadowRootHost = await this.enclosingItem.findElements(TextEditor.locators.TextEditor.shadowRootHost);
-
-		if (shadowRootHost.length > 0) {
-			let shadowRoot;
-			const webdriverCapabilities = await (this.getDriver() as ChromiumWebDriver).getCapabilities();
-			const chromiumVersion = webdriverCapabilities.getBrowserVersion();
-			if (chromiumVersion && parseInt(chromiumVersion.split('.')[0]) >= 96) {
-				shadowRoot = await shadowRootHost[0].getShadowRoot();
-				return new ContextMenu(await shadowRoot.findElement(TextEditor.locators.TextEditor.monacoMenuContainer)).wait();
-			} else {
-				shadowRoot = (await this.getDriver().executeScript('return arguments[0].shadowRoot', shadowRootHost[0])) as WebElement;
-				return new ContextMenu(shadowRoot).wait();
-			}
+		const menu = await this.waitForShadowRootMenu();
+		if (menu) {
+			return menu;
 		}
 		return await super.openContextMenu();
 	}
@@ -902,19 +891,9 @@ class Selection extends ElementWithContextMenu {
 			}
 		}
 
-		const shadowRootHost = await ed.getEnclosingElement().findElements(TextEditor.locators.TextEditor.shadowRootHost);
-
-		if (shadowRootHost.length > 0) {
-			let shadowRoot;
-			const webdriverCapabilities = await (this.getDriver() as ChromiumWebDriver).getCapabilities();
-			const chromiumVersion = webdriverCapabilities.getBrowserVersion();
-			if (chromiumVersion && Number.parseInt(chromiumVersion.split('.')[0]) >= 96) {
-				shadowRoot = await shadowRootHost[0].getShadowRoot();
-				return new ContextMenu(await shadowRoot.findElement(TextEditor.locators.TextEditor.monacoMenuContainer)).wait();
-			} else {
-				shadowRoot = (await this.getDriver().executeScript('return arguments[0].shadowRoot', shadowRootHost[0])) as WebElement;
-				return new ContextMenu(shadowRoot).wait();
-			}
+		const menu = await this.waitForShadowRootMenu();
+		if (menu) {
+			return menu;
 		}
 		return await super.openContextMenu();
 	}
