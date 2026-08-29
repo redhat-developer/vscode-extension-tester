@@ -92,3 +92,4 @@ jobs:
           path: |
             ${{ runner.temp }}/test-resources/screenshots/**/*.png
             ${{ runner.temp }}/test-resources/chromedriver.log
+            ${{ runner.temp }}/test-resources/crashes/**
