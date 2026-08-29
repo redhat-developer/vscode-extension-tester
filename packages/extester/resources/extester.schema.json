@@ -39,37 +39,172 @@
         },
         "packageOptions": {
           "type": "object",
-          "description": "vsce packaging options forwarded directly to vsce.createVSIX(). See @vscode/vsce IPackageOptions for all available fields.",
+          "description": "vsce packaging options forwarded directly to vsce.createVSIX(). Mirrors @vscode/vsce IPackageOptions — any field vsce supports is accepted, even if not listed here.",
           "properties": {
-            "useYarn": {
+            "packagePath": {
+              "type": "string",
+              "description": "Destination path of the packaged .vsix file (vsce: --out). Defaults to <name>-<version>.vsix in the extension directory.",
+              "examples": ["./out/extension.vsix"]
+            },
+            "version": {
+              "type": "string",
+              "description": "Bump the extension to this version before packaging (equivalent to 'vsce package <version>').",
+              "examples": ["1.2.3", "patch", "minor", "major"]
+            },
+            "target": {
+              "type": "string",
+              "description": "Target platform for a platform-specific extension (vsce: --target).",
+              "enum": [
+                "win32-x64",
+                "win32-arm64",
+                "linux-x64",
+                "linux-arm64",
+                "linux-armhf",
+                "darwin-x64",
+                "darwin-arm64",
+                "alpine-x64",
+                "alpine-arm64",
+                "web"
+              ]
+            },
+            "ignoreOtherTargetFolders": {
               "type": "boolean",
-              "description": "Use yarn instead of npm when packaging.",
+              "description": "Ignore files inside folders named after other targets (vsce: --ignore-other-target-folders). Only valid when 'target' is set.",
               "default": false
             },
             "followSymlinks": {
               "type": "boolean",
-              "description": "Follow symlinks when packaging.",
+              "description": "Recurse into symlinked directories instead of treating them as files (vsce: --follow-symlinks).",
               "default": false
+            },
+            "commitMessage": {
+              "type": "string",
+              "description": "Commit message used when calling 'npm version' (vsce: --message). Only applies when 'version' is set."
+            },
+            "gitTagVersion": {
+              "type": "boolean",
+              "description": "Create a version commit and tag when calling 'npm version'. Set to false for vsce --no-git-tag-version. Only applies when 'version' is set.",
+              "default": true
+            },
+            "updatePackageJson": {
+              "type": "boolean",
+              "description": "Update package.json when bumping the version. Set to false for vsce --no-update-package-json. Only applies when 'version' is set.",
+              "default": true
+            },
+            "cwd": {
+              "type": "string",
+              "description": "Directory of the extension to package. Defaults to the current working directory."
+            },
+            "readmePath": {
+              "type": "string",
+              "description": "Path to the README file shown on the marketplace (vsce: --readme-path). Defaults to README.md.",
+              "examples": ["./docs/README.md"]
+            },
+            "changelogPath": {
+              "type": "string",
+              "description": "Path to the CHANGELOG file (vsce: --changelog-path). Defaults to CHANGELOG.md.",
+              "examples": ["./docs/CHANGELOG.md"]
+            },
+            "githubBranch": {
+              "type": "string",
+              "description": "GitHub branch used to infer relative links in README.md (vsce: --githubBranch). Can be overridden by baseContentUrl and baseImagesUrl.",
+              "examples": ["main"]
+            },
+            "gitlabBranch": {
+              "type": "string",
+              "description": "GitLab branch used to infer relative links in README.md (vsce: --gitlabBranch). Can be overridden by baseContentUrl and baseImagesUrl.",
+              "examples": ["main"]
+            },
+            "rewriteRelativeLinks": {
+              "type": "boolean",
+              "description": "Rewrite relative links in README.md into absolute URLs. Set to false for vsce --no-rewrite-relative-links.",
+              "default": true
+            },
+            "baseContentUrl": {
+              "type": "string",
+              "description": "Prepend all relative links in README.md with this URL (vsce: --baseContentUrl)."
+            },
+            "baseImagesUrl": {
+              "type": "string",
+              "description": "Prepend all relative image links in README.md with this URL (vsce: --baseImagesUrl)."
+            },
+            "useYarn": {
+              "type": "boolean",
+              "description": "Use yarn instead of npm when packaging (vsce: --yarn / --no-yarn). When not set, vsce infers it from the presence of yarn.lock or .yarnrc."
+            },
+            "dependencyEntryPoints": {
+              "type": "array",
+              "description": "Select packages that should be included when packaging (vsce: --packagedDependencies).",
+              "items": {
+                "type": "string"
+              }
+            },
+            "ignoreFile": {
+              "type": "string",
+              "description": "Path to an alternative .vscodeignore file (vsce: --ignoreFile).",
+              "examples": ["./.vscodeignore-test"]
+            },
+            "gitHubIssueLinking": {
+              "type": "boolean",
+              "description": "Automatically expand GitHub-style issue syntax (#123) into links in README.md. Set to false for vsce --no-gitHubIssueLinking.",
+              "default": true
+            },
+            "gitLabIssueLinking": {
+              "type": "boolean",
+              "description": "Automatically expand GitLab-style issue syntax into links in README.md. Set to false for vsce --no-gitLabIssueLinking.",
+              "default": true
+            },
+            "dependencies": {
+              "type": "boolean",
+              "description": "Detect and include npm/yarn dependencies in the package. Set to false for the vsce --no-dependencies flag — typically needed together with useYarn, for yarn/npm workspaces, or when the extension is fully bundled.",
+              "default": true
             },
             "preRelease": {
               "type": "boolean",
-              "description": "Mark the packaged extension as a pre-release.",
+              "description": "Mark the packaged extension as a pre-release (vsce: --pre-release).",
               "default": false
             },
             "allowStarActivation": {
               "type": "boolean",
-              "description": "Allow the use of * in activationEvents.",
+              "description": "Allow the use of * in activationEvents (vsce: --allow-star-activation).",
               "default": false
             },
             "allowMissingRepository": {
               "type": "boolean",
-              "description": "Skip the check for a repository field in package.json.",
+              "description": "Skip the check for a repository field in package.json (vsce: --allow-missing-repository).",
+              "default": false
+            },
+            "allowUnusedFilesPattern": {
+              "type": "boolean",
+              "description": "Allow 'files' patterns in package.json that match no files (vsce: --allow-unused-files-pattern).",
+              "default": false
+            },
+            "allowPackageSecrets": {
+              "type": "array",
+              "description": "Allow packaging specific kinds of detected secrets (vsce: --allow-package-secrets). Secret names are reported in the packaging error message.",
+              "items": {
+                "type": "string"
+              },
+              "examples": [["npm"]]
+            },
+            "allowPackageAllSecrets": {
+              "type": "boolean",
+              "description": "Allow packaging even when secrets are detected (vsce: --allow-package-all-secrets).",
+              "default": false
+            },
+            "allowPackageEnvFile": {
+              "type": "boolean",
+              "description": "Allow packaging .env files (vsce: --allow-package-env-file).",
               "default": false
             },
             "skipLicense": {
               "type": "boolean",
-              "description": "Skip adding a LICENSE file to the package.",
+              "description": "Skip adding a LICENSE file to the package (vsce: --skip-license).",
               "default": false
+            },
+            "signTool": {
+              "type": "string",
+              "description": "Path to a VSIX signing tool (vsce: --sign-tool). Invoked with the signature manifest and .p7s file as arguments."
             }
           },
           "additionalProperties": true

@@ -321,6 +321,10 @@ Common examples:
 // Use yarn instead of npm
 { useYarn: true }
 
+// Use yarn without dependency detection (vsce's --yarn --no-dependencies,
+// e.g. for yarn/npm workspaces or fully bundled extensions)
+{ useYarn: true, dependencies: false }
+
 // Recurse into symlinked directories (fixes missing-symlink issues)
 { followSymlinks: true }
 
