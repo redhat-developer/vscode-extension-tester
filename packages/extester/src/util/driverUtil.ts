@@ -18,6 +18,7 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as childProcess from 'child_process';
+import { logging } from 'selenium-webdriver';
 import { Unpack } from './unpack';
 import { Download } from './download';
 import { DEFAULT_STORAGE_FOLDER } from '../extester';
@@ -109,6 +110,32 @@ export class DriverUtil {
 			driverBinaryPath = path.join(this.downloadFolder, `chromedriver-${DriverUtil.getChromeDriverPlatform()}`, binary);
 		}
 		return driverBinaryPath;
+	}
+
+	/**
+	 * Translate a selenium log level into ChromeDriver service arguments.
+	 * ChromeDriver's --verbose (= --log-level=ALL) records the full CDP wire
+	 * traffic and grows the log by hundreds of MB over a long session, so the
+	 * driver only gets that level when the user asks for finer-than-DEBUG
+	 * logging; the default INFO still records session lifecycle and command
+	 * results.
+	 */
+	static chromeDriverLogLevelArgs(level: logging.Level): string[] {
+		let driverLevel: string;
+		if (level === logging.Level.OFF) {
+			driverLevel = 'OFF';
+		} else if (level.value >= logging.Level.SEVERE.value) {
+			driverLevel = 'SEVERE';
+		} else if (level.value >= logging.Level.WARNING.value) {
+			driverLevel = 'WARNING';
+		} else if (level.value >= logging.Level.INFO.value) {
+			driverLevel = 'INFO';
+		} else if (level.value >= logging.Level.DEBUG.value) {
+			driverLevel = 'DEBUG';
+		} else {
+			driverLevel = 'ALL';
+		}
+		return [`--log-level=${driverLevel}`, '--readable-timestamp'];
 	}
 
 	static getChromeDriverPlatform(): string | undefined {

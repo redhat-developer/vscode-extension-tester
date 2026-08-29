@@ -201,7 +201,9 @@ export class VSBrowser {
 		console.log(`Launching browser... (ChromeDriver log: ${chromeDriverLog})`);
 
 		this._driver = await new Builder()
-			.setChromeService(new ServiceBuilder(chromeDriverBinaryPath).loggingTo(chromeDriverLog).enableVerboseLogging())
+			.setChromeService(
+				new ServiceBuilder(chromeDriverBinaryPath).loggingTo(chromeDriverLog).addArguments(...DriverUtil.chromeDriverLogLevelArgs(this.logLevel)),
+			)
 			.forBrowser(Browser.CHROME)
 			.setChromeOptions(options)
 			.build();
