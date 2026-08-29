@@ -17,6 +17,9 @@
   },
   "author": "Red Hat",
   "license": "Apache-2.0",
+  "engines": {
+    "node": ">=22"
+  },
   "publishConfig": {
     "access": "public"
   },
