@@ -154,7 +154,28 @@ export class VSBrowser {
 			console.log(`Restored languagepacks.json to ${languagePacksPath}`);
 		}
 
-		const args = ['--no-sandbox', '--disable-dev-shm-usage', `--user-data-dir=${path.join(this.storagePath, 'settings')}`];
+		// Crash dumps are redirected into the storage folder so CI can collect
+		// them as failure artifacts alongside screenshots and driver logs.
+		const crashesDir = path.join(this.storagePath, 'crashes');
+		fs.mkdirpSync(crashesDir);
+
+		const args = [
+			'--no-sandbox',
+			'--disable-dev-shm-usage',
+			// Determinism flags used by Microsoft's own harnesses (@vscode/test-electron
+			// and the VS Code smoke tests): the updater, experiments and telemetry must
+			// not vary behavior mid-run, and workspace trust has to be off from the very
+			// first window - the injected settings.json only applies after the profile
+			// is read, while the flag applies immediately.
+			'--disable-updates',
+			'--disable-workspace-trust',
+			'--disable-telemetry',
+			'--disable-experiments',
+			'--no-cached-data',
+			'--disable-gpu-sandbox',
+			`--crash-reporter-directory=${crashesDir}`,
+			`--user-data-dir=${path.join(this.storagePath, 'settings')}`,
+		];
 
 		if (this.locale) {
 			args.push(`--locale=${this.locale}`);

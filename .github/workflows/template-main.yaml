@@ -93,6 +93,7 @@ jobs:
           path: |
             ${{ runner.temp }}/test-resources/screenshots/**/*.png
             ${{ runner.temp }}/test-resources/chromedriver.log
+            ${{ runner.temp }}/test-resources/crashes/**
 
       - name: 💾 Upload Screenshots
         uses: actions/upload-artifact@v7
@@ -102,3 +103,4 @@ jobs:
           path: |
             ${{ runner.temp }}/test-resources/screenshots/**/*.png
             ${{ runner.temp }}/test-resources/chromedriver.log
+            ${{ runner.temp }}/test-resources/crashes/**
