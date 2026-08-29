@@ -2,7 +2,7 @@
 
 ## Limitations in testing with VS Code 1.87+
 
-The issue [#206897](https://github.com/microsoft/vscode/issues/206897) was spotted and reported in [Visual Studio Code](https://github.com/microsoft/vscode) project. The problem is currently affecting only Windows and Linux architectures. Unfortunately there is no identified workaround at the moment, which leads to some ExTester's components methods are not working properly.
+Since VS Code 1.87, the `title` attribute of dropdown (`<select>`) elements is no longer set on Windows and Linux — VS Code uses custom hovers instead (macOS is not affected). This was reported upstream as [#206897](https://github.com/microsoft/vscode/issues/206897) and **closed as not-planned** in May 2024, so this is a permanent limitation, not a pending fix. The affected methods throw a deprecation error on Windows and Linux:
 
 - Output views / Text views
   - getCurrentChannel
