@@ -25,7 +25,6 @@ import { Unpack } from './unpack';
 import { logging } from 'selenium-webdriver';
 import { Download } from './download';
 import { DEFAULT_STORAGE_FOLDER } from '../extester';
-import { satisfies } from 'compare-versions';
 
 export enum ReleaseQuality {
 	Stable = 'stable',
@@ -294,12 +293,7 @@ export class CodeUtil {
 	}
 
 	private getCliInitCommand(): string {
-		const cli = `${this.cliEnv} "${this.getExecutablePath()}" "${this.getCliPath()}"`;
-		if (satisfies(this.getExistingCodeVersion(), '>=1.86.0')) {
-			return cli;
-		} else {
-			return `${cli} --ms-enable-electron-run-as-node`;
-		}
+		return `${this.cliEnv} "${this.getExecutablePath()}" "${this.getCliPath()}"`;
 	}
 
 	private installExt(pathOrID: string, preRelease?: boolean): void {
@@ -514,11 +508,7 @@ export class CodeUtil {
 		let out: Buffer;
 		try {
 			const command = `${this.cliEnv} "${this.getExecutablePath()}"`;
-			try {
-				out = childProcess.execSync(`${command} -e "${script}"`, { env: this.env, timeout: 30_000 });
-			} catch {
-				out = childProcess.execSync(`${command} --ms-enable-electron-run-as-node -e "${script}"`, { env: this.env, timeout: 30_000 });
-			}
+			out = childProcess.execSync(`${command} -e "${script}"`, { env: this.env, timeout: 30_000 });
 		} catch {
 			return undefined;
 		}
@@ -587,12 +577,7 @@ export class CodeUtil {
 			return this.cachedCodeVersion;
 		}
 		const command = `${this.cliEnv} "${this.getExecutablePath()}" "${this.getCliPath()}"`;
-		let out: Buffer;
-		try {
-			out = childProcess.execSync(`${command} -v`, { env: this.env, timeout: 30_000 });
-		} catch (error) {
-			out = childProcess.execSync(`${command} --ms-enable-electron-run-as-node -v`, { env: this.env, timeout: 30_000 });
-		}
+		const out = childProcess.execSync(`${command} -v`, { env: this.env, timeout: 30_000 });
 		this.cachedCodeVersion = out.toString().split('\n')[0];
 		return this.cachedCodeVersion;
 	}

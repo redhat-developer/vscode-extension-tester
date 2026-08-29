@@ -193,7 +193,7 @@ export class ExTester {
 			console.log('Attempting Setup in offline mode');
 			const chromiumVersion = this.code.checkOfflineRequirements();
 			const expectedChromeVersion = chromiumVersion.split('.')[0];
-			const actualChromeVersion = (await this.chrome.checkDriverVersionOffline(chromiumVersion)).split('.')[0];
+			const actualChromeVersion = (await this.chrome.checkDriverVersionOffline()).split('.')[0];
 			if (expectedChromeVersion !== actualChromeVersion) {
 				console.log(
 					'\x1b[33m%s\x1b[0m',

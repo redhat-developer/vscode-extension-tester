@@ -82,21 +82,17 @@ describe('DriverUtil.findChromeDriverBinary', () => {
 		assert.strictEqual(DriverUtil.findChromeDriverBinary(storage), nestedPath());
 	});
 
-	it('falls back to the flat legacy layout', async () => {
+	it('ignores the flat pre-115 layout, which cannot hold a supported driver', async () => {
+		// the flat layout was only ever produced by chromedriver <= 114 downloads,
+		// which VS Code >= 1.90 (Chromium >= 122) can never use
 		await fs.outputFile(path.join(storage, binary), '');
-		assert.strictEqual(DriverUtil.findChromeDriverBinary(storage), path.join(storage, binary));
+		assert.throws(() => DriverUtil.findChromeDriverBinary(storage));
 	});
 
-	it('prefers the nested layout when both exist', async () => {
-		await fs.outputFile(nestedPath(), '');
-		await fs.outputFile(path.join(storage, binary), '');
-		assert.strictEqual(DriverUtil.findChromeDriverBinary(storage), nestedPath());
-	});
-
-	it('throws an error naming both candidate paths when no binary exists', () => {
+	it('throws an error naming the expected path when no binary exists', () => {
 		assert.throws(
 			() => DriverUtil.findChromeDriverBinary(storage),
-			(err: Error) => err.message.includes(nestedPath()) && err.message.includes(path.join(storage, binary)),
+			(err: Error) => err.message.includes(nestedPath()),
 		);
 	});
 });
@@ -124,6 +120,18 @@ describe('DriverUtil ChromeDriver version resolution', () => {
 	function resolver(): VersionResolver {
 		return new DriverUtil(storage) as unknown as VersionResolver;
 	}
+
+	it('rejects Chromium versions below the VS Code 1.90 floor with a clear error', async () => {
+		Download.getFile = async () => {
+			throw new Error('the legacy chromedriver store must not be contacted');
+		};
+		Download.getText = async () => {
+			throw new Error('no endpoint should be contacted for unsupported versions');
+		};
+
+		await assert.rejects(resolver().getChromeDriverVersion('114.0.5735.90'), /1\.90/);
+		await assert.rejects(resolver().getChromeDriverVersion('69.0.0.0'), /1\.90/);
+	});
 
 	it('uses the exact Chromium version when Chrome for Testing hosts it', async () => {
 		Download.checkURL = async (url: string) => {
