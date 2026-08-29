@@ -46,6 +46,19 @@ describe('DriverUtil.chromeDriverLogLevelArgs', () => {
 	it('maps OFF to --log-level=OFF', () => {
 		assert.deepStrictEqual(DriverUtil.chromeDriverLogLevelArgs(logging.Level.OFF), ['--log-level=OFF', '--readable-timestamp']);
 	});
+
+	it('accepts the level name string exactly as the CLI passes it', () => {
+		// the --log_level option hands the value over as a mixed-case string
+		assert.deepStrictEqual(DriverUtil.chromeDriverLogLevelArgs('Info'), ['--log-level=INFO', '--readable-timestamp']);
+		assert.deepStrictEqual(DriverUtil.chromeDriverLogLevelArgs('Off'), ['--log-level=OFF', '--readable-timestamp']);
+		assert.deepStrictEqual(DriverUtil.chromeDriverLogLevelArgs('All'), ['--log-level=ALL', '--readable-timestamp']);
+	});
+
+	it('falls back to INFO for unknown level names instead of ALL', () => {
+		// selenium's logging.getLevel silently returns ALL for unknown names,
+		// which must not translate into full CDP wire logging by accident
+		assert.deepStrictEqual(DriverUtil.chromeDriverLogLevelArgs('NotALevel'), ['--log-level=INFO', '--readable-timestamp']);
+	});
 });
 
 describe('DriverUtil.findChromeDriverBinary', () => {
