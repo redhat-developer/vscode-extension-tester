@@ -89,6 +89,13 @@ export interface ExTesterRunConfig {
  * ```
  */
 export interface ExTesterConfig {
+	/**
+	 * Path(s) to base config file(s) to inherit from. Relative paths resolve against the
+	 * directory of the config file that declares them. Later entries override earlier ones;
+	 * this file overrides all bases. Objects are deep-merged; arrays and scalars are replaced
+	 * whole. Never present in the loaded result.
+	 */
+	extends?: string | string[];
 	/** Setup options: VS Code download, ChromeDriver, and extension installation. */
 	setup?: ExTesterSetupConfig;
 	/** Run options: test execution inside VS Code. */
@@ -177,18 +184,120 @@ function resolvePaths(config: ExTesterConfig, baseDir: string): ExTesterConfig {
 	return config;
 }
 
+/** Returns true for plain (non-array) objects — the only values that are deep-merged. */
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+	return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 /**
- * Loads and parses an `extester.config.json` configuration file.
- *
- * - If `configPath` is provided, that exact file is read (throws if it does not exist).
- * - If `configPath` is omitted, `find-up` walks from `process.cwd()` looking for
- *   `extester.config.json`. Returns `{}` when no file is found.
- * - All relative paths inside the config are resolved relative to the directory containing
- *   the config file, so paths work regardless of where `extest` is invoked from.
- *
- * @param configPath Optional explicit path to the config file.
- * @returns Parsed and path-resolved {@link ExTesterConfig}. Empty object when no file is found.
+ * Deep-merges `override` into `base` and returns a new object.
+ * Plain objects merge recursively; arrays and scalars in `override` replace the base value whole.
+ * `__proto__`/`constructor`/`prototype` keys are skipped to prevent prototype pollution.
  */
+function mergeConfigs(base: Record<string, unknown>, override: Record<string, unknown>): Record<string, unknown> {
+	const result: Record<string, unknown> = { ...base };
+	for (const key of Object.keys(override)) {
+		if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+			continue;
+		}
+		const baseVal = result[key];
+		const overrideVal = override[key];
+		result[key] = isPlainObject(baseVal) && isPlainObject(overrideVal) ? mergeConfigs(baseVal, overrideVal) : overrideVal;
+	}
+	return result;
+}
+
+/**
+ * Reads and parses a single config file. Error messages name this specific file, so with
+ * `extends` chains the failing file (base or child) is always identifiable.
+ */
+function readConfigFile(filePath: string): ExTesterConfig {
+	try {
+		const stat = statSync(filePath);
+		if (!stat.isFile()) {
+			throw new Error(`extester config: path is not a file: ${filePath}`);
+		}
+	} catch (err: unknown) {
+		if (err instanceof Error && err.message.startsWith('extester config:')) {
+			throw err;
+		}
+		throw new Error(`extester config: file not found: ${filePath}`);
+	}
+
+	let raw: string;
+	try {
+		raw = readFileSync(filePath, 'utf8');
+	} catch {
+		throw new Error(`extester config: could not read file: ${filePath}`);
+	}
+
+	try {
+		return JSON.parse(raw) as ExTesterConfig;
+	} catch {
+		throw new Error(`extester config: invalid JSON in ${filePath}`);
+	}
+}
+
+/**
+ * Resolves an `extends` target declared inside a config file to a canonical path.
+ *
+ * Unlike {@link safeConfigPath} (which gates CLI-provided `--config` input per SonarCloud
+ * rule tssecurity:S8707), extends targets are NOT restricted to cwd/tmpdir: the specifier
+ * comes from a config file the user already owns and explicitly loaded, not from untrusted
+ * process input, and the primary use case is a shared base config ABOVE the package
+ * directory (e.g. a monorepo root). The path is still canonicalised via realpathSync and
+ * must have a .json extension.
+ */
+function safeExtendsPath(specifier: string, declaringDir: string): string {
+	const resolved = path.isAbsolute(specifier) ? specifier : path.resolve(declaringDir, specifier);
+	let canonical: string;
+	try {
+		canonical = realpathSync(resolved);
+	} catch {
+		throw new Error(`extester config: extended config file not found: ${resolved}`);
+	}
+	if (path.extname(canonical).toLowerCase() !== '.json') {
+		throw new Error(`extester config: extended config file must be a .json file: ${canonical}`);
+	}
+	return canonical;
+}
+
+/**
+ * Loads a config file and recursively merges in its `extends` bases.
+ *
+ * Each file's relative paths are resolved against its own directory BEFORE merging, so
+ * paths declared in a base config stay anchored to the base file's location. Bases are
+ * merged in declaration order (later ones win) and the extending file is merged last.
+ *
+ * @param canonicalPath Canonical (realpath'd) path of the config file to load.
+ * @param visited Chain of canonical paths currently being loaded, for cycle detection.
+ */
+function loadConfigWithExtends(canonicalPath: string, visited: string[]): ExTesterConfig {
+	if (visited.includes(canonicalPath)) {
+		throw new Error(`extester config: circular extends detected: ${[...visited, canonicalPath].join(' -> ')}`);
+	}
+	const parsed = readConfigFile(canonicalPath);
+	const dir = path.dirname(canonicalPath);
+
+	// Consume `extends` before path resolution and merging so it never appears in the result.
+	const extendsValue = parsed.extends;
+	delete parsed.extends;
+	const specifiers = typeof extendsValue === 'string' ? [extendsValue] : (extendsValue ?? []);
+	if (!Array.isArray(specifiers) || specifiers.some((spec) => typeof spec !== 'string')) {
+		throw new Error(`extester config: "extends" must be a string or an array of strings in ${canonicalPath}`);
+	}
+
+	const self = resolvePaths(parsed, dir);
+	const chain = [...visited, canonicalPath];
+	let merged: Record<string, unknown> = {};
+	for (const spec of specifiers) {
+		// Earlier bases are merged first, so later entries override earlier ones.
+		const base = loadConfigWithExtends(safeExtendsPath(spec, dir), chain);
+		merged = mergeConfigs(merged, base as Record<string, unknown>);
+	}
+	return mergeConfigs(merged, self as Record<string, unknown>) as ExTesterConfig;
+}
+
 /**
  * Resolves a config file path from CLI input to a safe canonical path.
  *
@@ -229,6 +338,21 @@ function safeConfigPath(filePath: string): string {
 	return resolved;
 }
 
+/**
+ * Loads and parses an `extester.config.json` configuration file.
+ *
+ * - If `configPath` is provided, that exact file is read (throws if it does not exist).
+ * - If `configPath` is omitted, `find-up` walks from `process.cwd()` looking for
+ *   `extester.config.json`. Returns `{}` when no file is found.
+ * - A top-level `extends` field (string or array of file paths) pulls in base config
+ *   file(s), which are deep-merged underneath this file's own values. See
+ *   {@link loadConfigWithExtends} for the merge rules.
+ * - All relative paths inside each config file are resolved relative to the directory
+ *   containing that file, so paths work regardless of where `extest` is invoked from.
+ *
+ * @param configPath Optional explicit path to the config file.
+ * @returns Parsed, merged and path-resolved {@link ExTesterConfig}. Empty object when no file is found.
+ */
 export async function loadConfig(configPath?: string): Promise<ExTesterConfig> {
 	let safePath: string | undefined;
 
@@ -248,31 +372,5 @@ export async function loadConfig(configPath?: string): Promise<ExTesterConfig> {
 		return {};
 	}
 
-	try {
-		const stat = statSync(safePath);
-		if (!stat.isFile()) {
-			throw new Error(`extester config: path is not a file: ${safePath}`);
-		}
-	} catch (err: unknown) {
-		if (err instanceof Error && err.message.startsWith('extester config:')) {
-			throw err;
-		}
-		throw new Error(`extester config: file not found: ${safePath}`);
-	}
-
-	let raw: string;
-	try {
-		raw = readFileSync(safePath, 'utf8');
-	} catch {
-		throw new Error(`extester config: could not read file: ${safePath}`);
-	}
-
-	let parsed: ExTesterConfig;
-	try {
-		parsed = JSON.parse(raw) as ExTesterConfig;
-	} catch {
-		throw new Error(`extester config: invalid JSON in ${safePath}`);
-	}
-
-	return resolvePaths(parsed, path.dirname(safePath));
+	return loadConfigWithExtends(safePath, []);
 }

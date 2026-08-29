@@ -219,19 +219,48 @@ To point to a specific file instead:
 extest setup-and-run --config ./config/extester.config.json
 ```
 
+### Extending config files
+
+A config file can inherit from one or more base config files via the top-level `extends` field — useful for sharing one base config across packages in a monorepo while overriding only what differs (e.g. the `testFiles` globs):
+
+```json
+// <repo root>/extester.base.json
+{
+  "setup": { "vscodeVersion": "latest", "installDependencies": true },
+  "run": { "logLevel": "Info" }
+}
+```
+
+```json
+// packages/my-extension/extester.config.json
+{
+  "extends": "../../extester.base.json",
+  "run": { "testFiles": ["./out/test/**/*.test.js"] }
+}
+```
+
+Merge rules:
+
+- `extends` accepts a single path or an array of paths (relative or absolute). Relative paths resolve against the directory of the file that declares them.
+- With multiple bases, later entries override earlier ones, and the extending file overrides all of its bases.
+- Objects are deep-merged; **arrays and scalars are replaced whole, not concatenated** — setting `testFiles` in an extending file fully replaces the base's globs.
+- Relative paths _inside_ each config file resolve against that file's own directory, so a base config's `storage` or `testFiles` stay anchored to the base file's location.
+- Chains are allowed (a base may itself extend another file); circular chains are reported as an error.
+- The `extends` field never appears in the effective config.
+
 ### Precedence
 
 Settings are resolved in this order — later sources override earlier ones:
 
 ```
-built-in defaults  ←  extester.config.json  ←  CLI flags
+built-in defaults  ←  extended base configs (in order)  ←  extester.config.json  ←  CLI flags
 ```
 
 Environment variables (`CODE_VERSION`, `TEST_RESOURCES`, etc.) continue to apply at their existing layer inside ExTester and are not affected by the config file.
 
 ### Config file reference
 
-All fields are optional. Paths are resolved relative to the config file's location.
+All fields are optional. Paths are resolved relative to the config file's location. The top-level `extends` field is described in [Extending config files](#extending-config-files).
 
 #### `setup` section
 
