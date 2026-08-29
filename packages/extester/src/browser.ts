@@ -182,9 +182,10 @@ export class VSBrowser {
 		}
 
 		const extraArgs = ['--skip-welcome', '--skip-sessions-welcome', '--skip-release-notes'];
-		let options = new Options().setChromeBinaryPath(codePath).addArguments(...args, ...extraArgs) as any;
-		options['options_'].windowTypes = ['webview'];
-		options = options as Options;
+		const options = new Options()
+			.setChromeBinaryPath(codePath)
+			.addArguments(...args, ...extraArgs)
+			.windowTypes('webview') as Options;
 
 		const prefs = new logging.Preferences();
 		prefs.setLevel(logging.Type.DRIVER, this.logLevel);
