@@ -77,6 +77,14 @@ Each supported VS Code version has a `packages/locators/lib/1.X.Y.ts` file.
 menus, activity bar, sidebar/tree views, editors, bottom bar views, dialogs, status bar, workbench.
 All classes extend `AbstractElement` (backed by `selenium-webdriver`).
 
+Page objects read element state via `WebElement.getAttribute()` **on purpose**. It is not
+deprecated in the selenium-webdriver JS binding, and its hybrid semantics (attribute value with
+property fallback, boolean normalization, special-cased `class`/`readonly`) are exactly what the
+page objects rely on when reading `aria-*` attributes, class names and input values. Do not
+bulk-migrate these calls to `getDomAttribute()`/`getDomProperty()` — those are W3C-precise APIs
+with different semantics and such a migration silently changes behavior. Use them only in new
+code where a W3C-precise read is specifically wanted.
+
 ---
 
 ## Key Technical Conventions
@@ -90,6 +98,7 @@ All classes extend `AbstractElement` (backed by `selenium-webdriver`).
 | VS Code versions | **Do not hardcode version strings.** Use `VSCODE_VERSION_MIN` / `VSCODE_VERSION_MAX` from `packages/extester/src/extester.ts` |
 | Build artifacts | **Do not edit `out/` directories** — they are compiled outputs |
 | Locator XPaths | **Do not write XPath strings in tests.** Always use the page-objects locator API |
+| Element attributes | **Do not migrate `getAttribute()` to `getDomAttribute()`/`getDomProperty()`** — see the Page Object Model section |
 | Root dependencies | **Do not add runtime deps to the root `package.json`** — root is dev tooling only |
 
 ### VS Code version support policy
