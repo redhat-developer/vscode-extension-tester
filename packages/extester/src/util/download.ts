@@ -16,7 +16,6 @@
  */
 
 import * as fs from 'fs-extra';
-import { promisify } from 'node:util';
 import stream from 'node:stream';
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
 
@@ -113,23 +112,42 @@ export class Download {
 		const tmpDest = `${destination}.tmp`;
 		let lastTick = 0;
 		const got = (await import('got')).default;
-		const dlStream = got.stream(uri, options);
-		dlStream.on('retry', (newRetryCount: number, error) => {
-			console.warn(`retry(${newRetryCount}): Failed getting ${uri} due to ${error}`);
-		});
-		if (progress) {
-			dlStream.on('downloadProgress', ({ transferred, total, percent }) => {
-				const currentTime = Date.now();
-				if (total > 0 && (lastTick === 0 || transferred === total || currentTime - lastTick >= 2000)) {
-					console.log(`progress: ${transferred}/${total} (${Math.floor(100 * percent)}%)`);
-					lastTick = currentTime;
-				}
-			});
-		}
-		const writeStream = fs.createWriteStream(tmpDest);
+		type GotStream = ReturnType<typeof got.stream>;
 
 		try {
-			await promisify(stream.pipeline)(dlStream, writeStream);
+			await new Promise<void>((resolve, reject) => {
+				// got never retries streams on its own: on a retriable failure it only emits
+				// 'retry' and expects the consumer to continue with a fresh stream obtained
+				// from createRetryStream(), so every attempt re-pipes into a truncated tmp file.
+				const attempt = (dlStream: GotStream): void => {
+					let retrying = false;
+					dlStream.once('retry', (newRetryCount: number, error: unknown, createRetryStream: () => GotStream) => {
+						retrying = true;
+						console.warn(`retry(${newRetryCount}): Failed getting ${uri} due to ${error}`);
+						attempt(createRetryStream());
+					});
+					if (progress) {
+						dlStream.on('downloadProgress', ({ transferred, total, percent }) => {
+							const currentTime = Date.now();
+							if (total > 0 && (lastTick === 0 || transferred === total || currentTime - lastTick >= 2000)) {
+								console.log(`progress: ${transferred}/${total} (${Math.floor(100 * percent)}%)`);
+								lastTick = currentTime;
+							}
+						});
+					}
+					stream.pipeline(dlStream, fs.createWriteStream(tmpDest), (err) => {
+						if (err) {
+							// when a retry fired, the next attempt's pipeline settles the promise
+							if (!retrying) {
+								reject(err);
+							}
+						} else {
+							resolve();
+						}
+					});
+				};
+				attempt(got.stream(uri, options));
+			});
 			await fs.rename(tmpDest, destination);
 		} catch (err) {
 			await fs.remove(tmpDest).catch(() => {});
