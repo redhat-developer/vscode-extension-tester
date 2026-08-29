@@ -15,54 +15,50 @@
  * limitations under the License.
  */
 
+import * as path from 'path';
+import * as fs from 'fs-extra';
 import { PathLike } from 'fs-extra';
-import unzip from 'unzipper';
-import targz from 'targz';
+import * as tar from 'tar';
+import extractZip from 'extract-zip';
 import { exec } from 'child_process';
 
 export class Unpack {
 	static async unpack(input: PathLike, target: PathLike): Promise<void> {
-		return new Promise((resolve, reject) => {
-			if (input.toString().endsWith('.tar.gz')) {
-				targz.decompress(
-					{
-						src: input.toString(),
-						dest: target.toString(),
-					},
-					(err: string | Error | null | undefined) => {
-						if (err) {
-							const errWho = err instanceof Error ? err : new Error(err);
-							reject(errWho);
-						} else {
-							resolve();
-						}
-					},
-				);
-			} else if (input.toString().endsWith('.zip')) {
-				if (process.platform === 'darwin' || process.platform === 'linux') {
-					exec(`unzip -qo "${input.toString()}"`, { cwd: target.toString(), timeout: 120_000 }, (err) => {
+		const source = input.toString();
+		const destination = target.toString();
+		await fs.mkdirp(destination);
+
+		if (source.endsWith('.tar.gz')) {
+			// node-tar >= 7 ignores the archive's file modes unless chmod is set —
+			// the extracted `code` binary must keep its executable bit
+			await tar.x({ file: source, cwd: destination, chmod: true });
+		} else if (source.endsWith('.zip')) {
+			if (process.platform === 'darwin' || process.platform === 'linux') {
+				// system unzip preserves the .app bundle's symlinks and exec bits
+				// with zero JS-side work; microsoft/vscode-test does the same
+				await new Promise<void>((resolve, reject) => {
+					exec(`unzip -qo "${source}"`, { cwd: destination, timeout: 120_000 }, (err) => {
 						if (err) {
 							reject(new Error(err.message));
 						} else {
 							resolve();
 						}
 					});
-				} else {
-					// WINDOWS, ...
-					unzip.Open.file(`${input.toString()}`)
-						.then((d: { extract: (arg0: { path: string; concurrency: number }) => any }) =>
-							d.extract({ path: `${target.toString()}`, concurrency: 5 }),
-						)
-						.then((val: void | PromiseLike<void>) => {
-							resolve(val);
-						})
-						.catch((err: { message: string | undefined }) => {
-							reject(new Error(err.message));
-						});
-				}
+				});
 			} else {
-				reject(new Error(`Unsupported extension for '${input}'`));
+				await Unpack.unpackZipWithLibrary(source, destination);
 			}
-		});
+		} else {
+			throw new Error(`Unsupported extension for '${source}'`);
+		}
+	}
+
+	/**
+	 * Zip extraction used where no system unzip is available (Windows).
+	 * Kept separate so this code path stays unit-testable on every platform.
+	 */
+	static async unpackZipWithLibrary(source: string, destination: string): Promise<void> {
+		// extract-zip requires an absolute target directory
+		await extractZip(source, { dir: path.resolve(destination) });
 	}
 }
