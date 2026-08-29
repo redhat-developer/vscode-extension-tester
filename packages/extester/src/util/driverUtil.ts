@@ -140,7 +140,28 @@ export class DriverUtil {
 	 * logging; the default INFO still records session lifecycle and command
 	 * results.
 	 */
-	static chromeDriverLogLevelArgs(level: logging.Level): string[] {
+	static chromeDriverLogLevelArgs(level: logging.Level | string): string[] {
+		const resolved = DriverUtil.resolveLogLevel(level);
+		return [`--log-level=${DriverUtil.chromeDriverLogLevel(resolved)}`, '--readable-timestamp'];
+	}
+
+	/**
+	 * Resolve a webdriver log level that may arrive as a name string (the
+	 * --log_level CLI option passes e.g. 'Info' through unchanged). Note that
+	 * selenium's logging.getLevel is case-sensitive and silently returns ALL
+	 * for unknown names, so normalize first and default unknown names to INFO
+	 * rather than accidentally enabling full wire logging.
+	 */
+	static resolveLogLevel(level: logging.Level | string): logging.Level {
+		if (typeof level !== 'string') {
+			return level;
+		}
+		const name = level.trim().toUpperCase();
+		const known = ['OFF', 'SEVERE', 'WARNING', 'INFO', 'DEBUG', 'FINE', 'FINER', 'FINEST', 'ALL'];
+		return known.includes(name) ? logging.getLevel(name) : logging.Level.INFO;
+	}
+
+	private static chromeDriverLogLevel(level: logging.Level): string {
 		let driverLevel: string;
 		if (level === logging.Level.OFF) {
 			driverLevel = 'OFF';
@@ -155,7 +176,7 @@ export class DriverUtil {
 		} else {
 			driverLevel = 'ALL';
 		}
-		return [`--log-level=${driverLevel}`, '--readable-timestamp'];
+		return driverLevel;
 	}
 
 	static getChromeDriverPlatform(): string | undefined {

@@ -188,7 +188,7 @@ export class VSBrowser {
 			.windowTypes('webview') as Options;
 
 		const prefs = new logging.Preferences();
-		prefs.setLevel(logging.Type.DRIVER, this.logLevel);
+		prefs.setLevel(logging.Type.DRIVER, DriverUtil.resolveLogLevel(this.logLevel));
 		options.setLoggingPrefs(prefs);
 
 		const chromeDriverBinaryPath = DriverUtil.findChromeDriverBinary(this.storagePath);
