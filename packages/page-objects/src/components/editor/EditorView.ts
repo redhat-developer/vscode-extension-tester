@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { error, WebElement } from 'selenium-webdriver';
+import { error, Key, WebElement } from 'selenium-webdriver';
 import { TextEditor } from '../..';
 import { AbstractElement } from '../AbstractElement';
 import { ElementWithContextMenu } from '../ElementWithContextMenu';
@@ -316,7 +316,7 @@ export class EditorGroup extends AbstractElement {
 			titles = await this.getOpenEditorTitles();
 			if (titles.length >= previousCount) {
 				try {
-					await this.getDriver().actions().sendKeys('\uE00C').perform();
+					await this.getDriver().actions().sendKeys(Key.ESCAPE).perform();
 					await this.getWaitHelper().sleep(500);
 				} catch {
 					/* ignore */
