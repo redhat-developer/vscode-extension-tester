@@ -10,6 +10,14 @@
       "type": "string",
       "description": "Path or URL to the JSON Schema for this file."
     },
+    "extends": {
+      "description": "Path(s) to base config file(s) to inherit from. Relative paths resolve against this file's directory. Later entries override earlier ones; this file overrides all bases. Objects deep-merge; arrays and scalars are replaced whole.",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+      ],
+      "examples": ["../../extester.base.json"]
+    },
     "setup": {
       "type": "object",
       "description": "Setup options: controls VS Code + ChromeDriver download and extension packaging/installation.",

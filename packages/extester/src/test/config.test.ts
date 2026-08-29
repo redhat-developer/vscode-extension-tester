@@ -34,6 +34,16 @@ function makeTmpConfig(content: string): { dir: string; file: string } {
 	return { dir, file };
 }
 
+/**
+ * Writes an additional config file (creating subdirectories as needed) under an existing tmp dir.
+ */
+function writeExtraConfig(dir: string, relPath: string, content: string): string {
+	const file = path.join(dir, relPath);
+	fs.mkdirSync(path.dirname(file), { recursive: true });
+	fs.writeFileSync(file, content, 'utf8');
+	return file;
+}
+
 describe('loadConfig', () => {
 	describe('auto-discovery', () => {
 		it('returns an empty object when no extester.config.json is found', async () => {
@@ -212,6 +222,250 @@ describe('loadConfig', () => {
 				assert.strictEqual(cfg.run?.locale, undefined);
 			} finally {
 				fs.rmSync(path.dirname(file), { recursive: true });
+			}
+		});
+	});
+
+	describe('extends', () => {
+		it('inherits values from a single extended base and strips the extends key', async () => {
+			const { dir, file } = makeTmpConfig(JSON.stringify({ extends: './base.json' }));
+			writeExtraConfig(dir, 'base.json', JSON.stringify({ setup: { vscodeVersion: '1.131.0' }, run: { logLevel: 'Debug' } }));
+			try {
+				const cfg = await loadConfig(file);
+				assert.strictEqual(cfg.setup?.vscodeVersion, '1.131.0');
+				assert.strictEqual(cfg.run?.logLevel, 'Debug');
+				assert.ok(!('extends' in cfg), 'extends key must not appear in the loaded config');
+			} finally {
+				fs.rmSync(dir, { recursive: true });
+			}
+		});
+
+		it('lets the extending file override a scalar from the base', async () => {
+			const { dir, file } = makeTmpConfig(JSON.stringify({ extends: './base.json', setup: { vscodeVersion: 'max' } }));
+			writeExtraConfig(dir, 'base.json', JSON.stringify({ setup: { vscodeVersion: '1.131.0', type: 'insider' } }));
+			try {
+				const cfg = await loadConfig(file);
+				assert.strictEqual(cfg.setup?.vscodeVersion, 'max');
+				assert.strictEqual(cfg.setup?.type, 'insider');
+			} finally {
+				fs.rmSync(dir, { recursive: true });
+			}
+		});
+
+		it('deep-merges nested objects from base and extending file', async () => {
+			const { dir, file } = makeTmpConfig(JSON.stringify({ extends: './base.json', setup: { packageOptions: { preRelease: true } } }));
+			writeExtraConfig(dir, 'base.json', JSON.stringify({ setup: { packageOptions: { useYarn: true } } }));
+			try {
+				const cfg = await loadConfig(file);
+				assert.strictEqual(cfg.setup?.packageOptions?.useYarn, true);
+				assert.strictEqual(cfg.setup?.packageOptions?.preRelease, true);
+			} finally {
+				fs.rmSync(dir, { recursive: true });
+			}
+		});
+
+		it('replaces arrays whole instead of concatenating them', async () => {
+			const { dir, file } = makeTmpConfig(JSON.stringify({ extends: './base.json', run: { testFiles: ['./b/**/*.test.js'] } }));
+			writeExtraConfig(dir, 'base.json', JSON.stringify({ run: { testFiles: ['./a/**/*.test.js'], resources: ['./fixtures'] } }));
+			const dirFwd = dir.split(path.sep).join('/');
+			try {
+				const cfg = await loadConfig(file);
+				// Child's testFiles fully replace the base's, resolved against the child's directory.
+				assert.deepStrictEqual(cfg.run?.testFiles, [`${dirFwd}/b/**/*.test.js`]);
+				// Untouched base arrays are inherited, resolved against the base's directory.
+				assert.deepStrictEqual(cfg.run?.resources, [path.resolve(dir, 'fixtures')]);
+			} finally {
+				fs.rmSync(dir, { recursive: true });
+			}
+		});
+
+		it('applies multiple bases in order, later entries overriding earlier ones', async () => {
+			const { dir, file } = makeTmpConfig(JSON.stringify({ extends: ['./base1.json', './base2.json'], run: { locale: 'fr' } }));
+			writeExtraConfig(dir, 'base1.json', JSON.stringify({ setup: { vscodeVersion: '1.130.0' }, run: { locale: 'ru', cleanup: true } }));
+			writeExtraConfig(dir, 'base2.json', JSON.stringify({ setup: { vscodeVersion: '1.131.0' } }));
+			try {
+				const cfg = await loadConfig(file);
+				assert.strictEqual(cfg.setup?.vscodeVersion, '1.131.0');
+				assert.strictEqual(cfg.run?.locale, 'fr');
+				assert.strictEqual(cfg.run?.cleanup, true);
+			} finally {
+				fs.rmSync(dir, { recursive: true });
+			}
+		});
+
+		it('follows extends chains across multiple levels', async () => {
+			const { dir, file } = makeTmpConfig(JSON.stringify({ extends: './b.json', setup: { vscodeVersion: 'max' } }));
+			writeExtraConfig(dir, 'b.json', JSON.stringify({ extends: './a.json', setup: { vscodeVersion: '1.131.0', type: 'insider' } }));
+			writeExtraConfig(dir, 'a.json', JSON.stringify({ setup: { vscodeVersion: '1.130.0', installDependencies: true } }));
+			try {
+				const cfg = await loadConfig(file);
+				assert.strictEqual(cfg.setup?.vscodeVersion, 'max');
+				assert.strictEqual(cfg.setup?.type, 'insider');
+				assert.strictEqual(cfg.setup?.installDependencies, true);
+			} finally {
+				fs.rmSync(dir, { recursive: true });
+			}
+		});
+
+		it('resolves relative paths in each file against that file own directory', async () => {
+			const { dir, file } = makeTmpConfig(JSON.stringify({ extends: './shared/base.json', run: { settings: './settings.json' } }));
+			writeExtraConfig(
+				dir,
+				path.join('shared', 'base.json'),
+				JSON.stringify({ setup: { storage: './base-storage' }, run: { testFiles: ['./out/**/*.test.js'] } }),
+			);
+			const dirFwd = dir.split(path.sep).join('/');
+			try {
+				const cfg = await loadConfig(file);
+				assert.strictEqual(cfg.setup?.storage, path.resolve(dir, 'shared', 'base-storage'));
+				assert.deepStrictEqual(cfg.run?.testFiles, [`${dirFwd}/shared/out/**/*.test.js`]);
+				assert.strictEqual(cfg.run?.settings, path.resolve(dir, 'settings.json'));
+			} finally {
+				fs.rmSync(dir, { recursive: true });
+			}
+		});
+
+		it('throws a descriptive error on circular extends', async () => {
+			const { dir, file } = makeTmpConfig(JSON.stringify({ extends: './b.json' }));
+			writeExtraConfig(dir, 'b.json', JSON.stringify({ extends: './extester.config.json' }));
+			try {
+				await assert.rejects(
+					() => loadConfig(file),
+					(err: Error) => {
+						assert.ok(err instanceof Error);
+						assert.ok(err.message.includes('circular extends'));
+						assert.ok(err.message.includes('extester.config.json'));
+						assert.ok(err.message.includes('b.json'));
+						return true;
+					},
+				);
+			} finally {
+				fs.rmSync(dir, { recursive: true });
+			}
+		});
+
+		it('throws on a config extending itself', async () => {
+			const { dir, file } = makeTmpConfig(JSON.stringify({ extends: './extester.config.json' }));
+			try {
+				await assert.rejects(
+					() => loadConfig(file),
+					(err: Error) => {
+						assert.ok(err instanceof Error);
+						assert.ok(err.message.includes('circular extends'));
+						return true;
+					},
+				);
+			} finally {
+				fs.rmSync(dir, { recursive: true });
+			}
+		});
+
+		it('throws a descriptive error when an extended file does not exist', async () => {
+			const { dir, file } = makeTmpConfig(JSON.stringify({ extends: './does-not-exist.json' }));
+			try {
+				await assert.rejects(
+					() => loadConfig(file),
+					(err: Error) => {
+						assert.ok(err instanceof Error);
+						assert.ok(err.message.includes('extended config file not found'));
+						assert.ok(err.message.includes(path.join(dir, 'does-not-exist.json')));
+						return true;
+					},
+				);
+			} finally {
+				fs.rmSync(dir, { recursive: true });
+			}
+		});
+
+		it('throws when an extended file is not a .json file', async () => {
+			const { dir, file } = makeTmpConfig(JSON.stringify({ extends: './base.txt' }));
+			writeExtraConfig(dir, 'base.txt', JSON.stringify({ setup: { vscodeVersion: '1.131.0' } }));
+			try {
+				await assert.rejects(
+					() => loadConfig(file),
+					(err: Error) => {
+						assert.ok(err instanceof Error);
+						assert.ok(err.message.includes('.json'));
+						return true;
+					},
+				);
+			} finally {
+				fs.rmSync(dir, { recursive: true });
+			}
+		});
+
+		it('names the base file when it contains invalid JSON', async () => {
+			const { dir, file } = makeTmpConfig(JSON.stringify({ extends: './base.json' }));
+			const baseFile = writeExtraConfig(dir, 'base.json', '{bad json}');
+			try {
+				await assert.rejects(
+					() => loadConfig(file),
+					(err: Error) => {
+						assert.ok(err instanceof Error);
+						assert.ok(err.message.includes('invalid JSON'));
+						assert.ok(err.message.includes(baseFile));
+						return true;
+					},
+				);
+			} finally {
+				fs.rmSync(dir, { recursive: true });
+			}
+		});
+
+		it('throws when extends is neither a string nor an array of strings', async () => {
+			const { dir, file } = makeTmpConfig(JSON.stringify({ extends: 42 }));
+			try {
+				await assert.rejects(
+					() => loadConfig(file),
+					(err: Error) => {
+						assert.ok(err instanceof Error);
+						assert.ok(err.message.includes('extends'));
+						return true;
+					},
+				);
+			} finally {
+				fs.rmSync(dir, { recursive: true });
+			}
+		});
+
+		it('supports absolute paths in extends', async () => {
+			const { dir, file: entry } = makeTmpConfig('{}');
+			const baseFile = writeExtraConfig(dir, 'abs-base.json', JSON.stringify({ setup: { vscodeVersion: '1.131.0' } }));
+			fs.writeFileSync(entry, JSON.stringify({ extends: baseFile }), 'utf8');
+			try {
+				const cfg = await loadConfig(entry);
+				assert.strictEqual(cfg.setup?.vscodeVersion, '1.131.0');
+			} finally {
+				fs.rmSync(dir, { recursive: true });
+			}
+		});
+
+		it('loads diamond-shaped extends without a false circular error', async () => {
+			const { dir, file } = makeTmpConfig(JSON.stringify({ extends: ['./b.json', './c.json'] }));
+			writeExtraConfig(dir, 'b.json', JSON.stringify({ extends: './shared.json', run: { cleanup: true } }));
+			writeExtraConfig(dir, 'c.json', JSON.stringify({ extends: './shared.json', run: { offline: true } }));
+			writeExtraConfig(dir, 'shared.json', JSON.stringify({ setup: { vscodeVersion: '1.131.0' } }));
+			try {
+				const cfg = await loadConfig(file);
+				assert.strictEqual(cfg.setup?.vscodeVersion, '1.131.0');
+				assert.strictEqual(cfg.run?.cleanup, true);
+				assert.strictEqual(cfg.run?.offline, true);
+			} finally {
+				fs.rmSync(dir, { recursive: true });
+			}
+		});
+
+		it('does not pollute Object.prototype through merged configs', async () => {
+			const { dir, file } = makeTmpConfig(JSON.stringify({ extends: './base.json' }));
+			writeExtraConfig(dir, 'base.json', '{"__proto__": {"polluted": true}, "setup": {"vscodeVersion": "1.131.0"}}');
+			try {
+				const cfg = await loadConfig(file);
+				// Inheritance still works…
+				assert.strictEqual(cfg.setup?.vscodeVersion, '1.131.0');
+				// …but the malicious key must not reach Object.prototype.
+				assert.strictEqual(({} as Record<string, unknown>).polluted, undefined);
+			} finally {
+				fs.rmSync(dir, { recursive: true });
 			}
 		});
 	});
