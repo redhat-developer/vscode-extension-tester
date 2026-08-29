@@ -434,6 +434,22 @@ export class CodeUtil {
 	async getChromiumVersion(codeVersion: string = 'latest'): Promise<string> {
 		await this.checkCodeVersion(codeVersion);
 		const literalVersion = codeVersion === 'latest' ? this.availableVersions[0] : codeVersion;
+
+		// Prefer asking the installed binary itself: in ELECTRON_RUN_AS_NODE mode
+		// process.versions.chrome carries the exact bundled Chromium version, which
+		// avoids the network round-trip and cgmanifest's structure assumptions.
+		// Only trusted when the installed version is the one being asked about.
+		try {
+			if (this.getExistingCodeVersion() === literalVersion) {
+				const localChromium = this.getChromiumVersionFromBinary();
+				if (localChromium) {
+					return localChromium;
+				}
+			}
+		} catch {
+			// no usable local installation — fall through to the manifest lookup
+		}
+
 		let revision = literalVersion;
 		if (literalVersion.endsWith('-insider')) {
 			if (codeVersion === 'latest') {
@@ -448,13 +464,19 @@ export class CodeUtil {
 
 		const fileName = 'manifest.json';
 		const url = `https://raw.githubusercontent.com/Microsoft/vscode/${revision}/cgmanifest.json`;
-		await Download.getFile(url, path.join(this.downloadFolder, fileName));
 
 		try {
+			// the download must stay inside the try block so that a network failure
+			// can still fall back to the offline lookup below
+			await Download.getFile(url, path.join(this.downloadFolder, fileName));
 			const manifestPath = path.join(this.downloadFolder, fileName);
 			const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
-			return manifest.registrations[0].version;
-		} catch (err) {
+			const version = CodeUtil.parseChromiumVersionFromManifest(manifest);
+			if (!version) {
+				throw new Error('No Chromium registration found in cgmanifest.json');
+			}
+			return version;
+		} catch {
 			let version = '';
 			if (await fs.pathExists(this.codeFolder)) {
 				version = this.getChromiumVersionOffline();
@@ -464,6 +486,44 @@ export class CodeUtil {
 			}
 			return version;
 		}
+	}
+
+	/**
+	 * Pull the bundled Chromium version out of VS Code's cgmanifest.json.
+	 * The chromium registration is matched by name — its position in the
+	 * registrations array is not guaranteed — keeping the historical
+	 * first-entry behavior as a fallback.
+	 */
+	static parseChromiumVersionFromManifest(manifest: unknown): string | undefined {
+		const registrations = (manifest as { registrations?: { version?: string; component?: { git?: { name?: string } } }[] } | undefined)?.registrations;
+		if (!Array.isArray(registrations) || registrations.length === 0) {
+			return undefined;
+		}
+		const chromium = registrations.find((reg) => reg?.component?.git?.name === 'chromium') ?? registrations[0];
+		return chromium?.version;
+	}
+
+	/**
+	 * Read the Chromium version straight from the installed VS Code binary:
+	 * in ELECTRON_RUN_AS_NODE mode process.versions still exposes the baked-in
+	 * chrome version. Returns undefined when the binary cannot be executed or
+	 * does not report one.
+	 */
+	private getChromiumVersionFromBinary(): string | undefined {
+		const script = 'console.log(process.versions.chrome)';
+		let out: Buffer;
+		try {
+			const command = `${this.cliEnv} "${this.getExecutablePath()}"`;
+			try {
+				out = childProcess.execSync(`${command} -e "${script}"`, { env: this.env, timeout: 30_000 });
+			} catch {
+				out = childProcess.execSync(`${command} --ms-enable-electron-run-as-node -e "${script}"`, { env: this.env, timeout: 30_000 });
+			}
+		} catch {
+			return undefined;
+		}
+		const version = out.toString().trim().split('\n').pop()?.trim() ?? '';
+		return /^\d+(\.\d+){3}$/.test(version) ? version : undefined;
 	}
 
 	/**
