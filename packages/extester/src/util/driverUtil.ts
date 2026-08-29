@@ -57,12 +57,12 @@ export class DriverUtil {
 		// filesystem paths, process arguments or log output.
 		version = DriverUtil.sanitizeVersion(version);
 		const url = this.getChromeDriverURL(version);
-		const driverBinary = this.getChromeDriverBinaryPath(version);
+		const driverBinary = this.getChromeDriverBinaryPath();
 
 		if (!noCache && fs.existsSync(driverBinary)) {
 			let localVersion = '';
 			try {
-				localVersion = await this.getLocalDriverVersion(version);
+				localVersion = await this.getLocalDriverVersion();
 			} catch (err) {
 				// ignore and download
 			}
@@ -103,33 +103,25 @@ export class DriverUtil {
 	}
 
 	/**
-	 * Locate the ChromeDriver binary inside a storage folder by what is actually
-	 * on disk: the nested Chrome-for-Testing layout (chromedriver >= 115) is
-	 * preferred over the flat legacy layout. Keeping the decision disk-based
-	 * means the launcher and the downloader cannot disagree about where the
-	 * binary lives.
+	 * Locate the ChromeDriver binary inside a storage folder. Every supported
+	 * driver (>= 115, required by the VS Code 1.90+ floor) unpacks into the
+	 * nested Chrome-for-Testing layout; a flat binary can only be a stale
+	 * pre-115 leftover and is deliberately ignored. Keeping the decision
+	 * disk-based means the launcher and the downloader cannot disagree about
+	 * where the binary lives.
 	 */
 	static findChromeDriverBinary(storageFolder: string = DEFAULT_STORAGE_FOLDER): string {
 		const binary = process.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver';
 		const nested = path.join(storageFolder, `chromedriver-${DriverUtil.getChromeDriverPlatform()}`, binary);
-		const flat = path.join(storageFolder, binary);
 		if (fs.existsSync(nested)) {
 			return nested;
 		}
-		if (fs.existsSync(flat)) {
-			return flat;
-		}
-		throw new Error(`No ChromeDriver binary found in the storage folder, looked for '${nested}' and '${flat}'. Run 'extest get-chromedriver' first.`);
+		throw new Error(`No ChromeDriver binary found at '${nested}'. Run 'extest get-chromedriver' first.`);
 	}
 
-	private getChromeDriverBinaryPath(version: string): string {
-		const majorVersion = this.getMajorVersion(version);
+	private getChromeDriverBinaryPath(): string {
 		const binary = process.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver';
-		let driverBinaryPath = path.join(this.downloadFolder, binary);
-		if (+majorVersion > 114) {
-			driverBinaryPath = path.join(this.downloadFolder, `chromedriver-${DriverUtil.getChromeDriverPlatform()}`, binary);
-		}
-		return driverBinaryPath;
+		return path.join(this.downloadFolder, `chromedriver-${DriverUtil.getChromeDriverPlatform()}`, binary);
 	}
 
 	/**
@@ -193,34 +185,14 @@ export class DriverUtil {
 		return undefined;
 	}
 
-	private static getChromeDriverPlatformOLD(): string | undefined {
-		switch (process.platform) {
-			case 'darwin':
-				return process.arch === 'arm64' ? 'mac_arm64' : 'mac64';
-			case 'win32':
-				return 'win32';
-			case 'linux':
-				return 'linux64';
-			default:
-				break;
-		}
-		return undefined;
-	}
-
 	private getChromeDriverURL(version: string): string {
-		const majorVersion = this.getMajorVersion(version);
-		let driverPlatform = DriverUtil.getChromeDriverPlatformOLD();
-		let url = `https://chromedriver.storage.googleapis.com/${version}/chromedriver_${driverPlatform}.zip`;
-		if (+majorVersion > 114) {
-			driverPlatform = DriverUtil.getChromeDriverPlatform();
-			url = `https://storage.googleapis.com/chrome-for-testing-public/${version}/${driverPlatform}/chromedriver-${driverPlatform}.zip`;
-		}
-		return url;
+		const driverPlatform = DriverUtil.getChromeDriverPlatform();
+		return `https://storage.googleapis.com/chrome-for-testing-public/${version}/${driverPlatform}/chromedriver-${driverPlatform}.zip`;
 	}
 
-	async checkDriverVersionOffline(version: string): Promise<string> {
+	async checkDriverVersionOffline(): Promise<string> {
 		try {
-			return await this.getLocalDriverVersion(version);
+			return await this.getLocalDriverVersion();
 		} catch (err) {
 			console.log('ERROR: Cannot find a copy of ChromeDriver in local cache in offline mode, exiting.');
 			throw err;
@@ -232,21 +204,19 @@ export class DriverUtil {
 	 */
 	private async isLocalVersionMatch(version: string): Promise<boolean> {
 		try {
-			const local = await this.getLocalDriverVersion(version);
+			const local = await this.getLocalDriverVersion();
 			return local.startsWith(version);
 		} catch {
 			return false;
 		}
 	}
 
-	private async getLocalDriverVersion(version: string): Promise<string> {
+	private async getLocalDriverVersion(): Promise<string> {
 		// Invoke the binary directly (no shell) so the path is passed as-is and
-		// cannot be interpreted as shell syntax. The version component is rebuilt
-		// from parsed integers, and the resolved binary path must stay inside the
-		// storage folder — a crafted version or storage value cannot traverse out
-		// or smuggle shell syntax anywhere.
-		version = DriverUtil.sanitizeVersion(version);
-		const binaryPath = path.resolve(this.getChromeDriverBinaryPath(version));
+		// cannot be interpreted as shell syntax, and require the resolved binary
+		// path to stay inside the storage folder — a crafted storage value cannot
+		// traverse out or smuggle shell syntax anywhere.
+		const binaryPath = path.resolve(this.getChromeDriverBinaryPath());
 		const storageRoot = path.resolve(this.downloadFolder) + path.sep;
 		if (!binaryPath.startsWith(storageRoot)) {
 			throw new Error('Resolved ChromeDriver binary path escapes the storage folder');
@@ -279,75 +249,48 @@ export class DriverUtil {
 
 	/**
 	 * Find a matching version of ChromeDriver for a given Chromium version.
-	 * For Chrome for Testing (major > 114), tries the exact full Chromium version first
-	 * (e.g. 148.0.7778.280) before falling back to LATEST_RELEASE_{major}. This is
-	 * necessary because VS Code ships a specific Chromium build whose ChromeDriver
-	 * may not yet be promoted to the stable channel but is available at the exact URL.
+	 * Tries the exact full Chromium version first (e.g. 148.0.7778.280), because
+	 * VS Code ships a specific Chromium build whose ChromeDriver may not yet be
+	 * promoted to the stable channel but is available at the exact URL.
 	 * @param chromiumVersion Chromium version to check against
 	 */
 	private async getChromeDriverVersion(chromiumVersion: string): Promise<string> {
 		const majorVersion = this.getMajorVersion(chromiumVersion);
 
-		// chrome driver versioning has changed for chrome 70+
-		if (+majorVersion < 70) {
-			if (this.chromiumVersionMap[+majorVersion]) {
-				return this.chromiumVersionMap[+majorVersion];
-			} else {
-				throw new Error(`Chromium version ${chromiumVersion} not supported`);
-			}
+		// Chrome for Testing only hosts chromedriver 115+; older Chromium comes
+		// from VS Code builds below the supported floor.
+		if (+majorVersion < 115) {
+			throw new Error(
+				`Chromium ${chromiumVersion} requires a ChromeDriver older than 115, which is no longer supported. ExTester requires VS Code 1.90 or newer.`,
+			);
 		}
 
-		if (+majorVersion > 114) {
-			// Try the exact Chromium version first — VS Code ships a specific build
-			// that may have a matching ChromeDriver not yet in the stable release channel.
-			const platform = DriverUtil.getChromeDriverPlatform();
-			const exactUrl = `https://storage.googleapis.com/chrome-for-testing-public/${chromiumVersion}/${platform}/chromedriver-${platform}.zip`;
-			try {
-				await Download.checkURL(exactUrl);
-				return chromiumVersion;
-			} catch {
-				// exact version not available — fall through to LATEST_RELEASE lookup
-			}
-
-			// Chrome for Testing hosts Electron's exact Chromium patches for some
-			// platforms only, so after an exact miss ask for the latest release of
-			// the same MAJOR.MINOR.BUILD — that keeps every platform on one
-			// consistent build — before settling for the milestone-level latest,
-			// which may be a newer build than the Chromium VS Code actually ships.
-			const cftBase = 'https://googlechromelabs.github.io/chrome-for-testing';
-			const buildVersion = chromiumVersion.split('.').slice(0, 3).join('.');
-			try {
-				return (await Download.getText(`${cftBase}/LATEST_RELEASE_${buildVersion}`)).trim();
-			} catch {
-				return (await Download.getText(`${cftBase}/LATEST_RELEASE_${majorVersion}`)).trim();
-			}
+		// Try the exact Chromium version first — VS Code ships a specific build
+		// that may have a matching ChromeDriver not yet in the stable release channel.
+		const platform = DriverUtil.getChromeDriverPlatform();
+		const exactUrl = `https://storage.googleapis.com/chrome-for-testing-public/${chromiumVersion}/${platform}/chromedriver-${platform}.zip`;
+		try {
+			await Download.checkURL(exactUrl);
+			return chromiumVersion;
+		} catch {
+			// exact version not available — fall through to LATEST_RELEASE lookup
 		}
 
-		const url = `https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${majorVersion}`;
-		const fileName = 'driverVersion';
-		await Download.getFile(url, path.join(this.downloadFolder, fileName));
-		return fs.readFileSync(path.join(this.downloadFolder, fileName)).toString();
+		// Chrome for Testing hosts Electron's exact Chromium patches for some
+		// platforms only, so after an exact miss ask for the latest release of
+		// the same MAJOR.MINOR.BUILD — that keeps every platform on one
+		// consistent build — before settling for the milestone-level latest,
+		// which may be a newer build than the Chromium VS Code actually ships.
+		const cftBase = 'https://googlechromelabs.github.io/chrome-for-testing';
+		const buildVersion = chromiumVersion.split('.').slice(0, 3).join('.');
+		try {
+			return (await Download.getText(`${cftBase}/LATEST_RELEASE_${buildVersion}`)).trim();
+		} catch {
+			return (await Download.getText(`${cftBase}/LATEST_RELEASE_${majorVersion}`)).trim();
+		}
 	}
 
 	private getMajorVersion(version: string): string {
 		return version.split('.')[0];
 	}
-
-	// older chromedriver versions do not match chrome versions
-	private readonly chromiumVersionMap: VersionMap = {
-		69: '2.38',
-		68: '2.38',
-		67: '2.38',
-		66: '2.38',
-		65: '2.37',
-		64: '2.36',
-		63: '2.35',
-		62: '2.34',
-		61: '2.33',
-		60: '2.32',
-	};
-}
-
-interface VersionMap {
-	[key: number]: string;
 }

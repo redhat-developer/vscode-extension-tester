@@ -185,12 +185,7 @@ export class VSBrowser {
 			args.push(`--extensions-dir=${this.extensionsFolder}`);
 		}
 
-		if (satisfies(this.codeVersion, '<1.39.0')) {
-			if (process.platform === 'win32') {
-				fs.copyFileSync(path.resolve(__dirname, '..', '..', 'resources', 'state.vscdb'), path.join(userSettings, 'globalStorage', 'state.vscdb'));
-			}
-			args.push(`--extensionDevelopmentPath=${process.cwd()}`);
-		} else if (process.env.EXTENSION_DEV_PATH) {
+		if (process.env.EXTENSION_DEV_PATH) {
 			args.push(`--extensionDevelopmentPath=${process.env.EXTENSION_DEV_PATH}`);
 		}
 
