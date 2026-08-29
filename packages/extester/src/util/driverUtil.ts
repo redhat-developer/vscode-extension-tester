@@ -102,6 +102,26 @@ export class DriverUtil {
 		return driverBinary;
 	}
 
+	/**
+	 * Locate the ChromeDriver binary inside a storage folder by what is actually
+	 * on disk: the nested Chrome-for-Testing layout (chromedriver >= 115) is
+	 * preferred over the flat legacy layout. Keeping the decision disk-based
+	 * means the launcher and the downloader cannot disagree about where the
+	 * binary lives.
+	 */
+	static findChromeDriverBinary(storageFolder: string = DEFAULT_STORAGE_FOLDER): string {
+		const binary = process.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver';
+		const nested = path.join(storageFolder, `chromedriver-${DriverUtil.getChromeDriverPlatform()}`, binary);
+		const flat = path.join(storageFolder, binary);
+		if (fs.existsSync(nested)) {
+			return nested;
+		}
+		if (fs.existsSync(flat)) {
+			return flat;
+		}
+		throw new Error(`No ChromeDriver binary found in the storage folder, looked for '${nested}' and '${flat}'. Run 'extest get-chromedriver' first.`);
+	}
+
 	private getChromeDriverBinaryPath(version: string): string {
 		const majorVersion = this.getMajorVersion(version);
 		const binary = process.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver';
@@ -267,12 +287,22 @@ export class DriverUtil {
 			} catch {
 				// exact version not available — fall through to LATEST_RELEASE lookup
 			}
+
+			// Chrome for Testing hosts Electron's exact Chromium patches for some
+			// platforms only, so after an exact miss ask for the latest release of
+			// the same MAJOR.MINOR.BUILD — that keeps every platform on one
+			// consistent build — before settling for the milestone-level latest,
+			// which may be a newer build than the Chromium VS Code actually ships.
+			const cftBase = 'https://googlechromelabs.github.io/chrome-for-testing';
+			const buildVersion = chromiumVersion.split('.').slice(0, 3).join('.');
+			try {
+				return (await Download.getText(`${cftBase}/LATEST_RELEASE_${buildVersion}`)).trim();
+			} catch {
+				return (await Download.getText(`${cftBase}/LATEST_RELEASE_${majorVersion}`)).trim();
+			}
 		}
 
-		let url = `https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${majorVersion}`;
-		if (+majorVersion > 114) {
-			url = `https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_${majorVersion}`;
-		}
+		const url = `https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${majorVersion}`;
 		const fileName = 'driverVersion';
 		await Download.getFile(url, path.join(this.downloadFolder, fileName));
 		return fs.readFileSync(path.join(this.downloadFolder, fileName)).toString();

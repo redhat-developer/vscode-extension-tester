@@ -191,11 +191,7 @@ export class VSBrowser {
 		prefs.setLevel(logging.Type.DRIVER, this.logLevel);
 		options.setLoggingPrefs(prefs);
 
-		const driverBinary = process.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver';
-		let chromeDriverBinaryPath = path.join(this.storagePath, driverBinary);
-		if (satisfies(this.codeVersion, '>=1.86.0')) {
-			chromeDriverBinaryPath = path.join(this.storagePath, `chromedriver-${DriverUtil.getChromeDriverPlatform()}`, driverBinary);
-		}
+		const chromeDriverBinaryPath = DriverUtil.findChromeDriverBinary(this.storagePath);
 
 		const chromeDriverLog = path.join(this.storagePath, 'chromedriver.log');
 		console.log(`Launching browser... (ChromeDriver log: ${chromeDriverLog})`);
