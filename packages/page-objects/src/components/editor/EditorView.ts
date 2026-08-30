@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { error, Key, WebElement } from 'selenium-webdriver';
+import { error, Key, until, WebElement } from 'selenium-webdriver';
 import { TextEditor } from '../..';
 import { AbstractElement } from '../AbstractElement';
 import { ElementWithContextMenu } from '../ElementWithContextMenu';
@@ -24,6 +24,7 @@ import { Editor } from './Editor';
 import { EditorAction, EditorActionDropdown } from './EditorAction';
 import { SettingsEditor } from './SettingsEditor';
 import { WebView } from './WebView';
+import { ModalDialog } from '../dialog/ModalDialog';
 
 export class EditorTabNotFound extends Error {
 	constructor(title: string, group: number) {
@@ -315,17 +316,48 @@ export class EditorGroup extends AbstractElement {
 			}
 			titles = await this.getOpenEditorTitles();
 			if (titles.length >= previousCount) {
-				try {
-					await this.getDriver().actions().sendKeys(Key.ESCAPE).perform();
-					await this.getWaitHelper().sleep(500);
-				} catch {
-					/* ignore */
+				// The tab did not close: a dirty editor raises a "save changes?" modal
+				// that blocks the close. Discard the changes so the editor actually
+				// closes — otherwise the modal is left intercepting every subsequent
+				// click and cascades the rest of the suite into failure. Fall back to
+				// Escape (which cancels the modal) if the dialog cannot be handled.
+				if (!(await this.discardDirtyEditorDialog())) {
+					try {
+						await this.getDriver().actions().sendKeys(Key.ESCAPE).perform();
+					} catch {
+						/* ignore */
+					}
 				}
+				await this.getWaitHelper().sleep(500);
 				titles = await this.getOpenEditorTitles();
 				if (titles.length >= previousCount) {
 					break;
 				}
 			}
+		}
+	}
+
+	/**
+	 * If a "save changes?" modal dialog is currently blocking the workbench,
+	 * dismiss it by discarding the changes ("Don't Save") so the underlying
+	 * dirty editor closes. Returns true when a dialog was found and handled.
+	 */
+	private async discardDirtyEditorDialog(): Promise<boolean> {
+		const dialogs = await this.getDriver().findElements(EditorView.locators.Dialog.constructor);
+		if (dialogs.length === 0) {
+			return false;
+		}
+		try {
+			const dialog = new ModalDialog();
+			await dialog.pushButton(`Don't Save`);
+			await this.getDriver()
+				.wait(until.stalenessOf(dialogs[0]), 5000)
+				.catch(() => {
+					/* dialog may already be gone */
+				});
+			return true;
+		} catch {
+			return false;
 		}
 	}
 
