@@ -9,7 +9,7 @@
     "url": "https://github.com/redhat-developer/vscode-extension-tester.git"
   },
   "scripts": {
-    "version": "lerna version --no-private --no-push --signoff-git-commit",
+    "version": "npm_config_allow_scripts= lerna version --no-private --no-push --signoff-git-commit",
     "publish": "lerna publish from-package --no-private",
     "prepublishOnly": "npm run build",
     "build": "lerna run build",
