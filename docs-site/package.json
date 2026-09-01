@@ -1,0 +1,21 @@
+{
+  "name": "extester-docs",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Documentation site for ExTester (vscode-extension-tester), built with Astro Starlight",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.41.10",
+    "astro": "^7.2.10",
+    "sharp": "^0.35.4",
+    "starlight-links-validator": "^0.25.3"
+  }
+}

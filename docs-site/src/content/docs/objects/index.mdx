@@ -1,0 +1,102 @@
+---
+title: Page Object APIs
+description: Overview of the page objects ExTester provides for interacting with VS Code UI without touching its DOM.
+---
+
+In order to keep everyone from having to go through the VS Code DOM, which is quite complicated, the framework provides page objects to work with parts of VS Code directly.
+
+See the individual page object pages below for a quick usage guide. Use the sidebar or the search to jump straight to a component.
+
+## AbstractElement — base class for custom page objects
+
+All built-in page objects extend `AbstractElement`, and you can too. When your extension contributes custom UI that is not covered by a built-in, create your own class:
+
+```typescript
+import { AbstractElement, By } from "vscode-extension-tester";
+
+export class MyExtensionPanel extends AbstractElement {
+  constructor() {
+    super(MyExtensionPanel.locators.MyExtensionPanel.constructor);
+  }
+  // ... your interaction methods
+}
+```
+
+The locator keys (`MyExtensionPanel.locators.MyExtensionPanel.*`) are resolved from a locator contribution file you provide at startup. See [Custom Page Objects](/vscode-extension-tester/guides/custom-page-objects/) for the full setup guide.
+
+### Built-in resilience
+
+`AbstractElement.click()` automatically recovers from clicks intercepted by hover overlays, so page objects do not fail when a tooltip happens to cover the target. Custom page-object authors also inherit `safeClick()`, `safeSendKeys()`, `safeGetText()`, `safeGetAttribute()`, `withRecovery(fn, maxRetries)` and `waitForStable(timeout)` for stale-element-safe interactions:
+
+```typescript
+await myPanel.withRecovery(async (self) => self.getText());
+```
+
+## Activity Bar
+
+- [ActionsControl](/vscode-extension-tester/objects/activity-bar/actions-control/)
+- [ActivityBar](/vscode-extension-tester/objects/activity-bar/activity-bar/)
+- [ViewControl](/vscode-extension-tester/objects/activity-bar/view-control/)
+
+## Bottom Bar
+
+- [BottomBarPanel](/vscode-extension-tester/objects/bottom-bar/bottom-bar-panel/)
+- [DebugConsoleView](/vscode-extension-tester/objects/bottom-bar/debug-console-view/)
+- [ProblemsView](/vscode-extension-tester/objects/bottom-bar/problems-view/)
+- [OutputView](/vscode-extension-tester/objects/bottom-bar/output-view/)
+- [TerminalView](/vscode-extension-tester/objects/bottom-bar/terminal-view/)
+
+## Dialogs
+
+- [ModalDialog](/vscode-extension-tester/objects/dialogs/modal-dialog/)
+
+## Editor
+
+- [ContentAssist](/vscode-extension-tester/objects/editor/content-assist/)
+- [FindWidget](/vscode-extension-tester/objects/editor/find-widget/)
+- [TextEditor](/vscode-extension-tester/objects/editor/text-editor/)
+- [EditorView](/vscode-extension-tester/objects/editor/editor-view/)
+- [SettingsEditor](/vscode-extension-tester/objects/editor/settings-editor/)
+  - [Setting](/vscode-extension-tester/objects/editor/setting/)
+- [WebView](/vscode-extension-tester/objects/editor/web-view/)
+- [DiffEditor](/vscode-extension-tester/objects/editor/diff-editor/)
+- [CustomEditor](/vscode-extension-tester/objects/editor/custom-editor/)
+- [ExtensionEditorView](/vscode-extension-tester/objects/editor/extension-editor-view/)
+  - [ExtensionEditorDetailsSections](/vscode-extension-tester/objects/editor/extension-editor-details-sections/)
+
+## Menu
+
+- [ContextMenu](/vscode-extension-tester/objects/menu/context-menu/)
+- [ContextMenuItem](/vscode-extension-tester/objects/menu/context-menu-item/)
+
+## Title Bar
+
+- [TitleBar](/vscode-extension-tester/objects/title-bar/title-bar/)
+- [TitleBarItem](/vscode-extension-tester/objects/title-bar/title-bar-item/)
+- [WindowControls](/vscode-extension-tester/objects/title-bar/window-controls/)
+
+## Side Bar
+
+- [SideBarView](/vscode-extension-tester/objects/side-bar/side-bar-view/)
+- [ViewContent](/vscode-extension-tester/objects/side-bar/view-content/)
+- [ViewItem](/vscode-extension-tester/objects/side-bar/view-item/)
+- [ViewSection](/vscode-extension-tester/objects/side-bar/view-section/)
+  - [DefaultTreeSection](/vscode-extension-tester/objects/side-bar/default-tree-section/)
+  - [CustomTreeSection](/vscode-extension-tester/objects/side-bar/custom-tree-section/)
+  - [ExtensionsViewSection](/vscode-extension-tester/objects/side-bar/extensions-view-section/)
+- [ViewTitlePart](/vscode-extension-tester/objects/side-bar/view-title-part/)
+- [ScmView](/vscode-extension-tester/objects/side-bar/scm-view/)
+- [DebugView](/vscode-extension-tester/objects/side-bar/debug-view/)
+- [WebviewView](/vscode-extension-tester/objects/side-bar/webview-view/)
+
+## Status Bar
+
+- [StatusBar](/vscode-extension-tester/objects/status-bar/status-bar/)
+
+## Workbench
+
+- [Notification](/vscode-extension-tester/objects/workbench/notification/)
+- [NotificationsCenter](/vscode-extension-tester/objects/workbench/notifications-center/)
+- [Workbench](/vscode-extension-tester/objects/workbench/workbench/)
+- [Input](/vscode-extension-tester/objects/workbench/input/)
+- [DebugToolbar](/vscode-extension-tester/objects/workbench/debug-toolbar/)
