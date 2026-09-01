@@ -558,6 +558,85 @@ export class WaitHelper {
 	}
 
 	/**
+	 * Move the virtual pointer to a quiet spot: the title-bar drag region at the
+	 * top-center of the window (the command center is disabled by the framework's
+	 * default settings, and unlike the status bar the area has no hover targets).
+	 *
+	 * A WebDriver session has no OS mouse - the pointer rests wherever the last
+	 * interaction left it. VS Code hovers appear while the pointer rests on an
+	 * element and are torn down only when it moves away, so parking delivers the
+	 * mouseout an open hover is waiting for and disarms pending hover timers.
+	 */
+	async parkPointer(): Promise<void> {
+		const width = Number(await this.driver.executeScript('return window.innerWidth')) || 200;
+		await this.driver
+			.actions()
+			.move({ x: Math.floor(width / 2), y: 5 })
+			.perform();
+	}
+
+	/**
+	 * Click an element, recovering when a transient overlay intercepts the click.
+	 *
+	 * VS Code renders rich hovers/tooltips as DOM overlays that appear while the
+	 * pointer rests on the last click point and never auto-hide. A W3C click
+	 * hit-tests the click point BEFORE dispatching any event, so a resting hover
+	 * over the target fails every attempt until the pointer actually moves -
+	 * waiting alone can never resolve it. On interception this actively parks
+	 * the pointer (dismissing pointer-rest overlays), waits for hover teardown
+	 * and retries the native click. As a last resort it falls back to a
+	 * JS-executor click, which bypasses hit-testing but also mousedown semantics
+	 * (Monaco lists select on mousedown) - the fallback is logged so the call
+	 * site's true blocker can be root-caused instead of silently papered over.
+	 *
+	 * @param element the element to click
+	 * @param nativeClick override for the native click action (used by
+	 * AbstractElement.click() to reach WebElement.prototype.click through its
+	 * own override)
+	 */
+	async clickThroughInterception(element: WebElement, nativeClick: () => Promise<void> = () => element.click()): Promise<void> {
+		const maxNativeAttempts = 3;
+		for (let attempt = 0; ; attempt++) {
+			try {
+				return await nativeClick();
+			} catch (e) {
+				if ((e as Error).name !== 'ElementClickInterceptedError') {
+					throw e;
+				}
+				// a modal dialog blocks the whole workbench by design - neither
+				// pointer parking nor a JS click may subvert it: JS-clicking
+				// through the blocker would trigger actions the real UI forbids.
+				// Fail fast with the original error so modal-aware callers (and
+				// test authors) see the true blocker.
+				const modalUp = await this.driver
+					.executeScript(
+						'return Array.from(document.querySelectorAll(".monaco-dialog-modal-block, .monaco-dialog-box")).some((el) => el.checkVisibility());',
+					)
+					.catch(() => false);
+				if (modalUp) {
+					throw e;
+				}
+				if (attempt >= maxNativeAttempts - 1) {
+					console.warn(
+						`clickThroughInterception: falling back to a JS click after ${maxNativeAttempts} intercepted attempts: ${(e as Error).message}`,
+					);
+					await this.driver.executeScript('arguments[0].click();', element);
+					return;
+				}
+				await this.parkPointer();
+				// hover teardown is event-driven and near-instant once the pointer
+				// moved away; a non-hover interceptor (modal, toast) never passes
+				// this check, so time-box it and retry regardless
+				await this.forCondition(
+					async () =>
+						await this.driver.executeScript('return !Array.from(document.querySelectorAll(".monaco-hover")).some((el) => el.checkVisibility());'),
+					{ timeout: 1500, pollInterval: 50, message: 'hover overlay did not dismiss after parking the pointer' },
+				).catch(() => undefined);
+			}
+		}
+	}
+
+	/**
 	 * Get the WebDriver instance.
 	 */
 	getDriver(): WebDriver {

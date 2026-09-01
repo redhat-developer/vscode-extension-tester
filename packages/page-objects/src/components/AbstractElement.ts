@@ -91,6 +91,17 @@ export abstract class AbstractElement extends WebElement {
 		return (await super.isEnabled()) && (await AbstractElement.locators.AbstractElement.enabled(this));
 	}
 
+	/**
+	 * Click the element, recovering when a transient overlay intercepts the
+	 * click. VS Code renders hovers/tooltips as DOM overlays that appear while
+	 * the WebDriver pointer rests on the last click point and never auto-hide,
+	 * so a plain W3C click deadlocks on its pre-dispatch hit-test. See
+	 * {@link WaitHelper.clickThroughInterception} for the recovery strategy.
+	 */
+	async click(): Promise<void> {
+		await AbstractElement.waitHelper.clickThroughInterception(this, () => super.click());
+	}
+
 	async isSelected(): Promise<boolean> {
 		return (await super.isSelected()) && (await AbstractElement.locators.AbstractElement.selected(this));
 	}
