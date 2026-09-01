@@ -21,7 +21,7 @@
   <a href="#usage">Usage</a> •
   <a href="#extester-runner-extension">Extension</a> •
   <a href="https://github.com/redhat-developer/vscode-extension-tester-example">Example</a> •
-  <a href="https://github.com/redhat-developer/vscode-extension-tester/wiki/">Documentation</a> •
+  <a href="https://redhat-developer.github.io/vscode-extension-tester/">Documentation</a> •
   <a href="#known-issues">Known Issues</a>
 </p>
 
@@ -39,9 +39,9 @@
 
 ### Requirements
 
-| NodeJS                                                                                                                                                        | Visual Studio Code                                                                                                                                                             | Operating System                                                                                                                                                                                                  |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| <table style="text-align:center;"> <tr><th>LTS</th><th>Latest</th></tr><tr><td>✅</td><td>✅❓</td></tr><tr><td colspan="2">❓ Best-effort</td></tr> </table> | <table style="text-align:center;"> <tr><th>min</th><th>middle</th><th>max</th></tr><tr><td colspan="3">🔄 [Auto-updated](docs/Automated-Version-Updates.md)</td></tr> </table> | <table style="text-align:center;"> <tr><th>Linux</th><th>Windows</th><th>macOS</th></tr><tr><td>✅ ⚠️</td><td>✅</td><td>✅ ⚠️</td></tr><tr><td colspan="3">⚠️ [Known Issues](KNOWN_ISSUES.md)</td></tr> </table> |
+| NodeJS                                                                                                                                                        | Visual Studio Code                                                                                                                                                                                                                        | Operating System                                                                                                                                                                                                  |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <table style="text-align:center;"> <tr><th>LTS</th><th>Latest</th></tr><tr><td>✅</td><td>✅❓</td></tr><tr><td colspan="2">❓ Best-effort</td></tr> </table> | <table style="text-align:center;"> <tr><th>min</th><th>middle</th><th>max</th></tr><tr><td colspan="3">🔄 [Auto-updated](https://redhat-developer.github.io/vscode-extension-tester/guides/automated-version-updates/)</td></tr> </table> | <table style="text-align:center;"> <tr><th>Linux</th><th>Windows</th><th>macOS</th></tr><tr><td>✅ ⚠️</td><td>✅</td><td>✅ ⚠️</td></tr><tr><td colspan="3">⚠️ [Known Issues](KNOWN_ISSUES.md)</td></tr> </table> |
 
 #### NodeJS Support Policy
 
@@ -57,12 +57,12 @@ Simply install our package into your extension `devDependencies` to get started:
 npm install --save-dev vscode-extension-tester
 ```
 
-Make sure to check out the 🔗 [Documentation](../../wiki) for detailed instructions.
+Make sure to check out the 🔗 [Documentation](https://redhat-developer.github.io/vscode-extension-tester/) for detailed instructions.
 
-- 📄 [How to set up the tests](../../wiki/Test-Setup)
-- 📄 [Configuring Mocha](../../wiki/Mocha-Configuration)
-- 📄 [An example simple test case](../../wiki/Writing-Simple-Tests)
-- 📄 [Page objects API quick guide](../../wiki/Page-Object-APIs)
+- 📄 [How to set up the tests](https://redhat-developer.github.io/vscode-extension-tester/guides/test-setup/)
+- 📄 [Configuring Mocha](https://redhat-developer.github.io/vscode-extension-tester/guides/mocha-configuration/)
+- 📄 [An example simple test case](https://redhat-developer.github.io/vscode-extension-tester/getting-started/writing-simple-tests/)
+- 📄 [Page objects API quick guide](https://redhat-developer.github.io/vscode-extension-tester/objects/)
 
 ### ExTester Runner Extension
 
@@ -74,7 +74,7 @@ For an example project, check out the 🔗 [Hello World Example](https://github.
 
 ### Documentation
 
-Our full documentation is located in 🔗 [GitHub Wiki](../../wiki). Included are details about Page Objects API and how to setup Mocha tests information.
+Our full documentation is located in 🔗 [Documentation site](https://redhat-developer.github.io/vscode-extension-tester/). Included are details about Page Objects API and how to setup Mocha tests information.
 
 ### Issues
 

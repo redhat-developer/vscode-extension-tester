@@ -4,5 +4,5 @@ contact_links:
     url: https://github.com/redhat-developer/vscode-extension-tester/discussions
     about: FAQ, Ideas, Q&A, ...
   - name: 📝 Documentation
-    url: https://github.com/redhat-developer/vscode-extension-tester/wiki
+    url: https://redhat-developer.github.io/vscode-extension-tester/
     about: Documentation with examples of usage.
