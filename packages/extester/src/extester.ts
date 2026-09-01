@@ -38,6 +38,8 @@ export interface SetupOptions {
 	vscodeVersion?: string;
 	/** vsce packaging options passed directly to vsce.createVSIX() — use e.g. `{ useYarn: true, followSymlinks: true }` */
 	packageOptions?: IPackageOptions;
+	/** path to a custom settings json file to apply before setup-phase CLI steps (e.g. proxy settings for marketplace installs) */
+	settings?: string;
 	/** install the extension's dependencies from the marketplace. Defaults to `false`. */
 	installDependencies?: boolean;
 	/** skip using cached version and download fresh copy */
@@ -183,7 +185,12 @@ export class ExTester {
 	 * @param noCache whether to skip using cached version
 	 */
 	async setupRequirements(options: SetupOptions = DEFAULT_SETUP_OPTIONS, offline = false, cleanup = false): Promise<void> {
-		const { packageOptions, vscodeVersion, installDependencies, noCache } = options;
+		const { packageOptions, vscodeVersion, installDependencies, noCache, settings } = options;
+
+		// Custom settings are written before any CLI-driven step so that e.g.
+		// marketplace installs honor proxy settings from the settings file.
+		// VSBrowser.start() rewrites the file merged with framework defaults.
+		this.code.writeUserSettings(settings ?? '');
 
 		const vscodeParsedVersion = loadCodeVersion(vscodeVersion);
 		if (!offline) {
@@ -226,7 +233,11 @@ export class ExTester {
 		setupOptions: Omit<SetupOptions, 'vscodeVersion'> = DEFAULT_SETUP_OPTIONS,
 		runOptions: Omit<RunOptions, 'vscodeVersion'> = DEFAULT_RUN_OPTIONS,
 	): Promise<number> {
-		await this.setupRequirements({ ...setupOptions, vscodeVersion }, runOptions.offline, runOptions.cleanup);
+		await this.setupRequirements(
+			{ ...setupOptions, vscodeVersion, settings: setupOptions.settings ?? runOptions.settings },
+			runOptions.offline,
+			runOptions.cleanup,
+		);
 		return await this.runTests(testFilesPattern, {
 			...runOptions,
 			vscodeVersion,

@@ -115,6 +115,7 @@ Options:
   -e, --extensions_dir <extensions_directory>  # VS Code will use this directory for managing extensions
   -c, --code_version <version>                 # Version of VS Code to download
   -t, --type <type>                            # Type of VS Code release (stable/insider)
+  -o, --code_settings <settings.json>          # Path to custom settings for VS Code json file, applied before setup-phase CLI steps
   --package_options <json>                     # JSON string of vsce IPackageOptions (e.g. '{"useYarn":true,"followSymlinks":true}')
   -i, --install_dependencies                   # Automatically install extensions your extension depends on (default: false)
   -n, --no_cache                               # Disable caching of VS Code and ChromeDriver downloads (default: false)
@@ -176,6 +177,38 @@ Options:
   --config <path>                              # Path to extester.config.json configuration file
   -h, --help                                   # display help for command
 ```
+
+## How custom settings propagate
+
+The file passed via `-o`/`--code_settings` (or `run.settings` in the config file) is parsed as JSONC — comments and trailing commas are accepted, exactly as VS Code itself accepts them in `settings.json` — so you can pass a copy of your own settings file directly. The root must be a JSON object.
+
+Before launch, ExTester merges your settings **on top of** its own framework defaults and writes the result to `<storage>/settings/User/settings.json` (user scope). Your values win on every key. These are the injected defaults:
+
+| Setting                                          | Value        | Why the framework sets it                                            |
+| ------------------------------------------------ | ------------ | -------------------------------------------------------------------- |
+| `update.mode` / `update.showReleaseNotes`        | `none` / off | A mid-run self-update corrupts the instance under test               |
+| `extensions.autoUpdate` / `autoCheckUpdates`     | off          | Same — extension state must not change mid-run                       |
+| `window.titleBarStyle` / `window.menuStyle`      | `custom`     | TitleBar/menu page objects only work with the custom title bar       |
+| `window.dialogStyle`                             | `custom`     | ModalDialog page objects (incl. the dirty-editor discard) need it    |
+| `workbench.reduceMotion`                         | `on`         | Disables UI animations that make element waits environment-dependent |
+| `files.simpleDialog.enable`                      | `true`       | Open/save dialog page objects need the simple (in-window) dialog     |
+| `security.workspace.trust.enabled`               | `false`      | Trust prompts would block the first window                           |
+| `workbench.editor.enablePreview`                 | `false`      | Editor tests assume real tabs, not preview tabs                      |
+| `workbench.startupEditor` + welcome/walkthroughs | none/off     | A deterministic empty workbench at startup                           |
+| `window.commandCenter`                           | `false`      | Keeps the title bar layout the page objects expect                   |
+
+Overriding one of these is allowed but prints a warning with the old → new values, since several of them are load-bearing for the page objects.
+
+Two things outrank your settings file:
+
+1. **Always-on launch flags.** ExTester starts VS Code with `--disable-updates`, `--disable-workspace-trust`, `--disable-telemetry`, `--disable-experiments` and `--skip-welcome`, and CLI flags win over `settings.json`. A setting that tries to re-enable one of these (e.g. `"security.workspace.trust.enabled": true`) has no effect; ExTester prints a warning when it detects this.
+2. **Workspace settings.** Your file is written at _user_ scope. Any folder or workspace you open — via `-r`/`--open_resource` or `VSBrowser.openResources()` — that carries its own `.vscode/settings.json` shadows your value for the keys it defines, per VS Code's normal precedence. This is the classic "my setting worked until the window reloaded" trap: opening a folder reloads the window, and the folder's workspace settings take over — while the user-scope file on disk still shows your value. ExTester prints a warning naming the shadowed keys when this happens.
+
+Custom settings are applied at launch. To change a setting mid-test, use the `SettingsEditor` page object.
+
+`setup-tests` also accepts `-o`/`--code_settings` (config: `setup.settings`): the parsed settings are written before setup-phase CLI steps run, so settings such as `http.proxy` apply to marketplace extension installs. `setup-and-run` reuses the run-phase settings for its setup phase automatically.
+
+One practical note on the storage folder: the settings dir doubles as VS Code's `--user-data-dir`, which hosts an IPC socket whose path must fit the OS socket limit (~104 bytes on macOS, ~108 on Linux). ExTester fails fast with a clear error if your storage path is too deep — use a shorter `-s`/`--storage` or `TEST_RESOURCES` if you hit it.
 
 ## Using a Config File
 
@@ -266,15 +299,16 @@ All fields are optional. Paths are resolved relative to the config file's locati
 
 Controls VS Code + ChromeDriver download and extension installation. Used by `get-vscode`, `get-chromedriver`, `install-vsix`, `setup-tests`, and `setup-and-run`.
 
-| Field                 | Type                      | Default                                       | CLI equivalent                  | Description                                             |
-| --------------------- | ------------------------- | --------------------------------------------- | ------------------------------- | ------------------------------------------------------- |
-| `vscodeVersion`       | string                    | `"latest"`                                    | `-c` / `--code_version`         | VS Code version: `latest`, `min`, `max`, or `1.X.Y`     |
-| `type`                | `"stable"` \| `"insider"` | `"stable"`                                    | `-t` / `--type`                 | VS Code release stream                                  |
-| `storage`             | string                    | `$TEST_RESOURCES` or `$TMPDIR/test-resources` | `-s` / `--storage`              | Folder for all downloaded test resources                |
-| `extensionsDir`       | string                    | —                                             | `-e` / `--extensions_dir`       | VS Code extensions directory override                   |
-| `packageOptions`      | object                    | —                                             | `--package_options`             | vsce `IPackageOptions` forwarded to `vsce.createVSIX()` |
-| `installDependencies` | boolean                   | `false`                                       | `-i` / `--install_dependencies` | Install marketplace dependencies automatically          |
-| `noCache`             | boolean                   | `false`                                       | `-n` / `--no_cache`             | Skip cached downloads                                   |
+| Field                 | Type                      | Default                                       | CLI equivalent                  | Description                                                                                                |
+| --------------------- | ------------------------- | --------------------------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `vscodeVersion`       | string                    | `"latest"`                                    | `-c` / `--code_version`         | VS Code version: `latest`, `min`, `max`, or `1.X.Y`                                                        |
+| `type`                | `"stable"` \| `"insider"` | `"stable"`                                    | `-t` / `--type`                 | VS Code release stream                                                                                     |
+| `storage`             | string                    | `$TEST_RESOURCES` or `$TMPDIR/test-resources` | `-s` / `--storage`              | Folder for all downloaded test resources                                                                   |
+| `extensionsDir`       | string                    | —                                             | `-e` / `--extensions_dir`       | VS Code extensions directory override                                                                      |
+| `packageOptions`      | object                    | —                                             | `--package_options`             | vsce `IPackageOptions` forwarded to `vsce.createVSIX()`                                                    |
+| `settings`            | string                    | —                                             | `-o` / `--code_settings`        | Custom `settings.json` applied before setup-phase CLI steps (e.g. proxy settings for marketplace installs) |
+| `installDependencies` | boolean                   | `false`                                       | `-i` / `--install_dependencies` | Install marketplace dependencies automatically                                                             |
+| `noCache`             | boolean                   | `false`                                       | `-n` / `--no_cache`             | Skip cached downloads                                                                                      |
 
 #### `run` section
 
@@ -287,7 +321,7 @@ Controls test execution inside VS Code. Used by `run-tests` and `setup-and-run`.
 | `type`              | `"stable"` \| `"insider"` | `"stable"`                                    | `-t` / `--type`                | VS Code release stream                                                                                                                                                                                         |
 | `storage`           | string                    | `$TEST_RESOURCES` or `$TMPDIR/test-resources` | `-s` / `--storage`             | Folder for all downloaded test resources                                                                                                                                                                       |
 | `extensionsDir`     | string                    | —                                             | `-e` / `--extensions_dir`      | VS Code extensions directory override                                                                                                                                                                          |
-| `settings`          | string                    | —                                             | `-o` / `--code_settings`       | Path to a custom VS Code `settings.json`                                                                                                                                                                       |
+| `settings`          | string                    | —                                             | `-o` / `--code_settings`       | Path to a custom VS Code `settings.json`. See [How custom settings propagate](#how-custom-settings-propagate)                                                                                                  |
 | `cleanup`           | boolean                   | `false`                                       | `-u` / `--uninstall_extension` | Uninstall the extension after the test run                                                                                                                                                                     |
 | `mochaConfig`       | string                    | —                                             | `-m` / `--mocha_config`        | Path to a Mocha configuration file                                                                                                                                                                             |
 | `logLevel`          | string                    | `"Info"`                                      | `-l` / `--log_level`           | Webdriver and ChromeDriver log level: `Debug`, `Info`, `Warning`, `Severe`, `OFF`, `ALL` (`ALL` records the full CDP wire traffic in `chromedriver.log` and can grow it by hundreds of MB over a long session) |

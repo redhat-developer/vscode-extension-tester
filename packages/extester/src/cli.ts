@@ -146,6 +146,7 @@ program
 	.option('-e, --extensions_dir <extensions_directory>', 'VS Code will use this directory for managing extensions')
 	.option('-c, --code_version <version>', 'Version of VS Code to download, use `min`/`max` to download the oldest/latest VS Code supported by ExTester')
 	.option('-t, --type <type>', 'Type of VS Code release (stable/insider)')
+	.option('-o, --code_settings <settings.json>', 'Path to custom settings for VS Code json file, applied before setup-phase CLI steps')
 	.option('--package_options <json>', 'JSON string of vsce IPackageOptions passed to vsce.createVSIX() (e.g. \'{"useYarn":true,"followSymlinks":true}\')')
 	.option('-i, --install_dependencies', 'Automatically install extensions your extension depends on', false)
 	.option('-n, --no_cache', 'Skip using cached version and download fresh copy without caching it', false)
@@ -159,6 +160,7 @@ program
 			await extest.setupRequirements({
 				vscodeVersion: cmd.code_version ?? setup.vscodeVersion,
 				packageOptions,
+				settings: cmd.code_settings ?? setup.settings,
 				installDependencies: cmd.install_dependencies || setup.installDependencies,
 				noCache: cmd.no_cache || setup.noCache,
 			});
@@ -253,6 +255,7 @@ program
 				cmd.code_version ?? setup.vscodeVersion ?? run.vscodeVersion,
 				{
 					packageOptions,
+					settings: cmd.code_settings ?? setup.settings ?? run.settings,
 					installDependencies: cmd.install_dependencies || setup.installDependencies,
 					noCache: cmd.no_cache || setup.noCache,
 				},
