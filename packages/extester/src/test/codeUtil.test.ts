@@ -174,6 +174,14 @@ describe('getDefaultSettings', () => {
 		assert.strictEqual(getDefaultSettings('1.101.0')['window.menuStyle'], 'custom');
 	});
 
+	it('pushes workbench hovers out of reach so they cannot intercept clicks', () => {
+		assert.strictEqual(getDefaultSettings('1.135.0')['workbench.hover.delay'], 604_800_000);
+	});
+
+	it('disables editor sticky scroll so its overlay cannot intercept clicks on top editor lines', () => {
+		assert.strictEqual(getDefaultSettings('1.135.0')['editor.stickyScroll.enabled'], false);
+	});
+
 	it('replaces object-valued custom settings whole in the merge, like VS Code scopes do', () => {
 		const merged = { ...getDefaultSettings('1.135.0'), ...{ 'files.exclude': { '**/out': true } } };
 		assert.deepStrictEqual(merged['files.exclude'], { '**/out': true });

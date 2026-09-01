@@ -188,18 +188,20 @@ The file passed via `-o`/`--code_settings` (or `run.settings` in the config file
 
 Before launch, ExTester merges your settings **on top of** its own framework defaults and writes the result to `<storage>/settings/User/settings.json` (user scope). Your values win on every key. These are the injected defaults:
 
-| Setting                                          | Value        | Why the framework sets it                                            |
-| ------------------------------------------------ | ------------ | -------------------------------------------------------------------- |
-| `update.mode` / `update.showReleaseNotes`        | `none` / off | A mid-run self-update corrupts the instance under test               |
-| `extensions.autoUpdate` / `autoCheckUpdates`     | off          | Same — extension state must not change mid-run                       |
-| `window.titleBarStyle` / `window.menuStyle`      | `custom`     | TitleBar/menu page objects only work with the custom title bar       |
-| `window.dialogStyle`                             | `custom`     | ModalDialog page objects (incl. the dirty-editor discard) need it    |
-| `workbench.reduceMotion`                         | `on`         | Disables UI animations that make element waits environment-dependent |
-| `files.simpleDialog.enable`                      | `true`       | Open/save dialog page objects need the simple (in-window) dialog     |
-| `security.workspace.trust.enabled`               | `false`      | Trust prompts would block the first window                           |
-| `workbench.editor.enablePreview`                 | `false`      | Editor tests assume real tabs, not preview tabs                      |
-| `workbench.startupEditor` + welcome/walkthroughs | none/off     | A deterministic empty workbench at startup                           |
-| `window.commandCenter`                           | `false`      | Keeps the title bar layout the page objects expect                   |
+| Setting                                          | Value        | Why the framework sets it                                                                                                                                |
+| ------------------------------------------------ | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `update.mode` / `update.showReleaseNotes`        | `none` / off | A mid-run self-update corrupts the instance under test                                                                                                   |
+| `extensions.autoUpdate` / `autoCheckUpdates`     | off          | Same — extension state must not change mid-run                                                                                                           |
+| `window.titleBarStyle` / `window.menuStyle`      | `custom`     | TitleBar/menu page objects only work with the custom title bar                                                                                           |
+| `window.dialogStyle`                             | `custom`     | ModalDialog page objects (incl. the dirty-editor discard) need it                                                                                        |
+| `workbench.reduceMotion`                         | `on`         | Disables UI animations that make element waits environment-dependent                                                                                     |
+| `workbench.hover.delay`                          | 7 days       | Workbench tooltips are DOM overlays that appear while the WebDriver pointer rests on the last click point, never auto-hide, and intercept the next click |
+| `editor.stickyScroll.enabled`                    | `false`      | The sticky-scroll overlay eats clicks aimed at the top editor lines                                                                                      |
+| `files.simpleDialog.enable`                      | `true`       | Open/save dialog page objects need the simple (in-window) dialog                                                                                         |
+| `security.workspace.trust.enabled`               | `false`      | Trust prompts would block the first window                                                                                                               |
+| `workbench.editor.enablePreview`                 | `false`      | Editor tests assume real tabs, not preview tabs                                                                                                          |
+| `workbench.startupEditor` + welcome/walkthroughs | none/off     | A deterministic empty workbench at startup                                                                                                               |
+| `window.commandCenter`                           | `false`      | Keeps the title bar layout the page objects expect                                                                                                       |
 
 Overriding one of these is allowed but prints a warning with the old → new values, since several of them are load-bearing for the page objects.
 
