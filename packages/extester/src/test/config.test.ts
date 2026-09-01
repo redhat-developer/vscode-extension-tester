@@ -138,11 +138,14 @@ describe('loadConfig', () => {
 
 	describe('path resolution', () => {
 		it('resolves relative paths in setup section relative to config file directory', async () => {
-			const { dir, file } = makeTmpConfig(JSON.stringify({ setup: { storage: './test-resources', extensionsDir: './test-extensions' } }));
+			const { dir, file } = makeTmpConfig(
+				JSON.stringify({ setup: { storage: './test-resources', extensionsDir: './test-extensions', settings: './vscode-settings.json' } }),
+			);
 			try {
 				const cfg = await loadConfig(file);
 				assert.strictEqual(cfg.setup?.storage, path.resolve(dir, 'test-resources'));
 				assert.strictEqual(cfg.setup?.extensionsDir, path.resolve(dir, 'test-extensions'));
+				assert.strictEqual(cfg.setup?.settings, path.resolve(dir, 'vscode-settings.json'));
 			} finally {
 				fs.rmSync(dir, { recursive: true });
 			}

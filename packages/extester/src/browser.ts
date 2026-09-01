@@ -22,7 +22,15 @@ import { satisfies } from 'compare-versions';
 import { WebDriver, Builder, initPageObjects, logging, By, Browser, EditorView, Workbench } from '@redhat-developer/page-objects';
 import { Options, ServiceBuilder } from 'selenium-webdriver/chrome';
 import { getLocatorsPath } from '@redhat-developer/locators';
-import { CodeUtil, CustomPageObjectsOptions, ReleaseQuality, overriddenDefaultKeys } from './util/codeUtil';
+import {
+	CodeUtil,
+	CustomPageObjectsOptions,
+	ReleaseQuality,
+	findShadowedSettings,
+	flagConflictWarnings,
+	overriddenDefaultKeys,
+	validateUserDataDirLength,
+} from './util/codeUtil';
 import { DEFAULT_STORAGE_FOLDER } from './extester';
 import { DriverUtil } from './util/driverUtil';
 
@@ -76,6 +84,14 @@ export class VSBrowser {
 		const settingsDir = path.join(this.storagePath, 'settings');
 		const userSettings = path.join(settingsDir, 'User');
 		const languagePacksPath = path.join(settingsDir, 'languagepacks.json');
+
+		// A too-long user data dir path makes VS Code die instantly on its IPC
+		// socket bind, surfaced by ChromeDriver only as "Chrome instance exited" —
+		// fail here with an actionable message instead.
+		const pathLengthError = validateUserDataDirLength(settingsDir);
+		if (pathLengthError) {
+			throw new Error(pathLengthError);
+		}
 
 		// Preserve languagepacks.json across the settings wipe.
 		// It is written by the VS Code CLI install step (installExt) with --user-data-dir
@@ -148,6 +164,11 @@ export class VSBrowser {
 				);
 				console.log('\x1b[33m%s\x1b[0m', `WARNING: Custom settings override framework defaults: ${diff.join(', ')}`);
 			}
+			// CLI flags beat settings.json in VS Code, so settings trying to
+			// re-enable what an always-on launch flag disables are silently dead.
+			for (const warning of flagConflictWarnings(custom)) {
+				console.log('\x1b[33m%s\x1b[0m', `WARNING: ${warning}`);
+			}
 			defaultSettings = { ...defaultSettings, ...this.customSettings };
 		}
 
@@ -206,6 +227,7 @@ export class VSBrowser {
 		// second-instance CLI call: when such a call lands while VS Code is still
 		// starting up, VS Code >= 1.123.0 corrupts webview resource streaming for
 		// the whole window (microsoft/vscode#330243, #2454).
+		this.warnShadowedSettings(resources);
 		for (const resource of resources) {
 			args.push(VSBrowser.resourceToLaunchArg(resource));
 		}
@@ -277,6 +299,30 @@ export class VSBrowser {
 		// handler would abort the whole suite on any stray async error.
 		process.on('SIGINT', () => void emergencyShutdown('SIGINT', 130));
 		process.on('SIGTERM', () => void emergencyShutdown('SIGTERM', 143));
+	}
+
+	/**
+	 * Warn when a folder being opened carries workspace settings that shadow
+	 * the user-supplied custom settings: workspace scope wins over user scope,
+	 * so those custom settings silently stop applying once the folder is open
+	 * — while the injected settings.json still shows the custom value.
+	 */
+	private warnShadowedSettings(resources: string[]): void {
+		const custom = this.customSettings as Record<string, unknown>;
+		if (Object.keys(custom).length === 0) {
+			return;
+		}
+		for (const resource of resources) {
+			const resolved = path.resolve(resource);
+			const shadowed = findShadowedSettings(resolved, custom);
+			if (shadowed.length > 0) {
+				const diff = shadowed.map((entry) => `${entry.key} (${JSON.stringify(custom[entry.key])} -> ${JSON.stringify(entry.workspaceValue)})`);
+				console.log(
+					'\x1b[33m%s\x1b[0m',
+					`WARNING: Workspace settings in ${path.join(resolved, '.vscode', 'settings.json')} shadow custom settings: ${diff.join(', ')}`,
+				);
+			}
+		}
 	}
 
 	/**
@@ -457,6 +503,7 @@ export class VSBrowser {
 			return;
 		}
 
+		this.warnShadowedSettings(paths);
 		const code = new CodeUtil(this.storagePath, this.releaseType, this.extensionsFolder);
 		code.open(...paths);
 		await this.waitForWorkbench(undefined, waitForFn);

@@ -217,6 +217,11 @@
           },
           "additionalProperties": true
         },
+        "settings": {
+          "type": "string",
+          "description": "Path to a custom VS Code settings.json file to apply before setup-phase CLI steps (e.g. proxy settings for marketplace installs).",
+          "examples": ["./vscode-settings.json"]
+        },
         "installDependencies": {
           "type": "boolean",
           "description": "Automatically install extensions your extension depends on from the marketplace.",

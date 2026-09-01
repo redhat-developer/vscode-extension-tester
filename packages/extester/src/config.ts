@@ -35,6 +35,8 @@ export interface ExTesterSetupConfig {
 	extensionsDir?: string;
 	/** vsce packaging options forwarded directly to `vsce.createVSIX()`. */
 	packageOptions?: IPackageOptions;
+	/** Path to a custom VS Code `settings.json` file to apply before setup-phase CLI steps (e.g. proxy settings for marketplace installs). */
+	settings?: string;
 	/** Automatically install extensions your extension depends on from the marketplace. Defaults to `false`. */
 	installDependencies?: boolean;
 	/** Skip using a cached download and fetch a fresh copy. Defaults to `false`. */
@@ -103,7 +105,7 @@ export interface ExTesterConfig {
 }
 
 /** Path-valued keys in ExTesterSetupConfig that must be resolved relative to the config file. */
-const SETUP_PATH_KEYS: (keyof ExTesterSetupConfig)[] = ['storage', 'extensionsDir'];
+const SETUP_PATH_KEYS: (keyof ExTesterSetupConfig)[] = ['storage', 'extensionsDir', 'settings'];
 
 /** Path-valued keys in ExTesterRunConfig that must be resolved relative to the config file. */
 const RUN_PATH_KEYS: (keyof ExTesterRunConfig)[] = ['storage', 'extensionsDir', 'settings', 'mochaConfig', 'customPageObjects'];

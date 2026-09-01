@@ -71,6 +71,94 @@ export function overriddenDefaultKeys(defaults: Record<string, unknown>, custom:
 	return Object.keys(custom).filter((key) => key in defaults && defaults[key] !== custom[key]);
 }
 
+/**
+ * Check whether a folder about to be opened carries workspace settings
+ * (`.vscode/settings.json`) that shadow user-supplied custom settings.
+ * Workspace scope wins over user scope in VS Code, so a shadowed custom
+ * setting silently stops applying the moment the folder is opened — while
+ * the injected user-scope settings.json still shows the custom value.
+ *
+ * Best-effort: unreadable or malformed workspace files yield no results,
+ * never an error.
+ *
+ * @param resourcePath path to the resource being opened
+ * @param custom the user-supplied custom settings
+ * @returns the shadowed keys with the workspace value that wins
+ */
+export function findShadowedSettings(resourcePath: string, custom: Record<string, unknown>): { key: string; workspaceValue: unknown }[] {
+	try {
+		if (!fs.statSync(resourcePath).isDirectory()) {
+			return [];
+		}
+		const workspaceFile = path.join(resourcePath, '.vscode', 'settings.json');
+		if (!fs.existsSync(workspaceFile)) {
+			return [];
+		}
+		// lenient parse: workspace files are JSONC and may be malformed — this
+		// only powers a warning, so never let it fail the run
+		const workspace: unknown = parseJsonc(fs.readFileSync(workspaceFile).toString(), [], { allowTrailingComma: true });
+		if (workspace === null || typeof workspace !== 'object' || Array.isArray(workspace)) {
+			return [];
+		}
+		const workspaceSettings = workspace as Record<string, unknown>;
+		return Object.keys(custom)
+			.filter((key) => key in workspaceSettings && workspaceSettings[key] !== custom[key])
+			.map((key) => ({ key, workspaceValue: workspaceSettings[key] }));
+	} catch {
+		return [];
+	}
+}
+
+/**
+ * Settings that ExTester's always-on launch flags override regardless of what
+ * settings.json says. CLI flags take precedence over settings in VS Code, so a
+ * custom value trying to re-enable one of these features is silently dead.
+ */
+const FLAG_SHADOWED_SETTINGS: { key: string; flag: string; conflicts: (value: unknown) => boolean }[] = [
+	{ key: 'security.workspace.trust.enabled', flag: '--disable-workspace-trust', conflicts: (value) => value === true },
+	{ key: 'update.mode', flag: '--disable-updates', conflicts: (value) => value !== 'none' },
+	{ key: 'telemetry.telemetryLevel', flag: '--disable-telemetry', conflicts: (value) => value !== 'off' },
+	{ key: 'workbench.enableExperiments', flag: '--disable-experiments', conflicts: (value) => value === true },
+	{ key: 'workbench.startupEditor', flag: '--skip-welcome', conflicts: (value) => value === 'welcomePage' },
+];
+
+/**
+ * List warnings for custom settings that have no effect because an always-on
+ * ExTester launch flag overrides them (CLI flags win over settings.json).
+ */
+export function flagConflictWarnings(custom: Record<string, unknown>): string[] {
+	return FLAG_SHADOWED_SETTINGS.filter(({ key, conflicts }) => key in custom && conflicts(custom[key])).map(
+		({ key, flag }) => `${key}=${JSON.stringify(custom[key])} has no effect: overridden by the always-on launch flag ${flag}`,
+	);
+}
+
+/**
+ * Check that VS Code's IPC socket inside the user data dir fits the OS
+ * AF_UNIX path limit (~104 bytes on macOS, ~108 on Linux). A too-deep
+ * storage path makes the VS Code main process die instantly with
+ * `listen EINVAL`, which ChromeDriver only surfaces as the cryptic
+ * "session not created: Chrome instance exited".
+ *
+ * @param settingsDir the directory passed as --user-data-dir
+ * @param platform target platform, defaults to the current one
+ * @returns an actionable error message, or undefined when the path fits
+ */
+export function validateUserDataDirLength(settingsDir: string, platform: NodeJS.Platform = process.platform): string | undefined {
+	if (platform === 'win32') {
+		return undefined;
+	}
+	// widest socket name VS Code creates in the dir, e.g. "1.135-main.sock"
+	const socketPath = `${settingsDir}/9.999-main.sock`;
+	const limit = platform === 'darwin' ? 103 : 107;
+	if (Buffer.byteLength(socketPath) > limit) {
+		return (
+			`The storage path is too long for VS Code's IPC socket (${Buffer.byteLength(socketPath)} > ${limit} bytes): ${settingsDir}\n` +
+			`VS Code would fail to start with "Chrome instance exited". Use a shorter storage folder via -s/--storage or the TEST_RESOURCES environment variable.`
+		);
+	}
+	return undefined;
+}
+
 /** defaults for the [[RunOptions]] */
 export const DEFAULT_RUN_OPTIONS = {
 	vscodeVersion: 'latest',
@@ -316,6 +404,26 @@ export class CodeUtil {
 		}
 		command += ` --user-data-dir="${path.join(this.downloadFolder, 'settings')}"`;
 		childProcess.execSync(command, { stdio: 'inherit', timeout: 120_000 });
+	}
+
+	/**
+	 * Write user-supplied custom settings into the test instance's user data
+	 * dir so that CLI-driven steps running before the browser starts (e.g.
+	 * marketplace extension installs, which honor settings like `http.proxy`)
+	 * see them too. `VSBrowser.start()` later wipes the dir and rewrites the
+	 * file merged with the framework defaults.
+	 *
+	 * @param settingsPath path to the custom settings file; no-op when empty
+	 */
+	writeUserSettings(settingsPath: string): void {
+		if (!settingsPath) {
+			return;
+		}
+		const settings = this.parseSettings(settingsPath);
+		const target = path.join(this.downloadFolder, 'settings', 'User', 'settings.json');
+		fs.mkdirpSync(path.dirname(target));
+		fs.writeJSONSync(target, settings, { spaces: '\t' });
+		console.log(`Writing code settings for setup phase to ${target}`);
 	}
 
 	/**
