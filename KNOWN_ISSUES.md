@@ -29,7 +29,7 @@ The macOS has limitations due to its platform specific native components used al
 
 We are trying to bring some solution or workarounds, because currently there is no other option.
 
-1. in case you need to use **dialogs**, please use simple dialogs in VS Code (see [wiki using dialogs](https://github.com/redhat-developer/vscode-extension-tester/wiki#using-dialogs))
+1. in case you need to use **dialogs**, please use simple dialogs in VS Code (see [Using Dialogs documentation](https://redhat-developer.github.io/vscode-extension-tester/getting-started/opening-files-and-folders/#using-dialogs))
 2. for **context menus** and **title bar**, please use command equivalents from VS Code command palette
 
 ## Migrating to ExTester 4.0.0+

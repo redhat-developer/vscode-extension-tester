@@ -63,7 +63,7 @@ Lastly, a pull request check on [Github Actions](../../actions) is going to kick
 
 ## Automated VS Code Version Updates
 
-ExTester automatically maintains support for the latest 3 stable VS Code releases. See [Automated Version Updates](docs/Automated-Version-Updates.md) for full details.
+ExTester automatically maintains support for the latest 3 stable VS Code releases. See [Automated Version Updates](https://redhat-developer.github.io/vscode-extension-tester/guides/automated-version-updates/) for full details.
 
 ### For Maintainers
 

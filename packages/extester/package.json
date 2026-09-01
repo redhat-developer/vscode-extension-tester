@@ -38,7 +38,7 @@
   "bugs": {
     "url": "https://github.com/redhat-developer/vscode-extension-tester/issues"
   },
-  "homepage": "https://github.com/redhat-developer/vscode-extension-tester#readme",
+  "homepage": "https://redhat-developer.github.io/vscode-extension-tester/",
   "repository": {
     "type": "git",
     "url": "https://github.com/redhat-developer/vscode-extension-tester.git",

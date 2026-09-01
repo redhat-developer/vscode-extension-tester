@@ -84,7 +84,7 @@
           {
             "id": "additionalArgs",
             "title": "Additional Arguments (Optional)",
-            "description": "Configure additional command line arguments to pass to ExTester using [Additional Arguments](command:workbench.action.openWorkspaceSettings?%22extesterRunner.additionalArgs%22). These arguments will be appended to the extest setup-and-run command. Learn more about available arguments in the [ExTester documentation](https://github.com/redhat-developer/vscode-extension-tester/wiki/Test-Setup#set-up-and-run-tests).",
+            "description": "Configure additional command line arguments to pass to ExTester using [Additional Arguments](command:workbench.action.openWorkspaceSettings?%22extesterRunner.additionalArgs%22). These arguments will be appended to the extest setup-and-run command. Learn more about available arguments in the [ExTester documentation](https://redhat-developer.github.io/vscode-extension-tester/guides/test-setup/#set-up-and-run-tests).",
             "media": {
               "image": "resources/walkthroughs/additionalArgs.png",
               "altText": "Additional Arguments"
@@ -186,14 +186,14 @@
             "type": "string",
             "scope": "resource",
             "order": 2,
-            "markdownDescription": "Specifies the directory for temporary files used by ExTester. If undefined, the default system temporary folder is used. This setting overrides any corresponding [environment variables](https://github.com/redhat-developer/vscode-extension-tester/wiki/Test-Setup#useful-env-variables)."
+            "markdownDescription": "Specifies the directory for temporary files used by ExTester. If undefined, the default system temporary folder is used. This setting overrides any corresponding [environment variables](https://redhat-developer.github.io/vscode-extension-tester/guides/test-setup/#useful-env-variables)."
           },
           "extesterRunner.visualStudioCode.Version": {
             "type": "string",
             "default": "max",
             "scope": "resource",
             "order": 3,
-            "markdownDescription": "Specifies the VS Code version. Options: `max`, `min`, `latest`, or a specific version (e.g., `1.97.1`). Default: `max` (max version supported by ExTester). This setting overrides any corresponding [environment variables](https://github.com/redhat-developer/vscode-extension-tester/wiki/Test-Setup#useful-env-variables)."
+            "markdownDescription": "Specifies the VS Code version. Options: `max`, `min`, `latest`, or a specific version (e.g., `1.97.1`). Default: `max` (max version supported by ExTester). This setting overrides any corresponding [environment variables](https://redhat-developer.github.io/vscode-extension-tester/guides/test-setup/#useful-env-variables)."
           },
           "extesterRunner.visualStudioCode.Type": {
             "type": "string",
@@ -204,7 +204,7 @@
             "default": "stable",
             "scope": "resource",
             "order": 4,
-            "markdownDescription": "Defines the VS Code distribution. Use `stable` (default) for the official, fully tested release with monthly updates, or `insider` for a preview version with daily updates and experimental features (potentially unstable). See [VS Code Insiders page](https://code.visualstudio.com/insiders/) for more info. This setting overrides any corresponding [environment variables](https://github.com/redhat-developer/vscode-extension-tester/wiki/Test-Setup#useful-env-variables)."
+            "markdownDescription": "Defines the VS Code distribution. Use `stable` (default) for the official, fully tested release with monthly updates, or `insider` for a preview version with daily updates and experimental features (potentially unstable). See [VS Code Insiders page](https://code.visualstudio.com/insiders/) for more info. This setting overrides any corresponding [environment variables](https://redhat-developer.github.io/vscode-extension-tester/guides/test-setup/#useful-env-variables)."
           },
           "extesterRunner.additionalArgs": {
             "type": "array",
@@ -214,7 +214,7 @@
               "type": "string"
             },
             "order": 5,
-            "markdownDescription": "Additional arguments for the ExTester `setup-and-run` command.\n\nSee [ExTester wiki](https://github.com/redhat-developer/vscode-extension-tester/wiki/Test-Setup#set-up-and-run-tests) for more details."
+            "markdownDescription": "Additional arguments for the ExTester `setup-and-run` command.\n\nSee [ExTester documentation](https://redhat-developer.github.io/vscode-extension-tester/guides/test-setup/#set-up-and-run-tests) for more details."
           }
         }
       },
