@@ -5,14 +5,12 @@ on:
     branches: [main]
     paths:
       - "**"
-      - "!docs/**"
       - "!docs-site/**"
       - "!packages/extester-runner/**"
   pull_request:
     branches: [main]
     paths:
       - "**"
-      - "!docs/**"
       - "!docs-site/**"
       - "!packages/extester-runner/**"
   workflow_dispatch:
