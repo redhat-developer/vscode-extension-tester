@@ -1,22 +1,18 @@
+# Nightly smoke run of the `extest --coverage` feature against the sample
+# extension in tests/test-project. It measures the sample extension, not the
+# framework: framework coverage is collected as a byproduct of the Main CI
+# matrix (see the `coverage` job in main.yml). This job is intentionally not
+# tied to pull requests - failing tests do not invalidate the numbers, but a
+# missing report does, so that is the only thing that fails the job.
 name: 📊 Code Coverage
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "**"
-      - "!docs-site/**"
-      - "!packages/extester-runner/**"
-  pull_request:
-    branches: [main]
-    paths:
-      - "**"
-      - "!docs-site/**"
-      - "!packages/extester-runner/**"
+  schedule:
+    - cron: "0 3 * * *"
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -50,11 +46,16 @@ jobs:
         run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
       - name: 📊 Run Tests with Coverage enabled
-        # 'set +e' and 'exit 0' - that means the workflow will not fail even the test failures are present. The failing tests are not directive for the code coverage reports itself
+        # Test failures are not a problem for the coverage report, so the run
+        # is allowed to fail; only a missing report fails the job.
         run: |
           set +e
           xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' npm run test:coverage
-          exit 0
+          set -e
+          if [ ! -f tests/test-project/coverage/index.html ]; then
+            echo "::error::No coverage report was produced in tests/test-project/coverage"
+            exit 1
+          fi
 
       - name: 💾 Upload Coverage
         uses: actions/upload-artifact@v7
