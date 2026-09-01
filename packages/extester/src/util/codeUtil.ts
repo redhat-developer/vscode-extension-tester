@@ -168,7 +168,7 @@ export async function removeDirWithRetry(dir: string): Promise<void> {
  * @param codeVersion literal VS Code version being launched (gates
  * settings that only exist in newer versions)
  */
-export function getDefaultSettings(codeVersion: string): Record<string, string | boolean> {
+export function getDefaultSettings(codeVersion: string): Record<string, string | boolean | number> {
 	return {
 		// Never let the tested VS Code instance update itself mid-run: on macOS
 		// the background updater replaces application files while tests execute,
@@ -200,6 +200,17 @@ export function getDefaultSettings(codeVersion: string): Record<string, string |
 		// on the OS reduced-motion preference (GitHub windows/macos runners
 		// report it, Xvfb linux does not), making runs environment-dependent.
 		'workbench.reduceMotion': 'on',
+		// Workbench chrome hovers (tab/tree-row/action-bar/status-bar tooltips)
+		// are DOM overlays that appear while the WebDriver pointer rests on the
+		// last click point and never auto-hide, deadlocking the next click's
+		// pre-dispatch hit-test (ElementClickInterceptedError). There is no
+		// off-switch upstream, but the delay has no maximum — push it out of
+		// reach (7 days). Editor content hovers stay untouched: extension
+		// authors legitimately test their HoverProviders.
+		'workbench.hover.delay': 604_800_000,
+		// Same hazard class: sticky scroll is a permanent overlay that eats
+		// clicks aimed at the top editor lines once the editor is scrolled.
+		'editor.stickyScroll.enabled': false,
 		...(satisfies(codeVersion, '>=1.101.0') ? { 'window.menuStyle': 'custom' } : {}),
 	};
 }
