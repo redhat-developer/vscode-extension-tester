@@ -9,6 +9,17 @@ option when running tests via a CLI command
 
 Coverage can also be enabled with `"run": { "coverage": true }` in `extester.config.json` — see [Using a Config File](/vscode-extension-tester/guides/test-setup/#using-a-config-file).
 
+## How coverage is collected
+
+ExTester does not instrument your code. When coverage is enabled, the framework points Node's built-in [`NODE_V8_COVERAGE`](https://nodejs.org/api/cli.html#node_v8_coveragedir) at a temporary directory before VS Code starts, and every Node process launched from there — including the extension host that runs your extension — writes its raw V8 coverage into that directory when it exits. After the browser is closed, c8 converts those files into the report.
+
+A few consequences follow from this:
+
+- **Tests do not have to pass.** Coverage data is written at process exit regardless of the Mocha result, so failing tests still count for the code they ran.
+- **Your extension has to activate.** Files that were never loaded do not appear in the report by default (`all: false`). If the report is empty or unexpectedly small, check that the tests trigger one of your `activationEvents`.
+- **VS Code runs as an Extension Development Host**, with `--extensionDevelopmentPath` pointing at the directory you invoke `extest` from. The window title gets an `[Extension Development Host]` suffix, and when a VSIX is also installed (`-u`), the development copy takes precedence over it.
+- **Source maps are needed** for the report to show your TypeScript sources; without them c8 reports the compiled JavaScript.
+
 ## Configuration Options
 
 A configuration file can change the default behaviors of the c8 tool. The framework searches for c8 JSON configuration files named `.c8rc`, `.c8rc.json`, `.nycrc`, or `.nycrc.json`, starting from the directory you invoke `extest` from (`process.cwd()`), walking upwards. You can check out what options are supported in the [c8 documentation](https://github.com/bcoe/c8?tab=readme-ov-file#cli-options--configuration).
@@ -58,3 +69,7 @@ However, in special situations where you need to load a vsix file in your test, 
 When `-u` option is specified, the framework will build and install a vsix file prior to executing tests. After completing the test run, the framework uninstall the vsix file.
 Keep in mind that even when using the `-u` option, source codes will still be sourced directly from your
 project directory with code coverage enabled.
+
+## Coverage of ExTester itself
+
+If you are contributing to ExTester, the framework's own coverage is collected differently, as a byproduct of the Main CI test matrix, and is described in [CONTRIBUTING.md](https://github.com/redhat-developer/vscode-extension-tester/blob/main/CONTRIBUTING.md#coverage).

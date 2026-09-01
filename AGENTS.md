@@ -100,12 +100,23 @@ code where a W3C-precise read is specifically wanted.
 | Locator XPaths | **Do not write XPath strings in tests.** Always use the page-objects locator API |
 | Element attributes | **Do not migrate `getAttribute()` to `getDomAttribute()`/`getDomProperty()`** — see the Page Object Model section |
 | Root dependencies | **Do not add runtime deps to the root `package.json`** — root is dev tooling only |
+| Coverage config | **Do not add a root `.c8rc*` / `.nycrc*` file** — `extest --coverage` discovers rc files by walking up from its cwd; the CI framework-coverage config is `.github/c8-framework.json`, passed with `--config` |
 
 ### VS Code version support policy
 
 ExTester maintains support for the **latest 3 stable VS Code releases** via a rolling window.
 This is automated — a CI workflow (`update-vscode-versions.yml`) opens PRs when new versions drop.
 Maintainers review, wait for CI green, and merge.
+
+### Coverage in CI
+
+Framework coverage of `packages/*` is a byproduct of the Main CI matrix: the ubuntu cells of
+each suite job run with `NODE_V8_COVERAGE` set, `.github/scripts/trim-v8-coverage.mjs` keeps only
+framework scripts, and the `coverage` job in `main.yml` merges the dumps with
+`c8 report --config .github/c8-framework.json` (job summary + `framework-coverage` artifact).
+It is informational and not part of the status check. `coverage.yml` separately exercises
+`extest --coverage` on the sample extension, nightly and on demand only. Neither requires
+passing tests — failing tests still produce valid coverage for the code they ran.
 
 ---
 

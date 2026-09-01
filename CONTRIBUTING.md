@@ -46,6 +46,15 @@ npm run test:build
 
 If you are adding a new feature, be sure to **write new tests** for it. If you navigate to the `tests/test-project/src/test` folder, you will find a test file structure that mirrors the source files. Put your new test into the appropriate existing file, or create a new one that follows the same structure.
 
+### Coverage
+
+Two workflows measure coverage, and neither needs the tests to pass: V8 writes its coverage data when a process exits, so failed tests still count for the code they ran.
+
+- **Framework coverage** (the `📊 Framework Coverage` job in [Main CI](../../actions/workflows/main.yml)): the ubuntu cells of every suite job collect V8 coverage of the ExTester runner process while the UI tests run, and one final job merges them into a report of how much of `packages/*` the tests exercise. The numbers are in that job's summary; the HTML and lcov report is the `framework-coverage` artifact. It is informational only and not part of the status check.
+- **Sample-extension coverage** (the [Code Coverage](../../actions/workflows/coverage.yml) workflow): runs `extest --coverage` against `tests/test-project` nightly and on demand, as a smoke test of the coverage feature itself. It fails only when no report is produced.
+
+The framework report is configured in `.github/c8-framework.json`. **Do not add a `.c8rc*` or `.nycrc*` file to the repository root**: `extest --coverage` discovers such files by walking up from the directory it runs in, so a root file would silently reconfigure the sample-extension report.
+
 ### Pull Requests
 
 Having made and tested your changes, we recommend committing them into a new branch:
