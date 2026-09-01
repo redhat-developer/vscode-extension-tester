@@ -16,12 +16,11 @@ concurrency:
   group: docs-site-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
-permissions:
-  contents: read
-
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: docs-site
@@ -37,7 +36,7 @@ jobs:
           cache-dependency-path: docs-site/package-lock.json
 
       - name: 📦 Install
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: 🏗️ Build (with link validation)
         run: npm run build
