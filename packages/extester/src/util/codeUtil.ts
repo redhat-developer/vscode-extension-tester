@@ -533,7 +533,11 @@ export class CodeUtil {
 	}
 
 	private getCliInitCommand(): string {
-		return `${this.cliEnv} "${this.getExecutablePath()}" "${this.getCliPath()}"`;
+		// --no-deprecation: VS Code's own cliProcessMain.js still calls url.parse(), which Node 22+
+		// (bundled since VS Code ~1.100) reports as DEP0169 on stderr during --install-extension.
+		// Cannot use the targeted --disable-warning=DEP0169 flag: it requires Node >= 20.11,
+		// but the minimum supported VS Code (1.90) ships Node 20.9.
+		return `${this.cliEnv} "${this.getExecutablePath()}" --no-deprecation "${this.getCliPath()}"`;
 	}
 
 	private installExt(pathOrID: string, preRelease?: boolean): void {
