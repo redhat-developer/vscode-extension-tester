@@ -1,0 +1,56 @@
+---
+title: UI Testing for VS Code Extensions
+description: UI testing framework for Visual Studio Code extensions, powered by Selenium WebDriver.
+template: splash
+hero:
+  title: ExTester
+  tagline: Your essential UI testing companion for Visual Studio Code extensions. Execute UI tests with Selenium WebDriver, ensuring robustness and reliability in your extension development journey.
+  image:
+    file: ../../assets/logo.png
+    alt: ExTester logo
+  actions:
+    - text: Get Started
+      link: /vscode-extension-tester/getting-started/installation/
+      icon: right-arrow
+    - text: Page Object Reference
+      link: /vscode-extension-tester/objects/
+      variant: minimal
+      icon: open-book
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+## What ExTester does for you
+
+<CardGrid>
+	<Card title="Downloads VS Code" icon="download">
+		Fetches a test instance of Visual Studio Code — any supported version, stable or insiders.
+	</Card>
+	<Card title="Handles ChromeDriver" icon="setting">
+		Downloads the exact ChromeDriver build matching the VS Code instance, automatically.
+	</Card>
+	<Card title="Packages your extension" icon="seti:npm">
+		Packs and installs your extension into the downloaded VS Code instance.
+	</Card>
+	<Card title="Runs your tests" icon="rocket">
+		Launches VS Code under Selenium WebDriver and runs your Mocha-based UI tests against it.
+	</Card>
+</CardGrid>
+
+## Start here
+
+<CardGrid>
+	<LinkCard title="Installation" description="Add ExTester to your extension project." href="/vscode-extension-tester/getting-started/installation/" />
+	<LinkCard title="Supported Versions" description="VS Code, Node.js and OS support policy." href="/vscode-extension-tester/getting-started/supported-versions/" />
+	<LinkCard title="Write your first test" description="A simple UI test, from scratch to green." href="/vscode-extension-tester/getting-started/writing-simple-tests/" />
+	<LinkCard title="Test setup in depth" description="CLI, environment variables and extester.config.json." href="/vscode-extension-tester/guides/test-setup/" />
+</CardGrid>
+
+## More resources
+
+<CardGrid>
+	<LinkCard title="ExTester Runner" description="VS Code extension with a UI for orchestrating your ExTester tests." href="/vscode-extension-tester/guides/extester-runner/" />
+	<LinkCard title="Example project" description="A complete working example of an extension tested with ExTester." href="https://github.com/redhat-developer/vscode-extension-tester-example" />
+	<LinkCard title="Known issues" description="Platform caveats and common problems." href="https://github.com/redhat-developer/vscode-extension-tester/blob/main/KNOWN_ISSUES.md" />
+	<LinkCard title="Contributing" description="Build, test and contribute to ExTester itself." href="https://github.com/redhat-developer/vscode-extension-tester/blob/main/CONTRIBUTING.md" />
+</CardGrid>
