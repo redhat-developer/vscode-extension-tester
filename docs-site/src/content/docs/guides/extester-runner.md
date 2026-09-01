@@ -9,7 +9,7 @@ title: ExTester Runner
 1. Install the ExTester Runner extension from the VS Code marketplace
 2. Open your VS Code extension project
 3. Click the ExTester Runner icon in the Activity Bar
-4. Find your test in the Test Explorer
+4. Find your test in the UI Tests view
 5. Click the play button (▶️) to run it
 
 ## What is ExTester Runner?

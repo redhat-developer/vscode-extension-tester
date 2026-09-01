@@ -39,14 +39,14 @@ The extension makes running tests incredibly simple and efficient:
 
 1. Open your VS Code extension project
 2. Click the ExTester Runner icon in the Activity Bar
-3. Find your test in the Test Explorer
+3. Find your test in the UI Tests view
 4. Click the play button (▶️) to run it
 
 #### Running Tests
 
-- **Test Suite**: Click the play button next to a `describe()` block to run all tests in that suite
 - **Test File**: Click the play button next to a test file to run all tests in that file
-- **All Tests**: Click the play button at the top of the Test Explorer to run everything
+- **Test Folder**: Click the play button next to a folder to run all test files inside it
+- **All Tests**: Click the play button at the top of the UI Tests view to run everything
 
 ### Test Management
 
@@ -59,7 +59,7 @@ The extension makes running tests incredibly simple and efficient:
 
 ### Automatic Updates
 
-- Test Explorer automatically refreshes when:
+- UI Tests view automatically refreshes when:
   - Test files are added, removed or modified
   - Test configurations change
 - Screenshots view updates when:
@@ -71,15 +71,18 @@ The extension makes running tests incredibly simple and efficient:
 
 ### Configuration Options
 
+All settings live under the `extesterRunner` namespace:
+
 - `testFileGlob`: Glob pattern for test files
 - `excludeGlob`: Glob pattern for excluded paths
 - `ignorePathPart`: Path segment to remove from folder labels
 - `additionalArgs`: Additional CLI arguments for test runner
-- `outFolder`: Path to compiled output directory
+- `outputFolder`: Path to compiled output directory
 - `rootFolder`: Path to test source root
 - `tempFolder`: Directory for test artifacts
-- `vsCodeVersion`: VS Code version for test execution
-- `vsCodeType`: VS Code build type (e.g., "Insiders" or "Stable")
+- `visualStudioCode.Version`: VS Code version for test execution (`max`, `min`, `latest`, or a specific version)
+- `visualStudioCode.Type`: VS Code build type (`stable` or `insider`)
+- `hideEmptyLogFolders`: Hide empty log directories in the Logs view
 
 ## Logging
 

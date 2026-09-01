@@ -55,22 +55,23 @@ The extension contributes several settings under the namespace extesterRunner:
 - `testFileGlob` (string): Glob pattern to find test files (default `**/ui-test/**/*.test.ts`).
 - `excludeGlob` (string): Glob pattern of paths to exclude from test search (default `**/node_modules/**`).
 - `ignorePathPart` (string): If set, any matching path segment is removed from folder labels in the UI Tests view (for cleaner display, e.g., remove common prefix paths).
-- `additionalArgs` (string): Additional CLI arguments to pass to the test runner (`extest`) when executing tests (e.g., user-defined options).
-- `outFolder` (string): Path to the compiled output directory for tests.
+- `additionalArgs` (array of strings): Additional CLI arguments to pass to the test runner (`extest`) when executing tests (e.g., user-defined options).
+- `outputFolder` (string): Path to the compiled output directory for tests (default `out`).
 - `rootFolder` (string): Path to the test source root.
 - `tempFolder` (string): Directory for test artifacts (logs, screenshots). If empty, the extension uses a default temp directory or an environment variable `TEST_RESOURCES`.
-- `vsCodeVersion` (string): Which VS Code version to use for running tests (passed to the test runner CLI as `--code_version`, e.g., `"1.70.0"`).
-- `vsCodeType` (string): Which VS Code build to use for tests (e.g., `"Insiders"` or `"Stable"`, passed as `--code_type`).
+- `visualStudioCode.Version` (string): Which VS Code version to use for running tests (passed to the test runner CLI as `--code_version`; `max`, `min`, `latest`, or a specific version like `"1.97.1"`; default `max`).
+- `visualStudioCode.Type` (string): Which VS Code build to use for tests (`stable` or `insider`, passed as `--code_type`; default `stable`).
+- `hideEmptyLogFolders` (boolean): When enabled (default), only log folders containing files are shown in the Logs view.
 
 Changing any extesterRunner setting triggers a refresh of the test, logs, and screenshots views (the extension listens to configuration changes and refreshes accordingly).
 
 # Tasks / Test Runner Integration:
 
-The extension does not directly define new task types in `package.json`, but internally it uses the VS Code Task API to run tests via the `vscode-extension-teste` CLI (`extest`). Specifically:
+The extension defines an `extester-runner-task` task type in `package.json` and uses the VS Code Task API to run tests via the `vscode-extension-tester` CLI (`extest`). Specifically:
 
 - RunAllTestsTask (extends vscode.Task): Configured to run npx extest setup-and-run <outDir> [options] for all tests.
 - RunFolderTask: Similar, but runs tests only under a specific folder path.
-- RunFileTask: Runs tests from a single file. It calculates the output `.js` file path corresponding to the source `.ts` file (using `rootFolder/outFolder` settings and then runs `npx extest setup-and-run '<compiled-file-path>' [options]`.
+- RunFileTask: Runs tests from a single file. It calculates the output `.js` file path corresponding to the source `.ts` file (using `rootFolder`/`outputFolder` settings and then runs `npx extest setup-and-run '<compiled-file-path>' [options]`.
 - These tasks use `ShellExecution` to invoke the `extest` CLI and pass arguments based on the settings (e.g., `--storage <tempFolder>`for custom temp directory, `--code_version`, `--code_type`, and any extra `additionalArgs`). They ensure the task execution is awaited (using `vscode.tasks.executeTas` and listening for task completion) before allowing another run.
 
 # Logging:
