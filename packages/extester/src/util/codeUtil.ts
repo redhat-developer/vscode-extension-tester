@@ -319,8 +319,7 @@ export const DEFAULT_RUN_OPTIONS = {
 	logLevel: logging.Level.INFO,
 	offline: false,
 	resources: [],
-	noCache: false,
-};
+} satisfies RunOptions;
 
 /**
  * Handles the VS Code instance used for testing.
