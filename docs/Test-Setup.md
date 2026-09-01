@@ -138,6 +138,8 @@ Options:
   -c, --code_version <version>                 # Version of VS Code to be used
   -t, --type <type>                            # Type of VS Code release (stable/insider)
   -o, --code_settings <settings.json>          # Path to custom settings for VS Code json file
+  --code_keybindings <keybindings.json>        # Path to a custom keybindings.json file (JSONC array) seeded into the test instance
+  --code_snippets <folder>                     # Path to a folder of snippet files seeded into the test instance's User/snippets
   -u, --uninstall_extension                    # Uninstall the extension after the test run (default: false)
   -m, --mocha_config <mocharc.js>              # Path to Mocha configuration file
   -l, --log_level <level>                      # Log messages from webdriver with a given level (default: "Info")
@@ -164,6 +166,8 @@ Options:
   -c, --code_version <version>                 # Version of VS Code to download
   -t, --type <type>                            # Type of VS Code release (stable/insider)
   -o, --code_settings <settings.json>          # Path to custom settings for VS Code json file
+  --code_keybindings <keybindings.json>        # Path to a custom keybindings.json file (JSONC array) seeded into the test instance
+  --code_snippets <folder>                     # Path to a folder of snippet files seeded into the test instance's User/snippets
   --package_options <json>                     # JSON string of vsce IPackageOptions (e.g. '{"useYarn":true,"followSymlinks":true}')
   -u, --uninstall_extension                    # Uninstall the extension after the test run (default: false)
   -m, --mocha_config <mocharc.js>              # Path to Mocha configuration file
@@ -205,6 +209,8 @@ Two things outrank your settings file:
 2. **Workspace settings.** Your file is written at _user_ scope. Any folder or workspace you open — via `-r`/`--open_resource` or `VSBrowser.openResources()` — that carries its own `.vscode/settings.json` shadows your value for the keys it defines, per VS Code's normal precedence. This is the classic "my setting worked until the window reloaded" trap: opening a folder reloads the window, and the folder's workspace settings take over — while the user-scope file on disk still shows your value. ExTester prints a warning naming the shadowed keys when this happens.
 
 Custom settings are applied at launch. To change a setting mid-test, use the `SettingsEditor` page object.
+
+Keybindings and snippets can be seeded the same way: `--code_keybindings <keybindings.json>` copies a JSONC keybindings file (array root, comments preserved) into the test instance, and `--code_snippets <folder>` copies a folder of snippet files (`<language>.json` or `*.code-snippets`) into `User/snippets`. Seeding matters because ExTester wipes the settings directory on every start for determinism — only `languagepacks.json` is preserved (it is written by the extension-install step and needed for locale testing), so files placed there manually do not survive. If the wipe hits a busy directory (a leftover process from a previous run), ExTester retries once and then fails with a clear error instead of continuing with mixed state.
 
 `setup-tests` also accepts `-o`/`--code_settings` (config: `setup.settings`): the parsed settings are written before setup-phase CLI steps run, so settings such as `http.proxy` apply to marketplace extension installs. `setup-and-run` reuses the run-phase settings for its setup phase automatically.
 
@@ -322,6 +328,8 @@ Controls test execution inside VS Code. Used by `run-tests` and `setup-and-run`.
 | `storage`           | string                    | `$TEST_RESOURCES` or `$TMPDIR/test-resources` | `-s` / `--storage`             | Folder for all downloaded test resources                                                                                                                                                                       |
 | `extensionsDir`     | string                    | —                                             | `-e` / `--extensions_dir`      | VS Code extensions directory override                                                                                                                                                                          |
 | `settings`          | string                    | —                                             | `-o` / `--code_settings`       | Path to a custom VS Code `settings.json`. See [How custom settings propagate](#how-custom-settings-propagate)                                                                                                  |
+| `keybindings`       | string                    | —                                             | `--code_keybindings`           | Custom `keybindings.json` (JSONC array) seeded into the test instance                                                                                                                                          |
+| `snippets`          | string                    | —                                             | `--code_snippets`              | Folder of snippet files seeded into the test instance's `User/snippets`                                                                                                                                        |
 | `cleanup`           | boolean                   | `false`                                       | `-u` / `--uninstall_extension` | Uninstall the extension after the test run                                                                                                                                                                     |
 | `mochaConfig`       | string                    | —                                             | `-m` / `--mocha_config`        | Path to a Mocha configuration file                                                                                                                                                                             |
 | `logLevel`          | string                    | `"Info"`                                      | `-l` / `--log_level`           | Webdriver and ChromeDriver log level: `Debug`, `Info`, `Warning`, `Severe`, `OFF`, `ALL` (`ALL` records the full CDP wire traffic in `chromedriver.log` and can grow it by hundreds of MB over a long session) |

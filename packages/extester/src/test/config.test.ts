@@ -156,6 +156,8 @@ describe('loadConfig', () => {
 				JSON.stringify({
 					run: {
 						settings: './vscode-settings.json',
+						keybindings: './vscode-keybindings.json',
+						snippets: './my-snippets',
 						mochaConfig: './.mocharc.js',
 						customPageObjects: './out/locators.js',
 						testFiles: ['./out/**/*.test.js'],
@@ -168,6 +170,8 @@ describe('loadConfig', () => {
 			try {
 				const cfg = await loadConfig(file);
 				assert.strictEqual(cfg.run?.settings, path.resolve(dir, 'vscode-settings.json'));
+				assert.strictEqual(cfg.run?.keybindings, path.resolve(dir, 'vscode-keybindings.json'));
+				assert.strictEqual(cfg.run?.snippets, path.resolve(dir, 'my-snippets'));
 				assert.strictEqual(cfg.run?.mochaConfig, path.resolve(dir, '.mocharc.js'));
 				assert.strictEqual(cfg.run?.customPageObjects, path.resolve(dir, 'out/locators.js'));
 				assert.deepStrictEqual(cfg.run?.testFiles, [`${dirFwd}/out/**/*.test.js`]);

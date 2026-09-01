@@ -275,6 +275,16 @@
           "description": "Path to a custom VS Code settings.json file to apply during the test run.",
           "examples": ["./vscode-settings.json"]
         },
+        "keybindings": {
+          "type": "string",
+          "description": "Path to a custom VS Code keybindings.json file (JSONC array) seeded into the test instance.",
+          "examples": ["./vscode-keybindings.json"]
+        },
+        "snippets": {
+          "type": "string",
+          "description": "Path to a folder of snippet files seeded into the test instance's User/snippets directory.",
+          "examples": ["./my-snippets"]
+        },
         "cleanup": {
           "type": "boolean",
           "description": "Uninstall the extension under test after the test run completes.",

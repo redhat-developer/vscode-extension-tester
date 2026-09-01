@@ -18,7 +18,6 @@
 import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as fs from 'fs-extra';
-import { satisfies } from 'compare-versions';
 import { WebDriver, Builder, initPageObjects, logging, By, Browser, EditorView, Workbench } from '@redhat-developer/page-objects';
 import { Options, ServiceBuilder } from 'selenium-webdriver/chrome';
 import { getLocatorsPath } from '@redhat-developer/locators';
@@ -26,7 +25,12 @@ import {
 	CodeUtil,
 	CustomPageObjectsOptions,
 	ReleaseQuality,
+	SeedFilesOptions,
 	findShadowedSettings,
+	getDefaultSettings,
+	seedKeybindingsFile,
+	seedSnippetsDir,
+	removeDirWithRetry,
 	flagConflictWarnings,
 	overriddenDefaultKeys,
 	validateUserDataDirLength,
@@ -46,6 +50,7 @@ export class VSBrowser {
 	private readonly logLevel: logging.Level;
 	private readonly customPageObjects?: CustomPageObjectsOptions;
 	private readonly locale: string;
+	private readonly seedFiles?: SeedFilesOptions;
 	private static _instance: VSBrowser;
 	private readonly _startTimestamp: string;
 	private static _signalHandlersRegistered = false;
@@ -62,6 +67,7 @@ export class VSBrowser {
 		logLevel: logging.Level = logging.Level.INFO,
 		customPageObjects?: CustomPageObjectsOptions,
 		locale: string = '',
+		seedFiles?: SeedFilesOptions,
 	) {
 		this.storagePath = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.resolve(DEFAULT_STORAGE_FOLDER);
 		this.extensionsFolder = process.env.EXTENSIONS_FOLDER ? process.env.EXTENSIONS_FOLDER : undefined;
@@ -71,6 +77,7 @@ export class VSBrowser {
 		this.logLevel = logLevel;
 		this.customPageObjects = customPageObjects;
 		this.locale = locale;
+		this.seedFiles = seedFiles;
 		this._startTimestamp = this.formatTimestamp(new Date());
 
 		VSBrowser._instance = this;
@@ -108,60 +115,21 @@ export class VSBrowser {
 		}
 
 		if (fs.existsSync(userSettings)) {
-			try {
-				fs.removeSync(settingsDir);
-			} catch (e: unknown) {
-				const code = (e as NodeJS.ErrnoException).code;
-				if (code === 'EBUSY' || code === 'EPERM') {
-					console.warn(`Could not fully clean settings dir (${code}), continuing anyway.`);
-				} else {
-					throw e;
-				}
-			}
+			// A busy dir gets one retry, then a hard failure: continuing with a
+			// half-wiped settings dir means nondeterministic leftover state.
+			await removeDirWithRetry(settingsDir);
 		}
 
-		let defaultSettings = {
-			// Never let the tested VS Code instance update itself mid-run: on macOS
-			// the background updater replaces application files while tests execute,
-			// which manifests as "Your Code installation appears to be corrupt" and a
-			// dead extension host ("version mismatch") partway through a session.
-			'update.mode': 'none',
-			'update.showReleaseNotes': false,
-			'extensions.autoUpdate': false,
-			'extensions.autoCheckUpdates': false,
-			'workbench.editor.enablePreview': false,
-			'workbench.startupEditor': 'none',
-			'window.titleBarStyle': 'custom',
-			'window.commandCenter': false,
-			'window.dialogStyle': 'custom',
-			'window.restoreFullscreen': true,
-			'window.newWindowDimensions': 'maximized',
-			'security.workspace.trust.enabled': false,
-			'files.simpleDialog.enable': true,
-			'terminal.integrated.copyOnSelection': true,
-			'workbench.secondarySideBar.defaultVisibility': 'hidden',
-			'workbench.welcomePage.experimentalOnboarding': false,
-			'workbench.welcomePage.walkthroughs.openOnInstall': false,
-			'workbench.editor.useModal': 'off',
-			// Disable workbench animations: VS Code >=1.133 fades the quick input
-			// out over 0.15s on close, so an isDisplayed() check right after
-			// accepting a pick still sees the widget. Whether motion is on depends
-			// on the OS reduced-motion preference (GitHub windows/macos runners
-			// report it, Xvfb linux does not), making runs environment-dependent.
-			'workbench.reduceMotion': 'on',
-			...(satisfies(this.codeVersion, '>=1.101.0') ? { 'window.menuStyle': 'custom' } : {}),
-		};
+		let mergedSettings: Record<string, unknown> = getDefaultSettings(this.codeVersion);
 		if (Object.keys(this.customSettings).length > 0) {
 			console.log('Detected user defined code settings');
 			// Several defaults are load-bearing for the framework itself (e.g. custom
 			// title bar and dialogs for the page objects, reduced motion for stable
 			// waits, disabled updates) — make it visible when custom settings change them.
 			const custom = this.customSettings as Record<string, unknown>;
-			const overridden = overriddenDefaultKeys(defaultSettings, custom);
+			const overridden = overriddenDefaultKeys(mergedSettings, custom);
 			if (overridden.length > 0) {
-				const diff = overridden.map(
-					(key) => `${key} (${JSON.stringify(defaultSettings[key as keyof typeof defaultSettings])} -> ${JSON.stringify(custom[key])})`,
-				);
+				const diff = overridden.map((key) => `${key} (${JSON.stringify(mergedSettings[key])} -> ${JSON.stringify(custom[key])})`);
 				console.log('\x1b[33m%s\x1b[0m', `WARNING: Custom settings override framework defaults: ${diff.join(', ')}`);
 			}
 			// CLI flags beat settings.json in VS Code, so settings trying to
@@ -169,14 +137,21 @@ export class VSBrowser {
 			for (const warning of flagConflictWarnings(custom)) {
 				console.log('\x1b[33m%s\x1b[0m', `WARNING: ${warning}`);
 			}
-			defaultSettings = { ...defaultSettings, ...this.customSettings };
+			mergedSettings = { ...mergedSettings, ...this.customSettings };
 		}
 
 		fs.mkdirpSync(path.join(userSettings, 'globalStorage'));
 		// tab indentation matches how VS Code itself writes settings.json and keeps
 		// the file readable when debugging which settings were actually applied
-		fs.writeJSONSync(path.join(userSettings, 'settings.json'), defaultSettings, { spaces: '\t' });
+		fs.writeJSONSync(path.join(userSettings, 'settings.json'), mergedSettings, { spaces: '\t' });
 		console.log(`Writing code settings to ${path.join(userSettings, 'settings.json')}`);
+
+		if (this.seedFiles?.keybindings) {
+			seedKeybindingsFile(this.seedFiles.keybindings, userSettings);
+		}
+		if (this.seedFiles?.snippets) {
+			seedSnippetsDir(this.seedFiles.snippets, userSettings);
+		}
 
 		if (this.locale) {
 			fs.writeJSONSync(path.join(userSettings, 'locale.json'), { locale: this.locale, osLocale: this.locale });

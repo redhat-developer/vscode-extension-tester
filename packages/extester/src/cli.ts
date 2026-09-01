@@ -175,6 +175,8 @@ program
 	.option('-c, --code_version <version>', 'Version of VS Code to be used, use `min`/`max` to download the oldest/latest VS Code supported by ExTester')
 	.option('-t, --type <type>', 'Type of VS Code release (stable/insider)')
 	.option('-o, --code_settings <settings.json>', 'Path to custom settings for VS Code json file')
+	.option('--code_keybindings <keybindings.json>', 'Path to a custom keybindings.json file (JSONC array) seeded into the test instance')
+	.option('--code_snippets <folder>', "Path to a folder of snippet files seeded into the test instance's User/snippets")
 	.option('-u, --uninstall_extension', 'Uninstall the extension after the test run', false)
 	.option('-m, --mocha_config <mocharc.js>', 'Path to Mocha configuration file')
 	.option('-l, --log_level <level>', 'Log messages from webdriver with a given level', 'Info')
@@ -202,6 +204,8 @@ program
 			await extest.runTests(files, {
 				vscodeVersion: cmd.code_version ?? run.vscodeVersion,
 				settings: cmd.code_settings ?? run.settings,
+				keybindings: cmd.code_keybindings ?? run.keybindings,
+				snippets: cmd.code_snippets ?? run.snippets,
 				cleanup: cmd.uninstall_extension || run.cleanup,
 				config: cmd.mocha_config ?? run.mochaConfig,
 				logLevel: cmd.log_level ?? run.logLevel,
@@ -221,6 +225,8 @@ program
 	.option('-c, --code_version <version>', 'Version of VS Code to download, use `min`/`max` to download the oldest/latest VS Code supported by ExTester')
 	.option('-t, --type <type>', 'Type of VS Code release (stable/insider)')
 	.option('-o, --code_settings <settings.json>', 'Path to custom settings for VS Code json file')
+	.option('--code_keybindings <keybindings.json>', 'Path to a custom keybindings.json file (JSONC array) seeded into the test instance')
+	.option('--code_snippets <folder>', "Path to a folder of snippet files seeded into the test instance's User/snippets")
 	.option('--package_options <json>', 'JSON string of vsce IPackageOptions passed to vsce.createVSIX() (e.g. \'{"useYarn":true,"followSymlinks":true}\')')
 	.option('-u, --uninstall_extension', 'Uninstall the extension after the test run', false)
 	.option('-m, --mocha_config <mocharc.js>', 'Path to Mocha configuration file')
@@ -261,6 +267,8 @@ program
 				},
 				{
 					settings: cmd.code_settings ?? run.settings,
+					keybindings: cmd.code_keybindings ?? run.keybindings,
+					snippets: cmd.code_snippets ?? run.snippets,
 					cleanup: cmd.uninstall_extension || run.cleanup,
 					config: cmd.mocha_config ?? run.mochaConfig,
 					logLevel: cmd.log_level ?? run.logLevel,
