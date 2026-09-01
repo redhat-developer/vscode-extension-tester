@@ -121,6 +121,84 @@ jobs:
     with:
       test_group: xsideBar
 
+  coverage:
+    name: 📊 Framework Coverage
+    # Merges the V8 dumps that the ubuntu cells of every suite job collected
+    # while running the UI tests (see template-suite.yaml) into one report of
+    # how much of packages/* the UI tests exercise. Informational only: it is
+    # not part of the status check, and it runs even when suites failed.
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    needs:
+      - group_01_general
+      - group_activityBar
+      - group_bottomBar
+      - group_cli
+      - group_debug
+      - group_dialog
+      - group_editor
+      - group_menu
+      - group_statusBar
+      - group_system
+      - group_webview
+      - group_workbench
+      - group_xsideBar
+    steps:
+      - name: 👷🏻 Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: ⚙️ Setup NodeJS
+        uses: actions/setup-node@v7
+        with:
+          node-version: "lts/*"
+          cache: npm
+
+      - name: 🔧 Install
+        run: npm ci --ignore-scripts
+
+      # The dumps reference packages/*/out/*.js by absolute path and the source
+      # maps next to them; the same build at the same path is needed to remap.
+      - name: 🔧 Build
+        run: npm run build
+
+      - name: 📥 Download V8 coverage dumps
+        uses: actions/download-artifact@v7
+        with:
+          pattern: v8-coverage-*
+          path: ${{ runner.temp }}/v8-downloads
+
+      - name: 🔀 Merge dumps into one directory
+        run: |
+          merged="${RUNNER_TEMP}/v8-merged"
+          mkdir -p "$merged"
+          for dir in "${RUNNER_TEMP}"/v8-downloads/*/; do
+            name=$(basename "$dir")
+            for file in "$dir"*.json; do
+              [ -e "$file" ] || continue
+              mv "$file" "$merged/${name}-$(basename "$file")"
+            done
+          done
+          echo "Merged $(ls "$merged" | wc -l) dump files"
+
+      - name: 📊 Generate framework coverage report
+        run: |
+          npx c8 report --config .github/c8-framework.json --temp-directory "${RUNNER_TEMP}/v8-merged" | tee "${RUNNER_TEMP}/coverage.txt"
+          {
+            echo "## Framework coverage (packages/*, ubuntu cells)"
+            echo
+            echo '```'
+            sed -n '/Coverage summary/,/^=*$/p' "${RUNNER_TEMP}/coverage.txt" | sed '1d;$d'
+            echo '```'
+            echo
+            echo "Full per-file table in the job log; HTML and lcov in the framework-coverage artifact."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 💾 Upload framework coverage report
+        uses: actions/upload-artifact@v7
+        with:
+          name: framework-coverage
+          path: coverage/framework
+
   runner:
     uses: ./.github/workflows/template-runner.yaml
     with:

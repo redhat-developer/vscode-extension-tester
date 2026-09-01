@@ -83,6 +83,27 @@ jobs:
       - name: 🔍 Run Tests (linux)
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
         run: xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' npm run test:${{ inputs.test_group }} --workspace=extester-test
+        env:
+          # Framework coverage: every Node process spawned from here (the
+          # ExTester/Mocha runner included) dumps V8 coverage into this folder
+          # on exit. The dumps are merged into one report by the `coverage`
+          # job in main.yml. Linux only - the merge needs identical absolute
+          # paths to remap the dumps, and the ubuntu runners share them.
+          NODE_V8_COVERAGE: ${{ runner.temp }}/v8-coverage
+
+      - name: ✂️ Trim V8 coverage dumps to framework code (linux)
+        if: ${{ !cancelled() && startsWith(matrix.os, 'ubuntu') }}
+        run: node .github/scripts/trim-v8-coverage.mjs "${RUNNER_TEMP}/v8-coverage" "${GITHUB_WORKSPACE}"
+
+      - name: 💾 Upload V8 coverage dumps (linux)
+        uses: actions/upload-artifact@v7
+        # Failing tests still produce valid coverage for the code they ran.
+        if: ${{ !cancelled() && startsWith(matrix.os, 'ubuntu') }}
+        with:
+          name: v8-coverage-${{ inputs.test_group }}-${{ matrix.label }}
+          path: ${{ runner.temp }}/v8-coverage
+          if-no-files-found: warn
+          retention-days: 3
 
       - name: 💾 Upload Screenshots and ChromeDriver logs
         uses: actions/upload-artifact@v7

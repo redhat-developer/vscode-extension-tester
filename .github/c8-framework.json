@@ -1,0 +1,10 @@
+{
+  "all": true,
+  "src": "packages",
+  "include": ["packages/*/out/**"],
+  "exclude": ["packages/*/out/test/**", "packages/extester-runner/**"],
+  "extension": [".js"],
+  "exclude-after-remap": false,
+  "reporter": ["text", "text-summary", "html", "lcov"],
+  "reports-dir": "coverage/framework"
+}
