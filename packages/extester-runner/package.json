@@ -2,7 +2,7 @@
   "name": "extester-runner",
   "displayName": "ExTester Runner",
   "icon": "resources/logo.png",
-  "description": "Extension for vscode-extension-tester which allow users to run, debug, list tests directly inside VS Code.",
+  "description": "Extension for vscode-extension-tester which allows users to list and run UI tests directly inside VS Code.",
   "publisher": "redhat",
   "preview": true,
   "private": true,
