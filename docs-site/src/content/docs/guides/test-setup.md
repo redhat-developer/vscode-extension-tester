@@ -391,6 +391,8 @@ The ExTester implements a caching mechanism for both VS Code and ChromeDriver do
 
 #### Using --no_cache
 
+Caching is a setup-phase concern: the `-n` / `--no_cache` flag is accepted by `get-vscode`, `get-chromedriver`, `setup-tests`, and `setup-and-run`, and maps to `setup.noCache` in the config file. The `run` section has no caching option — `run-tests` downloads nothing. In the API, the same switch is `SetupOptions.noCache` and the `noCache` parameter of `downloadCode()` / `downloadChromeDriver()`.
+
 When the `--no_cache` option is enabled:
 
 1. **Resource Behavior**:
@@ -483,12 +485,11 @@ export interface CustomPageObjectsOptions {
 }
 /** defaults for the RunOptions */
 export declare const DEFAULT_RUN_OPTIONS: {
-  vscodeVersion: "latest";
-  settings: "";
-  logLevel: logging.Level.INFO;
+  vscodeVersion: string;
+  settings: string;
+  logLevel: logging.Level;
   offline: false;
   resources: never[];
-  noCache: false;
 };
 
 /**
