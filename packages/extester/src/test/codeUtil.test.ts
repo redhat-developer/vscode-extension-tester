@@ -183,7 +183,6 @@ describe('getDefaultSettings', () => {
 describe('removeDirWithRetry', () => {
 	// stub via the underlying CJS module object — the TS namespace import wrapper
 	// exposes re-exports through getters and cannot be assigned to
-	// eslint-disable-next-line @typescript-eslint/no-require-imports
 	const fsModule = require('fs-extra') as { removeSync: (dir: string) => void };
 	let dir: string;
 	const originalRemoveSync = fsModule.removeSync;
