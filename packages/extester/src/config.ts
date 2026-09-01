@@ -60,6 +60,10 @@ export interface ExTesterRunConfig {
 	extensionsDir?: string;
 	/** Path to a custom VS Code `settings.json` file to use during the test run. */
 	settings?: string;
+	/** Path to a custom VS Code `keybindings.json` file (JSONC array) seeded into the test instance. */
+	keybindings?: string;
+	/** Path to a folder of snippet files seeded into the test instance's `User/snippets`. */
+	snippets?: string;
 	/** Uninstall the extension under test after the test run completes. Defaults to `false`. */
 	cleanup?: boolean;
 	/** Path to a Mocha configuration file (e.g. `.mocharc.js`). */
@@ -108,7 +112,7 @@ export interface ExTesterConfig {
 const SETUP_PATH_KEYS: (keyof ExTesterSetupConfig)[] = ['storage', 'extensionsDir', 'settings'];
 
 /** Path-valued keys in ExTesterRunConfig that must be resolved relative to the config file. */
-const RUN_PATH_KEYS: (keyof ExTesterRunConfig)[] = ['storage', 'extensionsDir', 'settings', 'mochaConfig', 'customPageObjects'];
+const RUN_PATH_KEYS: (keyof ExTesterRunConfig)[] = ['storage', 'extensionsDir', 'settings', 'keybindings', 'snippets', 'mochaConfig', 'customPageObjects'];
 
 /** Path-valued array keys in ExTesterRunConfig whose entries are plain paths (not glob patterns). */
 const RUN_PATH_ARRAY_KEYS: (keyof ExTesterRunConfig)[] = ['resources'];

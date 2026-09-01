@@ -21,7 +21,17 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 import * as vsce from '@vscode/vsce';
 import type { IPackageOptions } from '@vscode/vsce';
-import { CodeUtil, overriddenDefaultKeys, validateUserDataDirLength, flagConflictWarnings, findShadowedSettings } from '../util/codeUtil';
+import {
+	CodeUtil,
+	getDefaultSettings,
+	overriddenDefaultKeys,
+	removeDirWithRetry,
+	seedKeybindingsFile,
+	seedSnippetsDir,
+	validateUserDataDirLength,
+	flagConflictWarnings,
+	findShadowedSettings,
+} from '../util/codeUtil';
 import { ReleaseQuality } from '../util/codeUtil';
 import { Download } from '../util/download';
 
@@ -142,6 +152,175 @@ describe('CodeUtil.parseSettings', () => {
 	it('throws a readable error for an unreadable file', () => {
 		const util = new CodeUtil(dir, ReleaseQuality.Stable) as unknown as WithParseSettings;
 		assert.throws(() => util.parseSettings(path.join(dir, 'missing.json')), /Unable to read settings/);
+	});
+});
+
+describe('getDefaultSettings', () => {
+	it('keeps every framework default scalar so the shallow custom-settings merge stays faithful', () => {
+		// VS Code replaces object-valued settings whole at each scope, so the
+		// shallow spread in VSBrowser.start() is only correct while no default
+		// has an object or array value. This test guards that invariant.
+		for (const [key, value] of Object.entries(getDefaultSettings('1.135.0'))) {
+			assert.ok(value === null || typeof value !== 'object', `default '${key}' must not have an object/array value`);
+		}
+	});
+
+	it('uses the current enum form for extensions.autoUpdate to avoid the VS Code migration rewrite', () => {
+		assert.strictEqual(getDefaultSettings('1.135.0')['extensions.autoUpdate'], 'off');
+	});
+
+	it('gates window.menuStyle on VS Code >= 1.101.0', () => {
+		assert.strictEqual(getDefaultSettings('1.100.0')['window.menuStyle'], undefined);
+		assert.strictEqual(getDefaultSettings('1.101.0')['window.menuStyle'], 'custom');
+	});
+
+	it('replaces object-valued custom settings whole in the merge, like VS Code scopes do', () => {
+		const merged = { ...getDefaultSettings('1.135.0'), ...{ 'files.exclude': { '**/out': true } } };
+		assert.deepStrictEqual(merged['files.exclude'], { '**/out': true });
+	});
+});
+
+describe('removeDirWithRetry', () => {
+	// stub via the underlying CJS module object — the TS namespace import wrapper
+	// exposes re-exports through getters and cannot be assigned to
+	// eslint-disable-next-line @typescript-eslint/no-require-imports
+	const fsModule = require('fs-extra') as { removeSync: (dir: string) => void };
+	let dir: string;
+	const originalRemoveSync = fsModule.removeSync;
+
+	beforeEach(async () => {
+		dir = await fs.mkdtemp(path.join(os.tmpdir(), 'extest-wipe-'));
+	});
+
+	afterEach(async () => {
+		fsModule.removeSync = originalRemoveSync;
+		await fs.remove(dir);
+	});
+
+	function busyError(): NodeJS.ErrnoException {
+		const err: NodeJS.ErrnoException = new Error('EBUSY: resource busy or locked');
+		err.code = 'EBUSY';
+		return err;
+	}
+
+	it('removes an existing directory', async () => {
+		fs.outputFileSync(path.join(dir, 'User', 'settings.json'), '{}');
+		await removeDirWithRetry(dir);
+		assert.strictEqual(fs.existsSync(dir), false);
+	});
+
+	it('retries once when the first removal reports EBUSY', async () => {
+		let calls = 0;
+		fsModule.removeSync = (target: string) => {
+			calls++;
+			if (calls === 1) {
+				throw busyError();
+			}
+			originalRemoveSync(target);
+		};
+		await removeDirWithRetry(dir);
+		assert.strictEqual(calls, 2);
+		assert.strictEqual(fs.existsSync(dir), false);
+	});
+
+	it('fails loudly when EBUSY persists after the retry', async () => {
+		fsModule.removeSync = () => {
+			throw busyError();
+		};
+		await assert.rejects(() => removeDirWithRetry(dir), /Could not clean the settings directory.*EBUSY/s);
+	});
+});
+
+describe('seedKeybindingsFile', () => {
+	let dir: string;
+	let userDir: string;
+
+	beforeEach(async () => {
+		dir = await fs.mkdtemp(path.join(os.tmpdir(), 'extest-keybindings-'));
+		userDir = path.join(dir, 'User');
+		fs.mkdirpSync(userDir);
+	});
+
+	afterEach(async () => {
+		await fs.remove(dir);
+	});
+
+	it('copies a JSONC keybindings file verbatim, preserving comments', () => {
+		const source = path.join(dir, 'my-keybindings.json');
+		const content = '[\n\t// run tests\n\t{ "key": "ctrl+t", "command": "workbench.action.tasks.test" },\n]';
+		fs.writeFileSync(source, content);
+		seedKeybindingsFile(source, userDir);
+		assert.strictEqual(fs.readFileSync(path.join(userDir, 'keybindings.json'), 'utf-8'), content);
+	});
+
+	it('rejects a keybindings file whose root is not an array', () => {
+		const source = path.join(dir, 'object.json');
+		fs.writeFileSync(source, '{ "key": "ctrl+t" }');
+		assert.throws(() => seedKeybindingsFile(source, userDir), /must contain a JSON array at the root.*object/);
+	});
+
+	it('rejects a malformed keybindings file naming the file', () => {
+		const source = path.join(dir, 'broken.json');
+		fs.writeFileSync(source, '[{ "key": ]');
+		assert.throws(
+			() => seedKeybindingsFile(source, userDir),
+			(err: Error) => err.message.includes(source),
+		);
+	});
+
+	it('rejects a missing keybindings file with a readable error', () => {
+		assert.throws(() => seedKeybindingsFile(path.join(dir, 'missing.json'), userDir), /Unable to read keybindings/);
+	});
+});
+
+describe('seedSnippetsDir', () => {
+	let dir: string;
+	let userDir: string;
+
+	beforeEach(async () => {
+		dir = await fs.mkdtemp(path.join(os.tmpdir(), 'extest-snippets-'));
+		userDir = path.join(dir, 'User');
+		fs.mkdirpSync(userDir);
+	});
+
+	afterEach(async () => {
+		await fs.remove(dir);
+	});
+
+	it('copies snippet files into User/snippets', () => {
+		const source = path.join(dir, 'my-snippets');
+		fs.outputFileSync(path.join(source, 'typescript.json'), '{}');
+		fs.outputFileSync(path.join(source, 'global.code-snippets'), '{}');
+		seedSnippetsDir(source, userDir);
+		assert.ok(fs.existsSync(path.join(userDir, 'snippets', 'typescript.json')));
+		assert.ok(fs.existsSync(path.join(userDir, 'snippets', 'global.code-snippets')));
+	});
+
+	it('rejects a path that is not a directory', () => {
+		const file = path.join(dir, 'not-a-dir.json');
+		fs.writeFileSync(file, '{}');
+		assert.throws(() => seedSnippetsDir(file, userDir), /must be a directory/);
+	});
+
+	it('rejects a missing snippets directory with a readable error', () => {
+		assert.throws(() => seedSnippetsDir(path.join(dir, 'missing'), userDir), /Unable to read snippets/);
+	});
+});
+
+describe('CodeUtil.uninstallExtension', () => {
+	it('is a no-op without touching package.json when cleanup is off', async () => {
+		const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'extest-no-pjson-'));
+		const orig = process.cwd();
+		process.chdir(dir);
+		try {
+			const util = new CodeUtil(dir, ReleaseQuality.Stable);
+			// must not require ./package.json (absent here) when there is nothing to clean up
+			assert.doesNotThrow(() => util.uninstallExtension(false));
+			assert.doesNotThrow(() => util.uninstallExtension(undefined));
+		} finally {
+			process.chdir(orig);
+			await fs.remove(dir);
+		}
 	});
 });
 

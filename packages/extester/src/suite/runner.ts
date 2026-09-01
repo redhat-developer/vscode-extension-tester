@@ -19,7 +19,7 @@ import { VSBrowser } from '../browser';
 import * as fs from 'fs-extra';
 import Mocha from 'mocha';
 import { globSync } from 'glob';
-import { CodeUtil, CustomPageObjectsOptions, ReleaseQuality } from '../util/codeUtil';
+import { CodeUtil, CustomPageObjectsOptions, ReleaseQuality, SeedFilesOptions } from '../util/codeUtil';
 import * as path from 'node:path';
 import * as yaml from 'js-yaml';
 import sanitize from 'sanitize-filename';
@@ -39,6 +39,7 @@ export class VSRunner {
 	private readonly releaseType: ReleaseQuality;
 	private readonly customPageObjects?: CustomPageObjectsOptions;
 	private readonly locale: string | undefined;
+	private readonly seedFiles?: SeedFilesOptions;
 	private readonly tmpLink = path.join(os.tmpdir(), 'extest-code');
 
 	constructor(
@@ -50,6 +51,7 @@ export class VSRunner {
 		customSettings: object = {},
 		cleanup: boolean = false,
 		locale?: string,
+		seedFiles?: SeedFilesOptions,
 	) {
 		const conf = this.loadConfig(config);
 		this.mocha = new Mocha(conf);
@@ -60,6 +62,7 @@ export class VSRunner {
 		this.releaseType = releaseType;
 		this.customPageObjects = customPageObjects;
 		this.locale = locale;
+		this.seedFiles = seedFiles;
 	}
 
 	/**
@@ -71,7 +74,15 @@ export class VSRunner {
 	runTests(testFilesPattern: string[], code: CodeUtil, resources: string[], logLevel: logging.Level = logging.Level.INFO): Promise<number> {
 		return new Promise((resolve, reject) => {
 			const self = this;
-			const browser: VSBrowser = new VSBrowser(this.codeVersion, this.releaseType, this.customSettings, logLevel, this.customPageObjects, this.locale);
+			const browser: VSBrowser = new VSBrowser(
+				this.codeVersion,
+				this.releaseType,
+				this.customSettings,
+				logLevel,
+				this.customPageObjects,
+				this.locale,
+				this.seedFiles,
+			);
 			let coverage: Coverage | undefined;
 
 			const testFiles = new Set<string>();

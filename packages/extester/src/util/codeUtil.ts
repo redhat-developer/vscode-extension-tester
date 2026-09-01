@@ -19,6 +19,7 @@ import * as childProcess from 'child_process';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { parse as parseJsonc, printParseErrorCode, type ParseError } from 'jsonc-parser';
+import { satisfies } from 'compare-versions';
 import * as vsce from '@vscode/vsce';
 import type { IPackageOptions } from '@vscode/vsce';
 import { VSRunner } from '../suite/runner';
@@ -60,6 +61,147 @@ export interface RunOptions {
 	customPageObjects?: CustomPageObjectsOptions;
 	/** Display language locale for VS Code (e.g. 'ru', 'zh-cn', 'fr'). Requires the matching language pack extension to be installed. */
 	locale?: string;
+	/** path to a custom keybindings.json file (JSONC array) seeded into the test instance */
+	keybindings?: string;
+	/** path to a folder of snippet files seeded into the test instance's User/snippets */
+	snippets?: string;
+}
+
+/** User files seeded into the test instance's user data dir at startup */
+export interface SeedFilesOptions {
+	/** path to a custom keybindings.json file (JSONC array) */
+	keybindings?: string;
+	/** path to a folder of snippet files */
+	snippets?: string;
+}
+
+/**
+ * Validate and seed a custom keybindings file into the test instance's user
+ * dir. The file is JSONC (like VS Code's own keybindings.json) and must have
+ * an array root; it is copied verbatim so comments survive.
+ *
+ * @param sourcePath path to the user-supplied keybindings file
+ * @param userDir the `User` directory inside the test instance's user data dir
+ */
+export function seedKeybindingsFile(sourcePath: string, userDir: string): void {
+	let text = '';
+	try {
+		text = fs.readFileSync(sourcePath).toString();
+	} catch (err) {
+		throw new Error(`Unable to read keybindings from ${sourcePath}:\n ${err}`);
+	}
+	const errors: ParseError[] = [];
+	const parsed: unknown = parseJsonc(text, errors, { allowTrailingComma: true });
+	if (errors.length > 0) {
+		const { error, offset } = errors[0];
+		const line = text.slice(0, offset).split('\n').length;
+		throw new Error(`Error parsing the keybindings file from ${sourcePath}:\n ${printParseErrorCode(error)} at line ${line} (offset ${offset})`);
+	}
+	if (!Array.isArray(parsed)) {
+		const rootType = parsed === null ? 'null' : typeof parsed;
+		throw new Error(`Keybindings file ${sourcePath} must contain a JSON array at the root, got ${rootType}`);
+	}
+	fs.mkdirpSync(userDir);
+	fs.copyFileSync(sourcePath, path.join(userDir, 'keybindings.json'));
+	console.log(`Writing keybindings to ${path.join(userDir, 'keybindings.json')}`);
+}
+
+/**
+ * Seed a folder of snippet files into the test instance's `User/snippets`
+ * directory (both `<language>.json` and `*.code-snippets` files work there).
+ *
+ * @param sourceDir folder containing the snippet files
+ * @param userDir the `User` directory inside the test instance's user data dir
+ */
+export function seedSnippetsDir(sourceDir: string, userDir: string): void {
+	let stat: fs.Stats;
+	try {
+		stat = fs.statSync(sourceDir);
+	} catch (err) {
+		throw new Error(`Unable to read snippets from ${sourceDir}:\n ${err}`);
+	}
+	if (!stat.isDirectory()) {
+		throw new Error(`Snippets path ${sourceDir} must be a directory`);
+	}
+	const target = path.join(userDir, 'snippets');
+	fs.copySync(sourceDir, target);
+	console.log(`Writing snippets to ${target}`);
+}
+
+/**
+ * Remove a directory, retrying once after a short delay when the OS reports
+ * it busy (EBUSY/EPERM — typically a straggling process from a previous run
+ * still holding a handle). If the retry fails too, throw with a clear message:
+ * continuing with a half-wiped settings dir produces nondeterministic state
+ * that is far harder to debug than a failed startup.
+ */
+export async function removeDirWithRetry(dir: string): Promise<void> {
+	try {
+		fs.removeSync(dir);
+		return;
+	} catch (e: unknown) {
+		const code = (e as NodeJS.ErrnoException).code;
+		if (code !== 'EBUSY' && code !== 'EPERM') {
+			throw e;
+		}
+	}
+	await new Promise((resolve) => setTimeout(resolve, 500));
+	try {
+		fs.removeSync(dir);
+	} catch (e: unknown) {
+		throw new Error(
+			`Could not clean the settings directory ${dir} (${(e as NodeJS.ErrnoException).code}). ` +
+				`A process from a previous run may still be holding files there — close any leftover VS Code/ChromeDriver processes and retry.`,
+		);
+	}
+}
+
+/**
+ * Framework-injected user settings for the tested VS Code instance.
+ * Custom settings from --code_settings are merged ON TOP of these.
+ *
+ * INVARIANT: every value here must stay scalar. VS Code replaces
+ * object-valued settings whole at each scope, so the shallow spread in
+ * VSBrowser.start() is only faithful while no default is an object or
+ * array — a unit test guards this.
+ *
+ * @param codeVersion literal VS Code version being launched (gates
+ * settings that only exist in newer versions)
+ */
+export function getDefaultSettings(codeVersion: string): Record<string, string | boolean> {
+	return {
+		// Never let the tested VS Code instance update itself mid-run: on macOS
+		// the background updater replaces application files while tests execute,
+		// which manifests as "Your Code installation appears to be corrupt" and a
+		// dead extension host ("version mismatch") partway through a session.
+		'update.mode': 'none',
+		'update.showReleaseNotes': false,
+		// current enum form — the deprecated boolean `false` triggers a VS Code
+		// settings migration that rewrites settings.json shortly after launch
+		'extensions.autoUpdate': 'off',
+		'extensions.autoCheckUpdates': false,
+		'workbench.editor.enablePreview': false,
+		'workbench.startupEditor': 'none',
+		'window.titleBarStyle': 'custom',
+		'window.commandCenter': false,
+		'window.dialogStyle': 'custom',
+		'window.restoreFullscreen': true,
+		'window.newWindowDimensions': 'maximized',
+		'security.workspace.trust.enabled': false,
+		'files.simpleDialog.enable': true,
+		'terminal.integrated.copyOnSelection': true,
+		'workbench.secondarySideBar.defaultVisibility': 'hidden',
+		'workbench.welcomePage.experimentalOnboarding': false,
+		'workbench.welcomePage.walkthroughs.openOnInstall': false,
+		'workbench.editor.useModal': 'off',
+		// Disable workbench animations: VS Code >=1.133 fades the quick input
+		// out over 0.15s on close, so an isDisplayed() check right after
+		// accepting a pick still sees the widget. Whether motion is on depends
+		// on the OS reduced-motion preference (GitHub windows/macos runners
+		// report it, Xvfb linux does not), making runs environment-dependent.
+		'workbench.reduceMotion': 'on',
+		...(satisfies(codeVersion, '>=1.101.0') ? { 'window.menuStyle': 'custom' } : {}),
+	};
 }
 
 /**
@@ -468,10 +610,11 @@ export class CodeUtil {
 	 * @param cleanup remove the extension's directory as well.
 	 */
 	uninstallExtension(cleanup?: boolean): void {
-		const pjson = require(path.resolve('package.json'));
-		const extension = `${pjson.publisher}.${pjson.name}`;
-
 		if (cleanup) {
+			// resolved only when actually uninstalling — the no-op path must work
+			// from a directory without a package.json (e.g. plain test runs)
+			const pjson = require(path.resolve('package.json'));
+			const extension = `${pjson.publisher}.${pjson.name}`;
 			let command = `${this.getCliInitCommand()} --uninstall-extension "${extension}"`;
 			if (this.extensionsFolder) {
 				command += ` --extensions-dir="${this.extensionsFolder}"`;
@@ -522,6 +665,7 @@ export class CodeUtil {
 			this.parseSettings(runOptions.settings ?? DEFAULT_RUN_OPTIONS.settings),
 			runOptions.cleanup,
 			runOptions.locale,
+			{ keybindings: runOptions.keybindings, snippets: runOptions.snippets },
 		);
 		try {
 			return await runner.runTests(testFilesPattern, this, runOptions.resources, runOptions.logLevel);
