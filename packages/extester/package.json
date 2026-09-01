@@ -74,6 +74,7 @@
     "got": "^15.1.0",
     "hpagent": "^1.2.0",
     "js-yaml": "^5.4.1",
+    "jsonc-parser": "^3.2.0",
     "sanitize-filename": "^1.6.4",
     "selenium-webdriver": "^4.48.0",
     "tar": "^7.5.22"

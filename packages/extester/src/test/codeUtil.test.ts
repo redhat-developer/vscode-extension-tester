@@ -21,7 +21,7 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 import * as vsce from '@vscode/vsce';
 import type { IPackageOptions } from '@vscode/vsce';
-import { CodeUtil } from '../util/codeUtil';
+import { CodeUtil, overriddenDefaultKeys } from '../util/codeUtil';
 import { ReleaseQuality } from '../util/codeUtil';
 import { Download } from '../util/download';
 
@@ -79,6 +79,92 @@ describe('CodeUtil.packageExtension', () => {
 		const util = makeCodeUtil();
 		await util.packageExtension(frozen);
 		assert.deepStrictEqual(capturedOptions, { useYarn: true });
+	});
+});
+
+describe('CodeUtil.parseSettings', () => {
+	let dir: string;
+
+	beforeEach(async () => {
+		dir = await fs.mkdtemp(path.join(os.tmpdir(), 'extest-settings-'));
+	});
+
+	afterEach(async () => {
+		await fs.remove(dir);
+	});
+
+	type WithParseSettings = { parseSettings(settingsPath: string): object };
+
+	function parseContent(content: string): object {
+		const file = path.join(dir, 'settings.json');
+		fs.writeFileSync(file, content);
+		const util = new CodeUtil(dir, ReleaseQuality.Stable) as unknown as WithParseSettings;
+		return util.parseSettings(file);
+	}
+
+	it('returns an empty object when no path is given', () => {
+		const util = new CodeUtil(dir, ReleaseQuality.Stable) as unknown as WithParseSettings;
+		assert.deepStrictEqual(util.parseSettings(''), {});
+	});
+
+	it('parses a plain JSON object', () => {
+		assert.deepStrictEqual(parseContent('{"update.mode": "none"}'), { 'update.mode': 'none' });
+	});
+
+	it('accepts JSONC comments and trailing commas like VS Code settings.json does', () => {
+		const jsonc = '{\n\t// comment line\n\t"workbench.statusBar.visible": false,\n\t/* block comment */\n\t"window.zoomLevel": 1,\n}';
+		assert.deepStrictEqual(parseContent(jsonc), { 'workbench.statusBar.visible': false, 'window.zoomLevel': 1 });
+	});
+
+	it('returns an empty object for an empty settings file', () => {
+		assert.deepStrictEqual(parseContent('  \n\t\n'), {});
+	});
+
+	it('rejects a root-level array with an error naming the type', () => {
+		assert.throws(() => parseContent('["not", "settings"]'), /must contain a JSON object at the root.*array/);
+	});
+
+	it('rejects a root-level string with an error naming the type', () => {
+		assert.throws(() => parseContent('"just a string"'), /must contain a JSON object at the root.*string/);
+	});
+
+	it('rejects a root-level null with an error naming the type', () => {
+		assert.throws(() => parseContent('null'), /must contain a JSON object at the root.*null/);
+	});
+
+	it('rejects malformed JSON with an error naming the file', () => {
+		assert.throws(
+			() => parseContent('{"a": }'),
+			(err: Error) => err.message.includes(path.join(dir, 'settings.json')),
+		);
+	});
+
+	it('throws a readable error for an unreadable file', () => {
+		const util = new CodeUtil(dir, ReleaseQuality.Stable) as unknown as WithParseSettings;
+		assert.throws(() => util.parseSettings(path.join(dir, 'missing.json')), /Unable to read settings/);
+	});
+});
+
+describe('overriddenDefaultKeys', () => {
+	const defaults = { 'update.mode': 'none', 'window.titleBarStyle': 'custom', 'workbench.reduceMotion': 'on' };
+
+	it('lists custom keys that change a default value', () => {
+		const custom = { 'window.titleBarStyle': 'native', 'update.mode': 'default' };
+		assert.deepStrictEqual(overriddenDefaultKeys(defaults, custom), ['window.titleBarStyle', 'update.mode']);
+	});
+
+	it('ignores custom keys that are not framework defaults', () => {
+		const custom = { 'editor.fontSize': 20, 'files.autoSave': 'off' };
+		assert.deepStrictEqual(overriddenDefaultKeys(defaults, custom), []);
+	});
+
+	it('ignores custom keys set to the same value as the default', () => {
+		const custom = { 'update.mode': 'none', 'workbench.reduceMotion': 'off' };
+		assert.deepStrictEqual(overriddenDefaultKeys(defaults, custom), ['workbench.reduceMotion']);
+	});
+
+	it('returns an empty list for empty custom settings', () => {
+		assert.deepStrictEqual(overriddenDefaultKeys(defaults, {}), []);
 	});
 });
 

@@ -22,7 +22,7 @@ import { satisfies } from 'compare-versions';
 import { WebDriver, Builder, initPageObjects, logging, By, Browser, EditorView, Workbench } from '@redhat-developer/page-objects';
 import { Options, ServiceBuilder } from 'selenium-webdriver/chrome';
 import { getLocatorsPath } from '@redhat-developer/locators';
-import { CodeUtil, CustomPageObjectsOptions, ReleaseQuality } from './util/codeUtil';
+import { CodeUtil, CustomPageObjectsOptions, ReleaseQuality, overriddenDefaultKeys } from './util/codeUtil';
 import { DEFAULT_STORAGE_FOLDER } from './extester';
 import { DriverUtil } from './util/driverUtil';
 
@@ -137,11 +137,24 @@ export class VSBrowser {
 		};
 		if (Object.keys(this.customSettings).length > 0) {
 			console.log('Detected user defined code settings');
+			// Several defaults are load-bearing for the framework itself (e.g. custom
+			// title bar and dialogs for the page objects, reduced motion for stable
+			// waits, disabled updates) — make it visible when custom settings change them.
+			const custom = this.customSettings as Record<string, unknown>;
+			const overridden = overriddenDefaultKeys(defaultSettings, custom);
+			if (overridden.length > 0) {
+				const diff = overridden.map(
+					(key) => `${key} (${JSON.stringify(defaultSettings[key as keyof typeof defaultSettings])} -> ${JSON.stringify(custom[key])})`,
+				);
+				console.log('\x1b[33m%s\x1b[0m', `WARNING: Custom settings override framework defaults: ${diff.join(', ')}`);
+			}
 			defaultSettings = { ...defaultSettings, ...this.customSettings };
 		}
 
 		fs.mkdirpSync(path.join(userSettings, 'globalStorage'));
-		fs.writeJSONSync(path.join(userSettings, 'settings.json'), defaultSettings);
+		// tab indentation matches how VS Code itself writes settings.json and keeps
+		// the file readable when debugging which settings were actually applied
+		fs.writeJSONSync(path.join(userSettings, 'settings.json'), defaultSettings, { spaces: '\t' });
 		console.log(`Writing code settings to ${path.join(userSettings, 'settings.json')}`);
 
 		if (this.locale) {
