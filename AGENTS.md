@@ -147,8 +147,8 @@ broken internal links (starlight-links-validator), and PRs touching `docs-site/`
 check. `docs-site/` is intentionally NOT an npm workspace and is excluded from Prettier
 (root Prettier has no Astro/MDX v3 support — do not remove it from `.prettierignore`).
 
-The legacy `docs/` directory is only the source for GitHub Wiki redirect stubs
-(published by `.github/workflows/publish-wiki.yml`) — never add real content there.
+The GitHub Wiki is retired (the wiki tab is disabled) — the site above is the only
+public documentation. Do not recreate a `docs/` directory.
 
 **When making any change that affects behaviour, API surface, configuration, or usage — update
 the relevant `docs-site/` page(s) in the same PR. Documentation is not optional.**
