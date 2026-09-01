@@ -18,6 +18,7 @@
 import * as childProcess from 'child_process';
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import { parse as parseJsonc, printParseErrorCode, type ParseError } from 'jsonc-parser';
 import * as vsce from '@vscode/vsce';
 import type { IPackageOptions } from '@vscode/vsce';
 import { VSRunner } from '../suite/runner';
@@ -59,6 +60,15 @@ export interface RunOptions {
 	customPageObjects?: CustomPageObjectsOptions;
 	/** Display language locale for VS Code (e.g. 'ru', 'zh-cn', 'fr'). Requires the matching language pack extension to be installed. */
 	locale?: string;
+}
+
+/**
+ * List the keys in `custom` that change a value in `defaults`.
+ * Used to warn when user-supplied settings override the framework's
+ * injected defaults, several of which the page objects depend on.
+ */
+export function overriddenDefaultKeys(defaults: Record<string, unknown>, custom: Record<string, unknown>): string[] {
+	return Object.keys(custom).filter((key) => key in defaults && defaults[key] !== custom[key]);
 }
 
 /** defaults for the [[RunOptions]] */
@@ -692,8 +702,10 @@ export class CodeUtil {
 	}
 
 	/**
-	 * Parse JSON from a file
-	 * @param path path to json file
+	 * Parse a VS Code settings file. Accepts JSONC (comments and trailing
+	 * commas), matching what VS Code itself allows in settings.json, so users
+	 * can pass a copy of their own settings file directly.
+	 * @param path path to the settings file
 	 */
 	private parseSettings(path: string): object {
 		if (!path) {
@@ -705,10 +717,21 @@ export class CodeUtil {
 		} catch (err) {
 			throw new Error(`Unable to read settings from ${path}:\n ${err}`);
 		}
-		try {
-			return JSON.parse(text);
-		} catch (err) {
-			throw new Error(`Error parsing the settings file from ${path}:\n ${err}`);
+		// VS Code treats an empty settings.json as valid
+		if (text.trim() === '') {
+			return {};
 		}
+		const errors: ParseError[] = [];
+		const parsed: unknown = parseJsonc(text, errors, { allowTrailingComma: true });
+		if (errors.length > 0) {
+			const { error, offset } = errors[0];
+			const line = text.slice(0, offset).split('\n').length;
+			throw new Error(`Error parsing the settings file from ${path}:\n ${printParseErrorCode(error)} at line ${line} (offset ${offset})`);
+		}
+		if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+			const rootType = parsed === null ? 'null' : Array.isArray(parsed) ? 'array' : typeof parsed;
+			throw new Error(`Settings file ${path} must contain a JSON object at the root, got ${rootType}`);
+		}
+		return parsed;
 	}
 }
