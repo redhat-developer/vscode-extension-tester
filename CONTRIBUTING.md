@@ -30,7 +30,7 @@ git remote add upstream https://github.com/redhat-developer/vscode-extension-tes
 
 Now that you have the code, you will need to build the project. First, we need to install all modules dependencies:
 
-```nodejs
+```bash
 npm install
 ```
 
@@ -40,7 +40,7 @@ npm install
 
 For that, you can use the following script and launch the tests:
 
-```nodejs
+```bash
 npm run test:build
 ```
 
@@ -54,6 +54,12 @@ Two workflows measure coverage, and neither needs the tests to pass: V8 writes i
 - **Sample-extension coverage** (the [Code Coverage](../../actions/workflows/coverage.yml) workflow): runs `extest --coverage` against `tests/test-project` nightly and on demand, as a smoke test of the coverage feature itself. It fails only when no report is produced.
 
 The framework report is configured in `.github/c8-framework.json`. **Do not add a `.c8rc*` or `.nycrc*` file to the repository root**: `extest --coverage` discovers such files by walking up from the directory it runs in, so a root file would silently reconfigure the sample-extension report.
+
+### Documentation
+
+User documentation lives in `docs-site/` and is published to the [documentation site](https://redhat-developer.github.io/vscode-extension-tester/). Update the relevant page in the same pull request as a behaviour or API change.
+
+The root `README.md` is also the README of the `vscode-extension-tester` npm package: `packages/extester/README.md` is generated from it by the package `build` script and is not tracked in git, so edit the root file only.
 
 ### Pull Requests
 

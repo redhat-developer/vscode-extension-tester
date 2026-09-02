@@ -164,6 +164,10 @@ public documentation. Do not recreate a `docs/` directory.
 **When making any change that affects behaviour, API surface, configuration, or usage — update
 the relevant `docs-site/` page(s) in the same PR. Documentation is not optional.**
 
+The root `README.md` doubles as the npm README of `vscode-extension-tester`: `packages/extester/README.md`
+is gitignored and generated from it by the package `build` script. Edit the root file; never
+hand-write the package copy.
+
 Key pages (under `docs-site/src/content/docs/`):
 - `index.mdx` — landing page
 - `getting-started/supported-versions.md` — VS Code / Node.js support policy

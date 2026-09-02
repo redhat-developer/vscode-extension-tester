@@ -1,94 +1,87 @@
-<h1 align="center">
-  <p>ExTester Runner</p>
-</h1>
+<h1 align="center">ExTester Runner</h1>
 
-<p align="center">Extension for running and managing UI tests for VS Code extensions using the <a href="https://www.npmjs.com/package/vscode-extension-tester">ExTester</a> framework.</p>
+<p align="center">Run and manage <a href="https://www.npmjs.com/package/vscode-extension-tester">ExTester</a> UI tests for your VS Code extension without leaving VS Code.</p>
+
 <p align="center">
-  <img alt="ExTester Runner View" width="95%" src="https://github.com/redhat-developer/vscode-extension-tester/blob/main/packages/extester-runner/resources/workbench.png?raw=true">
+  <img alt="ExTester Runner views in the VS Code Activity Bar" width="95%" src="https://github.com/redhat-developer/vscode-extension-tester/blob/main/packages/extester-runner/resources/workbench.png?raw=true">
 </p>
 
-## Prerequisites
+## Quick start
 
-Before you start using ExTester Runner, make sure you have:
+1. Install the extension from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=redhat.extester-runner) or the [Open VSX Registry](https://open-vsx.org/extension/redhat/extester-runner).
+2. Open the extension project that contains your ExTester UI tests.
+3. Open the Command Palette, run **Welcome: Open Walkthrough...** and pick **Get started with ExTester Runner**. The walkthrough stores the source and output folders and the test file pattern in your workspace settings.
+4. Click the **ExTester Runner** icon in the Activity Bar, find a test in the **UI Tests** view and press its play button (▶️).
 
-- A VS Code extension project you want to test
-- Your extension's UI tests written in TypeScript using vscode-extension-tester
-- Node.js
+## Requirements
 
-## Installation & Getting Started
-
-1. Install the extension from the [VS Code marketplace](https://marketplace.visualstudio.com/items?itemName=redhat.extester-runner) or [Open VSX Registry](https://open-vsx.org/extension/redhat/extester-runner)
-2. Open your VS Code extension project
-3. Set up your test project using the `Get Started with ExTester Runner` walkthrough in VS Code
-4. Configure the **ExTester Runner** extension in VS Code (workspace) settings
+- A VS Code extension project with UI tests written in TypeScript using [vscode-extension-tester](https://www.npmjs.com/package/vscode-extension-tester).
+- Node.js 22 or newer, as required by ExTester.
+- VS Code 1.100 or newer.
 
 ## Features
 
-### Activity Bar Integration
+### Three views in one Activity Bar container
 
-- **ExTester Runner** container in the VS Code Activity Bar with three custom tree views:
-  - UI Tests: Displays test files and their structure (Mocha `describe/it` blocks)
-  - Screenshots: Shows screenshot image files from test runs
-  - Logs: Displays log files from test executions
+- **UI Tests** shows every file matched by your test glob as a tree of folders, files, `describe` suites and `it` cases, marks `.only` and `.skip` modifiers, and jumps to the source when you click a node.
+- **Screenshots** lists the screenshots captured during test runs.
+- **Logs** lists the log files written by test runs.
 
-### One-Click Test Running
+### One-click test runs
 
-The extension makes running tests incredibly simple and efficient:
+- Run a single file, a whole folder, or every test in the workspace from the play buttons in the **UI Tests** view.
+- Each run calls `extest setup-and-run` with the VS Code version, release type and extra arguments from your settings.
 
-#### Quick Start
+### Always up to date
 
-1. Open your VS Code extension project
-2. Click the ExTester Runner icon in the Activity Bar
-3. Find your test in the UI Tests view
-4. Click the play button (▶️) to run it
+- The **UI Tests** view refreshes when test files are added, removed or changed, and when the runner settings change.
+- The **Screenshots** and **Logs** views refresh when files are created, deleted or modified during a run.
+- Clear, delete or reveal screenshots and logs from the view toolbars and context menus.
 
-#### Running Tests
+## Settings
 
-- **Test File**: Click the play button next to a test file to run all tests in that file
-- **Test Folder**: Click the play button next to a folder to run all test files inside it
-- **All Tests**: Click the play button at the top of the UI Tests view to run everything
+All settings live under the `extesterRunner` namespace in your workspace settings.
 
-### Test Management
+**View**
 
-- Hierarchical view of test files with:
-  - Folder structure
-  - Test files with icons and labels
-  - Nested test suites (`describe` blocks) and test cases (`it` blocks)
-  - Visual indicators for test status (including `.only` and `.skip` modifiers)
-  - Click-to-navigate functionality to test source code
+| Setting          | Default                   | Description                                                      |
+| ---------------- | ------------------------- | ---------------------------------------------------------------- |
+| `testFileGlob`   | `**/ui-test/**/*.test.ts` | Glob pattern that locates test files.                            |
+| `excludeGlob`    | `**/node_modules/**`      | Glob pattern for paths to leave out of the search.               |
+| `ignorePathPart` | —                         | Path segment hidden from folder labels in the **UI Tests** view. |
 
-### Automatic Updates
+**Command line**
 
-- UI Tests view automatically refreshes when:
-  - Test files are added, removed or modified
-  - Test configurations change
-- Screenshots view updates when:
-  - New screenshots are captured during test runs
-  - Screenshots are deleted or modified
-- Logs view refreshes when:
-  - New log files are generated
-  - Existing logs are updated
+| Setting                    | Default            | Description                                                                                                                |
+| -------------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| `rootFolder`               | —                  | Root of your TypeScript test sources. When set, this segment is dropped when mapping a source file to its compiled output. |
+| `outputFolder`             | `out`              | Directory with the compiled JavaScript test files.                                                                         |
+| `tempFolder`               | system temp folder | Directory ExTester uses for the downloaded VS Code, ChromeDriver and other test resources.                                 |
+| `visualStudioCode.Version` | `max`              | VS Code version to test with: `max`, `min`, `latest` or an exact version such as `1.97.1`.                                 |
+| `visualStudioCode.Type`    | `stable`           | `stable` or `insider`.                                                                                                     |
+| `additionalArgs`           | `[]`               | Extra arguments passed to `extest setup-and-run`.                                                                          |
 
-### Configuration Options
+**Logs**
 
-All settings live under the `extesterRunner` namespace:
-
-- `testFileGlob`: Glob pattern for test files
-- `excludeGlob`: Glob pattern for excluded paths
-- `ignorePathPart`: Path segment to remove from folder labels
-- `additionalArgs`: Additional CLI arguments for test runner
-- `outputFolder`: Path to compiled output directory
-- `rootFolder`: Path to test source root
-- `tempFolder`: Directory for test artifacts
-- `visualStudioCode.Version`: VS Code version for test execution (`max`, `min`, `latest`, or a specific version)
-- `visualStudioCode.Type`: VS Code build type (`stable` or `insider`)
-- `hideEmptyLogFolders`: Hide empty log directories in the Logs view
+| Setting               | Default | Description                             |
+| --------------------- | ------- | --------------------------------------- |
+| `hideEmptyLogFolders` | `true`  | Hide log folders that contain no files. |
 
 ## Logging
 
-The extension provides detailed logging through the **ExTester Runner** output channel, including:
+The **ExTester Runner** output channel records test execution status, file discovery, debug messages and errors.
 
-- Test execution status
-- File discovery information
-- Debug messages
-- Error reports
+## Documentation
+
+- [ExTester Runner guide](https://redhat-developer.github.io/vscode-extension-tester/guides/extester-runner/)
+- [ExTester documentation](https://redhat-developer.github.io/vscode-extension-tester/) — how to write and configure the tests the runner executes
+
+## Feedback
+
+- Bugs and feature requests: [open an issue](https://github.com/redhat-developer/vscode-extension-tester/issues/new/choose)
+- Questions: [GitHub Discussions](https://github.com/redhat-developer/vscode-extension-tester/discussions)
+- Source code and change history: [packages/extester-runner](https://github.com/redhat-developer/vscode-extension-tester/tree/main/packages/extester-runner)
+
+## License
+
+[Apache License 2.0](https://github.com/redhat-developer/vscode-extension-tester/blob/main/LICENSE)

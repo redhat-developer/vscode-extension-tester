@@ -1,62 +1,18 @@
-# ExTester UI Test Example Project
+# ExTester Runner UI test fixture
 
-This directory contains an example UI test project for the ExTester framework, demonstrating how to set up and run UI tests for VS Code extensions.
+This folder is a fixture project for the UI tests of the ExTester Runner extension (`packages/extester-runner/src/ui-test/`). The tests open it as a workspace and check that the **UI Tests** view discovers, parses and runs the files in `src/`.
 
-## Project Structure
+It is not a template for your own project. For a complete, runnable example of an extension tested with ExTester, see the [vscode-extension-tester-example](https://github.com/redhat-developer/vscode-extension-tester-example) repository.
 
-- `src/` - Source code directory
-  - `actions/` - Contains test actions and workflows
-  - `parser/` - Contains parsers for test data
-- `out/` - Compiled JavaScript output directory
-- `node_modules/` - Project dependencies
-- Configuration files:
-  - `package.json` - Project configuration and dependencies
-  - `tsconfig.json` - TypeScript configuration
-  - `.mocharc.json` - Mocha test runner configuration
-  - `.vscodeignore` - VS Code extension ignore patterns
+## Contents
 
-## Prerequisites
+| Path                   | Purpose                                                                                                                                                                                    |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/parser/*.test.ts` | Mocha files of different shapes (simple, with `.only`/`.skip` modifiers, with variables, with several root `describe` blocks, deeply nested) that exercise the test tree parser             |
+| `src/actions/*.test.ts` | Tests that take screenshots and produce a log by failing, so the **Screenshots** and **Logs** views have something to show                                                                 |
+| `package.json`         | Dev dependencies (`vscode-extension-tester`, Mocha, Chai, TypeScript, ts-node) and a `build` script that runs `tsc`                                                                        |
+| `tsconfig.json`        | Compiles `src/` to `out/`                                                                                                                                                                  |
+| `.mocharc.json`        | Mocha defaults for the fixture: `ts-node`, a 120 second timeout, `src/**/*.test.ts`                                                                                                        |
+| `.vscodeignore`        | Packaging ignore list, as in a real extension project                                                                                                                                      |
 
-- Node.js (version compatible with VS Code ^1.96.0)
-- VS Code ^1.96.0
-- TypeScript ^5.0.0
-
-## Installation
-
-1. Install dependencies:
-```bash
-npm install
-```
-
-2. Build the project:
-```bash
-npm run build
-```
-
-## Running Tests
-
-The project uses Mocha as the test runner. Tests can be executed using the following command:
-
-```bash
-npm test
-```
-
-## Configuration
-
-The project is configured with:
-- TypeScript for type safety and modern JavaScript features
-- Mocha for test running
-- Chai for assertions
-- VS Code Extension Tester for UI testing
-
-## Dependencies
-
-- `vscode-extension-tester`: ^8.14.1
-- `mocha`: ^11.1.0
-- `chai`: ^5.2.0
-- `typescript`: ^5.0.0
-- `ts-node`: ^10.9.2
-
-## License
-
-This project is licensed under the terms specified in the LICENSE file.
+There is no `test` script. The files are executed by the ExTester Runner extension during its UI tests, not directly with Mocha.

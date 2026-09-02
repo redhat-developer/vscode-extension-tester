@@ -223,7 +223,9 @@ describe('Extension Editor', function () {
 
 		it('getReadmeContent', async function () {
 			const readme = await extensionEditorDetails.getReadmeContent();
-			expect(readme).contains(`ExTester - Test Project\nThis is a simple extension for a VS Code dedicated to self-testing the ExTester framework.`);
+			expect(readme).contains(
+				`ExTester test project\nextester-test is a small VS Code extension that exists only to test the ExTester framework itself.`,
+			);
 		});
 	});
 });
