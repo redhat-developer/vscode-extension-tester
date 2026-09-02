@@ -162,7 +162,7 @@ jobs:
         run: npm run build
 
       - name: 📥 Download V8 coverage dumps
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           pattern: v8-coverage-*
           path: ${{ runner.temp }}/v8-downloads
