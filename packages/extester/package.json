@@ -15,7 +15,8 @@
   },
   "scripts": {
     "prepack": "npm run build",
-    "build": "npm run clean && npm run compile && chmod a+x ./out/cli.js",
+    "build": "npm run clean && npm run compile && chmod a+x ./out/cli.js && npm run copy-readme",
+    "copy-readme": "node -e \"require('fs').copyFileSync('../../README.md', 'README.md')\"",
     "compile": "tsc -p ./ && npm run lint",
     "lint": "eslint --fix --fix-type layout src",
     "clean": "rimraf out",

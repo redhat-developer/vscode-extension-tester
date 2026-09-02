@@ -43,7 +43,7 @@ See [Test Setup](/vscode-extension-tester/guides/test-setup/) for all CLI option
 ExTester requires **Node.js 22 or newer** (declared in the packages' `engines` field). The general policy is to support the same [Node.js releases](https://nodejs.org/en/about/previous-releases) as **Visual Studio Code** and **Selenium WebDriver** do:
 
 - [Contributing to Visual Studio Code — Prerequisites](https://github.com/microsoft/vscode/wiki/How-to-Contribute#prerequisites)
-- [selenium-webdriver — Node Support Policy](https://github.com/SeleniumHQ/selenium/tree/trunk/javascript/node/selenium-webdriver#node-support-policy)
+- [selenium-webdriver — Node Support Policy](https://github.com/SeleniumHQ/selenium/tree/trunk/javascript/selenium-webdriver#node-support-policy)
 
 The latest LTS release is the recommended and fully supported choice; newer non-LTS releases are supported on a best-effort basis.
 
