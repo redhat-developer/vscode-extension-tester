@@ -3,27 +3,78 @@ name: 🏗️ Main CI
 on:
   push:
     branches: [main]
-    paths:
-      - "**"
-      - "!docs-site/**"
   pull_request:
-    branches:
-      - main
-      - auto-update-vscode-versions
-    paths:
-      - "**"
-      - "!docs-site/**"
-      - "!packages/extester-runner/**"
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
+  changes:
+    name: 🔎 Changed paths
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      core: ${{ steps.filter.outputs.core }}
+      runner: ${{ steps.filter.outputs.runner }}
+    steps:
+      - name: 👷🏻 Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: 🔎 Classify changed paths
+        id: filter
+        shell: bash
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          # Jobs are gated here instead of path-filtering the workflow: a
+          # path-filtered workflow never reports the required "🚦 Status Check",
+          # which would block docs-only pull requests forever.
+          #   docs-site/**                -> nothing to test
+          #   packages/extester-runner/** -> runner jobs only
+          #   anything else               -> full matrix (the runner rides on the framework)
+          case "$GITHUB_EVENT_NAME" in
+            pull_request) base="HEAD^1" ;; # merge commit's first parent = base branch
+            push) base="$BEFORE" ;;
+            *) base="" ;; # workflow_dispatch: run everything
+          esac
+          if [[ -z "$base" || "$base" == 0000000000000000000000000000000000000000 ]] || ! git cat-file -e "${base}^{commit}" 2>/dev/null; then
+            echo "No diff base available, running everything"
+            echo "core=true" >> "$GITHUB_OUTPUT"
+            echo "runner=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          core=false
+          runner=false
+          while IFS= read -r file; do
+            [[ -z "$file" ]] && continue
+            case "$file" in
+              docs-site/*) ;;
+              packages/extester-runner/*) runner=true ;;
+              *)
+                core=true
+                runner=true
+                ;;
+            esac
+          done < <(git diff --name-only "$base" HEAD)
+          echo "core=$core runner=$runner"
+          echo "core=$core" >> "$GITHUB_OUTPUT"
+          echo "runner=$runner" >> "$GITHUB_OUTPUT"
+
   unit:
     name: 🧪 Unit Tests
+    needs: changes
+    if: needs.changes.outputs.core == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: 👷🏻 Checkout Repository
         uses: actions/checkout@v7
@@ -45,78 +96,104 @@ jobs:
 
   group_01_general:
     name: 🧪 01_general
+    needs: changes
+    if: needs.changes.outputs.core == 'true'
     uses: ./.github/workflows/template-suite.yaml
     with:
       test_group: 01_general
 
   group_activityBar:
     name: 🧪 activityBar
+    needs: changes
+    if: needs.changes.outputs.core == 'true'
     uses: ./.github/workflows/template-suite.yaml
     with:
       test_group: activityBar
 
   group_bottomBar:
     name: 🧪 bottomBar
+    needs: changes
+    if: needs.changes.outputs.core == 'true'
     uses: ./.github/workflows/template-suite.yaml
     with:
       test_group: bottomBar
 
   group_cli:
     name: 🧪 cli
+    needs: changes
+    if: needs.changes.outputs.core == 'true'
     uses: ./.github/workflows/template-suite.yaml
     with:
       test_group: cli
 
   group_debug:
     name: 🧪 debug
+    needs: changes
+    if: needs.changes.outputs.core == 'true'
     uses: ./.github/workflows/template-suite.yaml
     with:
       test_group: debug
 
   group_dialog:
     name: 🧪 dialog
+    needs: changes
+    if: needs.changes.outputs.core == 'true'
     uses: ./.github/workflows/template-suite.yaml
     with:
       test_group: dialog
 
   group_editor:
     name: 🧪 editor
+    needs: changes
+    if: needs.changes.outputs.core == 'true'
     uses: ./.github/workflows/template-suite.yaml
     with:
       test_group: editor
 
   group_menu:
     name: 🧪 menu
+    needs: changes
+    if: needs.changes.outputs.core == 'true'
     uses: ./.github/workflows/template-suite.yaml
     with:
       test_group: menu
 
   group_statusBar:
     name: 🧪 statusBar
+    needs: changes
+    if: needs.changes.outputs.core == 'true'
     uses: ./.github/workflows/template-suite.yaml
     with:
       test_group: statusBar
 
   group_system:
     name: 🧪 system
+    needs: changes
+    if: needs.changes.outputs.core == 'true'
     uses: ./.github/workflows/template-suite.yaml
     with:
       test_group: system
 
   group_webview:
     name: 🧪 webview
+    needs: changes
+    if: needs.changes.outputs.core == 'true'
     uses: ./.github/workflows/template-suite.yaml
     with:
       test_group: webview
 
   group_workbench:
     name: 🧪 workbench
+    needs: changes
+    if: needs.changes.outputs.core == 'true'
     uses: ./.github/workflows/template-suite.yaml
     with:
       test_group: workbench
 
   group_xsideBar:
     name: 🧪 xsideBar
+    needs: changes
+    if: needs.changes.outputs.core == 'true'
     uses: ./.github/workflows/template-suite.yaml
     with:
       test_group: xsideBar
@@ -127,9 +204,14 @@ jobs:
     # while running the UI tests (see template-suite.yaml) into one report of
     # how much of packages/* the UI tests exercise. Informational only: it is
     # not part of the status check, and it runs even when suites failed.
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && needs.changes.outputs.core == 'true' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read
     needs:
+      - changes
       - group_01_general
       - group_activityBar
       - group_bottomBar
@@ -200,15 +282,22 @@ jobs:
           path: coverage/framework
 
   runner:
+    needs: changes
+    if: needs.changes.outputs.runner == 'true'
     uses: ./.github/workflows/template-runner.yaml
     with:
       version: max
 
   check:
+    name: 🚦 Status Check
+    # Always reported, so branch protection can require it for every change.
+    # Jobs skipped by the `changes` gate count as success; only a failed or
+    # cancelled job fails the check.
     if: always()
     runs-on: ubuntu-latest
-    name: 🚦 Status Check
+    timeout-minutes: 5
     needs:
+      - changes
       - unit
       - runner
       - group_01_general
@@ -225,60 +314,17 @@ jobs:
       - group_workbench
       - group_xsideBar
     steps:
-      - name: ℹ️ Test Matrix Result
-        run: |
-          echo Unit Test result              = ${{ needs.unit.result }}
-          echo Runner Test result            = ${{ needs.runner.result }}
-          echo 01_general Test result        = ${{ needs.group_01_general.result }}
-          echo activityBar Test result       = ${{ needs.group_activityBar.result }}
-          echo bottomBar Test result         = ${{ needs.group_bottomBar.result }}
-          echo cli Test result               = ${{ needs.group_cli.result }}
-          echo debug Test result             = ${{ needs.group_debug.result }}
-          echo dialog Test result            = ${{ needs.group_dialog.result }}
-          echo editor Test result            = ${{ needs.group_editor.result }}
-          echo menu Test result              = ${{ needs.group_menu.result }}
-          echo statusBar Test result         = ${{ needs.group_statusBar.result }}
-          echo system Test result            = ${{ needs.group_system.result }}
-          echo webview Test result           = ${{ needs.group_webview.result }}
-          echo workbench Test result         = ${{ needs.group_workbench.result }}
-          echo xsideBar Test result          = ${{ needs.group_xsideBar.result }}
+      - name: ℹ️ Job results
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: echo "$RESULTS" | jq -r 'to_entries[] | "\(.value.result)\t\(.key)"'
+
       - name: ✅ Status Check - success
-        if: |
-          needs.unit.result == 'success' &&
-          needs.runner.result == 'success' &&
-          needs.group_01_general.result == 'success' &&
-          needs.group_activityBar.result == 'success' &&
-          needs.group_bottomBar.result == 'success' &&
-          needs.group_cli.result == 'success' &&
-          needs.group_debug.result == 'success' &&
-          needs.group_dialog.result == 'success' &&
-          needs.group_editor.result == 'success' &&
-          needs.group_menu.result == 'success' &&
-          needs.group_statusBar.result == 'success' &&
-          needs.group_system.result == 'success' &&
-          needs.group_webview.result == 'success' &&
-          needs.group_workbench.result == 'success' &&
-          needs.group_xsideBar.result == 'success'
-        run: |
-          echo "All tests successfully completed!"
-          exit 0
+        if: ${{ !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+        run: echo "All jobs required for this change succeeded."
+
       - name: ❌ Status Check - failure
-        if: |
-          needs.unit.result != 'success' ||
-          needs.runner.result != 'success' ||
-          needs.group_01_general.result != 'success' ||
-          needs.group_activityBar.result != 'success' ||
-          needs.group_bottomBar.result != 'success' ||
-          needs.group_cli.result != 'success' ||
-          needs.group_debug.result != 'success' ||
-          needs.group_dialog.result != 'success' ||
-          needs.group_editor.result != 'success' ||
-          needs.group_menu.result != 'success' ||
-          needs.group_statusBar.result != 'success' ||
-          needs.group_system.result != 'success' ||
-          needs.group_webview.result != 'success' ||
-          needs.group_workbench.result != 'success' ||
-          needs.group_xsideBar.result != 'success'
+        if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
         run: |
           echo "Status Check failed!"
           exit 1

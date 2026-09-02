@@ -25,10 +25,13 @@ permissions:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - name: 🔖 Show input tag
-        run: echo "Publishing version ${{ github.event.inputs.tag }}"
+        env:
+          INPUT_TAG: ${{ github.event.inputs.tag }}
+        run: echo "Publishing version ${INPUT_TAG}"
 
       - name: 👷🏻 Checkout Repository
         uses: actions/checkout@v7
@@ -36,22 +39,32 @@ jobs:
           fetch-depth: 0
 
       - name: ✅ Verify Git tag exists
+        env:
+          INPUT_TAG: ${{ github.event.inputs.tag }}
         run: |
           git fetch --tags
-          if ! git rev-parse "refs/tags/${{ github.event.inputs.tag }}" >/dev/null 2>&1; then
-            echo "❌ Tag '${{ github.event.inputs.tag }}' does not exist!"
+          if ! git rev-parse "refs/tags/${INPUT_TAG}" >/dev/null 2>&1; then
+            echo "❌ Tag '${INPUT_TAG}' does not exist!"
             exit 1
           fi
 
       - name: ✅ Validate and extract tag
+        env:
+          INPUT_TAG: ${{ github.event.inputs.tag }}
         run: |
-          TAG=${{ github.event.inputs.tag }}
+          TAG="${INPUT_TAG}"
           if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "❌ Invalid tag format: $TAG. Use format like 'v1.2.3'"
             exit 1
           fi
           echo "TAG=$TAG" >> $GITHUB_ENV
           echo "VERSION=${TAG#v}" >> $GITHUB_ENV
+
+      - name: 📌 Check out the tagged commit
+        # Build and publish the tree the tag points to, not the branch head the workflow was dispatched from.
+        run: |
+          git checkout --quiet --detach "refs/tags/${TAG}"
+          echo "Building $(git rev-parse --short HEAD): $(git log -1 --format=%s)"
 
       - name: ✅ Ensure tag matches package.json version
         if: ${{ github.event.inputs.skipPackageJsonMatch != 'true' }}
@@ -113,11 +126,26 @@ jobs:
             LOG="Initial release (first tag)"
           fi
 
+          # Conventional Commits mark a breaking change with "!" before the colon,
+          # e.g. "feat(extester)!: ...". Those go to the Breaking section only.
+          BREAKING_RE='^[a-z]+(\([^)]*\))?!:'
+
+          format_breaking_section() {
+            local content
+            content=$(echo "$LOG" | grep -E "$BREAKING_RE" || true)
+            if [[ -n "$content" ]]; then
+              echo "### ⚠️ Breaking"
+              echo "$content"
+              echo
+            fi
+          }
+
           # Helper to format sections
           format_section() {
             local pattern="$1"
             local title="$2"
-            local content=$(echo "$LOG" | grep -iE "$pattern" || true)
+            local content
+            content=$(echo "$LOG" | grep -vE "$BREAKING_RE" | grep -iE "$pattern" || true)
             if [[ -n "$content" ]]; then
               echo "### $title"
               echo "$content"
@@ -127,7 +155,8 @@ jobs:
 
           format_other_section() {
             local title="🧼 Other Changes"
-            local content=$(echo "$LOG" | grep -vE "^(feat|feature|fix|test|chore|refactor|internal|ci|docs|deps|dependencies|build)" || true)
+            local content
+            content=$(echo "$LOG" | grep -vE "$BREAKING_RE" | grep -vE "^(feat|feature|fix|test|chore|refactor|internal|ci|docs|deps|dependencies|build)" || true)
             if [[ -n "$content" ]]; then
               echo "### $title"
               echo "$content"
@@ -137,7 +166,7 @@ jobs:
 
           {
             echo "## What's Changed"
-            format_section '^break|^breaking' "⚠️ Breaking"
+            format_breaking_section
             format_section '^feat|^feature' "🚀 Features"
             format_section '^fix' "🚫 Bugs"
             format_section '^test' "🔎 Tests"
