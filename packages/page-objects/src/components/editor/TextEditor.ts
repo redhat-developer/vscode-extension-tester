@@ -186,7 +186,9 @@ export class TextEditor extends Editor {
 		}
 		const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
 		clipboard.writeSync(text);
-		await inputarea.sendKeys(Key.chord(TextEditor.ctlKey, 'a'), Key.chord(TextEditor.ctlKey, 'v'));
+		const bench = new Workbench();
+		await bench.executeCommand('editor.action.selectAll');
+		await inputarea.sendKeys(Key.chord(TextEditor.ctlKey, 'v'));
 		if (originalClipboard.length > 0) {
 			clipboard.writeSync(originalClipboard);
 		}
