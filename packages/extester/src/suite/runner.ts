@@ -27,6 +27,9 @@ import { logging } from 'selenium-webdriver';
 import * as os from 'node:os';
 import { Coverage } from '../util/coverage';
 
+/** YAML 1.2 core schema plus merge keys, matching how mocha parses .mocharc.yml */
+const MOCHARC_YAML_SCHEMA = yaml.CORE_SCHEMA.withTags(yaml.mergeTag);
+
 /**
  * Mocha runner wrapper
  */
@@ -216,7 +219,14 @@ export class VSRunner {
 			console.log(`Loading mocha configuration from ${file}`);
 			if (/\.(yml|yaml)$/.test(file)) {
 				try {
-					conf = yaml.load(fs.readFileSync(file, 'utf-8')) as Mocha.MochaOptions;
+					// js-yaml 5 throws on an empty stream and its default (YAML 1.2 core) schema no longer applies merge
+					// keys (`<<`). Keep the js-yaml 4 behaviour mocha itself still has: merge keys are honoured, and an
+					// empty or comment-only file means "no options".
+					const docs = yaml.loadAll(fs.readFileSync(file, 'utf-8'), { schema: MOCHARC_YAML_SCHEMA });
+					if (docs.length > 1) {
+						throw new Error('expected a single YAML document');
+					}
+					conf = (docs[0] as Mocha.MochaOptions | null | undefined) ?? {};
 				} catch (err) {
 					if (isExplicit) {
 						throw new Error(`Failed to parse mocha configuration ${file}: ${err}`);
