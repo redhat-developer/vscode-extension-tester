@@ -1,0 +1,30 @@
+name: 🛡️ Dependency Review
+
+# Blocks pull requests that add or upgrade to a dependency with a known
+# vulnerability, so an advisory-bearing package can never reach a release
+# and, through it, every project consuming the framework.
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  dependency-review:
+    name: 🛡️ Review dependency changes
+    runs-on: ubuntu-latest
+    steps:
+      - name: 👷🏻 Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: 🛡️ Dependency Review
+        uses: actions/dependency-review-action@v5
+        with:
+          # runtime = what ships to consumers; moderate matches the strictest
+          # threshold consuming projects are known to run against us
+          fail-on-severity: moderate
+          fail-on-scopes: runtime
+          comment-summary-in-pr: on-failure
