@@ -11,9 +11,13 @@ on:
       - packages/extester-runner/**
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   runner-snapshot:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: 👷🏻 Checkout Repository

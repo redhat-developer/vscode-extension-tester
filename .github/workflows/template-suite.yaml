@@ -15,10 +15,14 @@ on:
         default: "stable"
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   test:
     name: ${{ matrix.label }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
