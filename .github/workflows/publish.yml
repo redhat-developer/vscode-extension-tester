@@ -14,6 +14,10 @@ on:
         description: "Skip tag validation with package.json (testing)"
         default: false
         type: boolean
+      skipAudit:
+        description: "Skip the runtime dependency audit gate (only for a documented, unfixable transitive advisory)"
+        default: false
+        type: boolean
       draft:
         description: "Publish GH release as draft"
         default: false
@@ -109,6 +113,12 @@ jobs:
         run: |
           npm ci
           npm run build
+
+      - name: 🛡️ Audit runtime dependencies
+        if: ${{ github.event.inputs.skipAudit != 'true' }}
+        # Non-dev dependencies are exactly what consumers install; refuse to publish
+        # a release that would put a known advisory into every downstream project.
+        run: npm audit --omit=dev --audit-level=moderate
 
       - name: 📝 Generate changelog
         run: |
