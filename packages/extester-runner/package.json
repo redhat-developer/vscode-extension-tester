@@ -511,7 +511,7 @@
   },
   "dependencies": {
     "@babel/parser": "^7.29.8",
-    "@babel/traverse": "^7.29.8",
+    "@babel/traverse": "^8.0.4",
     "@babel/types": "^7.29.8"
   }
 }
