@@ -208,7 +208,6 @@ describe('TextEditor', function () {
 	});
 
 	it('can type text at given coordinates', async function () {
-		this.timeout(5000);
 		await editor.typeTextAt(1, 6, '1');
 		const line = await editor.getTextAtLine(1);
 		expect(line).has.string('line11');
