@@ -131,8 +131,15 @@ export class TextEditor extends Editor {
 				// workaround issue https://github.com/redhat-developer/vscode-extension-tester/issues/835
 				// do not fail if clipboard is empty
 			}
-			const inputarea = await self.findElement(TextEditor.locators.Editor.inputArea);
-			await inputarea.sendKeys(Key.chord(TextEditor.ctlKey, 'a'), Key.chord(TextEditor.ctlKey, 'c'));
+
+			// Store current position
+			const [line, col] = await this.getCoordinates();
+
+			// Select/copy contents
+			const bench = new Workbench();
+			await bench.executeCommand('editor.action.selectAll');
+			await bench.executeCommand('editor.action.clipboardCopyAction');
+
 			// Wait for clipboard operation to complete
 			await self.getWaitHelper().forCondition(
 				async () => {
@@ -146,10 +153,18 @@ export class TextEditor extends Editor {
 				{ timeout: 2000, pollInterval: 50, message: 'Clipboard copy operation did not complete' },
 			);
 			const text = clipboard.readSync();
-			await inputarea.sendKeys(Key.UP);
+
 			if (originalClipboard.length > 0) {
 				clipboard.writeSync(originalClipboard);
 			}
+
+			try {
+				// Restore original cursor position
+				await this.setCursor(line, col);
+			} catch {
+				await this.sendKeys(Key.UP);
+			}
+
 			return text;
 		});
 	}
