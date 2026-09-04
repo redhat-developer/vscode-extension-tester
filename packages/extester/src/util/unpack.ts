@@ -19,7 +19,7 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 import { PathLike } from 'fs-extra';
 import * as tar from 'tar';
-import extractZip from 'extract-zip';
+import * as unzipper from 'unzipper';
 import { exec } from 'child_process';
 
 export class Unpack {
@@ -56,9 +56,13 @@ export class Unpack {
 	/**
 	 * Zip extraction used where no system unzip is available (Windows).
 	 * Kept separate so this code path stays unit-testable on every platform.
+	 *
+	 * unzipper skips entries that would resolve outside the destination and writes
+	 * symlink entries as plain files, so a hostile archive can neither escape the
+	 * target directory nor plant a symlink to write through (CVE-2026-56876 class).
 	 */
 	static async unpackZipWithLibrary(source: string, destination: string): Promise<void> {
-		// extract-zip requires an absolute target directory
-		await extractZip(source, { dir: path.resolve(destination) });
+		const directory = await unzipper.Open.file(source);
+		await directory.extract({ path: path.resolve(destination), concurrency: 5 });
 	}
 }
