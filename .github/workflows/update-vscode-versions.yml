@@ -224,14 +224,12 @@ jobs:
 
       - name: ⚠️ Notify on failure
         if: failure()
-        uses: actions/github-script@v9
+        uses: ./.github/actions/failure-issue
         with:
-          script: |
-            github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: '⚠️ Sync VS Code version support workflow failed',
-              body: `## ⚠️ Automated VS Code Version Sync Failed
+          title: "⚠️ Sync VS Code version support workflow failed"
+          labels: automation,bug,maintenance
+          body: |
+            ## ⚠️ Automated VS Code Version Sync Failed
 
             The automated VS Code version sync workflow encountered an error.
 
@@ -248,13 +246,11 @@ jobs:
             ### 📝 Manual Update Steps
 
             1. Check the latest 3 VS Code stable versions at https://code.visualstudio.com/updates
-            2. Update \`packages/extester/package.json\`:
-               - \`vscode-min\`: oldest of the 3 versions
-               - \`vscode-max\`: newest of the 3 versions
+            2. Update `packages/extester/package.json`:
+               - `vscode-min`: oldest of the 3 versions
+               - `vscode-max`: newest of the 3 versions
             3. Run tests and create a release
 
             ---
 
-            🤖 *This issue was automatically created by the version sync workflow*`,
-              labels: ['automation', 'bug', 'maintenance']
-            })
+            🤖 *This issue was automatically created by the version sync workflow*

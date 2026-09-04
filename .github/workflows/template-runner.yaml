@@ -106,14 +106,7 @@ jobs:
 
       - name: 💾 Upload Screenshots
         uses: actions/upload-artifact@v7
-        if: failure() && inputs.nodejs != 'lts/*'
+        if: failure()
         with:
-          name: runner-screenshots-${{ matrix.os }}-${{ inputs.version }}-node_${{ inputs.nodejs }}
-          path: ${{ runner.temp }}/test-resources/screenshots/**/*.png
-
-      - name: 💾 Upload Screenshots
-        uses: actions/upload-artifact@v7
-        if: failure() && inputs.nodejs == 'lts/*'
-        with:
-          name: runner-screenshots-${{ matrix.os }}-${{ inputs.version }}-node_lts
+          name: runner-screenshots-${{ matrix.os }}-${{ inputs.version }}-node_${{ inputs.nodejs == 'lts/*' && 'lts' || inputs.nodejs }}
           path: ${{ runner.temp }}/test-resources/screenshots/**/*.png
