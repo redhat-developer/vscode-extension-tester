@@ -11,14 +11,13 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
 
-permissions:
-  contents: read
-
 jobs:
   changes:
     name: 🔎 Changed paths
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
     outputs:
       core: ${{ steps.filter.outputs.core }}
       runner: ${{ steps.filter.outputs.runner }}
@@ -75,6 +74,8 @@ jobs:
     if: needs.changes.outputs.core == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
     steps:
       - name: 👷🏻 Checkout Repository
         uses: actions/checkout@v7
@@ -98,6 +99,8 @@ jobs:
     name: 🧪 01_general
     needs: changes
     if: needs.changes.outputs.core == 'true'
+    permissions:
+      contents: read
     uses: ./.github/workflows/template-suite.yaml
     with:
       test_group: 01_general
@@ -106,6 +109,8 @@ jobs:
     name: 🧪 activityBar
     needs: changes
     if: needs.changes.outputs.core == 'true'
+    permissions:
+      contents: read
     uses: ./.github/workflows/template-suite.yaml
     with:
       test_group: activityBar
@@ -114,6 +119,8 @@ jobs:
     name: 🧪 bottomBar
     needs: changes
     if: needs.changes.outputs.core == 'true'
+    permissions:
+      contents: read
     uses: ./.github/workflows/template-suite.yaml
     with:
       test_group: bottomBar
@@ -122,6 +129,8 @@ jobs:
     name: 🧪 cli
     needs: changes
     if: needs.changes.outputs.core == 'true'
+    permissions:
+      contents: read
     uses: ./.github/workflows/template-suite.yaml
     with:
       test_group: cli
@@ -130,6 +139,8 @@ jobs:
     name: 🧪 debug
     needs: changes
     if: needs.changes.outputs.core == 'true'
+    permissions:
+      contents: read
     uses: ./.github/workflows/template-suite.yaml
     with:
       test_group: debug
@@ -138,6 +149,8 @@ jobs:
     name: 🧪 dialog
     needs: changes
     if: needs.changes.outputs.core == 'true'
+    permissions:
+      contents: read
     uses: ./.github/workflows/template-suite.yaml
     with:
       test_group: dialog
@@ -146,6 +159,8 @@ jobs:
     name: 🧪 editor
     needs: changes
     if: needs.changes.outputs.core == 'true'
+    permissions:
+      contents: read
     uses: ./.github/workflows/template-suite.yaml
     with:
       test_group: editor
@@ -154,6 +169,8 @@ jobs:
     name: 🧪 menu
     needs: changes
     if: needs.changes.outputs.core == 'true'
+    permissions:
+      contents: read
     uses: ./.github/workflows/template-suite.yaml
     with:
       test_group: menu
@@ -162,6 +179,8 @@ jobs:
     name: 🧪 statusBar
     needs: changes
     if: needs.changes.outputs.core == 'true'
+    permissions:
+      contents: read
     uses: ./.github/workflows/template-suite.yaml
     with:
       test_group: statusBar
@@ -170,6 +189,8 @@ jobs:
     name: 🧪 system
     needs: changes
     if: needs.changes.outputs.core == 'true'
+    permissions:
+      contents: read
     uses: ./.github/workflows/template-suite.yaml
     with:
       test_group: system
@@ -178,6 +199,8 @@ jobs:
     name: 🧪 webview
     needs: changes
     if: needs.changes.outputs.core == 'true'
+    permissions:
+      contents: read
     uses: ./.github/workflows/template-suite.yaml
     with:
       test_group: webview
@@ -186,6 +209,8 @@ jobs:
     name: 🧪 workbench
     needs: changes
     if: needs.changes.outputs.core == 'true'
+    permissions:
+      contents: read
     uses: ./.github/workflows/template-suite.yaml
     with:
       test_group: workbench
@@ -194,6 +219,8 @@ jobs:
     name: 🧪 xsideBar
     needs: changes
     if: needs.changes.outputs.core == 'true'
+    permissions:
+      contents: read
     uses: ./.github/workflows/template-suite.yaml
     with:
       test_group: xsideBar
@@ -284,6 +311,8 @@ jobs:
   runner:
     needs: changes
     if: needs.changes.outputs.runner == 'true'
+    permissions:
+      contents: read
     uses: ./.github/workflows/template-runner.yaml
     with:
       version: max
@@ -296,6 +325,8 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
     needs:
       - changes
       - unit
