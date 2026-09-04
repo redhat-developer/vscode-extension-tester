@@ -1,22 +1,61 @@
 name: 🚀 Insiders CI
 
+# Nightly run of every test group against the latest VS Code Insiders build,
+# on the same per-group suite template as Main CI so a failure is attributable
+# to one group on first sight. A scheduled failure opens (or updates) a
+# tracking issue; manual runs do not.
 on:
   schedule:
     - cron: "0 0 * * *"
-  push:
-    branches: [insider]
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
-  test:
-    uses: ./.github/workflows/template-main.yaml
+  suites:
+    name: 🧪 ${{ matrix.group }}
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [01_general, activityBar, bottomBar, cli, debug, dialog, editor, menu, statusBar, system, webview, workbench, xsideBar]
+    permissions:
+      contents: read
+    uses: ./.github/workflows/template-suite.yaml
     with:
-      version: latest
+      test_group: ${{ matrix.group }}
+      versions: '["latest"]'
       code_type: insider
+      collect_coverage: false
+
+  notify:
+    name: ⚠️ Failure issue
+    if: ${{ failure() && github.event_name == 'schedule' }}
+    needs: suites
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: 👷🏻 Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          sparse-checkout: .github/actions
+
+      - name: ⚠️ Open or update the failure issue
+        uses: ./.github/actions/failure-issue
+        with:
+          title: "⚠️ Insiders CI nightly run failed"
+          labels: automation,bug
+          body: |
+            ## ⚠️ Insiders CI nightly run failed
+
+            - **Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            - **Head**: `${{ github.sha }}` on `${{ github.ref_name }}`
+
+            Open the run to see which test groups failed; screenshots and chromedriver logs are attached as artifacts. This issue receives a comment on every further nightly failure and can be closed once a run is green.

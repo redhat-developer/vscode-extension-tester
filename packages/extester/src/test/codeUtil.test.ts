@@ -31,6 +31,7 @@ import {
 	validateUserDataDirLength,
 	flagConflictWarnings,
 	findShadowedSettings,
+	resolveMacExecutable,
 } from '../util/codeUtil';
 import { ReleaseQuality } from '../util/codeUtil';
 import { Download } from '../util/download';
@@ -636,5 +637,63 @@ describe('CodeUtil Chromium version discovery', function () {
 		util.getExecutablePath = () => process.execPath;
 
 		assert.strictEqual(util.getChromiumVersionFromBinary(), undefined);
+	});
+});
+
+describe('resolveMacExecutable', () => {
+	let tmp: string;
+
+	beforeEach(() => {
+		tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'extester-mac-bundle-'));
+	});
+
+	afterEach(() => {
+		fs.removeSync(tmp);
+	});
+
+	function bundle(name: string, binaries: string[]): string {
+		const app = path.join(tmp, name);
+		const macOs = path.join(app, 'Contents', 'MacOS');
+		fs.mkdirpSync(macOs);
+		for (const binary of binaries) {
+			fs.writeFileSync(path.join(macOs, binary), '');
+		}
+		return app;
+	}
+
+	it('returns undefined while the bundle has not been downloaded', () => {
+		assert.strictEqual(resolveMacExecutable(path.join(tmp, 'Visual Studio Code.app'), ReleaseQuality.Stable), undefined);
+	});
+
+	it('picks Code in a 1.131+ stable bundle', () => {
+		const app = bundle('Visual Studio Code.app', ['Code']);
+		assert.strictEqual(resolveMacExecutable(app, ReleaseQuality.Stable), path.join(app, 'Contents', 'MacOS', 'Code'));
+	});
+
+	it('picks Code - Insiders in a 1.131+ insider bundle', () => {
+		const app = bundle('Visual Studio Code - Insiders.app', ['Code - Insiders']);
+		assert.strictEqual(resolveMacExecutable(app, ReleaseQuality.Insider), path.join(app, 'Contents', 'MacOS', 'Code - Insiders'));
+	});
+
+	it('falls back to Electron in bundles older than 1.131 for both streams', () => {
+		const stable = bundle('Visual Studio Code.app', ['Electron']);
+		const insider = bundle('Visual Studio Code - Insiders.app', ['Electron']);
+		assert.strictEqual(resolveMacExecutable(stable, ReleaseQuality.Stable), path.join(stable, 'Contents', 'MacOS', 'Electron'));
+		assert.strictEqual(resolveMacExecutable(insider, ReleaseQuality.Insider), path.join(insider, 'Contents', 'MacOS', 'Electron'));
+	});
+
+	it('prefers the product name over a leftover Electron binary', () => {
+		const app = bundle('Visual Studio Code - Insiders.app', ['Electron', 'Code - Insiders']);
+		assert.strictEqual(resolveMacExecutable(app, ReleaseQuality.Insider), path.join(app, 'Contents', 'MacOS', 'Code - Insiders'));
+	});
+
+	it('accepts a single binary with an unknown name', () => {
+		const app = bundle('Visual Studio Code.app', ['Code - Renamed']);
+		assert.strictEqual(resolveMacExecutable(app, ReleaseQuality.Stable), path.join(app, 'Contents', 'MacOS', 'Code - Renamed'));
+	});
+
+	it('does not guess between several unknown binaries', () => {
+		const app = bundle('Visual Studio Code.app', ['One', 'Two']);
+		assert.strictEqual(resolveMacExecutable(app, ReleaseQuality.Stable), undefined);
 	});
 });

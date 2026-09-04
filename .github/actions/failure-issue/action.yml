@@ -1,0 +1,43 @@
+name: Failure issue
+description: Opens a tracking issue for a failed scheduled workflow, or comments on the open issue with the same title, so a persistent failure does not pile up new issues.
+
+inputs:
+  title:
+    description: Exact issue title; an open issue with this title is updated instead of creating a new one
+    required: true
+  body:
+    description: Markdown for the new issue, or for the comment added to the existing one
+    required: true
+  labels:
+    description: Comma-separated labels for a new issue
+    required: false
+    default: automation
+  token:
+    description: Token with issues write permission
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: composite
+  steps:
+    - name: ⚠️ Open or update the failure issue
+      uses: actions/github-script@v9
+      env:
+        ISSUE_TITLE: ${{ inputs.title }}
+        ISSUE_BODY: ${{ inputs.body }}
+        ISSUE_LABELS: ${{ inputs.labels }}
+      with:
+        github-token: ${{ inputs.token }}
+        script: |
+          const title = process.env.ISSUE_TITLE;
+          const body = process.env.ISSUE_BODY;
+          const labels = process.env.ISSUE_LABELS.split(',').map((label) => label.trim()).filter(Boolean);
+          const open = await github.paginate(github.rest.issues.listForRepo, { ...context.repo, state: 'open', per_page: 100 });
+          const existing = open.find((issue) => !issue.pull_request && issue.title === title);
+          if (existing) {
+            await github.rest.issues.createComment({ ...context.repo, issue_number: existing.number, body });
+            core.notice(`Commented on existing issue #${existing.number}: ${title}`);
+          } else {
+            const { data } = await github.rest.issues.create({ ...context.repo, title, body, labels });
+            core.notice(`Opened issue #${data.number}: ${title}`);
+          }

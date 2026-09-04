@@ -1,25 +1,62 @@
 name: 💎 NodeJS CI
 
+# Nightly run of every test group on the current Node LTS and on the latest
+# Node release, against the newest supported VS Code, on the same per-group
+# suite template as Main CI. A scheduled failure opens (or updates) a
+# tracking issue; manual runs do not.
 on:
   schedule:
     - cron: "0 0 * * *"
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
-  test:
-    name: ${{ matrix.node }}
+  suites:
+    name: 🧪 ${{ matrix.group }} · node ${{ matrix.node }}
     strategy:
       fail-fast: false
       matrix:
         node: [lts/*, latest]
-    uses: ./.github/workflows/template-main.yaml
+        group: [01_general, activityBar, bottomBar, cli, debug, dialog, editor, menu, statusBar, system, webview, workbench, xsideBar]
+    permissions:
+      contents: read
+    uses: ./.github/workflows/template-suite.yaml
     with:
-      version: max
+      test_group: ${{ matrix.group }}
+      versions: '["max"]'
       nodejs: ${{ matrix.node }}
+      collect_coverage: false
+
+  notify:
+    name: ⚠️ Failure issue
+    if: ${{ failure() && github.event_name == 'schedule' }}
+    needs: suites
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: 👷🏻 Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          sparse-checkout: .github/actions
+
+      - name: ⚠️ Open or update the failure issue
+        uses: ./.github/actions/failure-issue
+        with:
+          title: "⚠️ NodeJS CI nightly run failed"
+          labels: automation,bug
+          body: |
+            ## ⚠️ NodeJS CI nightly run failed
+
+            - **Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            - **Head**: `${{ github.sha }}` on `${{ github.ref_name }}`
+
+            Open the run to see which test groups failed and on which Node version; screenshots and chromedriver logs are attached as artifacts. This issue receives a comment on every further nightly failure and can be closed once a run is green.

@@ -325,6 +325,33 @@ export const DEFAULT_RUN_OPTIONS = {
  * Handles the VS Code instance used for testing.
  * Includes downloading, unpacking, launching, and version checks.
  */
+/**
+ * Resolve the VS Code executable inside a macOS app bundle.
+ *
+ * VS Code 1.131+ names the binary after the product (`Code` for stable,
+ * `Code - Insiders` for the insider stream); builds before that ship it as
+ * `Electron`. Returns undefined while the bundle does not exist yet.
+ * Exported for unit tests; the class resolves lazily through it after download.
+ */
+export function resolveMacExecutable(codeFolder: string, type: ReleaseQuality): string | undefined {
+	const macOsDir = path.join(codeFolder, 'Contents', 'MacOS');
+	const candidates = type === ReleaseQuality.Insider ? ['Code - Insiders', 'Electron'] : ['Code', 'Electron'];
+	for (const name of candidates) {
+		const candidate = path.join(macOsDir, name);
+		if (fs.existsSync(candidate)) {
+			return candidate;
+		}
+	}
+	// Unknown name (a future rename): an app bundle carries exactly one executable in Contents/MacOS.
+	if (fs.existsSync(macOsDir)) {
+		const files = fs.readdirSync(macOsDir).filter((entry) => fs.statSync(path.join(macOsDir, entry)).isFile());
+		if (files.length === 1) {
+			return path.join(macOsDir, files[0]);
+		}
+	}
+	return undefined;
+}
+
 export class CodeUtil {
 	private readonly codeFolder: string;
 	private readonly downloadPlatform: string;
@@ -893,23 +920,20 @@ export class CodeUtil {
 
 	/**
 	 * Get the executable path, resolving the macOS binary name lazily after download.
-	 * VS Code 1.131+ renamed Contents/MacOS/Electron to Contents/MacOS/Code on macOS.
+	 * VS Code 1.131+ renamed Contents/MacOS/Electron to the product name
+	 * (Contents/MacOS/Code, or Contents/MacOS/Code - Insiders for the insider stream).
 	 * On other platforms the path is fixed at construction time.
-	 * Resolution is deferred until one of the candidates actually exists on disk
+	 * Resolution is deferred until the bundle actually exists on disk
 	 * (i.e. after VS Code has been downloaded and unpacked).
 	 */
 	private getExecutablePath(): string {
 		if (process.platform === 'darwin' && !this.macExecutableResolved) {
-			const newPath = path.join(this.codeFolder, 'Contents', 'MacOS', 'Code');
-			const legacyPath = path.join(this.codeFolder, 'Contents', 'MacOS', 'Electron');
-			if (fs.existsSync(newPath)) {
-				this.executablePath = newPath;
-				this.macExecutableResolved = true;
-			} else if (fs.existsSync(legacyPath)) {
-				this.executablePath = legacyPath;
+			const resolved = resolveMacExecutable(this.codeFolder, this.releaseType);
+			if (resolved) {
+				this.executablePath = resolved;
 				this.macExecutableResolved = true;
 			}
-			// neither exists yet (pre-download) — leave executablePath as-is and retry next call
+			// not downloaded yet — leave executablePath as-is and retry next call
 		}
 		return this.executablePath;
 	}
@@ -921,8 +945,7 @@ export class CodeUtil {
 		this.cliPath = path.join(this.codeFolder, 'resources', 'app', 'out', 'cli.js');
 		switch (process.platform) {
 			case 'darwin':
-				// Resolved lazily in getMacExecutablePath() after download —
-				// VS Code 1.131+ renamed Contents/MacOS/Electron to Contents/MacOS/Code
+				// Resolved lazily in getExecutablePath() after download — see resolveMacExecutable()
 				this.executablePath = path.join(this.codeFolder, 'Contents', 'MacOS', 'Electron');
 				this.cliPath = path.join(this.codeFolder, 'Contents', 'Resources', 'app', 'out', 'cli.js');
 				break;

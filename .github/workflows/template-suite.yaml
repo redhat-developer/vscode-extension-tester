@@ -14,37 +14,37 @@ on:
         required: false
         default: "stable"
         type: string
+      versions:
+        description: JSON array of VS Code versions to run the group against (min, max, latest or x.y.z)
+        required: false
+        default: '["min", "max"]'
+        type: string
+      collect_coverage:
+        description: Collect V8 coverage on the ubuntu cells for the framework-coverage job in main.yml
+        required: false
+        default: true
+        type: boolean
 
 permissions:
   contents: read
 
 jobs:
   test:
-    name: ${{ matrix.label }}
+    name: ${{ matrix.short }}-${{ matrix.version }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        version: ${{ fromJSON(inputs.versions) }}
         include:
           - os: ubuntu-latest
-            label: ubuntu-min
-            version: min
-          - os: ubuntu-latest
-            label: ubuntu-max
-            version: max
+            short: ubuntu
           - os: macos-latest
-            label: macos-min
-            version: min
-          - os: macos-latest
-            label: macos-max
-            version: max
+            short: macos
           - os: windows-latest
-            label: windows-min
-            version: min
-          - os: windows-latest
-            label: windows-max
-            version: max
+            short: windows
 
     env:
       CODE_TYPE: ${{ inputs.code_type }}
@@ -96,15 +96,15 @@ jobs:
           NODE_V8_COVERAGE: ${{ runner.temp }}/v8-coverage
 
       - name: ✂️ Trim V8 coverage dumps to framework code (linux)
-        if: ${{ !cancelled() && startsWith(matrix.os, 'ubuntu') }}
+        if: ${{ !cancelled() && inputs.collect_coverage && startsWith(matrix.os, 'ubuntu') }}
         run: node .github/scripts/trim-v8-coverage.mjs "${RUNNER_TEMP}/v8-coverage" "${GITHUB_WORKSPACE}"
 
       - name: 💾 Upload V8 coverage dumps (linux)
         uses: actions/upload-artifact@v7
         # Failing tests still produce valid coverage for the code they ran.
-        if: ${{ !cancelled() && startsWith(matrix.os, 'ubuntu') }}
+        if: ${{ !cancelled() && inputs.collect_coverage && startsWith(matrix.os, 'ubuntu') }}
         with:
-          name: v8-coverage-${{ inputs.test_group }}-${{ matrix.label }}
+          name: v8-coverage-${{ inputs.test_group }}-${{ matrix.short }}-${{ matrix.version }}
           path: ${{ runner.temp }}/v8-coverage
           if-no-files-found: warn
           retention-days: 3
@@ -113,7 +113,7 @@ jobs:
         uses: actions/upload-artifact@v7
         if: failure()
         with:
-          name: screenshots-and-logs-${{ matrix.label }}-${{ inputs.test_group }}
+          name: screenshots-and-logs-${{ matrix.short }}-${{ matrix.version }}-${{ inputs.test_group }}-node_${{ inputs.nodejs == 'lts/*' && 'lts' || inputs.nodejs }}
           path: |
             ${{ runner.temp }}/test-resources/screenshots/**/*.png
             ${{ runner.temp }}/test-resources/chromedriver.log
