@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { ContentAssist, ContextMenu, InputBox, Workbench } from '../..';
+import { ContentAssist, ContextMenu, InputBox } from '../..';
 import { Key, until, WebElement } from 'selenium-webdriver';
 import { fileURLToPath } from 'node:url';
 import { StatusBar } from '../statusBar/StatusBar';
@@ -118,6 +118,79 @@ export class TextEditor extends Editor {
 	}
 
 	/**
+	 * Find out whether this editor currently has VS Code keyboard focus
+	 * @returns Promise resolving to true when the editor's text input is focused
+	 */
+	async hasFocus(): Promise<boolean> {
+		const container = await this.findElement(TextEditor.locators.TextEditor.editorContainer);
+		const klass = (await container.getAttribute('class')) ?? '';
+		return klass.split(/\s+/).includes('focused');
+	}
+
+	/**
+	 * Bring VS Code keyboard focus into this editor without moving the cursor.
+	 *
+	 * Editor commands (select all, clipboard actions, the `:Ln,Col` go-to prompt)
+	 * and the status bar cursor position all target whichever editor VS Code has
+	 * focused, and the editor's zero-width `native-edit-context` input element only
+	 * accepts keys while it is the focused element. With several editor groups open
+	 * this makes the page object act on its own editor instance instead of on the
+	 * group that happened to be focused before.
+	 *
+	 * @returns Promise resolving once the editor has focus
+	 */
+	async focus(): Promise<void> {
+		if (await this.hasFocus()) {
+			return;
+		}
+		const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
+		await this.getDriver().executeScript('arguments[0].focus()', inputarea);
+		await this.getWaitHelper().forCondition(() => this.hasFocus(), {
+			timeout: 2000,
+			pollInterval: 50,
+			message: 'Editor did not receive focus',
+		});
+	}
+
+	/**
+	 * Open the command palette with this editor focused, so editor commands
+	 * (select all, clipboard actions, the `:Ln,Col` go-to prompt) run against
+	 * this editor instance.
+	 *
+	 * Focus is moved into this editor first, then the palette is opened with the
+	 * global `Ctrl/Cmd+Shift+P` chord. `Workbench.openCommandPrompt()` cannot be
+	 * reused here: while any webview editor is open it sends the key to the first
+	 * active tab of whatever group, which need not be this editor's group.
+	 */
+	private async openCommandPrompt(): Promise<InputBox> {
+		await this.focus();
+		await this.getDriver()
+			.actions()
+			.keyDown(AbstractElement.ctlKey)
+			.keyDown(Key.SHIFT)
+			.sendKeys('p')
+			.keyUp(Key.SHIFT)
+			.keyUp(AbstractElement.ctlKey)
+			.perform();
+		return await InputBox.create();
+	}
+
+	/**
+	 * Execute a command from the command palette opened on this editor
+	 * @param command id or title of the command
+	 */
+	private async executeCommand(command: string): Promise<void> {
+		const prompt = await this.openCommandPrompt();
+		await prompt.setText(`>${command}`);
+		const quickPicks = await Promise.all((await prompt.getQuickPicks()).map((item) => item.getLabel()));
+		if (quickPicks.includes(command)) {
+			await prompt.selectQuickPick(command);
+		} else {
+			await prompt.confirm();
+		}
+	}
+
+	/**
 	 * Get all text from the editor
 	 * @returns Promise resolving to editor text
 	 */
@@ -132,13 +205,16 @@ export class TextEditor extends Editor {
 				// do not fail if clipboard is empty
 			}
 
+			// The status bar position, the select-all/copy commands and the cursor
+			// restore below all act on the focused editor: make sure it is this one.
+			await self.focus();
+
 			// Store current position
-			const [line, col] = await this.getCoordinates();
+			const [line, col] = await self.getCoordinates();
 
 			// Select/copy contents
-			const bench = new Workbench();
-			await bench.executeCommand('editor.action.selectAll');
-			await bench.executeCommand('editor.action.clipboardCopyAction');
+			await self.executeCommand('editor.action.selectAll');
+			await self.executeCommand('editor.action.clipboardCopyAction');
 
 			// Wait for clipboard operation to complete
 			await self.getWaitHelper().forCondition(
@@ -160,9 +236,9 @@ export class TextEditor extends Editor {
 
 			try {
 				// Restore original cursor position
-				await this.setCursor(line, col);
+				await self.setCursor(line, col);
 			} catch {
-				await this.sendKeys(Key.UP);
+				await self.sendKeys(Key.UP);
 			}
 
 			return text;
@@ -184,10 +260,10 @@ export class TextEditor extends Editor {
 			// workaround issue https://github.com/redhat-developer/vscode-extension-tester/issues/835
 			// do not fail if clipboard is empty
 		}
+		await this.focus();
 		const inputarea = await this.findElement(TextEditor.locators.Editor.inputArea);
 		clipboard.writeSync(text);
-		const bench = new Workbench();
-		await bench.executeCommand('editor.action.selectAll');
+		await this.executeCommand('editor.action.selectAll');
 		await inputarea.sendKeys(Key.chord(TextEditor.ctlKey, 'v'));
 		if (originalClipboard.length > 0) {
 			clipboard.writeSync(originalClipboard);
@@ -385,7 +461,7 @@ export class TextEditor extends Editor {
 	 * @returns Promise resolving when the cursor has reached the given coordinates
 	 */
 	async setCursor(line: number, column: number, timeout: number = 2_500): Promise<void> {
-		const input = await new Workbench().openCommandPrompt();
+		const input = await this.openCommandPrompt();
 		await input.setText(`:${line},${column}`);
 		try {
 			await this.getWaitHelper().forCondition(
