@@ -545,3 +545,170 @@ describe('TextEditor', function () {
 		});
 	});
 });
+
+/**
+ * Regression tests for https://github.com/redhat-developer/vscode-extension-tester/issues/2522
+ *
+ * A `TextEditor` page object must read and write the editor instance it was
+ * constructed for, even when VS Code keyboard focus is in a different editor group.
+ */
+describe('TextEditor in a non-focused editor group', function () {
+	let view: EditorView;
+
+	const eol = process.platform === 'win32' ? '\r\n' : '\n';
+	const leftText = `left group line 1${eol}left group line 2`;
+	const rightText = `right group line 1${eol}right group line 2`;
+
+	/**
+	 * Create a new untitled text file (it opens in the active editor group) and
+	 * wait until its tab shows up in the expected group.
+	 */
+	async function newTextFile(groupIndex: number): Promise<void> {
+		const before = await view.getOpenEditorTitles(groupIndex);
+		await new Workbench().executeCommand('Create: New File...');
+		await (await InputBox.create()).selectQuickPick('Text File');
+		await waitFor(
+			async () => {
+				const titles = await view.getOpenEditorTitles(groupIndex);
+				return titles.find((title) => title.startsWith('Untitled') && !before.includes(title));
+			},
+			{ timeout: 15_000, message: `New untitled file did not open in editor group ${groupIndex}` },
+		);
+	}
+
+	async function waitForGroupCount(count: number): Promise<void> {
+		await waitFor(async () => (await view.getEditorGroups()).length === count, {
+			timeout: 15_000,
+			message: `Expected ${count} editor groups`,
+		});
+	}
+
+	async function isGroupActive(groupIndex: number): Promise<boolean> {
+		const group = await view.getEditorGroup(groupIndex);
+		const klass = (await group.getAttribute('class')) ?? '';
+		return klass.split(/\s+/).includes('active');
+	}
+
+	/**
+	 * Move VS Code focus into the given editor group using the workbench command,
+	 * i.e. without touching the TextEditor page object under test.
+	 */
+	async function focusGroup(groupIndex: number): Promise<void> {
+		const commands = ['View: Focus First Editor Group', 'View: Focus Second Editor Group'];
+		await new Workbench().executeCommand(commands[groupIndex]);
+		await waitFor(() => isGroupActive(groupIndex), { timeout: 10_000, message: `Editor group ${groupIndex} did not become active` });
+	}
+
+	/**
+	 * Close every editor, discarding the dirty untitled buffers these tests create.
+	 * Closing several dirty editors across two groups raises "save changes?" modals
+	 * and briefly makes group elements go stale, so dismiss any dialog and retry.
+	 */
+	async function discardAllEditors(): Promise<void> {
+		const wait = getWaitHelper();
+		const deadline = Date.now() + 30_000;
+		while (Date.now() < deadline) {
+			try {
+				await new EditorView().closeAllEditors();
+				return;
+			} catch {
+				// A dirty buffer left a save dialog up, or a group went stale mid-close.
+				try {
+					await new ModalDialog().pushButton("Don't Save");
+				} catch {
+					// no dialog present — fall through and retry the close
+				}
+				await wait.sleep(500);
+			}
+		}
+	}
+
+	describe('two text editors', function () {
+		before(async function (this: Mocha.Context) {
+			this.timeout(90_000);
+			view = new EditorView();
+			await view.closeAllEditors();
+
+			// Two independent untitled files, both created in group 0.
+			await newTextFile(0);
+			await newTextFile(0);
+
+			// Move the second (active) file into a new group to the right, so the
+			// two editors hold different content in two separate groups.
+			await new Workbench().executeCommand('View: Move Editor into Next Group');
+			await waitForGroupCount(2);
+
+			await new TextEditor(await view.getEditorGroup(1)).setText(rightText);
+			await new TextEditor(await view.getEditorGroup(0)).setText(leftText);
+
+			await focusGroup(0);
+		});
+
+		after(async function (this: Mocha.Context) {
+			this.timeout(30_000);
+			await discardAllEditors();
+		});
+
+		it('getText reads the editor of the non-focused group', async function () {
+			expect(await isGroupActive(0)).to.be.true;
+			const editor = new TextEditor(await view.getEditorGroup(1));
+			expect(await editor.getText()).equals(rightText);
+		});
+
+		it('getTextAtLine reads the editor of the non-focused group', async function () {
+			await focusGroup(0);
+			const editor = new TextEditor(await view.getEditorGroup(1));
+			// substring match: getTextAtLine keeps the platform line ending (a trailing \r on Windows)
+			expect(await editor.getTextAtLine(2)).has.string('right group line 2');
+		});
+
+		it('setText replaces the contents of the editor in the non-focused group only', async function () {
+			await focusGroup(0);
+			const editor = new TextEditor(await view.getEditorGroup(1));
+			await editor.setText('replaced');
+			expect(await editor.getText()).equals('replaced');
+			expect(await new TextEditor(await view.getEditorGroup(0)).getText()).equals(leftText);
+		});
+	});
+
+	describe('webview in the focused group', function () {
+		before(async function (this: Mocha.Context) {
+			this.timeout(90_000);
+			view = new EditorView();
+			await view.closeAllEditors();
+
+			// group 0: a webview editor (same layout as in the reported issue)
+			await new Workbench().executeCommand('Webview Test Column 1');
+			await waitFor(async () => (await view.getOpenEditorTitles(0)).some((title) => title.startsWith('Test WebView')), {
+				timeout: 15_000,
+				message: 'WebView tab did not appear',
+			});
+
+			// group 1: a text editor, created in the webview's group and moved to the right
+			await newTextFile(0);
+			await new Workbench().executeCommand('View: Move Editor into Next Group');
+			await waitForGroupCount(2);
+			await new TextEditor(await view.getEditorGroup(1)).setText(rightText);
+
+			await focusGroup(0);
+		});
+
+		after(async function (this: Mocha.Context) {
+			this.timeout(30_000);
+			await discardAllEditors();
+		});
+
+		it('getText reads the text editor while the webview group has focus', async function () {
+			expect(await isGroupActive(0)).to.be.true;
+			const editor = new TextEditor(await view.getEditorGroup(1));
+			expect(await editor.getText()).equals(rightText);
+		});
+
+		it('getTextAtLine reads the text editor while the webview group has focus', async function () {
+			await focusGroup(0);
+			const editor = new TextEditor(await view.getEditorGroup(1));
+			// substring match: getTextAtLine keeps the platform line ending (a trailing \r on Windows)
+			expect(await editor.getTextAtLine(1)).has.string('right group line 1');
+		});
+	});
+});
