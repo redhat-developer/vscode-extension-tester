@@ -58,7 +58,7 @@
   ],
   "supportedVersions": {
     "vscode-min": "1.134.0",
-    "vscode-max": "1.136.1"
+    "vscode-max": "1.136.2"
   },
   "dependencies": {
     "@redhat-developer/locators": "^1.23.1",
