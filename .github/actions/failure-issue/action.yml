@@ -1,5 +1,5 @@
 name: Failure issue
-description: Opens a tracking issue for a failed scheduled workflow, or comments on the open issue with the same title, so a persistent failure does not pile up new issues.
+description: Opens a tracking issue for a failed scheduled workflow, or comments on the open issue with the same title, so a persistent failure does not pile up new issues. Requires min-failures consecutive scheduled failures before acting.
 
 inputs:
   title:
@@ -16,6 +16,10 @@ inputs:
     description: Token with issues write permission
     required: false
     default: ${{ github.token }}
+  min-failures:
+    description: Minimum number of consecutive scheduled failures required before opening or updating an issue (default 1 = every failure is reported)
+    required: false
+    default: "1"
 
 runs:
   using: composite
@@ -26,12 +30,41 @@ runs:
         ISSUE_TITLE: ${{ inputs.title }}
         ISSUE_BODY: ${{ inputs.body }}
         ISSUE_LABELS: ${{ inputs.labels }}
+        MIN_FAILURES: ${{ inputs.min-failures }}
       with:
         github-token: ${{ inputs.token }}
         script: |
           const title = process.env.ISSUE_TITLE;
           const body = process.env.ISSUE_BODY;
           const labels = process.env.ISSUE_LABELS.split(',').map((label) => label.trim()).filter(Boolean);
+          const minFailures = parseInt(process.env.MIN_FAILURES, 10) || 1;
+
+          if (minFailures > 1) {
+            // Fetch the most recent scheduled runs for this workflow (excluding the current one).
+            // We need minFailures-1 previous runs to also be failures for the threshold to be met.
+            const runs = await github.paginate(
+              github.rest.actions.listWorkflowRuns,
+              {
+                ...context.repo,
+                workflow_id: context.workflow,
+                event: 'schedule',
+                per_page: 100,
+              },
+              (response) => response.data.workflow_runs,
+            );
+            // Exclude the current run and take only completed ones.
+            const previous = runs
+              .filter((r) => r.id !== context.runId && r.status === 'completed')
+              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+              .slice(0, minFailures - 1);
+            const allFailed = previous.length >= minFailures - 1 &&
+              previous.every((r) => r.conclusion === 'failure');
+            if (!allFailed) {
+              core.notice(`Skipping issue update: only 1 failure so far (need ${minFailures} consecutive). Previous run conclusion: ${previous[0]?.conclusion ?? 'none'}`);
+              return;
+            }
+          }
+
           const open = await github.paginate(github.rest.issues.listForRepo, { ...context.repo, state: 'open', per_page: 100 });
           const existing = open.find((issue) => !issue.pull_request && issue.title === title);
           if (existing) {
