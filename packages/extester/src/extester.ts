@@ -19,11 +19,60 @@ import { CodeUtil, DEFAULT_RUN_OPTIONS, ReleaseQuality, RunOptions } from './uti
 import type { IPackageOptions } from '@vscode/vsce';
 import { DriverUtil } from './util/driverUtil';
 import * as fs from 'fs-extra';
-import * as path from 'path';
-import * as os from 'os';
-import { URL } from 'url';
+import * as path from 'node:path';
+import * as os from 'node:os';
+import { URL } from 'node:url';
 import pjson from '../package.json';
 import { globSync } from 'glob';
+
+/** Returns true when the string contains at least one glob special character. */
+function isGlobPattern(p: string): boolean {
+	return /[*?{[]/.test(p);
+}
+
+/**
+ * Compute the path where vsce.createVSIX() will write the .vsix file,
+ * mirroring the logic of vsce's internal `getPackagePath` function.
+ *
+ * - If `packageOptions.packagePath` contains glob characters (`*`, `?`, `{`, `[`) it is
+ *   returned as an absolute glob pattern (resolved against `cwd`) for the caller to expand.
+ * - If `packageOptions.packagePath` ends with `.vsix`, it is the direct output path.
+ * - If `packageOptions.packagePath` is a directory (no `.vsix` extension), the default
+ *   filename is appended.
+ * - If `packageOptions.packagePath` is not set, the default filename is used under `cwd`.
+ * - Relative paths are resolved against `packageOptions.cwd` when provided, otherwise
+ *   against `process.cwd()`.
+ *
+ * The default filename mirrors vsce: `<name>-<version>.vsix` (or
+ * `<name>-<target>-<version>.vsix` when `target` is set).
+ *
+ * @param packageOptions the same IPackageOptions passed to vsce.createVSIX()
+ * @returns absolute path (or absolute glob pattern) to the produced .vsix file
+ */
+export function resolveVsixPath(packageOptions: IPackageOptions): string {
+	const cwd = packageOptions.cwd ?? process.cwd();
+
+	const { packagePath } = packageOptions;
+	if (packagePath && isGlobPattern(packagePath)) {
+		// Return the pattern resolved against cwd so the caller can glob it.
+		// path.resolve collapses the base + pattern correctly for absolute globs too.
+		return path.resolve(cwd, packagePath);
+	}
+
+	const manifest = require(path.resolve(cwd, 'package.json')) as { name: string; version: string };
+	const defaultName = packageOptions.target
+		? `${manifest.name}-${packageOptions.target}-${manifest.version}.vsix`
+		: `${manifest.name}-${manifest.version}.vsix`;
+
+	if (!packagePath) {
+		return path.resolve(cwd, defaultName);
+	}
+	// Treat as a file path when it ends with .vsix, otherwise treat as a directory
+	if (packagePath.endsWith('.vsix')) {
+		return path.resolve(cwd, packagePath);
+	}
+	return path.resolve(cwd, packagePath, defaultName);
+}
 
 export { ReleaseQuality };
 export type { RunOptions };
@@ -102,7 +151,7 @@ export class ExTester {
 				target = await this.code.downloadExtension(vsixFile);
 				this.code.installExtension(target);
 			} else {
-				const normalizedPattern = vsixFile.replace(/\\/g, '/');
+				const normalizedPattern = vsixFile.replace(/\\/g, '/'); // NOSONAR
 				const vsixFiles = globSync(normalizedPattern);
 
 				if (vsixFiles.length === 0) {
@@ -117,7 +166,16 @@ export class ExTester {
 			}
 		} else {
 			await this.code.packageExtension(packageOptions);
-			this.code.installExtension(target);
+			const resolvedVsix = resolveVsixPath(packageOptions ?? {});
+			if (isGlobPattern(resolvedVsix)) {
+				const matches = globSync(resolvedVsix.replace(/\\/g, '/')); // NOSONAR
+				if (matches.length === 0) {
+					throw new Error(`No VSIX files found matching pattern: ${resolvedVsix}`);
+				}
+				this.code.installExtension(path.normalize(matches[0]));
+			} else {
+				this.code.installExtension(resolvedVsix);
+			}
 		}
 
 		if (installDependencies) {
@@ -141,15 +199,12 @@ export class ExTester {
 	 * @returns Resolves to the processed file path or base name if the input is a valid URL.
 	 */
 	private async processVsixFile(filePath: string): Promise<string> {
-		console.log(`Processing VSIX file: ${filePath}`);
 		try {
 			const uri = new URL(filePath);
-			console.log(`Parsed URI: ${uri}`);
 			if (!(process.platform === 'win32' && /^[a-zA-Z]:/.test(uri.protocol))) {
 				return path.basename(filePath);
 			}
 		} catch {
-			console.log(`File is not a valid URL. Checking existence: ${filePath}`);
 			await fs.stat(filePath).catch(() => {
 				throw new Error(`File ${filePath} does not exist.`);
 			});
