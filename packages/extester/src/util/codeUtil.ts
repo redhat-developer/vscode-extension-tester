@@ -194,6 +194,8 @@ export function getDefaultSettings(codeVersion: string): Record<string, string |
 		'workbench.welcomePage.experimentalOnboarding': false,
 		'workbench.welcomePage.walkthroughs.openOnInstall': false,
 		'workbench.editor.useModal': 'off',
+		'workbench.enableExperiments': false,
+		'workbench.experimental.modernUI': false,
 		// Disable workbench animations: VS Code >=1.133 fades the quick input
 		// out over 0.15s on close, so an isDisplayed() check right after
 		// accepting a pick still sees the widget. Whether motion is on depends
