@@ -44,7 +44,7 @@
     "@types/clone-deep": "^4.0.4",
     "@types/fs-extra": "^11.0.4",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^26.4.1",
+    "@types/node": "^26.5.0",
     "@types/selenium-webdriver": "^4.35.6",
     "@types/vscode": "^1.136.0",
     "@typescript-eslint/eslint-plugin": "^8.69.0",
