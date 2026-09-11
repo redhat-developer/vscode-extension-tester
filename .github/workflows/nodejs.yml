@@ -3,7 +3,8 @@ name: 💎 NodeJS CI
 # Nightly run of every test group on the current Node LTS and on the latest
 # Node release, against the newest supported VS Code, on the same per-group
 # suite template as Main CI. A scheduled failure opens (or updates) a
-# tracking issue; manual runs do not.
+# tracking issue after 2 consecutive failures; a scheduled success closes it.
+# Manual runs do not touch issues.
 on:
   schedule:
     - cron: "0 0 * * *"
@@ -53,10 +54,31 @@ jobs:
         with:
           title: "⚠️ NodeJS CI nightly run failed"
           labels: automation,bug
+          min-failures: 3
           body: |
             ## ⚠️ NodeJS CI nightly run failed
 
             - **Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
             - **Head**: `${{ github.sha }}` on `${{ github.ref_name }}`
 
-            Open the run to see which test groups failed and on which Node version; screenshots and chromedriver logs are attached as artifacts. This issue receives a comment on every further nightly failure and can be closed once a run is green.
+            Open the run to see which test groups failed and on which Node version; screenshots and chromedriver logs are attached as artifacts. This issue receives a comment on every further nightly failure and is closed automatically when a run is green.
+
+  recover:
+    name: ✅ Close failure issue
+    if: ${{ success() && github.event_name == 'schedule' }}
+    needs: suites
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: 👷🏻 Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          sparse-checkout: .github/actions
+
+      - name: ✅ Close the failure issue
+        uses: ./.github/actions/close-issue
+        with:
+          title: "⚠️ NodeJS CI nightly run failed"

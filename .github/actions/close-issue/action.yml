@@ -1,0 +1,40 @@
+name: Close issue
+description: Closes the open tracking issue that matches the given title (if any) and leaves a closing comment linking to the green run. No-op when no matching open issue exists.
+
+inputs:
+  title:
+    description: Exact issue title to search for
+    required: true
+  token:
+    description: Token with issues write permission
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: composite
+  steps:
+    - name: ✅ Close the failure issue (if open)
+      uses: actions/github-script@v9
+      env:
+        ISSUE_TITLE: ${{ inputs.title }}
+      with:
+        github-token: ${{ inputs.token }}
+        script: |
+          const title = process.env.ISSUE_TITLE;
+          const open = await github.paginate(github.rest.issues.listForRepo, { ...context.repo, state: 'open', per_page: 100 });
+          const existing = open.find((issue) => !issue.pull_request && issue.title === title);
+          if (!existing) {
+            core.notice(`No open issue found with title: ${title}`);
+            return;
+          }
+          const body = [
+            `## ✅ Run is green — closing`,
+            ``,
+            `- **Run**: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+            `- **Head**: \`${context.sha}\` on \`${context.ref}\``,
+            ``,
+            `Closing automatically because the scheduled run succeeded.`,
+          ].join('\n');
+          await github.rest.issues.createComment({ ...context.repo, issue_number: existing.number, body });
+          await github.rest.issues.update({ ...context.repo, issue_number: existing.number, state: 'closed', state_reason: 'completed' });
+          core.notice(`Closed issue #${existing.number}: ${title}`);
