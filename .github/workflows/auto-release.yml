@@ -147,11 +147,15 @@ jobs:
           fi
           if [[ -n "$PAGE_OBJECTS_VERSION" ]]; then
             git tag -a "@redhat-developer/page-objects@${PAGE_OBJECTS_VERSION}" -m "@redhat-developer/page-objects@${PAGE_OBJECTS_VERSION}"
-            [[ -z "$EXTESTER_VERSION" ]] && echo "PRIMARY_TAG=@redhat-developer/page-objects@${PAGE_OBJECTS_VERSION}" >> $GITHUB_ENV
+            if [[ -z "$EXTESTER_VERSION" ]]; then
+              echo "PRIMARY_TAG=@redhat-developer/page-objects@${PAGE_OBJECTS_VERSION}" >> $GITHUB_ENV
+            fi
           fi
           if [[ -n "$LOCATORS_VERSION" ]]; then
             git tag -a "@redhat-developer/locators@${LOCATORS_VERSION}" -m "@redhat-developer/locators@${LOCATORS_VERSION}"
-            [[ -z "$EXTESTER_VERSION" && -z "$PAGE_OBJECTS_VERSION" ]] && echo "PRIMARY_TAG=@redhat-developer/locators@${LOCATORS_VERSION}" >> $GITHUB_ENV
+            if [[ -z "$EXTESTER_VERSION" && -z "$PAGE_OBJECTS_VERSION" ]]; then
+              echo "PRIMARY_TAG=@redhat-developer/locators@${LOCATORS_VERSION}" >> $GITHUB_ENV
+            fi
           fi
 
       - name: 🚀 Push commit and tags
