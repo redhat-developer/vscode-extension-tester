@@ -9,3 +9,4 @@ dist/
 test-resources
 .test-extensions
 packages/extester/README.md
+docs/superpowers/*
