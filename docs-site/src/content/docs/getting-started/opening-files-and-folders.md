@@ -16,6 +16,7 @@ This method allows you to open one or more files and folders, **and optionally w
 - **Single folder**: Opens the folder in the explorer.
 - **Multiple folders**: Opens a multi-root workspace.
 - **Files**: Opens each file in a new editor tab.
+- **Workspace file** (`.code-workspace`): Opens the workspace it defines (the window reloads, like opening a folder) instead of an editor tab.
 - **Wait function** _(optional)_: Can be passed as the last argument (sync or async) and will be executed after the workbench is ready.
 
 > **Tip:** Use **absolute paths** to avoid issues. Relative paths are resolved based on the current working directory (`process.cwd()`).
