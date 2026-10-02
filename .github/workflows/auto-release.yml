@@ -84,9 +84,12 @@ jobs:
             npm pkg set "dependencies.@redhat-developer/locators=^${LOCATORS_VERSION}" --prefix packages/extester
           fi
 
+      - name: 🔧 Update package-lock.json
+        run: npm install --package-lock-only
+
       - name: 🔧 Install deps and build
         run: |
-          npm ci --ignore-scripts
+          npm ci
           npm run build
 
       - name: 🛡️ Audit runtime dependencies
@@ -116,6 +119,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: 📌 Create version bump commit
+        if: ${{ github.event.inputs.skip_publish != 'true' }}
         run: |
           # Determine commit subject version: extester takes precedence, else first non-blank
           if [[ -n "$EXTESTER_VERSION" ]]; then
@@ -128,9 +132,15 @@ jobs:
 
           # Build the body listing only released packages
           BODY=""
-          [[ -n "$EXTESTER_VERSION" ]]    && BODY+=" - vscode-extension-tester@${EXTESTER_VERSION}\n"
-          [[ -n "$PAGE_OBJECTS_VERSION" ]] && BODY+=" - @redhat-developer/page-objects@${PAGE_OBJECTS_VERSION}\n"
-          [[ -n "$LOCATORS_VERSION" ]]    && BODY+=" - @redhat-developer/locators@${LOCATORS_VERSION}\n"
+          if [[ -n "$EXTESTER_VERSION" ]]; then
+            BODY+=" - vscode-extension-tester@${EXTESTER_VERSION}\n"
+          fi
+          if [[ -n "$PAGE_OBJECTS_VERSION" ]]; then
+            BODY+=" - @redhat-developer/page-objects@${PAGE_OBJECTS_VERSION}\n"
+          fi
+          if [[ -n "$LOCATORS_VERSION" ]]; then
+            BODY+=" - @redhat-developer/locators@${LOCATORS_VERSION}\n"
+          fi
 
           git add packages/*/package.json package-lock.json
           git commit \
@@ -139,6 +149,7 @@ jobs:
             -m "Signed-off-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
 
       - name: 🏷️ Create git tags
+        if: ${{ github.event.inputs.skip_publish != 'true' }}
         run: |
           if [[ -n "$EXTESTER_VERSION" ]]; then
             git tag -a "v${EXTESTER_VERSION}" -m "v${EXTESTER_VERSION}"
@@ -159,6 +170,7 @@ jobs:
           fi
 
       - name: 🚀 Push commit and tags
+        if: ${{ github.event.inputs.skip_publish != 'true' }}
         run: |
           git push origin HEAD:main
           git push origin --tags
