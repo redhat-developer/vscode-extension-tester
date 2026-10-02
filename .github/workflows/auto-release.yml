@@ -1,0 +1,179 @@
+name: 🚀 Publish ExTester
+
+on:
+  workflow_dispatch:
+    inputs:
+      extester_version:
+        description: "New version for vscode-extension-tester (e.g. 8.29.0)"
+        required: false
+        type: string
+      page_objects_version:
+        description: "New version for @redhat-developer/page-objects (e.g. 1.26.0)"
+        required: false
+        type: string
+      locators_version:
+        description: "New version for @redhat-developer/locators (e.g. 1.26.0)"
+        required: false
+        type: string
+      skip_publish:
+        description: "Dry-run: skip NPM publish and GitHub Release creation"
+        default: false
+        type: boolean
+      skip_audit:
+        description: "Skip the runtime dependency audit gate (only for a documented, unfixable transitive advisory)"
+        default: false
+        type: boolean
+      draft:
+        description: "Create the GitHub Release as a draft"
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: ✅ Validate inputs
+        env:
+          EXTESTER_VERSION: ${{ github.event.inputs.extester_version }}
+          PAGE_OBJECTS_VERSION: ${{ github.event.inputs.page_objects_version }}
+          LOCATORS_VERSION: ${{ github.event.inputs.locators_version }}
+        run: |
+          if [[ -z "$EXTESTER_VERSION" && -z "$PAGE_OBJECTS_VERSION" && -z "$LOCATORS_VERSION" ]]; then
+            echo "❌ At least one version input must be provided."
+            exit 1
+          fi
+          SEMVER_RE='^[0-9]+\.[0-9]+\.[0-9]+$'
+          for VAR_NAME in EXTESTER_VERSION PAGE_OBJECTS_VERSION LOCATORS_VERSION; do
+            VAL="${!VAR_NAME}"
+            if [[ -n "$VAL" && ! "$VAL" =~ $SEMVER_RE ]]; then
+              echo "❌ Invalid version for ${VAR_NAME}: '${VAL}'. Expected X.Y.Z format."
+              exit 1
+            fi
+          done
+          [[ -n "$EXTESTER_VERSION" ]]    && echo "EXTESTER_VERSION=$EXTESTER_VERSION"       >> $GITHUB_ENV
+          [[ -n "$PAGE_OBJECTS_VERSION" ]] && echo "PAGE_OBJECTS_VERSION=$PAGE_OBJECTS_VERSION" >> $GITHUB_ENV
+          [[ -n "$LOCATORS_VERSION" ]]    && echo "LOCATORS_VERSION=$LOCATORS_VERSION"       >> $GITHUB_ENV
+
+      - name: 👷🏻 Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          token: ${{ secrets.RELEASE_PAT }}
+          fetch-depth: 0
+
+      - name: ⚙️ Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+
+      - name: 🔖 Bump package.json versions
+        run: |
+          if [[ -n "$EXTESTER_VERSION" ]]; then
+            npm pkg set version="$EXTESTER_VERSION" --prefix packages/extester
+          fi
+          if [[ -n "$PAGE_OBJECTS_VERSION" ]]; then
+            npm pkg set version="$PAGE_OBJECTS_VERSION" --prefix packages/page-objects
+            npm pkg set "dependencies.@redhat-developer/page-objects=^${PAGE_OBJECTS_VERSION}" --prefix packages/extester
+          fi
+          if [[ -n "$LOCATORS_VERSION" ]]; then
+            npm pkg set version="$LOCATORS_VERSION" --prefix packages/locators
+            npm pkg set "dependencies.@redhat-developer/locators=^${LOCATORS_VERSION}" --prefix packages/extester
+          fi
+
+      - name: 🔧 Install deps and build
+        run: |
+          npm ci --ignore-scripts
+          npm run build
+
+      - name: 🛡️ Audit runtime dependencies
+        if: ${{ github.event.inputs.skip_audit != 'true' }}
+        run: npm audit --omit=dev --audit-level=moderate
+
+      - name: 🔧 Config .npmrc
+        if: ${{ github.event.inputs.skip_publish != 'true' }}
+        run: |
+          {
+            echo "registry=https://registry.npmjs.com"
+            echo "//registry.npmjs.com/:_authToken=\${NPM_TOKEN}"
+          } > .npmrc
+
+      - name: 🚀 Publish to NPM registry (npmjs)
+        if: ${{ github.event.inputs.skip_publish != 'true' }}
+        run: npm run publish -- --yes
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: 📝 Generate changelog
+        run: node .github/scripts/generate-changelog.mjs
+
+      - name: 🔧 Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: 📌 Create version bump commit
+        run: |
+          # Determine commit subject version: extester takes precedence, else first non-blank
+          if [[ -n "$EXTESTER_VERSION" ]]; then
+            SUBJECT_VERSION="$EXTESTER_VERSION"
+          elif [[ -n "$PAGE_OBJECTS_VERSION" ]]; then
+            SUBJECT_VERSION="$PAGE_OBJECTS_VERSION"
+          else
+            SUBJECT_VERSION="$LOCATORS_VERSION"
+          fi
+
+          # Build the body listing only released packages
+          BODY=""
+          [[ -n "$EXTESTER_VERSION" ]]    && BODY+=" - vscode-extension-tester@${EXTESTER_VERSION}\n"
+          [[ -n "$PAGE_OBJECTS_VERSION" ]] && BODY+=" - @redhat-developer/page-objects@${PAGE_OBJECTS_VERSION}\n"
+          [[ -n "$LOCATORS_VERSION" ]]    && BODY+=" - @redhat-developer/locators@${LOCATORS_VERSION}\n"
+
+          git add packages/*/package.json package-lock.json
+          git commit \
+            -m "chore(release): Publish ${SUBJECT_VERSION}" \
+            -m "$(printf '%b' "$BODY")" \
+            -m "Signed-off-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+
+      - name: 🏷️ Create git tags
+        run: |
+          if [[ -n "$EXTESTER_VERSION" ]]; then
+            git tag -a "v${EXTESTER_VERSION}" -m "v${EXTESTER_VERSION}"
+            git tag -a "vscode-extension-tester@${EXTESTER_VERSION}" -m "vscode-extension-tester@${EXTESTER_VERSION}"
+            echo "PRIMARY_TAG=v${EXTESTER_VERSION}" >> $GITHUB_ENV
+          fi
+          if [[ -n "$PAGE_OBJECTS_VERSION" ]]; then
+            git tag -a "@redhat-developer/page-objects@${PAGE_OBJECTS_VERSION}" -m "@redhat-developer/page-objects@${PAGE_OBJECTS_VERSION}"
+            [[ -z "$EXTESTER_VERSION" ]] && echo "PRIMARY_TAG=@redhat-developer/page-objects@${PAGE_OBJECTS_VERSION}" >> $GITHUB_ENV
+          fi
+          if [[ -n "$LOCATORS_VERSION" ]]; then
+            git tag -a "@redhat-developer/locators@${LOCATORS_VERSION}" -m "@redhat-developer/locators@${LOCATORS_VERSION}"
+            [[ -z "$EXTESTER_VERSION" && -z "$PAGE_OBJECTS_VERSION" ]] && echo "PRIMARY_TAG=@redhat-developer/locators@${LOCATORS_VERSION}" >> $GITHUB_ENV
+          fi
+
+      - name: 🚀 Push commit and tags
+        run: |
+          git push origin HEAD:main
+          git push origin --tags
+
+      - name: 🚀 Publish GitHub Release
+        if: ${{ github.event.inputs.skip_publish != 'true' && github.event.inputs.extester_version != '' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ github.event.inputs.draft }}" == "true" ]; then
+            echo "Publishing release as draft..."
+            gh release create "v${EXTESTER_VERSION}" --title "v${EXTESTER_VERSION}" --notes-file CHANGELOG.md --draft
+          else
+            echo "Publishing release as a regular release..."
+            gh release create "v${EXTESTER_VERSION}" --title "v${EXTESTER_VERSION}" --notes-file CHANGELOG.md
+          fi
+
+      - name: 📣 Add summary
+        run: |
+          [[ -n "$EXTESTER_VERSION" ]]    && echo "#### ✅ Published \`vscode-extension-tester@${EXTESTER_VERSION}\`" >> $GITHUB_STEP_SUMMARY
+          [[ -n "$PAGE_OBJECTS_VERSION" ]] && echo "#### ✅ Published \`@redhat-developer/page-objects@${PAGE_OBJECTS_VERSION}\`" >> $GITHUB_STEP_SUMMARY
+          [[ -n "$LOCATORS_VERSION" ]]    && echo "#### ✅ Published \`@redhat-developer/locators@${LOCATORS_VERSION}\`" >> $GITHUB_STEP_SUMMARY
