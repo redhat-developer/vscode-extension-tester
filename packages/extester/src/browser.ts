@@ -457,6 +457,9 @@ export class VSBrowser {
 	 * as resource paths to be opened. Optionally, a single callback function (synchronous or asynchronous)
 	 * can be provided as the last argument. This callback will be invoked after all resources have been opened.
 	 *
+	 * Paths may point to files, folders or `.code-workspace` files; folders and workspace
+	 * files replace the current workspace (the window reloads).
+	 *
 	 * @param args - A list of file paths to open followed optionally by a callback function.
 	 *               The callback can be either synchronous or asynchronous.
 	 *
@@ -487,8 +490,9 @@ export class VSBrowser {
 		// (observed on macOS after a workspace switch reloaded the window). Verify that
 		// each file resource actually shows up as an editor tab and retry the open once
 		// before giving up, so callers fail fast with a clear error instead of timing
-		// out later on a missing editor.
-		const files = paths.filter((p) => fs.existsSync(p) && fs.statSync(p).isFile());
+		// out later on a missing editor. Workspace files are opened as a workspace
+		// (window reload), never as an editor tab, so they are treated like folders.
+		const files = paths.filter((p) => fs.existsSync(p) && fs.statSync(p).isFile() && path.extname(p) !== '.code-workspace');
 		if (files.length > 0 && !(await this.filesOpenedInEditor(files, 15_000))) {
 			console.warn(`Opened resources did not appear in the editor, retrying: ${files.join(', ')}`);
 			code.open(...paths);
