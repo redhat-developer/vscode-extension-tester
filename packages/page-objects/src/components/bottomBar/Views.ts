@@ -150,9 +150,10 @@ export class TerminalView extends ChannelView {
 	 * Get all text from the internal terminal
 	 * Beware, no formatting.
 	 *
+	 * @param timeout Time in ms to wait (default: 2000 ms)
 	 * @returns Promise resolving to all terminal text
 	 */
-	async getText(): Promise<string> {
+	async getText(timeout: number = 2000): Promise<string> {
 		const clipboard = (await import('clipboardy')).default;
 		let originalClipboard = '';
 		try {
@@ -173,7 +174,7 @@ export class TerminalView extends ChannelView {
 					return false;
 				}
 			},
-			{ timeout: 2000, pollInterval: 100 },
+			{ timeout: timeout, pollInterval: 100 },
 		);
 		const text = clipboard.readSync();
 		if (originalClipboard.length > 0) {
