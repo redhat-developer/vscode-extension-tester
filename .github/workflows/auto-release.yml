@@ -102,20 +102,6 @@ jobs:
         if: ${{ github.event.inputs.skip_audit != 'true' }}
         run: npm audit --omit=dev --audit-level=moderate
 
-      - name: 🔧 Config .npmrc
-        if: ${{ github.event.inputs.skip_publish != 'true' }}
-        run: |
-          {
-            echo "registry=https://registry.npmjs.com"
-            echo "//registry.npmjs.com/:_authToken=\${NPM_TOKEN}"
-          } > .npmrc
-
-      - name: 🚀 Publish to NPM registry (npmjs)
-        if: ${{ github.event.inputs.skip_publish != 'true' }}
-        run: npm run publish -- --yes
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
       - name: 📝 Generate changelog
         run: node .github/scripts/generate-changelog.mjs
 
@@ -153,6 +139,20 @@ jobs:
             -m "chore(release): Publish ${SUBJECT_VERSION}" \
             -m "$(printf '%b' "$BODY")" \
             -m "Signed-off-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+
+      - name: 🔧 Config .npmrc
+        if: ${{ github.event.inputs.skip_publish != 'true' }}
+        run: |
+          {
+            echo "registry=https://registry.npmjs.com"
+            echo "//registry.npmjs.com/:_authToken=\${NPM_TOKEN}"
+          } > .npmrc
+
+      - name: 🚀 Publish to NPM registry (npmjs)
+        if: ${{ github.event.inputs.skip_publish != 'true' }}
+        run: npm run publish -- --yes
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: 🏷️ Create git tags
         if: ${{ github.event.inputs.skip_publish != 'true' }}
