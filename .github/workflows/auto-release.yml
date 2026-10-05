@@ -55,9 +55,15 @@ jobs:
               exit 1
             fi
           done
-          [[ -n "$EXTESTER_VERSION" ]]    && echo "EXTESTER_VERSION=$EXTESTER_VERSION"       >> $GITHUB_ENV
-          [[ -n "$PAGE_OBJECTS_VERSION" ]] && echo "PAGE_OBJECTS_VERSION=$PAGE_OBJECTS_VERSION" >> $GITHUB_ENV
-          [[ -n "$LOCATORS_VERSION" ]]    && echo "LOCATORS_VERSION=$LOCATORS_VERSION"       >> $GITHUB_ENV
+          if [[ -n "$EXTESTER_VERSION" ]]; then
+            echo "EXTESTER_VERSION=$EXTESTER_VERSION" >> $GITHUB_ENV
+          fi
+          if [[ -n "$PAGE_OBJECTS_VERSION" ]]; then
+            echo "PAGE_OBJECTS_VERSION=$PAGE_OBJECTS_VERSION" >> $GITHUB_ENV
+          fi
+          if [[ -n "$LOCATORS_VERSION" ]]; then
+            echo "LOCATORS_VERSION=$LOCATORS_VERSION" >> $GITHUB_ENV
+          fi
 
       - name: 👷🏻 Checkout Repository
         uses: actions/checkout@v7
@@ -190,6 +196,12 @@ jobs:
 
       - name: 📣 Add summary
         run: |
-          [[ -n "$EXTESTER_VERSION" ]]    && echo "#### ✅ Published \`vscode-extension-tester@${EXTESTER_VERSION}\`" >> $GITHUB_STEP_SUMMARY
-          [[ -n "$PAGE_OBJECTS_VERSION" ]] && echo "#### ✅ Published \`@redhat-developer/page-objects@${PAGE_OBJECTS_VERSION}\`" >> $GITHUB_STEP_SUMMARY
-          [[ -n "$LOCATORS_VERSION" ]]    && echo "#### ✅ Published \`@redhat-developer/locators@${LOCATORS_VERSION}\`" >> $GITHUB_STEP_SUMMARY
+          if [[ -n "$EXTESTER_VERSION" ]]; then
+            echo "#### ✅ Published \`vscode-extension-tester@${EXTESTER_VERSION}\`" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [[ -n "$PAGE_OBJECTS_VERSION" ]]; then
+            echo "#### ✅ Published \`@redhat-developer/page-objects@${PAGE_OBJECTS_VERSION}\`" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [[ -n "$LOCATORS_VERSION" ]]; then
+            echo "#### ✅ Published \`@redhat-developer/locators@${LOCATORS_VERSION}\`" >> $GITHUB_STEP_SUMMARY
+          fi
