@@ -15,17 +15,32 @@
  * limitations under the License.
  */
 
-import { VSBrowser } from '../browser';
 import * as fs from 'fs-extra';
-import Mocha from 'mocha';
 import { globSync } from 'glob';
-import { CodeUtil, CustomPageObjectsOptions, ReleaseQuality, SeedFilesOptions } from '../util/codeUtil';
-import * as path from 'node:path';
 import * as yaml from 'js-yaml';
+import Mocha from 'mocha';
+import * as os from 'node:os';
+import * as path from 'node:path';
 import sanitize from 'sanitize-filename';
 import { logging } from 'selenium-webdriver';
-import * as os from 'node:os';
+import { VSBrowser } from '../browser';
+import { CodeUtil, CustomPageObjectsOptions, ReleaseQuality, SeedFilesOptions } from '../util/codeUtil';
 import { Coverage } from '../util/coverage';
+
+// For some reason these properties are not yet included in @types/mocha,
+// so we need to augment the MochaOptions interface ourselves.
+declare module 'mocha' {
+	interface MochaOptions {
+		// https://legacy.mochajs.org/api/mocha#enableGlobalSetup
+		enableGlobalSetup?: boolean;
+		// https://legacy.mochajs.org/api/mocha#enableGlobalTeardown
+		enableGlobalTeardown?: boolean;
+		// https://legacy.mochajs.org/api/mocha#globalSetup
+		globalSetup?: any;
+		// https://legacy.mochajs.org/api/mocha#globalTeardown
+		globalTeardown?: any;
+	}
+}
 
 /** YAML 1.2 core schema plus merge keys, matching how mocha parses .mocharc.yml */
 const MOCHARC_YAML_SCHEMA = yaml.CORE_SCHEMA.withTags(yaml.mergeTag);
@@ -34,7 +49,7 @@ const MOCHARC_YAML_SCHEMA = yaml.CORE_SCHEMA.withTags(yaml.mergeTag);
  * Mocha runner wrapper
  */
 export class VSRunner {
-	private readonly mocha: Mocha;
+	private readonly mochaOptions: Mocha.MochaOptions;
 	private readonly chromeBin: string;
 	private readonly customSettings: object;
 	private readonly codeVersion: string;
@@ -56,8 +71,7 @@ export class VSRunner {
 		locale?: string,
 		seedFiles?: SeedFilesOptions,
 	) {
-		const conf = this.loadConfig(config);
-		this.mocha = new Mocha(conf);
+		this.mochaOptions = this.loadConfig(config);
 		this.chromeBin = bin;
 		this.customSettings = customSettings;
 		this.codeVersion = codeVersion;
@@ -77,6 +91,7 @@ export class VSRunner {
 	runTests(testFilesPattern: string[], code: CodeUtil, resources: string[], logLevel: logging.Level = logging.Level.INFO): Promise<number> {
 		return new Promise((resolve, reject) => {
 			const self = this;
+			const mocha = new Mocha(this.mochaOptions);
 			const browser: VSBrowser = new VSBrowser(
 				this.codeVersion,
 				this.releaseType,
@@ -96,9 +111,9 @@ export class VSRunner {
 					.forEach((val) => testFiles.add(val));
 			}
 
-			testFiles.forEach((file) => this.mocha.addFile(file));
+			testFiles.forEach((file) => mocha.addFile(file));
 
-			this.mocha.suite.afterEach(async function () {
+			mocha.suite.afterEach(async function () {
 				// Screenshot only genuinely failed tests — 'pending' (skipped) tests
 				// would otherwise produce misleading failure screenshots in CI artifacts.
 				if (this.currentTest?.state === 'failed') {
@@ -111,61 +126,87 @@ export class VSRunner {
 				}
 			});
 
-			this.mocha.suite.beforeAll(async function () {
-				this.timeout(180000);
-				if (code.coverageEnabled) {
-					coverage = new Coverage();
-					await coverage.loadConfig();
-					process.env.NODE_V8_COVERAGE = coverage?.targetDir;
-				}
+			const setupWorkbench = this.withTimeout(
+				async () => {
+					if (code.coverageEnabled) {
+						coverage = new Coverage();
+						await coverage.loadConfig();
+						process.env.NODE_V8_COVERAGE = coverage?.targetDir;
+					}
 
-				const start = Date.now();
-				const binPath = process.platform === 'darwin' ? await self.createShortcut(code.getCodeFolder(), self.tmpLink) : self.chromeBin;
-				// resources are passed to the launch itself: opening them with a
-				// second-instance CLI call during startup triggers webview resource
-				// corruption on VS Code >= 1.123.0 (microsoft/vscode#330243, #2454)
-				await browser.start(binPath, resources);
-				await browser.waitForWorkbench();
-				console.log(`Browser ready in ${Date.now() - start} ms`);
-				console.log('Launching tests...');
-			});
+					const start = Date.now();
+					const binPath = process.platform === 'darwin' ? await self.createShortcut(code.getCodeFolder(), self.tmpLink) : self.chromeBin;
 
-			this.mocha.suite.afterAll(async function () {
-				this.timeout(180000);
+					// resources are passed to the launch itself: opening them with a
+					// second-instance CLI call during startup triggers webview resource
+					// corruption on VS Code >= 1.123.0 (microsoft/vscode#330243, #2454)
+					await browser.start(binPath, resources);
+					await browser.waitForWorkbench();
 
-				try {
-					await browser.quit();
-				} catch (err) {
-					console.error('Error shutting down browser:', err);
-				}
+					console.log(`Browser ready in ${Date.now() - start} ms`);
+					console.log('Launching tests...');
+				},
+				180000,
+				'Workbench setup timed out after 180 seconds',
+			);
 
-				if (process.platform === 'darwin') {
+			const teardownWorkbench = this.withTimeout(
+				async () => {
 					try {
-						if (await fs.pathExists(self.tmpLink)) {
-							fs.unlinkSync(self.tmpLink);
+						await browser.quit();
+					} catch (err) {
+						console.error('Error shutting down browser:', err);
+					}
+
+					if (process.platform === 'darwin') {
+						try {
+							if (await fs.pathExists(self.tmpLink)) {
+								fs.unlinkSync(self.tmpLink);
+							}
+						} catch (err) {
+							console.error('Error removing macOS symlink:', err);
 						}
-					} catch (err) {
-						console.error('Error removing macOS symlink:', err);
 					}
-				}
 
-				if (code.coverageEnabled) {
+					if (code.coverageEnabled) {
+						try {
+							await coverage?.write();
+						} catch (err) {
+							console.error('Error writing coverage data:', err);
+						}
+					}
+
 					try {
-						await coverage?.write();
+						code.uninstallExtension(self.cleanup);
 					} catch (err) {
-						console.error('Error writing coverage data:', err);
+						console.error('Error uninstalling extension:', err);
 					}
-				}
+				},
+				180000,
+				'Workbench teardown timed out after 180 seconds',
+			);
 
-				try {
-					code.uninstallExtension(self.cleanup);
-				} catch (err) {
-					console.error('Error uninstalling extension:', err);
-				}
-			});
+			// Install our global setup fixture to initialize the workbench.
+			// Keep our fixture before other user-submitted global setup fixtures,
+			// so that the workbench is up before any user-submitted fixture runs.
+			const enableGlobalSetup = mocha.options.enableGlobalSetup !== false;
+			const globalSetupFixtures = this.normalizeGlobalFixtures(mocha.options.globalSetup, enableGlobalSetup);
+			mocha.options.globalSetup = [setupWorkbench, ...globalSetupFixtures];
+
+			// Install our global teardown fixture to shut down the workbench.
+			// Keep our fixture after other user-submitted global teardown fixtures,
+			// so that user-submitted fixtures can still interact with the workbench.
+			const enableGlobalTeardown = mocha.options.enableGlobalTeardown !== false;
+			const globalTeardownFixtures = this.normalizeGlobalFixtures(mocha.options.globalTeardown, enableGlobalTeardown);
+			mocha.options.globalTeardown = [...globalTeardownFixtures, teardownWorkbench];
+
+			// Global setup and teardown fixtures will run regardless of user configuration.
+			// If the user disables global setup or teardown, only their fixtures will be ignored.
+			mocha.enableGlobalSetup(true);
+			mocha.enableGlobalTeardown(true);
 
 			try {
-				this.mocha.run((failures) => {
+				mocha.run((failures) => {
 					process.exitCode = failures ? 1 : 0;
 					if (process.exitCode) {
 						console.log('\x1b[33m%s\x1b[0m', `INFO: Screenshots of failures can be found in: ${browser.getScreenshotsDir()}\n`);
@@ -259,5 +300,28 @@ export class VSRunner {
 		}
 
 		return conf;
+	}
+
+	private normalizeGlobalFixtures(userFixtures: any, preserveUserFixtures: boolean) {
+		const fixtures = preserveUserFixtures ? userFixtures : undefined;
+		return fixtures ? (Array.isArray(fixtures) ? fixtures : [fixtures]) : [];
+	}
+
+	private withTimeout(fn: () => Promise<void>, ms: number, message: string): () => Promise<void> {
+		return async () => {
+			let timeout: NodeJS.Timeout | undefined;
+
+			// Keep this promise before calling fn to ensure the timeout is set up,
+			// as fn might be entirely synchronous even though it returns a Promise.
+			const timerPromise = new Promise<never>((_, reject) => {
+				timeout = setTimeout(() => reject(new Error(message)), ms);
+			});
+
+			try {
+				await Promise.race([fn(), timerPromise]);
+			} finally {
+				clearTimeout(timeout);
+			}
+		};
 	}
 }
