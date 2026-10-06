@@ -23,7 +23,11 @@ The ExTester offers both CLI and API to perform all the setup actions. That way 
 - `HTTP_PROXY` - route http requests through a proxy when downloading VS Code and ChromeDriver (see also `HTTPS_PROXY`).
 - `HTTPS_PROXY` / `NO_PROXY` - proxy for the https downloads of VS Code and ChromeDriver, and the usual no-proxy exception list.
 - `EXTENSIONS_FOLDER` - configuring the [extension path](https://code.visualstudio.com/docs/configure/extensions/extension-marketplace#_where-are-extensions-installed) where extensions are installed/loaded.
-- `EXTENSION_DEV_PATH` - The [developer extension](https://vscode-docs.readthedocs.io/en/stable/extensions/debugging-extensions/) that is loaded under development.
+- `EXTENSION_DEV_PATH` - The [developer extension](https://vscode-docs.readthedocs.io/en/stable/extensions/debugging-extensions/) that is loaded under development. ExTester passes it to VS Code as `--extensionDevelopmentPath`, so the extension is loaded from that folder instead of from an installed `.vsix`. Every test run honours it; `extest setup-and-run --coverage` overrides it with the current working directory, because that is the extension being instrumented.
+
+  ```shell
+  export EXTENSION_DEV_PATH="$(pwd)"
+  ```
 - `HTTPS_TLS_REJECT_UNAUTHORIZED` - Disable TLS check when downloading VSCode and Chromium driver. '0' is disabled and '1' is enabled, this setting aligns with [`NODE_TLS_REJECT_UNAUTHORIZED`](https://nodejs.org/api/cli.html#node_tls_reject_unauthorizedvalue).
 
   ```shell
