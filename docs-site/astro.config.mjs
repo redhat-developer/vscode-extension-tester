@@ -49,6 +49,7 @@ export default defineConfig({
           items: [
             'guides/test-setup',
             'guides/mocha-configuration',
+            'guides/global-setup-and-teardown',
             'guides/debugging-tests',
             'guides/code-coverage',
             'guides/locale-testing',
