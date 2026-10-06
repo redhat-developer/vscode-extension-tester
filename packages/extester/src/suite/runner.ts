@@ -36,9 +36,9 @@ declare module 'mocha' {
 		// https://legacy.mochajs.org/api/mocha#enableGlobalTeardown
 		enableGlobalTeardown?: boolean;
 		// https://legacy.mochajs.org/api/mocha#globalSetup
-		globalSetup?: any;
+		globalSetup?: unknown;
 		// https://legacy.mochajs.org/api/mocha#globalTeardown
-		globalTeardown?: any;
+		globalTeardown?: unknown;
 	}
 }
 
@@ -302,7 +302,7 @@ export class VSRunner {
 		return conf;
 	}
 
-	private normalizeGlobalFixtures(userFixtures: any, preserveUserFixtures: boolean) {
+	private normalizeGlobalFixtures(userFixtures: unknown, preserveUserFixtures: boolean): unknown[] {
 		const fixtures = preserveUserFixtures ? userFixtures : undefined;
 		return fixtures ? (Array.isArray(fixtures) ? fixtures : [fixtures]) : [];
 	}
