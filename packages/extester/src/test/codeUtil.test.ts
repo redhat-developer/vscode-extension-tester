@@ -32,9 +32,42 @@ import {
 	flagConflictWarnings,
 	findShadowedSettings,
 	resolveMacExecutable,
+	applyExtensionDevPath,
 } from '../util/codeUtil';
 import { ReleaseQuality } from '../util/codeUtil';
 import { Download } from '../util/download';
+
+describe('applyExtensionDevPath', () => {
+	it('keeps a user-supplied EXTENSION_DEV_PATH when coverage is off', () => {
+		const env: NodeJS.ProcessEnv = { EXTENSION_DEV_PATH: '/home/me/my-extension' };
+		applyExtensionDevPath(false, '/tmp/instrumented', env);
+		assert.strictEqual(env.EXTENSION_DEV_PATH, '/home/me/my-extension');
+	});
+
+	it('leaves EXTENSION_DEV_PATH absent when neither coverage nor the user set it', () => {
+		const env: NodeJS.ProcessEnv = {};
+		applyExtensionDevPath(undefined, '/tmp/instrumented', env);
+		assert.ok(!('EXTENSION_DEV_PATH' in env));
+	});
+
+	it('overrides a user-supplied EXTENSION_DEV_PATH with the working directory when coverage is on', () => {
+		const env: NodeJS.ProcessEnv = { EXTENSION_DEV_PATH: '/home/me/my-extension' };
+		applyExtensionDevPath(true, '/tmp/instrumented', env);
+		assert.strictEqual(env.EXTENSION_DEV_PATH, '/tmp/instrumented');
+	});
+
+	it('sets EXTENSION_DEV_PATH from the working directory when coverage is on and the user set nothing', () => {
+		const env: NodeJS.ProcessEnv = {};
+		applyExtensionDevPath(true, '/tmp/instrumented', env);
+		assert.strictEqual(env.EXTENSION_DEV_PATH, '/tmp/instrumented');
+	});
+
+	it('mutates only EXTENSION_DEV_PATH', () => {
+		const env: NodeJS.ProcessEnv = { EXTENSION_DEV_PATH: '/home/me/my-extension', TEST_RESOURCES: '/tmp/test-resources' };
+		applyExtensionDevPath(false, '/tmp/instrumented', env);
+		assert.deepStrictEqual(env, { EXTENSION_DEV_PATH: '/home/me/my-extension', TEST_RESOURCES: '/tmp/test-resources' });
+	});
+});
 
 describe('CodeUtil.packageExtension', () => {
 	let originalCreateVSIX: typeof vsce.createVSIX;

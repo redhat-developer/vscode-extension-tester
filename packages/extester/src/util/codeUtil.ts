@@ -314,6 +314,29 @@ export function validateUserDataDirLength(settingsDir: string, platform: NodeJS.
 	return undefined;
 }
 
+/**
+ * Applies the `EXTENSION_DEV_PATH` environment variable for a test run.
+ *
+ * `EXTENSION_DEV_PATH` is a documented, user-facing variable that makes ExTester
+ * launch VS Code with `--extensionDevelopmentPath`, which loads an extension straight
+ * from a folder instead of from an installed `.vsix`.
+ *
+ * When coverage is enabled the instrumented extension is whatever lives in the current
+ * working directory, so that value has to win. In every other case the variable is left
+ * exactly as the caller exported it: deleting it here silently dropped
+ * `--extensionDevelopmentPath` from the launch arguments, so a user-supplied path had no
+ * effect on the run.
+ *
+ * @param coverage whether the run instruments the extension in the current working directory
+ * @param cwd the directory of the extension being instrumented
+ * @param env the environment to mutate, defaults to `process.env`
+ */
+export function applyExtensionDevPath(coverage: boolean | undefined, cwd: string, env: NodeJS.ProcessEnv = process.env): void {
+	if (coverage) {
+		env.EXTENSION_DEV_PATH = cwd;
+	}
+}
+
 /** defaults for the [[RunOptions]] */
 export const DEFAULT_RUN_OPTIONS = {
 	vscodeVersion: 'latest',
@@ -694,11 +717,7 @@ export class CodeUtil {
 		} else {
 			delete process.env.EXTENSIONS_FOLDER;
 		}
-		if (this.coverage) {
-			process.env.EXTENSION_DEV_PATH = process.cwd();
-		} else {
-			delete process.env.EXTENSION_DEV_PATH;
-		}
+		applyExtensionDevPath(this.coverage, process.cwd());
 		const runner = new VSRunner(
 			this.getExecutablePath(),
 			literalVersion,
