@@ -50,6 +50,7 @@ export default defineConfig({
             'guides/test-setup',
             'guides/typescript-tests',
             'guides/mocha-configuration',
+            'guides/global-setup-and-teardown',
             'guides/debugging-tests',
             'guides/code-coverage',
             'guides/locale-testing',
