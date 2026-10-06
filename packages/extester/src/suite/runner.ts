@@ -205,17 +205,14 @@ export class VSRunner {
 			mocha.enableGlobalSetup(true);
 			mocha.enableGlobalTeardown(true);
 
-			try {
-				mocha.run((failures) => {
-					process.exitCode = failures ? 1 : 0;
-					if (process.exitCode) {
-						console.log('\x1b[33m%s\x1b[0m', `INFO: Screenshots of failures can be found in: ${browser.getScreenshotsDir()}\n`);
-					}
-					resolve(process.exitCode);
-				});
-			} catch (err) {
-				reject(err);
-			}
+			// Finally run tests
+			mocha.run((failures) => {
+				process.exitCode = failures ? 1 : 0;
+				if (process.exitCode) {
+					console.log('\x1b[33m%s\x1b[0m', `INFO: Screenshots of failures can be found in: ${browser.getScreenshotsDir()}\n`);
+				}
+				resolve(process.exitCode);
+			});
 		});
 	}
 
