@@ -89,7 +89,7 @@ export class VSRunner {
 	 * @return The exit code of the mocha process
 	 */
 	runTests(testFilesPattern: string[], code: CodeUtil, resources: string[], logLevel: logging.Level = logging.Level.INFO): Promise<number> {
-		return new Promise((resolve, reject) => {
+		return new Promise((resolve) => {
 			const self = this;
 			const mocha = new Mocha(this.mochaOptions);
 			const browser: VSBrowser = new VSBrowser(
