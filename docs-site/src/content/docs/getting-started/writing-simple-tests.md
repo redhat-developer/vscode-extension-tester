@@ -2,7 +2,7 @@
 title: Writing Simple Tests
 ---
 
-ExTester is integrated with Mocha framework (as such requires Mocha 5.2+ to be present in your extension). To write a simple tests, one would write it just like a standard BDD Mocha test.
+ExTester is integrated with Mocha framework (as such requires Mocha 8.2.0+ to be present in your extension). To write a simple tests, one would write it just like a standard BDD Mocha test.
 
 This is what a really simple test case might look like. Note that here we are only using pure webdriver. To use the provided page objects, see the [Page-Object-APIs](/vscode-extension-tester/objects/).
 
