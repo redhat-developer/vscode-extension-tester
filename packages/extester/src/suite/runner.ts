@@ -135,7 +135,7 @@ export class VSRunner {
 	 */
 	runTests(testFilesPattern: string[], code: CodeUtil, resources: string[], logLevel: logging.Level = logging.Level.INFO): Promise<number> {
 		let unregister: (() => void) | undefined;
-		return new Promise<number>((resolve, reject) => {
+		return new Promise<number>((resolve) => {
 			const testFiles = expandTestFiles(testFilesPattern);
 			unregister = registerTypeScript(withLocators(testFiles, this.customPageObjects));
 
