@@ -57,8 +57,8 @@
     "ui-test"
   ],
   "supportedVersions": {
-    "vscode-min": "1.138.0",
-    "vscode-max": "1.140.0"
+    "vscode-min": "1.140.0",
+    "vscode-max": "1.142.0"
   },
   "dependencies": {
     "@redhat-developer/locators": "^1.25.1",
@@ -73,10 +73,10 @@
     "glob": "^13.0.6",
     "got": "^16.0.0",
     "hpagent": "^1.2.0",
-    "js-yaml": "^5.4.2",
+    "js-yaml": "^5.4.3",
     "jsonc-parser": "^3.2.0",
     "sanitize-filename": "^1.6.4",
-    "selenium-webdriver": "^4.50.0",
+    "selenium-webdriver": "^4.51.0",
     "tar": "^7.5.22",
     "unzipper": "^0.12.5"
   },
