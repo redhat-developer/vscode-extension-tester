@@ -36,36 +36,134 @@ import {
 } from '../util/codeUtil';
 import { ReleaseQuality } from '../util/codeUtil';
 import { Download } from '../util/download';
+import { VSRunner } from '../suite/runner';
 
 describe('applyExtensionDevPath', () => {
+	const silent = (): void => {};
+
 	it('keeps a user-supplied EXTENSION_DEV_PATH when coverage is off', () => {
 		const env: NodeJS.ProcessEnv = { EXTENSION_DEV_PATH: '/home/me/my-extension' };
-		applyExtensionDevPath(false, '/tmp/instrumented', env);
+		applyExtensionDevPath(false, '/tmp/instrumented', env, silent);
 		assert.strictEqual(env.EXTENSION_DEV_PATH, '/home/me/my-extension');
 	});
 
 	it('leaves EXTENSION_DEV_PATH absent when neither coverage nor the user set it', () => {
 		const env: NodeJS.ProcessEnv = {};
-		applyExtensionDevPath(undefined, '/tmp/instrumented', env);
+		applyExtensionDevPath(undefined, '/tmp/instrumented', env, silent);
 		assert.ok(!('EXTENSION_DEV_PATH' in env));
 	});
 
 	it('overrides a user-supplied EXTENSION_DEV_PATH with the working directory when coverage is on', () => {
 		const env: NodeJS.ProcessEnv = { EXTENSION_DEV_PATH: '/home/me/my-extension' };
-		applyExtensionDevPath(true, '/tmp/instrumented', env);
+		applyExtensionDevPath(true, '/tmp/instrumented', env, silent);
 		assert.strictEqual(env.EXTENSION_DEV_PATH, '/tmp/instrumented');
 	});
 
 	it('sets EXTENSION_DEV_PATH from the working directory when coverage is on and the user set nothing', () => {
 		const env: NodeJS.ProcessEnv = {};
-		applyExtensionDevPath(true, '/tmp/instrumented', env);
+		applyExtensionDevPath(true, '/tmp/instrumented', env, silent);
 		assert.strictEqual(env.EXTENSION_DEV_PATH, '/tmp/instrumented');
 	});
 
 	it('mutates only EXTENSION_DEV_PATH', () => {
 		const env: NodeJS.ProcessEnv = { EXTENSION_DEV_PATH: '/home/me/my-extension', TEST_RESOURCES: '/tmp/test-resources' };
-		applyExtensionDevPath(false, '/tmp/instrumented', env);
+		applyExtensionDevPath(false, '/tmp/instrumented', env, silent);
 		assert.deepStrictEqual(env, { EXTENSION_DEV_PATH: '/home/me/my-extension', TEST_RESOURCES: '/tmp/test-resources' });
+	});
+
+	function capture(coverage: boolean | undefined, env: NodeJS.ProcessEnv): string[] {
+		const lines: string[] = [];
+		applyExtensionDevPath(coverage, '/tmp/instrumented', env, (...args: unknown[]) => lines.push(args.join(' ')));
+		return lines;
+	}
+
+	it('warns with both paths when coverage overrides a user-supplied EXTENSION_DEV_PATH', () => {
+		const lines = capture(true, { EXTENSION_DEV_PATH: '/home/me/my-extension' });
+		assert.strictEqual(lines.length, 1);
+		assert.match(lines[0], /WARNING: --coverage overrides EXTENSION_DEV_PATH=\/home\/me\/my-extension .*\/tmp\/instrumented/);
+	});
+
+	it('stays quiet when coverage sets EXTENSION_DEV_PATH to the value it already had', () => {
+		assert.deepStrictEqual(capture(true, { EXTENSION_DEV_PATH: '/tmp/instrumented' }), []);
+		assert.deepStrictEqual(capture(true, {}), []);
+	});
+
+	it('tells the user which folder VS Code loads the extension from when coverage is off', () => {
+		const lines = capture(false, { EXTENSION_DEV_PATH: '/home/me/my-extension' });
+		assert.strictEqual(lines.length, 1);
+		assert.match(lines[0], /load the extension under test from \/home\/me\/my-extension instead of an installed \.vsix/);
+	});
+
+	it('logs nothing when EXTENSION_DEV_PATH is unset and coverage is off', () => {
+		assert.deepStrictEqual(capture(false, {}), []);
+	});
+});
+
+describe('CodeUtil.runTests EXTENSION_DEV_PATH wiring', () => {
+	const originalRunTests = VSRunner.prototype.runTests;
+	const originalLog = console.log;
+	const hadDevPath = 'EXTENSION_DEV_PATH' in process.env;
+	const originalDevPath = process.env.EXTENSION_DEV_PATH;
+	let seenDuringRun: string | undefined;
+	let dir: string;
+
+	beforeEach(async () => {
+		dir = await fs.mkdtemp(path.join(os.tmpdir(), 'extest-runtests-'));
+		seenDuringRun = undefined;
+		VSRunner.prototype.runTests = async () => {
+			seenDuringRun = process.env.EXTENSION_DEV_PATH;
+			return 0;
+		};
+		console.log = () => {};
+	});
+
+	afterEach(async () => {
+		VSRunner.prototype.runTests = originalRunTests;
+		console.log = originalLog;
+		if (hadDevPath) {
+			process.env.EXTENSION_DEV_PATH = originalDevPath;
+		} else {
+			delete process.env.EXTENSION_DEV_PATH;
+		}
+		await fs.remove(dir);
+	});
+
+	function offlineCodeUtil(coverage: boolean): CodeUtil {
+		const util = new CodeUtil(dir, ReleaseQuality.Stable, undefined, coverage);
+		// offline runs read the installed version; there is no VS Code in the temp storage
+		(util as unknown as { getExistingCodeVersion: () => string }).getExistingCodeVersion = () => '1.0.0';
+		return util;
+	}
+
+	it('sets EXTENSION_DEV_PATH to the working directory during a coverage run and restores the user value afterwards', async () => {
+		process.env.EXTENSION_DEV_PATH = '/home/me/my-extension';
+		const code = await offlineCodeUtil(true).runTests([], { offline: true, resources: [] });
+		assert.strictEqual(code, 0);
+		assert.strictEqual(seenDuringRun, process.cwd());
+		assert.strictEqual(process.env.EXTENSION_DEV_PATH, '/home/me/my-extension');
+	});
+
+	it('removes the coverage EXTENSION_DEV_PATH afterwards when the user had none', async () => {
+		delete process.env.EXTENSION_DEV_PATH;
+		await offlineCodeUtil(true).runTests([], { offline: true, resources: [] });
+		assert.strictEqual(seenDuringRun, process.cwd());
+		assert.ok(!('EXTENSION_DEV_PATH' in process.env));
+	});
+
+	it('passes a user-supplied EXTENSION_DEV_PATH through to the run when coverage is off', async () => {
+		process.env.EXTENSION_DEV_PATH = '/home/me/my-extension';
+		await offlineCodeUtil(false).runTests([], { offline: true, resources: [] });
+		assert.strictEqual(seenDuringRun, '/home/me/my-extension');
+		assert.strictEqual(process.env.EXTENSION_DEV_PATH, '/home/me/my-extension');
+	});
+
+	it('restores the environment even when the run throws', async () => {
+		process.env.EXTENSION_DEV_PATH = '/home/me/my-extension';
+		VSRunner.prototype.runTests = async () => {
+			throw new Error('boom');
+		};
+		await assert.rejects(() => offlineCodeUtil(true).runTests([], { offline: true, resources: [] }), /boom/);
+		assert.strictEqual(process.env.EXTENSION_DEV_PATH, '/home/me/my-extension');
 	});
 });
 
