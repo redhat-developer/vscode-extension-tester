@@ -195,7 +195,12 @@ export class VSBrowser {
 		}
 
 		if (process.env.EXTENSION_DEV_PATH) {
-			args.push(`--extensionDevelopmentPath=${process.env.EXTENSION_DEV_PATH}`);
+			// absolute, so the launch does not depend on the working directory VS Code starts in
+			const extensionDevPath = path.resolve(process.env.EXTENSION_DEV_PATH);
+			if (!fs.existsSync(extensionDevPath)) {
+				console.log('\x1b[33m%s\x1b[0m', `WARNING: EXTENSION_DEV_PATH does not exist: ${extensionDevPath}`);
+			}
+			args.push(`--extensionDevelopmentPath=${extensionDevPath}`);
 		}
 
 		// Open initial resources with the launch itself instead of a post-launch

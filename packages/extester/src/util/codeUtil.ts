@@ -327,13 +327,29 @@ export function validateUserDataDirLength(settingsDir: string, platform: NodeJS.
  * `--extensionDevelopmentPath` from the launch arguments, so a user-supplied path had no
  * effect on the run.
  *
+ * Either way the outcome is logged, because a set variable changes which build of the
+ * extension VS Code loads: under `setup-and-run` it wins over the `.vsix` that was just
+ * installed, and under `--coverage` it silently replaced the user's value.
+ *
  * @param coverage whether the run instruments the extension in the current working directory
  * @param cwd the directory of the extension being instrumented
  * @param env the environment to mutate, defaults to `process.env`
+ * @param log where to print the outcome, defaults to `console.log`
  */
-export function applyExtensionDevPath(coverage: boolean | undefined, cwd: string, env: NodeJS.ProcessEnv = process.env): void {
+export function applyExtensionDevPath(
+	coverage: boolean | undefined,
+	cwd: string,
+	env: NodeJS.ProcessEnv = process.env,
+	log: (...args: unknown[]) => void = console.log,
+): void {
 	if (coverage) {
+		const userPath = env.EXTENSION_DEV_PATH;
+		if (userPath && path.resolve(userPath) !== path.resolve(cwd)) {
+			log('\x1b[33m%s\x1b[0m', `WARNING: --coverage overrides EXTENSION_DEV_PATH=${userPath} with the current working directory ${cwd}`);
+		}
 		env.EXTENSION_DEV_PATH = cwd;
+	} else if (env.EXTENSION_DEV_PATH) {
+		log(`EXTENSION_DEV_PATH is set: VS Code will load the extension under test from ${env.EXTENSION_DEV_PATH} instead of an installed .vsix`);
 	}
 }
 
