@@ -35,7 +35,7 @@ export enum ReleaseQuality {
 
 export interface CustomPageObjectsOptions {
 	/**
-	 * Path to a compiled JS module that exports a `locators` object
+	 * Path to a JavaScript or TypeScript module that exports a `locators` object
 	 * matching the LocatorDiff shape. These locators are deep-merged
 	 * into the built-in locators after version resolution, before tests run.
 	 */

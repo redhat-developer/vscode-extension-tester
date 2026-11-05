@@ -321,7 +321,7 @@
         },
         "customPageObjects": {
           "type": "string",
-          "description": "Path to a compiled JS locator contribution file for custom page objects.",
+          "description": "Path to a JavaScript or TypeScript locator contribution file for custom page objects.",
           "examples": ["./out/test/customPageObjects/locators.js"]
         },
         "locale": {
