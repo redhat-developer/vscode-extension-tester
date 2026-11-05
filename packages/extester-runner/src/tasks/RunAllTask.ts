@@ -16,9 +16,10 @@
  */
 
 import * as vscode from 'vscode';
-import { ShellExecution, TaskScope, workspace } from 'vscode';
+import { workspace } from 'vscode';
 import { TestRunner } from './TestRunnerTask';
 import { Logger } from '../logger/logger';
+import { getTaskConfiguration, createTestExecution } from './taskConfiguration';
 import * as path from 'path';
 
 /**
@@ -40,13 +41,11 @@ export class RunAllTestsTask extends TestRunner {
 	 * @param {Logger} logger - The logger instance for logging messages
 	 */
 	constructor(allFilesAbsolutePaths: string[], logger: Logger) {
-		const configuration = workspace.getConfiguration('extesterRunner');
-		const workspaceFolder = workspace.workspaceFolders?.[0]?.uri.fsPath;
+		const resource = allFilesAbsolutePaths.length ? vscode.Uri.file(allFilesAbsolutePaths[0]) : undefined;
+		const { owner, configuration, workspaceFolder } = getTaskConfiguration(resource, logger);
 
-		if (!workspaceFolder) {
-			logger.error('No workspace folder found.');
-			vscode.window.showErrorMessage(`No workspace folder found.`);
-			throw new Error('No workspace folder found.');
+		if (allFilesAbsolutePaths.some((file) => workspace.getWorkspaceFolder(vscode.Uri.file(file))?.uri.toString() !== owner.uri.toString())) {
+			throw new Error('Run All Tests requires files from one workspace folder.');
 		}
 
 		// Get configuration values.
@@ -58,7 +57,7 @@ export class RunAllTestsTask extends TestRunner {
 		logger.debug(`RunAllTask: tempDirSettings: ${tempDirSettings}`);
 
 		// Find common path and convert to relative path.
-		const commonPath = getCommonPath(allFilesAbsolutePaths);
+		const commonPath = getCommonPath(allFilesAbsolutePaths.map((file) => path.dirname(file)));
 		const relativePath = path.relative(workspaceFolder, commonPath);
 		const segments = relativePath.split(/[/\\]/).filter(Boolean);
 		logger.debug('RunAllTask: Common relative path segments: ' + JSON.stringify(segments));
@@ -87,30 +86,9 @@ export class RunAllTestsTask extends TestRunner {
 		const finalPath = path.join(workspaceFolder, outputFolder, ...relativeSegments.slice(matchingSegmentsCount), '**', testFilePattern);
 		logger.debug(`RunAllTask: Final path: ${finalPath}`);
 
-		// Prepare command arguments.
-		const storageArgs = tempDirSettings && tempDirSettings.trim().length > 0 ? ['--storage', `'${tempDirSettings}'`] : [];
-		const visualStudioCodeVersion = configuration.get<string>('visualStudioCode.Version');
-		const versionArgs = visualStudioCodeVersion ? ['--code_version', visualStudioCodeVersion] : [];
-		const visualStudioCodeType = configuration.get<string>('visualStudioCode.Type');
-		const typeArgs = visualStudioCodeType ? ['--type', visualStudioCodeType] : [];
-		const additionalArgs = configuration.get<string[]>('additionalArgs', []) ?? [];
-		const processedArgs = additionalArgs.flatMap((arg) => arg.match(/(?:[^\s"]+|"[^"]*")+/g) ?? []);
+		const shellExecution = createTestExecution(configuration, workspaceFolder, finalPath, logger);
 
-		// Create and execute shell command.
-		const shellExecution = new ShellExecution('npx', [
-			'extest',
-			'setup-and-run',
-			`'${finalPath}'`,
-			...storageArgs,
-			...versionArgs,
-			...typeArgs,
-			...processedArgs,
-		]);
-
-		const commandString = `npx extest setup-and-run '${finalPath}' ${storageArgs.join(' ')} ${versionArgs.join(' ')} ${typeArgs.join(' ')} ${additionalArgs.join(' ')}`;
-		logger.info(`RunAllTask: Running command: ${commandString}`);
-
-		super(TaskScope.Workspace, 'Run All Tests', shellExecution, logger);
+		super(owner, 'Run All Tests', shellExecution, logger);
 	}
 }
 

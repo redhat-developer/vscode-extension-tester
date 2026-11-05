@@ -19,6 +19,7 @@ import * as vscode from 'vscode';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import { Logger } from '../logger/logger';
+import { getRunnerConfiguration } from '../utils/projectConfiguration';
 import { formatTimestampLabel } from '../utils/formatLabel';
 
 /**
@@ -120,7 +121,7 @@ export abstract class ResourceTreeProvider<T extends ResourceTreeItem> implement
 	 * @param suffix - Sub-path appended to the base temp directory.
 	 */
 	protected resolveBasePath(suffix: string): string {
-		const configuration = vscode.workspace.getConfiguration('extesterRunner');
+		const configuration = getRunnerConfiguration();
 		const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
 
 		const tempDirSettings = configuration.get<string>('tempFolder')?.trim();

@@ -21,6 +21,7 @@ import { parseTestFile } from '../utils/parser';
 import { TestBlock } from '../types/testTypes';
 import { TreeItem } from '../types/treeItem';
 import { Logger } from '../logger/logger';
+import { getRunnerConfiguration } from '../utils/projectConfiguration';
 
 type TreeDataType = TreeItem | undefined | void;
 
@@ -38,6 +39,7 @@ export class ExtesterTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 	private readonly _onDidChangeTreeData: vscode.EventEmitter<TreeDataType> = new vscode.EventEmitter<TreeDataType>();
 	readonly onDidChangeTreeData: vscode.Event<TreeDataType> = this._onDidChangeTreeData.event;
 
+	private refreshGeneration = 0;
 	private files: vscode.Uri[] = []; // stores test files found in the workspace
 	private readonly parsedFiles: Map<string, TestBlock[]> = new Map(); // cache for parsed file contents
 	private hasTestFiles: boolean = false; // flag to track if any test files are found
@@ -77,9 +79,12 @@ export class ExtesterTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 	async refresh(): Promise<void> {
 		this.logger.debug('Refreshing test tree...');
 		this.parsedFiles.clear();
-		this.files = [];
+		const generation = ++this.refreshGeneration;
 
-		await this.findTestFiles();
+		await this.findTestFiles(generation);
+		if (generation !== this.refreshGeneration) {
+			return;
+		}
 		await vscode.commands.executeCommand('setContext', 'extesterRunner.hasTestFiles', this.hasTestFiles); // change availability of run all button
 		this.logger.debug(`setContext for extesterRunner.hasTestFiles to ${this.hasTestFiles}`);
 
@@ -123,12 +128,13 @@ export class ExtesterTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 			// Return top-level folders.
 			const folderMap = this.groupFilesByFolder();
 			let folders = Array.from(folderMap.keys()).map((folder) => {
-				const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? '';
-				const folderPath = path.join(workspaceFolder, folder);
-
-				const configuration = vscode.workspace.getConfiguration('extesterRunner');
+				const owner = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(folder));
+				const folderPath = folder;
+				const relativeFolder = path.relative(owner?.uri.fsPath ?? '', folder);
+				const configuration = getRunnerConfiguration(vscode.Uri.file(folder));
 				const ignorePathPart = configuration.get<string>('ignorePathPart') ?? '';
-				const displayName = folder.startsWith(ignorePathPart) ? folder.substring(ignorePathPart.length) : folder;
+				const relativeLabel = relativeFolder.startsWith(ignorePathPart) ? relativeFolder.substring(ignorePathPart.length) : relativeFolder;
+				const displayName = (vscode.workspace.workspaceFolders?.length ?? 0) > 1 ? `${owner?.name}/${relativeLabel}` : relativeLabel;
 
 				const treeItem = new TreeItem(displayName, vscode.TreeItemCollapsibleState.Collapsed, true, undefined, undefined, folderPath);
 				treeItem.id = folder;
@@ -145,11 +151,10 @@ export class ExtesterTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 			const actualFolderName = element.id ?? element.label; // if display name is not same (setting for hiding part of path is used)
 			const folderMap = this.groupFilesByFolder();
 			const files = folderMap.get(actualFolderName) ?? [];
-			const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? '';
 
 			let fileItems = await Promise.all(
 				files.map(async (file) => {
-					const filePath = path.join(workspaceFolder, actualFolderName, file);
+					const filePath = path.join(actualFolderName, file);
 					const parsedContent = await this.getParsedContent(filePath);
 
 					return new TreeItem(
@@ -182,26 +187,31 @@ export class ExtesterTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 	 * Searches for test files using a configurable glob pattern while excluding
 	 * `node_modules` by default.
 	 */
-	private async findTestFiles(): Promise<void> {
-		try {
-			this.logger.debug('Looking for test files.');
-			const configuration = vscode.workspace.getConfiguration('extesterRunner');
-			const testFileGlob = configuration.get<string>('testFileGlob') ?? '**/*.test.ts';
-			const excludeGlob = configuration.get<string>('excludeGlob') ?? '**/node_modules/**';
-
-			const files = await vscode.workspace.findFiles(testFileGlob, excludeGlob);
-			this.files = files;
+	private async findTestFiles(generation: number): Promise<void> {
+		this.logger.debug('Looking for test files.');
+		const discovered = await Promise.all(
+			(vscode.workspace.workspaceFolders ?? []).map(async (folder) => {
+				try {
+					const configuration = getRunnerConfiguration(folder.uri);
+					const files = await vscode.workspace.findFiles(
+						new vscode.RelativePattern(folder, configuration.get<string>('testFileGlob') ?? '**/*.test.ts'),
+						new vscode.RelativePattern(folder, configuration.get<string>('excludeGlob') ?? '**/node_modules/**'),
+					);
+					return files.filter((file) => vscode.workspace.getWorkspaceFolder(file)?.uri.toString() === folder.uri.toString());
+				} catch (error) {
+					if (generation === this.refreshGeneration) {
+						const message = `Error finding test files in ${folder.name}: ${error instanceof Error ? error.message : String(error)}`;
+						this.logger.error(message);
+						void vscode.window.showErrorMessage(message);
+					}
+				}
+				return [];
+			}),
+		);
+		if (generation === this.refreshGeneration) {
+			this.files = discovered.flat();
 			this.hasTestFiles = this.files.length > 0;
-
-			this._onDidChangeTreeData.fire(); // refresh tree view
-		} catch (error) {
-			if (error instanceof Error) {
-				this.logger.error(`Error finding test files: ${error.message}`);
-				vscode.window.showErrorMessage(`Error finding test files: ${error.message}`);
-			} else {
-				this.logger.error(`Unknown error occurred while finding test files.`);
-				vscode.window.showErrorMessage(`Unknown error occurred while finding test files.`);
-			}
+			this._onDidChangeTreeData.fire();
 		}
 	}
 
@@ -212,12 +222,10 @@ export class ExtesterTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 	 */
 	private groupFilesByFolder(): Map<string, string[]> {
 		const folderMap = new Map<string, string[]>();
-		const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? '';
 
 		this.files.forEach((fileUri) => {
-			const relativePath = path.relative(workspaceFolder, fileUri.fsPath);
-			const folder = path.dirname(relativePath);
-			const fileName = path.basename(relativePath);
+			const folder = path.dirname(fileUri.fsPath);
+			const fileName = path.basename(fileUri.fsPath);
 
 			if (!folderMap.has(folder)) {
 				folderMap.set(folder, []);
