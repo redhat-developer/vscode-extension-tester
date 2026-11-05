@@ -189,25 +189,27 @@ export class ExtesterTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 	 */
 	private async findTestFiles(generation: number): Promise<void> {
 		this.logger.debug('Looking for test files.');
-		const discovered: vscode.Uri[] = [];
-		for (const folder of vscode.workspace.workspaceFolders ?? []) {
-			try {
-				const configuration = getRunnerConfiguration(folder.uri);
-				const files = await vscode.workspace.findFiles(
-					new vscode.RelativePattern(folder, configuration.get<string>('testFileGlob') ?? '**/*.test.ts'),
-					new vscode.RelativePattern(folder, configuration.get<string>('excludeGlob') ?? '**/node_modules/**'),
-				);
-				discovered.push(...files.filter((file) => vscode.workspace.getWorkspaceFolder(file)?.uri.toString() === folder.uri.toString()));
-			} catch (error) {
-				if (generation === this.refreshGeneration) {
-					const message = `Error finding test files in ${folder.name}: ${error instanceof Error ? error.message : String(error)}`;
-					this.logger.error(message);
-					void vscode.window.showErrorMessage(message);
+		const discovered = await Promise.all(
+			(vscode.workspace.workspaceFolders ?? []).map(async (folder) => {
+				try {
+					const configuration = getRunnerConfiguration(folder.uri);
+					const files = await vscode.workspace.findFiles(
+						new vscode.RelativePattern(folder, configuration.get<string>('testFileGlob') ?? '**/*.test.ts'),
+						new vscode.RelativePattern(folder, configuration.get<string>('excludeGlob') ?? '**/node_modules/**'),
+					);
+					return files.filter((file) => vscode.workspace.getWorkspaceFolder(file)?.uri.toString() === folder.uri.toString());
+				} catch (error) {
+					if (generation === this.refreshGeneration) {
+						const message = `Error finding test files in ${folder.name}: ${error instanceof Error ? error.message : String(error)}`;
+						this.logger.error(message);
+						void vscode.window.showErrorMessage(message);
+					}
 				}
-			}
-		}
+				return [];
+			}),
+		);
 		if (generation === this.refreshGeneration) {
-			this.files = discovered;
+			this.files = discovered.flat();
 			this.hasTestFiles = this.files.length > 0;
 			this._onDidChangeTreeData.fire();
 		}

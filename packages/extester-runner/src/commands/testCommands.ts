@@ -41,12 +41,19 @@ export function registerTestCommands(context: vscode.ExtensionContext, treeDataP
 		vscode.commands.registerCommand('extester-runner.runAll', async () => {
 			logger.debug('Command triggered: extester-runner.runAll');
 			const allFiles = await treeDataProvider.getAllAbsolutePaths();
-			for (const folder of vscode.workspace.workspaceFolders ?? []) {
-				const files = allFiles.filter((file) => vscode.workspace.getWorkspaceFolder(vscode.Uri.file(file))?.uri.toString() === folder.uri.toString());
-				if (files.length) {
-					await new RunAllTestsTask(files, logger).execute();
-				}
-			}
+			// Test tasks share runner resources, so wait for each root before starting the next.
+			await (vscode.workspace.workspaceFolders ?? []).reduce(
+				(previous, folder) =>
+					previous.then(async () => {
+						const files = allFiles.filter(
+							(file) => vscode.workspace.getWorkspaceFolder(vscode.Uri.file(file))?.uri.toString() === folder.uri.toString(),
+						);
+						if (files.length) {
+							await new RunAllTestsTask(files, logger).execute();
+						}
+					}),
+				Promise.resolve(),
+			);
 		}),
 	);
 
