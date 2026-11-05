@@ -26,6 +26,7 @@ import sanitize from 'sanitize-filename';
 import { logging } from 'selenium-webdriver';
 import * as os from 'node:os';
 import { Coverage } from '../util/coverage';
+import { registerTypeScript } from '../util/typescript';
 
 /** YAML 1.2 core schema plus merge keys, matching how mocha parses .mocharc.yml */
 const MOCHARC_YAML_SCHEMA = yaml.CORE_SCHEMA.withTags(yaml.mergeTag);
@@ -75,7 +76,18 @@ export class VSRunner {
 	 * @return The exit code of the mocha process
 	 */
 	runTests(testFilesPattern: string[], code: CodeUtil, resources: string[], logLevel: logging.Level = logging.Level.INFO): Promise<number> {
-		return new Promise((resolve, reject) => {
+		let unregister: (() => void) | undefined;
+		return new Promise<number>((resolve, reject) => {
+			const testFiles = new Set<string>();
+			for (const pattern of testFilesPattern) {
+				const universalPattern = pattern.replace(/'/g, '');
+				globSync(universalPattern)
+					.reverse()
+					.forEach((val) => testFiles.add(val));
+			}
+
+			unregister = registerTypeScript([...testFiles, this.customPageObjects?.locatorsPath ?? '']);
+
 			const self = this;
 			const browser: VSBrowser = new VSBrowser(
 				this.codeVersion,
@@ -87,14 +99,6 @@ export class VSRunner {
 				this.seedFiles,
 			);
 			let coverage: Coverage | undefined;
-
-			const testFiles = new Set<string>();
-			for (const pattern of testFilesPattern) {
-				const universalPattern = pattern.replace(/'/g, '');
-				globSync(universalPattern)
-					.reverse()
-					.forEach((val) => testFiles.add(val));
-			}
 
 			testFiles.forEach((file) => this.mocha.addFile(file));
 
@@ -175,7 +179,7 @@ export class VSRunner {
 			} catch (err) {
 				reject(err);
 			}
-		});
+		}).finally(() => unregister?.());
 	}
 
 	private async createShortcut(src: string, dest: string): Promise<string> {

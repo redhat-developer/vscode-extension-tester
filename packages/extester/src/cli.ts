@@ -183,7 +183,7 @@ program
 	.option('-f, --offline', 'Attempt to run without internet connection, make sure to have all requirements downloaded', false)
 	.option('-C, --coverage', 'Enable code coverage using c8')
 	.option('-r, --open_resource <resources...>', 'Open resources in VS Code. Multiple files and folders can be specified.')
-	.option('-p, --custom_page_objects <path>', 'Path to a compiled JS locator contribution file for custom page objects')
+	.option('-p, --custom_page_objects <path>', 'Path to a JavaScript or TypeScript locator contribution file for custom page objects')
 	.option('--config <path>', 'Path to extester.config.json configuration file')
 	.option(
 		'-L, --locale <locale>',
@@ -236,7 +236,7 @@ program
 	.option('-C, --coverage', 'Enable code coverage using c8')
 	.option('-r, --open_resource <resources...>', 'Open resources in VS Code. Multiple files and folders can be specified.')
 	.option('-n, --no_cache', 'Skip using cached version and download fresh copy without caching it', false)
-	.option('-p, --custom_page_objects <path>', 'Path to a compiled JS locator contribution file for custom page objects')
+	.option('-p, --custom_page_objects <path>', 'Path to a JavaScript or TypeScript locator contribution file for custom page objects')
 	.option('--config <path>', 'Path to extester.config.json configuration file')
 	.option(
 		'-L, --locale <locale>',
