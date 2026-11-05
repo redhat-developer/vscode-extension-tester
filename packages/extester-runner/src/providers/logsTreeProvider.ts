@@ -19,6 +19,7 @@ import * as vscode from 'vscode';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { Logger } from '../logger/logger';
+import { getRunnerConfiguration } from '../utils/projectConfiguration';
 import { ResourceTreeItem, ResourceTreeProvider } from './resourceTreeProvider';
 
 /**
@@ -39,7 +40,7 @@ export class LogsTreeProvider extends ResourceTreeProvider<LogsResourcesItem> {
 
 	async getChildren(element?: LogsResourcesItem): Promise<LogsResourcesItem[]> {
 		const dirPath = element ? element.filePath : this.resolveLogPath();
-		const hideEmptyFolders = vscode.workspace.getConfiguration('extesterRunner').get<boolean>('hideEmptyLogFolders', true);
+		const hideEmptyFolders = getRunnerConfiguration().get<boolean>('hideEmptyLogFolders', true);
 
 		if (!fs.existsSync(dirPath)) {
 			this.logger.debug(`Directory does not exist: ${dirPath}`);
