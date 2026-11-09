@@ -56,7 +56,7 @@
     "eslint-plugin-prettier": "^5.5.7",
     "lerna": "^10.1.1",
     "prettier": "3.9.10",
-    "rimraf": "^6.1.3",
+    "rimraf": "^6.1.4",
     "typescript": "~6.0.3"
   },
   "overrides": {
