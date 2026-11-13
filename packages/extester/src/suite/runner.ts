@@ -86,7 +86,8 @@ export class VSRunner {
 					.forEach((val) => testFiles.add(val));
 			}
 
-			unregister = registerTypeScript([...testFiles, this.customPageObjects?.locatorsPath ?? '']);
+			const locatorsPath = this.customPageObjects?.locatorsPath;
+			unregister = registerTypeScript(locatorsPath ? [...testFiles, locatorsPath] : testFiles);
 
 			const self = this;
 			const browser: VSBrowser = new VSBrowser(

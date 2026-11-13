@@ -86,6 +86,8 @@ The full policy, including how the tested VS Code range is kept up to date, is o
    npm run ui-test
    ```
 
+   To skip compiling the tests, install `tsx` as a dev dependency and target the sources instead, e.g. `extest setup-and-run './src/ui-test/**/*.test.ts'` — see [TypeScript Tests](https://redhat-developer.github.io/vscode-extension-tester/guides/typescript-tests/).
+
 `extest setup-and-run` downloads VS Code and ChromeDriver, packages and installs your extension, and runs the tests. Mocha's default 2 second timeout is rarely enough for UI tests, so raise it in a `.mocharc.js` file. [Writing Simple Tests](https://redhat-developer.github.io/vscode-extension-tester/getting-started/writing-simple-tests/) and [Test Setup](https://redhat-developer.github.io/vscode-extension-tester/guides/test-setup/) cover every option, including `extester.config.json`.
 
 ## ExTester Runner
