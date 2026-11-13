@@ -16,10 +16,11 @@
  */
 
 import * as vscode from 'vscode';
-import { ShellExecution, TaskScope, workspace } from 'vscode';
+
 import { TestRunner } from './TestRunnerTask';
 import * as path from 'path';
 import { Logger } from '../logger/logger';
+import { getTaskConfiguration, createTestExecution } from './taskConfiguration';
 
 /**
  * Task for running a single test file within the workspace.
@@ -39,14 +40,8 @@ export class RunFileTask extends TestRunner {
 	 * @param {Logger} logger - The logger instance for logging messages.
 	 */
 	constructor(file: string, logger: Logger) {
-		const configuration = workspace.getConfiguration('extesterRunner');
-		const workspaceFolder = workspace.workspaceFolders?.[0]?.uri.fsPath;
-
-		if (!workspaceFolder) {
-			logger.error('No workspace folder found.');
-			vscode.window.showErrorMessage(`No workspace folder found.`);
-			throw new Error('No workspace folder found.');
-		}
+		const resource = vscode.Uri.file(file);
+		const { owner, configuration, workspaceFolder } = getTaskConfiguration(resource, logger);
 
 		// Get configuration values.
 		const outputFolder = configuration.get<string>('outputFolder') ?? 'out';
@@ -80,29 +75,8 @@ export class RunFileTask extends TestRunner {
 		);
 		logger.debug(`RunFileTask: Final path: ${finalPath}`);
 
-		// Prepare command arguments.
-		const storageArgs = tempDirSettings && tempDirSettings.trim().length > 0 ? ['--storage', `'${tempDirSettings}'`] : [];
-		const visualStudioCodeVersion = configuration.get<string>('visualStudioCode.Version');
-		const versionArgs = visualStudioCodeVersion ? ['--code_version', visualStudioCodeVersion] : [];
-		const visualStudioCodeType = configuration.get<string>('visualStudioCode.Type');
-		const typeArgs = visualStudioCodeType ? ['--type', visualStudioCodeType] : [];
-		const additionalArgs = configuration.get<string[]>('additionalArgs', []) ?? [];
-		const processedArgs = additionalArgs.flatMap((arg) => arg.match(/(?:[^\s"]+|"[^"]*")+/g) ?? []);
+		const shellExecution = createTestExecution(configuration, workspaceFolder, finalPath, logger);
 
-		// Create and execute shell command.
-		const shellExecution = new ShellExecution('npx', [
-			'extest',
-			'setup-and-run',
-			`'${finalPath}'`,
-			...storageArgs,
-			...versionArgs,
-			...typeArgs,
-			...processedArgs,
-		]);
-
-		const commandString = `npx extest setup-and-run '${finalPath}' ${storageArgs.join(' ')} ${versionArgs.join(' ')} ${typeArgs.join(' ')} ${additionalArgs.join(' ')}`;
-		logger.info(`RunFileTask: Running command: ${commandString}`);
-
-		super(TaskScope.Workspace, 'Run Test File', shellExecution, logger);
+		super(owner, 'Run Test File', shellExecution, logger);
 	}
 }

@@ -19,11 +19,8 @@ import * as vscode from 'vscode';
 import { createLogger, Logger } from './logger/logger';
 import { ExtesterTreeProvider } from './providers/extesterTreeProvider';
 import { registerCommands } from './commands/registerCommands';
-import { createFileWatcher } from './utils/fileWatcher';
 import { ScreenshotsTreeProvider } from './providers/screenshotsTreeProvider';
 import { LogsTreeProvider } from './providers/logsTreeProvider';
-import { createLogsWatcher } from './utils/logWatcher';
-import { createScreenshotsWatcher } from './utils/screenshotsWatcher';
 
 let logger: Logger;
 
@@ -76,11 +73,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	// Register extension commands.
 	registerCommands(context, treeDataProvider, screenshotsDataProvider, logsDataProvider, logger);
-
-	// Create a file system watchers to monitor changes.
-	createFileWatcher(context, treeDataProvider, logger); // test view
-	createScreenshotsWatcher(context, screenshotsDataProvider, logger); // screenshots view
-	createLogsWatcher(context, logsDataProvider, logger); // logs view
 
 	logger.info('ExTester Runner extension activated successfully.');
 }

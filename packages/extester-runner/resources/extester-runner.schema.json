@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ExTester Runner project configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "testFileGlob": {
+      "type": "string",
+      "markdownDescription": "Glob pattern to locate test files in the workspace. Default: `**/ui-test/**/*.test.ts`."
+    },
+    "excludeGlob": {
+      "type": "string",
+      "markdownDescription": "Glob pattern to exclude specific paths from test file search. Default: `**/node_modules/**`."
+    },
+    "ignorePathPart": {
+      "type": "string",
+      "markdownDescription": "Pattern to hide specific segments of folder paths in the test view. Matching parts will be removed from displayed paths."
+    },
+    "outputFolder": {
+      "type": "string",
+      "markdownDescription": "Specifies the output directory for compiled test files. Default: `out`. This setting is used to locate the JavaScript files generated from your TypeScript test files."
+    },
+    "rootFolder": {
+      "type": "string",
+      "markdownDescription": "Defines the root source directory containing your TypeScript test files. Can be left empty. When specified, this path segment will be ignored when mapping from source to output directory (e.g., if root is `src` and output is `out`, `src/tests/file.ts` will map to `out/tests/file.js`)."
+    },
+    "tempFolder": {
+      "type": "string",
+      "markdownDescription": "Specifies the directory for temporary files used by ExTester. If undefined, the default system temporary folder is used. This setting overrides any corresponding [environment variables](https://redhat-developer.github.io/vscode-extension-tester/guides/test-setup/#useful-env-variables)."
+    },
+    "visualStudioCode": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "Version": {
+          "type": "string",
+          "markdownDescription": "Specifies the VS Code version. Options: `max`, `min`, `latest`, or a specific supported version. Default: `max` (max version supported by ExTester). This setting overrides any corresponding [environment variables](https://redhat-developer.github.io/vscode-extension-tester/guides/test-setup/#useful-env-variables)."
+        },
+        "Type": {
+          "type": "string",
+          "enum": [
+            "stable",
+            "insider"
+          ],
+          "markdownDescription": "Defines the VS Code distribution. Use `stable` (default) for the official, fully tested release with monthly updates, or `insider` for a preview version with daily updates and experimental features (potentially unstable). See [VS Code Insiders page](https://code.visualstudio.com/insiders/) for more info. This setting overrides any corresponding [environment variables](https://redhat-developer.github.io/vscode-extension-tester/guides/test-setup/#useful-env-variables)."
+        }
+      }
+    },
+    "additionalArgs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "markdownDescription": "Additional arguments for the ExTester `setup-and-run` command.\n\nSee [ExTester documentation](https://redhat-developer.github.io/vscode-extension-tester/guides/test-setup/#set-up-and-run-tests) for more details."
+    },
+    "hideEmptyLogFolders": {
+      "type": "boolean",
+      "markdownDescription": "Hides empty log directories in the test results. If enabled (`true`), only folders containing any log files will be displayed. If disabled (`false`), all log folders, including empty ones, will be visible."
+    },
+    "$schema": {
+      "type": "string"
+    },
+    "configFile": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Path to the CLI extester.config.json, relative to this workspace root. Cannot be combined with --config in additionalArgs."
+    }
+  }
+}

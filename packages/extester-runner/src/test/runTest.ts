@@ -21,15 +21,26 @@ import * as os from 'os';
 import { downloadAndUnzipVSCode, runTests } from '@vscode/test-electron';
 
 async function main() {
+	const testWorkspace = path.resolve(__dirname, '../../', 'src/test/resources/testing-workspace');
+	// Per-run scratch directory (kept short: VS Code puts IPC sockets in the user data dir and macOS
+	// limits socket paths to ~104 chars) for the user data and the workspace file, so state from
+	// one run (e.g. workspace folders added by a test) can never leak into the next one.
+	const runDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'ert-'));
 	try {
 		// The folder containing the Extension Manifest package.json
 		// Passed to `--extensionDevelopmentPath`
 		const extensionDevelopmentPath = path.resolve(__dirname, '../../');
 		console.log(`extensionDevelopmentPath = ${extensionDevelopmentPath}`);
 
-		const testWorkspace = path.resolve(__dirname, '../../', 'src/test/resources/testing-workspace');
 		console.log(`testWorkspace = ${testWorkspace}`);
+		fs.rmSync(testWorkspace, { recursive: true, force: true });
 		fs.mkdirSync(testWorkspace);
+
+		// Open a multi-root workspace from the start: tests that add or remove further workspace
+		// folders then only edit this file instead of turning a single-folder window into an
+		// untitled workspace, which VS Code does not reliably allow from an extension test.
+		const workspaceFile = path.join(runDirectory, 'testing.code-workspace');
+		fs.writeFileSync(workspaceFile, JSON.stringify({ folders: [{ path: testWorkspace }], settings: {} }, undefined, '\t'));
 
 		// The path to the extension test runner script
 		// Passed to --extensionTestsPath
@@ -46,14 +57,15 @@ async function main() {
 			vscodeExecutablePath,
 			extensionDevelopmentPath,
 			extensionTestsPath,
-			launchArgs: [testWorkspace, '--disable-workspace-trust', '--user-data-dir', `${os.tmpdir()}/.vscode-test`],
+			launchArgs: [workspaceFile, '--disable-workspace-trust', '--user-data-dir', path.join(runDirectory, 'ud')],
 		});
-
-		fs.rmSync(testWorkspace, { recursive: true, force: true });
 	} catch (err) {
 		console.error(err);
 		console.error('Failed to run tests');
-		process.exit(1);
+		process.exitCode = 1;
+	} finally {
+		fs.rmSync(testWorkspace, { recursive: true, force: true });
+		fs.rmSync(runDirectory, { recursive: true, force: true });
 	}
 }
 
