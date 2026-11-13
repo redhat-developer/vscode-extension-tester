@@ -48,6 +48,7 @@ export default defineConfig({
           label: 'Guides',
           items: [
             'guides/test-setup',
+            'guides/typescript-tests',
             'guides/mocha-configuration',
             'guides/debugging-tests',
             'guides/code-coverage',

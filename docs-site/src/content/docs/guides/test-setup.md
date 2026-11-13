@@ -4,6 +4,8 @@ title: Test Setup
 
 The ExTester offers both CLI and API to perform all the setup actions. That way you can simply integrate it into your npm scripts, or just call it from your code if that is more preferable.
 
+To run TypeScript tests without compiling them first, see [TypeScript Tests](/vscode-extension-tester/guides/typescript-tests/).
+
 ## Useful ENV variables
 
 - `CODE_VERSION` - can be used to set version of VS Code you want to run with the appropriate ChromeDriver version
@@ -162,7 +164,7 @@ Options:
   -C, --coverage                               # Enable code coverage using c8
   -L, --locale <locale>                        # Launch VS Code with the given display language (e.g. ru, zh-cn). Requires the matching language pack extension to already be installed. See the Locale Testing guide.
   -r, --open_resource <resources...>           # Open resources in VS Code. Multiple files and folders can be specified.
-  -p, --custom_page_objects <path>             # Path to a compiled JS locator contribution file for custom page objects
+  -p, --custom_page_objects <path>             # Path to a JavaScript or TypeScript locator contribution file for custom page objects
   --config <path>                              # Path to extester.config.json configuration file
   -h, --help                                   # display help for command
 ```
@@ -194,7 +196,7 @@ Options:
   -r, --open_resource <resources...>           # Open resources in VS Code. Multiple files and folders can be specified.
   -n, --no_cache                               # Disable caching of VS Code and ChromeDriver downloads (default: false)
   -L, --locale <locale>                        # Launch VS Code with the given display language (e.g. ru, zh-cn). Requires the language pack to be installed via -i. See the Locale Testing guide.
-  -p, --custom_page_objects <path>             # Path to a compiled JS locator contribution file for custom page objects
+  -p, --custom_page_objects <path>             # Path to a JavaScript or TypeScript locator contribution file for custom page objects
   --config <path>                              # Path to extester.config.json configuration file
   -h, --help                                   # display help for command
 ```
@@ -364,7 +366,7 @@ Controls test execution inside VS Code. Used by `run-tests` and `setup-and-run`.
 | `offline`           | boolean                   | `false`                                       | `-f` / `--offline`             | Run without internet access                                                                                                                                                                                    |
 | `coverage`          | boolean                   | `false`                                       | `-C` / `--coverage`            | Enable c8 code coverage                                                                                                                                                                                        |
 | `resources`         | string[]                  | `[]`                                          | `-r` / `--open_resource`       | Files or folders to open in VS Code at startup                                                                                                                                                                 |
-| `customPageObjects` | string                    | —                                             | `-p` / `--custom_page_objects` | Path to a compiled JS locator contribution file                                                                                                                                                                |
+| `customPageObjects` | string                    | —                                             | `-p` / `--custom_page_objects` | Path to a JavaScript or TypeScript locator contribution file                                                                                                                                                                |
 | `locale`            | string                    | —                                             | `-L` / `--locale`              | Display language locale (e.g. `ru`, `zh-cn`). Requires the language pack extension to be installed. See [Locale Testing](/vscode-extension-tester/guides/locale-testing/)                                                                                     |
 
 ### Editor autocomplete
@@ -484,7 +486,7 @@ export interface RunOptions {
 }
 
 export interface CustomPageObjectsOptions {
-  /** path to a compiled JS module exporting a `locators` object in LocatorDiff shape */
+  /** path to a JavaScript or TypeScript module exporting a `locators` object in LocatorDiff shape */
   locatorsPath: string;
 }
 /** defaults for the RunOptions */

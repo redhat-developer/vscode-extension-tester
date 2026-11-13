@@ -25,7 +25,7 @@ At startup, ExTester loads the version-specific built-in locators, then deep-mer
 
 You provide:
 
-1. **A locator contribution file** — a compiled JS module that exports a `locators` object in the same shape as a `LocatorDiff`.
+1. **A locator contribution file** — a JavaScript (or, with `tsx`, TypeScript) module that exports a `locators` object in the same shape as a `LocatorDiff`.
 2. **One or more page object classes** — TypeScript classes extending `AbstractElement` that use those locators.
 
 ---
@@ -50,7 +50,7 @@ export const locators: LocatorDiff["locators"] = {
 
 Custom keys (like `MyExtensionToolbar`) are accepted without any extra TypeScript configuration. The `LocatorDiff['locators']` type is intentionally open to unknown component names.
 
-This file is compiled to JS as part of your normal test build (e.g. `out/test/pageObjects/locators.js`). The framework loads the **compiled JS**, not the TypeScript source.
+Usually this file is compiled to JS as part of your normal test build (e.g. `out/test/pageObjects/locators.js`) and the framework loads the compiled JS. If you run your tests directly from TypeScript, you can point ExTester at the `.ts` source instead — see [TypeScript Tests](/vscode-extension-tester/guides/typescript-tests/).
 
 ---
 
@@ -83,7 +83,7 @@ export class MyExtensionToolbar extends AbstractElement {
 
 ## Step 3 — Register the locator contribution
 
-You must tell ExTester where to find the compiled locator contribution file. Do this via `RunOptions` (programmatic) or the CLI flag.
+You must tell ExTester where to find the locator contribution file. Do this via `RunOptions` (programmatic) or the CLI flag.
 
 ### Programmatic API
 
