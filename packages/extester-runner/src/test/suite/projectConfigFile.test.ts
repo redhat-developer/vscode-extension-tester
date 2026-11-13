@@ -29,10 +29,16 @@ describe('Project configuration file', () => {
 	afterEach(() => {
 		rmSync(root, { recursive: true, force: true });
 	});
-	const fallback = {
-		get: <T>(key: string) =>
-			({ outputFolder: 'old', rootFolder: 'src', hideEmptyLogFolders: true, additionalArgs: ['--offline'] })[key as 'outputFolder'] as T | undefined,
-	};
+	type Scopes = { defaultValue?: unknown; globalValue?: unknown; workspaceValue?: unknown; workspaceFolderValue?: unknown };
+	function settings(values: Record<string, Scopes>) {
+		return { inspect: <T>(key: string) => values[key] as { defaultValue?: T; globalValue?: T; workspaceValue?: T; workspaceFolderValue?: T } | undefined };
+	}
+	const fallback = settings({
+		outputFolder: { defaultValue: 'out', globalValue: 'old' },
+		rootFolder: { globalValue: 'src' },
+		hideEmptyLogFolders: { defaultValue: true },
+		additionalArgs: { globalValue: ['--offline'] },
+	});
 	function write(value: unknown) {
 		writeFileSync(join(root, '.extester.json'), JSON.stringify(value));
 	}
@@ -50,6 +56,32 @@ describe('Project configuration file', () => {
 		assert.equal(config.get('hideEmptyLogFolders'), false);
 		assert.deepEqual(config.get('additionalArgs'), []);
 		assert.equal(config.get('ignorePathPart', 'hidden'), '');
+	});
+	it('lets workspace and workspace-folder settings override the project file and reports it', () => {
+		write({ outputFolder: 'compiled', rootFolder: 'project-src', tempFolder: 'project-tmp' });
+		const shadowed: string[] = [];
+		const config = resolveConfiguration(
+			readProjectConfiguration(root),
+			settings({
+				outputFolder: { globalValue: 'global', workspaceValue: 'local' },
+				rootFolder: { workspaceValue: 'workspace', workspaceFolderValue: 'folder' },
+				tempFolder: { globalValue: 'global-tmp' },
+				ignorePathPart: { workspaceValue: 'only-local/' },
+			}),
+			(key) => shadowed.push(key),
+		);
+		assert.equal(config.get('outputFolder'), 'local');
+		assert.equal(config.get('rootFolder'), 'folder');
+		assert.equal(config.get('tempFolder'), 'project-tmp');
+		assert.equal(config.get('ignorePathPart'), 'only-local/');
+		assert.deepEqual(shadowed, ['outputFolder', 'rootFolder']);
+	});
+	it('falls back to user settings, then defaults, for values missing from the project file', () => {
+		write({ rootFolder: 'project-src' });
+		const config = resolveConfiguration(readProjectConfiguration(root), fallback);
+		assert.equal(config.get('rootFolder'), 'project-src');
+		assert.equal(config.get('outputFolder'), 'old');
+		assert.equal(config.get('hideEmptyLogFolders'), true);
 	});
 	it('reads nested VS Code settings and the CLI configuration reference', () => {
 		write({ visualStudioCode: { Version: 'min', Type: 'insider' }, configFile: 'packages/tests/extester.config.json' });

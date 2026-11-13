@@ -19,10 +19,38 @@ import * as vscode from 'vscode';
 import * as path from 'node:path';
 import { ConfigurationReader, readProjectConfiguration, resolveConfiguration } from './projectConfigFile';
 
+const reportedShadows = new Set<string>();
+
+/**
+ * Resolve the runner configuration for the workspace root owning `resource` (default: first root).
+ * See {@link resolveConfiguration} for the precedence between settings and `.extester.json`.
+ */
 export function getRunnerConfiguration(resource?: vscode.Uri): ConfigurationReader {
 	const folder = resource ? vscode.workspace.getWorkspaceFolder(resource) : vscode.workspace.workspaceFolders?.[0];
 	const project = folder ? readProjectConfiguration(folder.uri.fsPath) : {};
-	return resolveConfiguration(project, vscode.workspace.getConfiguration('extesterRunner', folder?.uri ?? resource));
+	return resolveConfiguration(project, vscode.workspace.getConfiguration('extesterRunner', folder?.uri ?? resource), (key) => {
+		const id = `${folder?.uri.toString()}|${key}`;
+		if (!reportedShadows.has(id)) {
+			reportedShadows.add(id);
+			void vscode.window.showInformationMessage(
+				`ExTester Runner: the workspace setting "extesterRunner.${key}" overrides the value in .extester.json${folder ? ` of "${folder.name}"` : ''}. Remove it from the workspace settings to use the shared project value.`,
+			);
+		}
+	});
+}
+
+/**
+ * Configuration for display-only views (logs, screenshots). An invalid `.extester.json` is already
+ * reported by test discovery and blocks test runs; here it must not break the views, so fall back
+ * to the VS Code settings alone and log the problem.
+ */
+export function getDisplayConfiguration(onError: (message: string) => void): ConfigurationReader {
+	try {
+		return getRunnerConfiguration();
+	} catch (error) {
+		onError(`${error instanceof Error ? error.message : String(error)} Using VS Code settings for this view.`);
+		return vscode.workspace.getConfiguration('extesterRunner', vscode.workspace.workspaceFolders?.[0]?.uri);
+	}
 }
 
 /** Build the optional CLI config argument without changing the CLI's own configuration semantics. */

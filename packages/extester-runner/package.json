@@ -492,7 +492,7 @@
     "jsonValidation": [
       {
         "fileMatch": "/.extester.json",
-        "url": "./resources/extester.schema.json"
+        "url": "./resources/extester-runner.schema.json"
       }
     ]
   },

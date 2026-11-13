@@ -56,7 +56,8 @@ export function createTestExecution(configuration: ConfigurationReader, workspac
 		{ cwd: workspaceFolder },
 	);
 
-	const commandString = `npx extest setup-and-run '${finalPath}' ${storageArgs.join(' ')} ${versionArgs.join(' ')} ${typeArgs.join(' ')} ${additionalArgs.join(' ')}`;
+	const configString = configArgs.map((arg) => (typeof arg === 'string' ? arg : `'${arg.value}'`)).join(' ');
+	const commandString = `npx extest setup-and-run '${finalPath}' ${storageArgs.join(' ')} ${versionArgs.join(' ')} ${typeArgs.join(' ')} ${additionalArgs.join(' ')} ${configString}`;
 	logger.info(`Running command: ${commandString}`);
 
 	return shellExecution;

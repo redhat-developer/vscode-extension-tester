@@ -48,8 +48,16 @@ export function registerTestCommands(context: vscode.ExtensionContext, treeDataP
 						const files = allFiles.filter(
 							(file) => vscode.workspace.getWorkspaceFolder(vscode.Uri.file(file))?.uri.toString() === folder.uri.toString(),
 						);
-						if (files.length) {
+						if (!files.length) {
+							return;
+						}
+						// A configuration error in one root must not prevent the other roots from running.
+						try {
 							await new RunAllTestsTask(files, logger).execute();
+						} catch (error) {
+							const message = `Cannot run tests in ${folder.name}: ${error instanceof Error ? error.message : String(error)}`;
+							logger.error(message);
+							void vscode.window.showErrorMessage(message);
 						}
 					}),
 				Promise.resolve(),

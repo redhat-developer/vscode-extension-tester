@@ -84,10 +84,34 @@ function validateVersionSettings(value: unknown, result: Record<string, unknown>
 	}
 }
 
-/** Explicit project values replace settings values, including empty strings/arrays and false. */
-export function resolveConfiguration(project: Record<string, unknown>, fallback: ConfigurationReader): ConfigurationReader {
+/** The subset of `vscode.WorkspaceConfiguration.inspect()` needed to tell setting scopes apart. */
+export interface SettingsInspector {
+	inspect<T>(key: string): { defaultValue?: T; globalValue?: T; workspaceValue?: T; workspaceFolderValue?: T } | undefined;
+}
+
+/**
+ * Merge project values with VS Code settings. Precedence, lowest to highest:
+ * defaults < user (global) settings < `.extester.json` < workspace / workspace-folder settings.
+ * The project file is shared and beats personal global defaults; workspace settings are a local,
+ * per-project override (typically an untracked `.vscode/settings.json`) and beat the project file.
+ * Explicit project values count even when empty (`""`, `[]`, `false`).
+ * @param onShadowed called when a workspace setting overrides a value present in the project file
+ */
+export function resolveConfiguration(project: Record<string, unknown>, settings: SettingsInspector, onShadowed?: (key: string) => void): ConfigurationReader {
 	function get<T>(key: string, defaultValue?: T): T | undefined {
-		return Object.hasOwn(project, key) ? (project[key] as T) : (fallback.get<T>(key) ?? defaultValue);
+		const scopes = settings.inspect<T>(key);
+		const local = scopes?.workspaceFolderValue ?? scopes?.workspaceValue;
+		const inProject = Object.hasOwn(project, key);
+		if (local !== undefined) {
+			if (inProject) {
+				onShadowed?.(key);
+			}
+			return local;
+		}
+		if (inProject) {
+			return project[key] as T;
+		}
+		return scopes?.globalValue ?? scopes?.defaultValue ?? defaultValue;
 	}
 	return { get };
 }

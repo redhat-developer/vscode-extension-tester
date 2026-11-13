@@ -91,7 +91,16 @@ Create `.extester.json` directly in your workspace root to share ExTester Runner
 
 Use the setting names from the [Configuration](#configuration) section without the `extesterRunner.` prefix. Write `visualStudioCode.Version` and `visualStudioCode.Type` as properties of the nested `visualStudioCode` object shown above. The file is strict JSON: comments, unknown properties and invalid value types are reported as configuration errors.
 
-For each setting, an explicitly supplied `.extester.json` value takes precedence over the effective VS Code setting. Omitted properties retain the existing VS Code setting or its default. An empty array replaces the settings array; it does not append to it. Empty strings and `false` are also explicit values. Existing projects without `.extester.json` continue to use VS Code settings.
+Settings are resolved per key in this order, from lowest to highest priority:
+
+1. the extension's built-in default,
+2. your **user** settings (global, apply to every project),
+3. **`.extester.json`** (shared with the team),
+4. **workspace** and **workspace-folder** settings (e.g. `.vscode/settings.json`).
+
+The shared project file therefore beats personal global defaults, while workspace settings act as a local, per-project override — once `.vscode/settings.json` is no longer committed, every contributor can use it to adjust a value such as `tempFolder` or the VS Code version for themselves. When a workspace setting overrides a value from `.extester.json`, the extension shows a one-time notice naming the setting.
+
+Omitted properties retain the VS Code setting or its default. An empty array replaces the settings array; it does not append to it. Empty strings and `false` are also explicit values. Existing projects without `.extester.json` continue to use VS Code settings.
 
 Glob patterns and source/output directories are relative to the workspace root containing `.extester.json`. Relative `tempFolder` paths and CLI command execution use that same root. The extension watches creation, editing and deletion of the file and updates test discovery, views and file watchers without reloading VS Code. An invalid project file prevents test commands from silently running with fallback settings; fix the reported error to continue.
 
@@ -118,7 +127,7 @@ In a multi-root workspace, put a separate `.extester.json` in each root. Test di
 
 1. Copy your shared `extesterRunner.*` values into `.extester.json`, removing the prefix and nesting the VS Code version/type fields.
 2. Optionally replace a `--config` entry in `additionalArgs` with `configFile`.
-3. Verify test discovery and execution, then remove the migrated entries from `.vscode/settings.json`.
+3. Remove the migrated entries from `.vscode/settings.json` — workspace settings take precedence over `.extester.json`, so entries left behind keep overriding the shared values (the extension points this out with a notice). Then verify test discovery and execution.
 4. If your project no longer needs to track any workspace settings, stop tracking that file and add `.vscode/settings.json` to `.gitignore`. Keep other shared `.vscode` files, such as extension recommendations and launch configurations, versioned.
 
 The extension only reads `.extester.json`; it does not write or migrate workspace settings automatically.
