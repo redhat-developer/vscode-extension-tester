@@ -39,7 +39,17 @@ describe('Project configuration integration', () => {
 	let disposables: vscode.Disposable[] = [];
 	const source = 'project-config-fixture/source';
 	const output = 'project-config-fixture/compiled';
-	before(() => {
+	before(async () => {
+		// Workspace settings override .extester.json, so drop any left behind by other suites.
+		const settings = vscode.workspace.getConfiguration('extesterRunner');
+		const sections: { properties: Record<string, unknown> }[] =
+			vscode.extensions.getExtension('redhat.extester-runner')!.packageJSON.contributes.configuration;
+		const keys = sections.flatMap((section) => Object.keys(section.properties));
+		for (const key of keys.map((name) => name.replace(/^extesterRunner\./, ''))) {
+			if (settings.inspect(key)?.workspaceValue !== undefined) {
+				await settings.update(key, undefined, vscode.ConfigurationTarget.Workspace);
+			}
+		}
 		root = vscode.workspace.workspaceFolders![0].uri.fsPath;
 		configPath = join(root, '.extester.json');
 		mkdirSync(join(root, source), { recursive: true });
@@ -107,13 +117,18 @@ describe('Project configuration integration', () => {
 		await Promise.all([provider.refresh(), provider.refresh()]);
 		assert.deepEqual(await provider.getAllAbsolutePaths(), [join(root, source, 'sample.test.ts')]);
 	});
-	it('retains VS Code settings for omitted values', async () => {
+	it('retains VS Code settings for omitted values and lets workspace settings override the file', async () => {
 		const settings = vscode.workspace.getConfiguration('extesterRunner');
 		const previous = settings.inspect<string>('outputFolder')?.workspaceValue;
 		try {
 			await settings.update('outputFolder', 'settings-output', vscode.ConfigurationTarget.Workspace);
 			writeFileSync(configPath, JSON.stringify({ additionalArgs: [] }));
 			assert.equal(getRunnerConfiguration().get('outputFolder'), 'settings-output');
+			// A workspace setting is a local override and wins over the shared project file.
+			writeFileSync(configPath, JSON.stringify({ outputFolder: 'project-output' }));
+			assert.equal(getRunnerConfiguration().get('outputFolder'), 'settings-output');
+			await settings.update('outputFolder', undefined, vscode.ConfigurationTarget.Workspace);
+			assert.equal(getRunnerConfiguration().get('outputFolder'), 'project-output');
 		} finally {
 			await settings.update('outputFolder', previous, vscode.ConfigurationTarget.Workspace);
 		}
@@ -168,6 +183,11 @@ describe('Project configuration integration', () => {
 		const screenshots = new ScreenshotsTreeProvider(logger);
 		assert.equal(screenshots.resolveRootPath(), join(root, 'project-config-fixture/resources/screenshots'));
 	});
+	it('keeps the resource views working when the project config is invalid', () => {
+		writeFileSync(configPath, '{');
+		assert.doesNotThrow(() => new LogsTreeProvider(logger).resolveRootPath());
+		assert.doesNotThrow(() => new ScreenshotsTreeProvider(logger).resolveRootPath());
+	});
 	it('selects the owning root for task configuration and test discovery', async () => {
 		write();
 		const other = mkdtempSync(join(tmpdir(), 'extester-second-root-'));
@@ -200,11 +220,14 @@ describe('Project configuration integration', () => {
 			writeFileSync(join(root, 'healthy.test.ts'), "describe('healthy', () => {});");
 			await waitFor(async () => (await provider.getAllAbsolutePaths()).includes(join(root, 'healthy.test.ts')));
 		} finally {
-			const index = vscode.workspace.workspaceFolders?.findIndex((folder) => folder.uri.toString() === otherUri.toString()) ?? -1;
-			if (index >= 0) {
-				await changeFolders(index, 1);
+			try {
+				const index = vscode.workspace.workspaceFolders?.findIndex((folder) => folder.uri.toString() === otherUri.toString()) ?? -1;
+				if (index >= 0) {
+					await changeFolders(index, 1);
+				}
+			} finally {
+				rmSync(other, { recursive: true, force: true });
 			}
-			rmSync(other, { recursive: true, force: true });
 		}
 	});
 });
