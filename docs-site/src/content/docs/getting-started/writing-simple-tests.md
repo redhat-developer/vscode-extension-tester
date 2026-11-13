@@ -50,6 +50,8 @@ Add an npm script that points `extest` at the compiled files:
 }
 ```
 
+Alternatively, install `tsx` as a dev dependency and point `extest` directly at the TypeScript sources (`'./src/ui-test/**/*.test.ts'`) — no separate test compilation step is needed. See [TypeScript Tests](/vscode-extension-tester/guides/typescript-tests/).
+
 Optionally, place a `.mocharc.js` in the project root to adjust Mocha defaults — the standard 2 second timeout is rarely enough for UI tests:
 
 ```javascript
