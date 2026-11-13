@@ -44,7 +44,7 @@ describe('VSRunner TypeScript consumers', function () {
 		fs.symlinkSync(path.dirname(require.resolve('tsx/package.json')), path.join(project, 'node_modules/tsx'), 'junction');
 	}
 
-	function run(pattern = '*.test.*', locator?: string, cwd = project) {
+	function run(pattern = '*.test.*', locator?: string, cwd = project, nodeArgs: string[] = []) {
 		const script = `
 			const { VSRunner } = require(${JSON.stringify(require.resolve('../suite/runner'))});
 			const { VSBrowser } = require(${JSON.stringify(require.resolve('../browser'))});
@@ -68,7 +68,7 @@ describe('VSRunner TypeScript consumers', function () {
 		`;
 		// Older Node 22 releases have no built-in stripping and do not recognize this flag.
 		const flags = process.allowedNodeEnvironmentFlags.has('--experimental-strip-types') ? ['--no-experimental-strip-types'] : [];
-		const result = spawnSync(process.execPath, [...flags, '-e', script], {
+		const result = spawnSync(process.execPath, [...flags, ...nodeArgs, '-e', script], {
 			cwd,
 			encoding: 'utf8',
 			timeout: 20_000,
@@ -138,6 +138,19 @@ describe('VSRunner TypeScript consumers', function () {
 		assert.equal(result.status, 1, result.stdout + result.stderr);
 		assert.match(result.stderr, /npm install --save-dev tsx/);
 		assert.match(result.stderr, /locators.ts/);
+	});
+
+	it('keeps an already registered TypeScript loader and does not require tsx', () => {
+		// Stands in for ts-node/register or tsx preloaded through NODE_OPTIONS.
+		write(
+			'preload.js',
+			"const fs = require('node:fs'); require.extensions['.ts'] = (m, f) => m._compile(fs.readFileSync(f, 'utf8').replace(/: number/g, ''), f);",
+		);
+		write('example.test.ts', "const answer: number = 42; it('TS executed', () => require('node:assert/strict').equal(answer, 42));");
+		const result = run('*.test.ts', undefined, project, ['--require', path.join(project, 'preload.js')]);
+		assert.equal(result.status, 0, result.stdout + result.stderr);
+		assert.match(result.stdout, /1 passing/);
+		assert.doesNotMatch(result.stderr, /npm install --save-dev tsx/);
 	});
 
 	it('runs JavaScript without tsx', () => {

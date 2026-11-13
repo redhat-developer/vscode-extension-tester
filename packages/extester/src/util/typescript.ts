@@ -18,9 +18,15 @@
 import { createRequire } from 'node:module';
 import * as path from 'node:path';
 
-/** Register the consumer's optional loader before Mocha or custom locators load TypeScript. */
+/**
+ * Register the consumer's optional loader before Mocha or custom locators load TypeScript.
+ * Does nothing when no TypeScript input is present, or when a TypeScript require hook is
+ * already installed (e.g. `NODE_OPTIONS="--require ts-node/register"` or `--import tsx`),
+ * so existing loader setups keep working without `tsx`.
+ * @returns a function that removes the registered loader, or `undefined` if none was registered
+ */
 export function registerTypeScript(files: Iterable<string>): (() => void) | undefined {
-	const source = Array.from(files).find((file) => /\.(?:ts|tsx|cts)$/.test(file));
+	const source = Array.from(files).find((file) => /\.(?:ts|tsx|cts)$/.test(file) && !require.extensions[path.extname(file)]);
 	if (!source) {
 		return undefined;
 	}
