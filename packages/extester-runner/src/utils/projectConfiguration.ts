@@ -32,8 +32,9 @@ export function getRunnerConfiguration(resource?: vscode.Uri): ConfigurationRead
 		const id = `${folder?.uri.toString()}|${key}`;
 		if (!reportedShadows.has(id)) {
 			reportedShadows.add(id);
+			const owner = folder ? ` of "${folder.name}"` : '';
 			void vscode.window.showInformationMessage(
-				`ExTester Runner: the workspace setting "extesterRunner.${key}" overrides the value in .extester.json${folder ? ` of "${folder.name}"` : ''}. Remove it from the workspace settings to use the shared project value.`,
+				`ExTester Runner: the workspace setting "extesterRunner.${key}" overrides the value in .extester.json${owner}. Remove it from the workspace settings to use the shared project value.`,
 			);
 		}
 	});
