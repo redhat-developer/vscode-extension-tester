@@ -25,6 +25,9 @@ permissions:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     timeout-minutes: 20
 
     steps:
@@ -172,14 +175,14 @@ jobs:
         if: ${{ github.event.inputs.skipPublish != 'true' }}
         working-directory: packages/extester-runner
         run: |
-          vsce publish --pat ${{ secrets.VSCODE_MARKETPLACE_TOKEN }} \
+          vsce publish --oidc \
             --packagePath extester-runner-${VERSION}.vsix
 
       - name: 🚀 Publish to Open VSX Registry
         if: ${{ github.event.inputs.skipPublish != 'true' }}
         working-directory: packages/extester-runner
         run: |
-          ovsx publish -p ${{ secrets.OVSX_MARKETPLACE_TOKEN }} extester-runner-${VERSION}.vsix
+          ovsx publish --trusted-publishing extester-runner-${VERSION}.vsix
 
       - name: 📣 Add summary
         if: ${{ github.event.inputs.skipPublish != 'true' }}
