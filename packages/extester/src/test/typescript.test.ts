@@ -44,7 +44,7 @@ describe('VSRunner TypeScript consumers', function () {
 		fs.symlinkSync(path.dirname(require.resolve('tsx/package.json')), path.join(project, 'node_modules/tsx'), 'junction');
 	}
 
-	function run(pattern = '*.test.*', locator?: string, cwd = project, nodeArgs: string[] = []) {
+	function run(pattern = '*.test.*', locator?: string, cwd = project, nodeArgs: string[] = [], nativeTypeStripping = false) {
 		const script = `
 			const { VSRunner } = require(${JSON.stringify(require.resolve('../suite/runner'))});
 			const { VSBrowser } = require(${JSON.stringify(require.resolve('../browser'))});
@@ -67,7 +67,7 @@ describe('VSRunner TypeScript consumers', function () {
 			}).catch(error => { console.error(error); process.exitCode = 1; });
 		`;
 		// Older Node 22 releases have no built-in stripping and do not recognize this flag.
-		const flags = process.allowedNodeEnvironmentFlags.has('--experimental-strip-types') ? ['--no-experimental-strip-types'] : [];
+		const flags = !nativeTypeStripping && process.allowedNodeEnvironmentFlags.has('--experimental-strip-types') ? ['--no-experimental-strip-types'] : [];
 		const result = spawnSync(process.execPath, [...flags, ...nodeArgs, '-e', script], {
 			cwd,
 			encoding: 'utf8',
@@ -87,6 +87,21 @@ describe('VSRunner TypeScript consumers', function () {
 		const result = run('*.test.*', 'locators.ts', path.join(project, 'packages/tests'));
 		assert.equal(result.status, 0, result.stdout + result.stderr);
 		assert.match(result.stdout, /2 passing/);
+	});
+
+	it('uses tsx instead of native type stripping for syntax Node cannot strip', () => {
+		// Users run Node with its default flags; on releases where type stripping is on by default
+		// (22.18+, 23.6+), tsx must still handle enums, parameter properties and extensionless imports.
+		installTsx();
+		write(
+			'helper.ts',
+			'enum Answer { Value = 42 }\nexport class Holder { constructor(private readonly value: number = Answer.Value) {}\nget() { return this.value; } }',
+		);
+		write('locators.ts', "import { Holder } from './helper'; export const locators = { answer: new Holder().get() };");
+		write('example.test.ts', "import { Holder } from './helper'; it('TS executed', () => require('node:assert/strict').equal(new Holder().get(), 42));");
+		const result = run('*.test.ts', 'locators.ts', project, [], true);
+		assert.equal(result.status, 0, result.stdout + result.stderr);
+		assert.match(result.stdout, /1 passing/);
 	});
 
 	for (const extension of ['tsx', 'cts']) {
