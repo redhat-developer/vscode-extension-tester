@@ -64,8 +64,15 @@ async function main() {
 		console.error('Failed to run tests');
 		process.exitCode = 1;
 	} finally {
-		fs.rmSync(testWorkspace, { recursive: true, force: true });
-		fs.rmSync(runDirectory, { recursive: true, force: true });
+		// Best effort: on Windows, exiting VS Code helper processes can briefly keep the user data dir
+		// locked (EPERM/EBUSY). A failed cleanup must not mask the test result.
+		for (const directory of [testWorkspace, runDirectory]) {
+			try {
+				fs.rmSync(directory, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
+			} catch (error) {
+				console.warn(`Could not remove ${directory}:`, error);
+			}
+		}
 	}
 }
 

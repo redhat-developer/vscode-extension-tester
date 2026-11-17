@@ -133,7 +133,9 @@ export class ExtesterTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 				const relativeFolder = path.relative(owner?.uri.fsPath ?? '', folder);
 				const configuration = getRunnerConfiguration(vscode.Uri.file(folder));
 				const ignorePathPart = configuration.get<string>('ignorePathPart') ?? '';
-				const relativeLabel = relativeFolder.startsWith(ignorePathPart) ? relativeFolder.substring(ignorePathPart.length) : relativeFolder;
+				// Compare with forward slashes so a configured "src/" also matches Windows paths (src\...).
+				const matchesIgnoredPart = relativeFolder.replaceAll('\\', '/').startsWith(ignorePathPart.replaceAll('\\', '/'));
+				const relativeLabel = matchesIgnoredPart ? relativeFolder.substring(ignorePathPart.length) : relativeFolder;
 				const displayName = (vscode.workspace.workspaceFolders?.length ?? 0) > 1 ? `${owner?.name}/${relativeLabel}` : relativeLabel;
 
 				const treeItem = new TreeItem(displayName, vscode.TreeItemCollapsibleState.Collapsed, true, undefined, undefined, folderPath);

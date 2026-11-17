@@ -16,7 +16,6 @@
  */
 
 import * as vscode from 'vscode';
-
 import { TestRunner } from './TestRunnerTask';
 import * as path from 'path';
 import { Logger } from '../logger/logger';

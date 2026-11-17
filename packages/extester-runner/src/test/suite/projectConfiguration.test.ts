@@ -226,7 +226,10 @@ describe('Project configuration integration', () => {
 					await changeFolders(index, 1);
 				}
 			} finally {
-				rmSync(other, { recursive: true, force: true });
+				// Windows refuses to delete a directory that is still watched, so stop the watchers first.
+				disposables.forEach((item) => item.dispose());
+				disposables = [];
+				rmSync(other, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
 			}
 		}
 	});
