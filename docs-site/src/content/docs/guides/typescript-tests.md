@@ -39,7 +39,7 @@ This integration uses CommonJS module loading. Use a CommonJS package (omit `"ty
 
 ## Missing optional dependency
 
-If TypeScript inputs are found but `tsx` cannot be resolved, ExTester fails with a nonzero exit status and an error identifying the file and resolution directory:
+If TypeScript inputs are found but `tsx` cannot be resolved, ExTester fails with a nonzero exit status and an error identifying the file and resolution directory. `setup-and-run` and `ExTester.setupAndRunTests()` check this before downloading VS Code and ChromeDriver or installing the extension, so a missing `tsx` is reported right away:
 
 ```text
 ExTester cannot load TypeScript file "src/example.test.ts": the optional dependency "tsx" could not be resolved from "<project>".

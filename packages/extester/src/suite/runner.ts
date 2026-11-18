@@ -32,6 +32,29 @@ import { registerTypeScript } from '../util/typescript';
 const MOCHARC_YAML_SCHEMA = yaml.CORE_SCHEMA.withTags(yaml.mergeTag);
 
 /**
+ * Expand test file glob patterns into the ordered set of files Mocha will load
+ * @param testFilesPattern glob patterns of test files, optionally wrapped in single quotes
+ */
+export function expandTestFiles(testFilesPattern: string[]): Set<string> {
+	const testFiles = new Set<string>();
+	for (const pattern of testFilesPattern) {
+		const universalPattern = pattern.replace(/'/g, '');
+		globSync(universalPattern)
+			.reverse()
+			.forEach((val) => testFiles.add(val));
+	}
+	return testFiles;
+}
+
+/**
+ * All module paths ExTester loads before running tests: the test files plus the custom locators, if any
+ */
+export function withLocators(testFiles: Iterable<string>, customPageObjects?: CustomPageObjectsOptions): string[] {
+	const locatorsPath = customPageObjects?.locatorsPath;
+	return locatorsPath ? [...testFiles, locatorsPath] : [...testFiles];
+}
+
+/**
  * Mocha runner wrapper
  */
 export class VSRunner {
@@ -78,16 +101,8 @@ export class VSRunner {
 	runTests(testFilesPattern: string[], code: CodeUtil, resources: string[], logLevel: logging.Level = logging.Level.INFO): Promise<number> {
 		let unregister: (() => void) | undefined;
 		return new Promise<number>((resolve, reject) => {
-			const testFiles = new Set<string>();
-			for (const pattern of testFilesPattern) {
-				const universalPattern = pattern.replace(/'/g, '');
-				globSync(universalPattern)
-					.reverse()
-					.forEach((val) => testFiles.add(val));
-			}
-
-			const locatorsPath = this.customPageObjects?.locatorsPath;
-			unregister = registerTypeScript(locatorsPath ? [...testFiles, locatorsPath] : testFiles);
+			const testFiles = expandTestFiles(testFilesPattern);
+			unregister = registerTypeScript(withLocators(testFiles, this.customPageObjects));
 
 			const self = this;
 			const browser: VSBrowser = new VSBrowser(
