@@ -30,6 +30,9 @@ on:
 
 permissions:
   contents: write
+  # Required for npm trusted publishing: lets `npm publish` mint an OIDC token
+  # and exchange it for a short-lived registry credential.
+  id-token: write
 
 jobs:
   release:
@@ -140,19 +143,38 @@ jobs:
             -m "$(printf '%b' "$BODY")" \
             -m "Signed-off-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
 
-      - name: 🔧 Config .npmrc
-        if: ${{ github.event.inputs.skip_publish != 'true' }}
-        run: |
-          {
-            echo "registry=https://registry.npmjs.com"
-            echo "//registry.npmjs.com/:_authToken=\${NPM_TOKEN}"
-          } > .npmrc
-
       - name: 🚀 Publish to NPM registry (npmjs)
         if: ${{ github.event.inputs.skip_publish != 'true' }}
-        run: npm run publish -- --yes
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          # Trusted publishing needs npm >= 11.5.1 - the OIDC token exchange happens inside
+          # `npm publish`, so the CLI version on the runner matters more than node's.
+          npm_version="$(npm --version)"
+          if [[ "$(printf '%s\n%s\n' '11.5.1' "$npm_version" | sort -V | head -n1)" != '11.5.1' ]]; then
+            echo "::error::npm ${npm_version} predates trusted publishing (needs >= 11.5.1); bump the node version in this workflow"
+            exit 1
+          fi
+          echo "Publishing with npm ${npm_version}"
+
+          # Only publish packages whose version is not on the registry yet - the equivalent of
+          # `lerna publish from-package --no-private`, but through npm so the OIDC exchange runs.
+          for dir in packages/*/; do
+            manifest="${dir}package.json"
+            [[ -f "$manifest" ]] || continue
+            if [[ "$(jq -r '.private // false' "$manifest")" == "true" ]]; then
+              echo "⏭️  ${dir%/} is private, skipping"
+              continue
+            fi
+            name="$(jq -r '.name' "$manifest")"
+            version="$(jq -r '.version' "$manifest")"
+            if npm view "${name}@${version}" version >/dev/null 2>&1; then
+              echo "⏭️  ${name}@${version} is already on the registry, skipping"
+              continue
+            fi
+            echo "🚀 Publishing ${name}@${version}"
+            (cd "$dir" && npm publish)
+          done
 
       - name: 🏷️ Create git tags
         if: ${{ github.event.inputs.skip_publish != 'true' }}
