@@ -150,11 +150,12 @@ jobs:
 
           # Trusted publishing needs npm >= 11.5.1 - the OIDC token exchange happens inside
           # `npm publish`, so the CLI version on the runner matters more than node's.
-          if [[ "$(printf '%s\n%s\n' '11.5.1' "$(npm --version)" | sort -V | head -n1)" != '11.5.1' ]]; then
-            echo "npm $(npm --version) predates trusted publishing; installing a newer npm"
-            npm install --global npm@latest
+          npm_version="$(npm --version)"
+          if [[ "$(printf '%s\n%s\n' '11.5.1' "$npm_version" | sort -V | head -n1)" != '11.5.1' ]]; then
+            echo "::error::npm ${npm_version} predates trusted publishing (needs >= 11.5.1); bump the node version in this workflow"
+            exit 1
           fi
-          echo "Publishing with npm $(npm --version)"
+          echo "Publishing with npm ${npm_version}"
 
           # Only publish packages whose version is not on the registry yet - the equivalent of
           # `lerna publish from-package --no-private`, but through npm so the OIDC exchange runs.
