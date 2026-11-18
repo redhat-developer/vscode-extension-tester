@@ -24,6 +24,8 @@ import * as os from 'node:os';
 import { URL } from 'node:url';
 import pjson from '../package.json';
 import { globSync } from 'glob';
+import { expandTestFiles, withLocators } from './suite/runner';
+import { assertTypeScriptLoader } from './util/typescript';
 
 /** Returns true when the string contains at least one glob special character. */
 function isGlobPattern(p: string): boolean {
@@ -288,6 +290,10 @@ export class ExTester {
 		setupOptions: Omit<SetupOptions, 'vscodeVersion'> = DEFAULT_SETUP_OPTIONS,
 		runOptions: Omit<RunOptions, 'vscodeVersion'> = DEFAULT_RUN_OPTIONS,
 	): Promise<number> {
+		// Fail before the slow downloads and VSIX install if TypeScript tests cannot be loaded.
+		// Patterns matching nothing yet (e.g. JS emitted by the extension build) are skipped here
+		// and still checked by the runner.
+		assertTypeScriptLoader(withLocators(expandTestFiles(toPatterns(testFilesPattern)), runOptions.customPageObjects));
 		await this.setupRequirements(
 			{ ...setupOptions, vscodeVersion, settings: setupOptions.settings ?? runOptions.settings },
 			runOptions.offline,
@@ -308,9 +314,12 @@ export class ExTester {
 	 */
 	async runTests(testFilesPattern: string | string[], runOptions: RunOptions = DEFAULT_RUN_OPTIONS): Promise<number> {
 		runOptions.vscodeVersion = loadCodeVersion(runOptions.vscodeVersion);
-		const patterns = typeof testFilesPattern === 'string' ? [testFilesPattern] : testFilesPattern;
-		return await this.code.runTests(patterns, runOptions);
+		return await this.code.runTests(toPatterns(testFilesPattern), runOptions);
 	}
+}
+
+function toPatterns(testFilesPattern: string | string[]): string[] {
+	return typeof testFilesPattern === 'string' ? [testFilesPattern] : testFilesPattern;
 }
 
 export function loadCodeVersion(version: string | undefined): string {

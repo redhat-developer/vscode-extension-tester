@@ -168,6 +168,46 @@ describe('VSRunner TypeScript consumers', function () {
 		assert.doesNotMatch(result.stderr, /npm install --save-dev tsx/);
 	});
 
+	function setupAndRun(pattern: string, locator?: string) {
+		const script = `
+			const { ExTester } = require(${JSON.stringify(require.resolve('../extester'))});
+			let setupStarted = false;
+			// Stands in for the VS Code/ChromeDriver downloads and the VSIX install.
+			ExTester.prototype.setupRequirements = async () => { setupStarted = true; };
+			ExTester.prototype.runTests = async () => 0;
+			const runOptions = ${JSON.stringify(locator ? { customPageObjects: { locatorsPath: locator } } : {})};
+			new ExTester(require('node:path').join(process.cwd(), 'storage')).setupAndRunTests([${JSON.stringify(pattern)}], 'latest', {}, runOptions)
+				.then(() => console.log('setup started: ' + setupStarted))
+				.catch(error => { console.error(error.message); console.error('setup started: ' + setupStarted); process.exitCode = 1; });
+		`;
+		const result = spawnSync(process.execPath, ['-e', script], { cwd: project, encoding: 'utf8', timeout: 20_000 });
+		assert.ifError(result.error);
+		return result;
+	}
+
+	it('reports a missing tsx from setupAndRunTests before any setup work', () => {
+		write('example.test.ts', "it('TS test', () => {});");
+		write('locators.ts', 'export const locators = {};');
+		for (const [pattern, locator, file] of [
+			['*.test.ts', undefined, 'example.test.ts'],
+			['*.test.js', 'locators.ts', 'locators.ts'],
+		] as const) {
+			const result = setupAndRun(pattern, locator);
+			assert.equal(result.status, 1, result.stdout + result.stderr);
+			assert.match(result.stderr, /npm install --save-dev tsx/);
+			assert.ok(result.stderr.includes(file), result.stderr);
+			assert.match(result.stderr, /setup started: false/);
+		}
+	});
+
+	it('does not block setupAndRunTests when tsx is installed or no TypeScript input exists', () => {
+		write('example.test.js', "it('JS executed', () => {});");
+		assert.match(setupAndRun('*.test.js').stdout, /setup started: true/);
+		installTsx();
+		write('example.test.ts', "it('TS test', () => {});");
+		assert.match(setupAndRun('*.test.ts').stdout, /setup started: true/);
+	});
+
 	it('runs JavaScript without tsx', () => {
 		write('example.test.js', "it('JS executed', () => {});");
 		const result = run();
