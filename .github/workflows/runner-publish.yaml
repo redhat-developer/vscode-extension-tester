@@ -26,8 +26,8 @@ jobs:
   build-and-publish:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      id-token: write
+      contents: write # create the GitHub release
+      id-token: write # OIDC trusted publishing
     timeout-minutes: 20
 
     steps:
