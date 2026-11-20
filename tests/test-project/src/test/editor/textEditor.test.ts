@@ -308,6 +308,37 @@ describe('TextEditor', function () {
 		}
 	});
 
+	describe('file path', function () {
+		const file = 'test-file.ts';
+		const filePath = path.resolve(__dirname, '..', '..', '..', 'resources', file);
+		let ew: EditorView;
+
+		before(async function (this: Mocha.Context) {
+			this.timeout(90000);
+			await VSBrowser.instance.openResources(filePath);
+			ew = new EditorView();
+			await waitFor(async () => (await ew.getOpenEditorTitles()).includes(file), {
+				timeout: 60_000,
+				message: `Unable to find opened editor with title '${file}'`,
+			});
+		});
+
+		after(async function (this: Mocha.Context) {
+			this.timeout(15000);
+			try {
+				await ew.closeEditor(file);
+			} catch {
+				// tab may already be closed
+			}
+		});
+
+		it('getFilePath returns the same path the file was opened with', async function () {
+			const editor = (await ew.openEditor(file)) as TextEditor;
+			// on Windows, VS Code lower cases the drive letter in the editor URI - see #2586
+			expect(await editor.getFilePath()).equals(filePath);
+		});
+	});
+
 	describe('searching', function () {
 		before(async function () {
 			const ew = new EditorView();

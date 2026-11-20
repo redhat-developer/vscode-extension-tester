@@ -73,11 +73,15 @@ export class TextEditor extends Editor {
 	}
 
 	/**
-	 * Retrieve the path to the file opened in the active editor
+	 * Retrieve the path to the file opened in the active editor.
+	 * On Windows, the drive letter is returned in upper case (e.g. `C:\...`),
+	 * matching what Node.js path APIs such as `path.resolve` and `__dirname` produce.
 	 * @returns Promise resolving to editor's underlying file path
 	 */
 	async getFilePath(): Promise<string> {
-		return fileURLToPath(await this.getFileUri());
+		const filePath = fileURLToPath(await this.getFileUri());
+		// VS Code serializes file URIs with a lower case drive letter (file:///c%3A/...)
+		return filePath.replace(/^[a-z](?=:)/, (drive) => drive.toUpperCase());
 	}
 
 	/**
