@@ -257,4 +257,39 @@ describe('Settings Editor', function () {
 			);
 		}
 	});
+
+	describe('perspectives', function () {
+		// 'window.title' is set in the test project's .vscode/settings.json and left at
+		// its default in the user settings, so its value tells the perspectives apart
+		const workspaceTitle = '${activeEditorShort}${separator}folder: ${rootPath}';
+
+		after(async function (this: Mocha.Context) {
+			this.timeout(15000);
+			// leave the editor on the default perspective so no later test writes workspace settings
+			await editor.switchToPerspective('User');
+		});
+
+		it('switchToPerspective works - Workspace', async function () {
+			this.timeout(30000);
+			await editor.switchToPerspective('Workspace');
+			await waitUntilWindowTitle((value) => value === workspaceTitle, 'Workspace');
+		});
+
+		it('switchToPerspective works - User', async function () {
+			this.timeout(30000);
+			await editor.switchToPerspective('User');
+			await waitUntilWindowTitle((value) => value !== workspaceTitle, 'User');
+		});
+
+		async function waitUntilWindowTitle(predicate: (value: string) => boolean, perspective: string, timeout: number = 20_000): Promise<void> {
+			await waitFor(
+				async () => {
+					const setting = (await editor.findSettingByID('window.title')) as TextSetting | undefined;
+					const value = await setting?.getValue();
+					return value !== undefined && predicate(value);
+				},
+				{ timeout, message: `'window.title' does not show the value of the '${perspective}' settings perspective` },
+			);
+		}
+	});
 });
