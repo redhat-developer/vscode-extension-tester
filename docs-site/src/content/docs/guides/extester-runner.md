@@ -58,8 +58,9 @@ The extension is highly configurable through VS Code settings. All setting IDs a
    - `ignorePathPart`: Pattern to hide specific path segments in the test view
 
 2. **Test Execution Settings**
-   - `outputFolder`: Directory for compiled test files (default: `out`)
-   - `rootFolder`: Root source directory for test files (default: not set)
+   - `runSources`: Run the TypeScript test sources without compiling them; see [Running TypeScript Sources](#running-typescript-sources) (default: `false`)
+   - `outputFolder`: Directory for compiled test files (default: `out`). Ignored when `runSources` is enabled
+   - `rootFolder`: Root source directory for test files (default: not set). Ignored when `runSources` is enabled
    - `tempFolder`: Directory for temporary test files (default: not set — the system temporary folder is used)
    - `visualStudioCode.Version`: VS Code version for test execution — `max`, `min`, `latest`, or an exact version such as `1.97.1` (default: `max`)
    - `visualStudioCode.Type`: VS Code build type — `stable` or `insider` (default: `stable`)
@@ -80,10 +81,11 @@ The extension provides a built-in walkthrough to help you get started quickly. T
 
 The walkthrough will guide you through the essential configuration steps:
 
-1. **Configure Root and Output Directories**
-   - Set up your test environment by configuring:
+1. **Choose Compiled Tests or TypeScript Sources**
+   - Compiled JavaScript (default): configure
      - Root Folder: Where your test files are located
      - Output Folder: Where compiled tests are stored
+   - TypeScript sources: enable Run Sources to run the `.ts` files without compiling them (see [Running TypeScript Sources](#running-typescript-sources))
 
 2. **Configure Test File Pattern**
    - Set up the pattern that ExTester Runner will use to find your test files
@@ -109,6 +111,38 @@ If you prefer to configure the extension manually, you can access all settings t
 1. Open VS Code Settings (Ctrl+, / Cmd+,)
 2. Search for "ExTester Runner"
 3. Configure the settings listed in the [Configuration](#configuration) section above (prefixed `extesterRunner.*` when editing `settings.json` directly)
+
+### Running TypeScript Sources
+
+By default, ExTester Runner runs the compiled JavaScript tests. It maps the selected file or folder from `rootFolder` to `outputFolder`. For example, with `rootFolder` set to `src`, `src/ui-test/a.test.ts` runs as `out/ui-test/a.test.js`. You have to compile the tests before each run.
+
+ExTester 8.29.0 and later can [load TypeScript tests](/vscode-extension-tester/guides/typescript-tests/) with `tsx`. To run the test sources without compiling them, enable `runSources`:
+
+```json
+{
+  "extesterRunner.testFileGlob": "packages/ui-tests/src/**/*.test.ts",
+  "extesterRunner.runSources": true
+}
+```
+
+The run commands then pass the sources to `extest setup-and-run` as they are and ignore `rootFolder` and `outputFolder`:
+
+| Command    | Runs                                                                | Example                                     |
+| ---------- | ------------------------------------------------------------------- | ------------------------------------------- |
+| Run File   | The selected file                                                   | `packages/ui-tests/src/editor/Flow.test.ts` |
+| Run Folder | The matching files directly in the folder                           | `packages/ui-tests/src/editor/*.test.ts`    |
+| Run All    | The matching files below the deepest folder that contains all tests | `packages/ui-tests/src/**/*.test.ts`        |
+
+The file pattern is the last segment of `testFileGlob`. The Runner passes absolute paths; the examples are relative to the workspace folder.
+
+Requirements:
+
+- `vscode-extension-tester` 8.29.0 or later.
+- `tsx` that resolves from the first workspace folder. The Runner starts `extest` in that folder, and ExTester resolves `tsx` from its working directory. In a monorepo, install `tsx` in the repository root, or let the package manager hoist it there.
+
+The Runner does not check for `tsx` itself. If it is missing, ExTester reports it with install instructions before it downloads VS Code.
+
+`tsx` does not type-check the tests, so keep a separate type check. The extension under test still has to be built as usual. See [Type checking and extension builds](/vscode-extension-tester/guides/typescript-tests/#type-checking-and-extension-builds).
 
 ### Getting Started
 

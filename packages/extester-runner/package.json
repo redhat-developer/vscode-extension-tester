@@ -35,14 +35,15 @@
         "steps": [
           {
             "id": "setRootOut",
-            "title": "Configure Root and Output Directories",
-            "description": "Set up your test environment by configuring two essential paths:\n\n• [Root Folder](command:workbench.action.openWorkspaceSettings?%22extesterRunner.rootFolder%22) - Where your test files are located\n• [Output Folder](command:workbench.action.openWorkspaceSettings?%22extesterRunner.outputFolder%22) - Where compiled tests are stored\n\nThese settings help ExTester Runner locate and execute your tests correctly.",
+            "title": "Choose Compiled Tests or TypeScript Sources",
+            "description": "Choose how ExTester Runner passes your tests to `extest setup-and-run`:\n\n• **Compiled JavaScript** (default) - set the [Root Folder](command:workbench.action.openWorkspaceSettings?%22extesterRunner.rootFolder%22) with your TypeScript tests and the [Output Folder](command:workbench.action.openWorkspaceSettings?%22extesterRunner.outputFolder%22) they are compiled to. Compile the tests before each run.\n• **TypeScript sources** - turn on [Run Sources](command:workbench.action.openWorkspaceSettings?%22extesterRunner.runSources%22) to run the `.ts` test files without compiling them. Requires ExTester 8.29.0 or later and `tsx` resolvable from the first workspace folder, where ExTester runs. See [TypeScript Tests](https://redhat-developer.github.io/vscode-extension-tester/guides/typescript-tests/).",
             "media": {
               "image": "resources/walkthroughs/setOutRoot.png",
               "altText": "Configure Root and Output directories"
             },
             "completionEvents": [
-              "onCommand:workbench.action.openWorkspaceSettings"
+              "onCommand:workbench.action.openWorkspaceSettings",
+              "onSettingChanged:extesterRunner.runSources"
             ]
           },
           {
@@ -169,30 +170,37 @@
       {
         "title": "Command Line",
         "properties": {
+          "extesterRunner.runSources": {
+            "type": "boolean",
+            "default": false,
+            "scope": "resource",
+            "order": 0,
+            "markdownDescription": "Run the test files matched by `#extesterRunner.testFileGlob#` as they are, without compiling them. Run File, Run Folder and Run All pass the TypeScript sources to `extest setup-and-run` and ignore `#extesterRunner.rootFolder#` and `#extesterRunner.outputFolder#`. Requires ExTester 8.29.0 or later and `tsx` resolvable from the first workspace folder, where ExTester runs. See [TypeScript Tests](https://redhat-developer.github.io/vscode-extension-tester/guides/typescript-tests/). Default: `false` (run the compiled JavaScript in `#extesterRunner.outputFolder#`)."
+          },
           "extesterRunner.outputFolder": {
             "type": "string",
             "scope": "resource",
             "default": "out",
-            "order": 0,
-            "markdownDescription": "Specifies the output directory for compiled test files. Default: `out`. This setting is used to locate the JavaScript files generated from your TypeScript test files."
+            "order": 1,
+            "markdownDescription": "Specifies the output directory for compiled test files. Default: `out`. This setting is used to locate the JavaScript files generated from your TypeScript test files. Ignored when `#extesterRunner.runSources#` is enabled."
           },
           "extesterRunner.rootFolder": {
             "type": "string",
             "scope": "resource",
-            "order": 1,
-            "markdownDescription": "Defines the root source directory containing your TypeScript test files. Can be left empty. When specified, this path segment will be ignored when mapping from source to output directory (e.g., if root is `src` and output is `out`, `src/tests/file.ts` will map to `out/tests/file.js`)."
+            "order": 2,
+            "markdownDescription": "Defines the root source directory containing your TypeScript test files. Can be left empty. When specified, this path segment will be ignored when mapping from source to output directory (e.g., if root is `src` and output is `out`, `src/tests/file.ts` will map to `out/tests/file.js`). Ignored when `#extesterRunner.runSources#` is enabled."
           },
           "extesterRunner.tempFolder": {
             "type": "string",
             "scope": "resource",
-            "order": 2,
+            "order": 3,
             "markdownDescription": "Specifies the directory for temporary files used by ExTester. If undefined, the default system temporary folder is used. This setting overrides any corresponding [environment variables](https://redhat-developer.github.io/vscode-extension-tester/guides/test-setup/#useful-env-variables)."
           },
           "extesterRunner.visualStudioCode.Version": {
             "type": "string",
             "default": "max",
             "scope": "resource",
-            "order": 3,
+            "order": 4,
             "markdownDescription": "Specifies the VS Code version. Options: `max`, `min`, `latest`, or a specific version (e.g., `1.97.1`). Default: `max` (max version supported by ExTester). This setting overrides any corresponding [environment variables](https://redhat-developer.github.io/vscode-extension-tester/guides/test-setup/#useful-env-variables)."
           },
           "extesterRunner.visualStudioCode.Type": {
@@ -203,7 +211,7 @@
             ],
             "default": "stable",
             "scope": "resource",
-            "order": 4,
+            "order": 5,
             "markdownDescription": "Defines the VS Code distribution. Use `stable` (default) for the official, fully tested release with monthly updates, or `insider` for a preview version with daily updates and experimental features (potentially unstable). See [VS Code Insiders page](https://code.visualstudio.com/insiders/) for more info. This setting overrides any corresponding [environment variables](https://redhat-developer.github.io/vscode-extension-tester/guides/test-setup/#useful-env-variables)."
           },
           "extesterRunner.additionalArgs": {
@@ -213,7 +221,7 @@
             "items": {
               "type": "string"
             },
-            "order": 5,
+            "order": 6,
             "markdownDescription": "Additional arguments for the ExTester `setup-and-run` command.\n\nSee [ExTester documentation](https://redhat-developer.github.io/vscode-extension-tester/guides/test-setup/#set-up-and-run-tests) for more details."
           }
         }

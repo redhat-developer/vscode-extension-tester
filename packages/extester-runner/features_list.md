@@ -56,6 +56,7 @@ The extension contributes several settings under the namespace extesterRunner:
 - `excludeGlob` (string): Glob pattern of paths to exclude from test search (default `**/node_modules/**`).
 - `ignorePathPart` (string): If set, any matching path segment is removed from folder labels in the UI Tests view (for cleaner display, e.g., remove common prefix paths).
 - `additionalArgs` (array of strings): Additional CLI arguments to pass to the test runner (`extest`) when executing tests (e.g., user-defined options).
+- `runSources` (boolean): Run the test sources as they are instead of the compiled JavaScript (default `false`). `outputFolder` and `rootFolder` are then ignored. Requires ExTester 8.29.0+ and `tsx` for TypeScript sources.
 - `outputFolder` (string): Path to the compiled output directory for tests (default `out`).
 - `rootFolder` (string): Path to the test source root.
 - `tempFolder` (string): Directory for test artifacts (logs, screenshots). If empty, the extension uses a default temp directory or an environment variable `TEST_RESOURCES`.
@@ -72,6 +73,7 @@ The extension defines an `extester-runner-task` task type in `package.json` and 
 - RunAllTestsTask (extends vscode.Task): Configured to run npx extest setup-and-run <outDir> [options] for all tests.
 - RunFolderTask: Similar, but runs tests only under a specific folder path.
 - RunFileTask: Runs tests from a single file. It calculates the output `.js` file path corresponding to the source `.ts` file (using `rootFolder`/`outputFolder` settings and then runs `npx extest setup-and-run '<compiled-file-path>' [options]`.
+- With `runSources` enabled, all three tasks skip the `rootFolder`/`outputFolder` mapping and pass the source file, `<folder>/<pattern>` or `<common folder>/**/<pattern>` (pattern = last segment of `testFileGlob`) to `extest setup-and-run`. The path computation lives in `src/tasks/testTarget.ts`.
 - These tasks use `ShellExecution` to invoke the `extest` CLI and pass arguments based on the settings (e.g., `--storage <tempFolder>`for custom temp directory, `--code_version`, `--code_type`, and any extra `additionalArgs`). They ensure the task execution is awaited (using `vscode.tasks.executeTas` and listening for task completion) before allowing another run.
 
 # Logging:
