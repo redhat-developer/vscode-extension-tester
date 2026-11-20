@@ -41,8 +41,27 @@ export function registerTestCommands(context: vscode.ExtensionContext, treeDataP
 		vscode.commands.registerCommand('extester-runner.runAll', async () => {
 			logger.debug('Command triggered: extester-runner.runAll');
 			const allFiles = await treeDataProvider.getAllAbsolutePaths();
-			const task = new RunAllTestsTask(allFiles, logger);
-			await task.execute();
+			// Test tasks share runner resources, so wait for each root before starting the next.
+			await (vscode.workspace.workspaceFolders ?? []).reduce(
+				(previous, folder) =>
+					previous.then(async () => {
+						const files = allFiles.filter(
+							(file) => vscode.workspace.getWorkspaceFolder(vscode.Uri.file(file))?.uri.toString() === folder.uri.toString(),
+						);
+						if (!files.length) {
+							return;
+						}
+						// A configuration error in one root must not prevent the other roots from running.
+						try {
+							await new RunAllTestsTask(files, logger).execute();
+						} catch (error) {
+							const message = `Cannot run tests in ${folder.name}: ${error instanceof Error ? error.message : String(error)}`;
+							logger.error(message);
+							void vscode.window.showErrorMessage(message);
+						}
+					}),
+				Promise.resolve(),
+			);
 		}),
 	);
 

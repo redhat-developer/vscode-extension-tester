@@ -23,19 +23,9 @@ import { LogsTreeProvider } from '../providers/logsTreeProvider';
 import { createScreenshotsWatcher } from './screenshotsWatcher';
 import { createLogsWatcher } from './logWatcher';
 import { createFileWatcher } from './fileWatcher';
+import { replaceWatchers } from './watcherStore';
 
-/**
- * Registers a settings watcher to detect configuration changes related to `extesterRunner`
- * and trigger a refresh of the view.
- *
- * This function listens for workspace configuration changes and refreshes the test explorer
- * whenever any setting under `extesterRunner` is updated. Ensures that updates to user-defined
- * settings are applied without requiring a manual reload.
- *
- * @param context - The extension context used to register disposables.
- * @param treeDataProvider - The tree data provider responsible for managing the test explorer view.
- * @param logger - Logger instance for logging configuration changes.
- */
+/** Watch settings and root project files using the same lifecycle and configuration resolver. */
 export function settingsWatcher(
 	context: vscode.ExtensionContext,
 	treeDataProvider: ExtesterTreeProvider,
@@ -43,25 +33,39 @@ export function settingsWatcher(
 	logsDataProvider: LogsTreeProvider,
 	logger: Logger,
 ) {
+	const refresh = () => {
+		try {
+			createFileWatcher(context, treeDataProvider, logger);
+			createLogsWatcher(context, logsDataProvider, logger);
+			createScreenshotsWatcher(context, screenshotsDataProvider, logger);
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			logger.error(message);
+			void vscode.window.showErrorMessage(message);
+		} finally {
+			void treeDataProvider.refresh();
+			logsDataProvider.refresh();
+			screenshotsDataProvider.refresh();
+		}
+	};
+	const watchProjectFiles = () =>
+		replaceWatchers(context, 'configuration', () =>
+			(vscode.workspace.workspaceFolders ?? []).flatMap((folder) => {
+				const watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(folder, '.extester.json'));
+				return [watcher, watcher.onDidCreate(refresh), watcher.onDidChange(refresh), watcher.onDidDelete(refresh)];
+			}),
+		);
+	watchProjectFiles();
+	refresh();
 	context.subscriptions.push(
 		vscode.workspace.onDidChangeConfiguration((event) => {
 			if (event.affectsConfiguration('extesterRunner')) {
-				logger.debug('SettingsWatcher: Setting was changed, refreshing views.');
-				void treeDataProvider.refresh();
-				logsDataProvider.refresh();
-				screenshotsDataProvider.refresh();
-
-				if (event.affectsConfiguration('extesterRunner.tempFolder')) {
-					logger.info('SettingsWatcher: tempFolder setting changed — resetting screenshots and logs watcher');
-					createScreenshotsWatcher(context, screenshotsDataProvider, logger);
-					createLogsWatcher(context, logsDataProvider, logger);
-				}
-
-				if (event.affectsConfiguration('extesterRunner.testFileGlob')) {
-					logger.info('SettingsWatcher: testFileGlob setting changed — resetting file watcher');
-					createFileWatcher(context, treeDataProvider, logger);
-				}
+				refresh();
 			}
+		}),
+		vscode.workspace.onDidChangeWorkspaceFolders(() => {
+			watchProjectFiles();
+			refresh();
 		}),
 	);
 }

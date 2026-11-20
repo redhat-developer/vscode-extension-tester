@@ -488,7 +488,13 @@
           "when": "false"
         }
       ]
-    }
+    },
+    "jsonValidation": [
+      {
+        "fileMatch": "/.extester.json",
+        "url": "./resources/extester-runner.schema.json"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run build",
