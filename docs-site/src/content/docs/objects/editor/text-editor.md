@@ -74,6 +74,11 @@ const path = await editor.getFilePath();
 const uri = await editor.getFileUri();
 ```
 
+`getFilePath()` returns a path you can compare directly with paths built using Node.js APIs
+such as `path.resolve` or `path.join(__dirname, ...)`. On Windows, the drive letter is always
+upper case (`C:\...`). `getFileUri()` returns the URI exactly as VS Code serializes it, which on
+Windows means a lower case, encoded drive letter (`file:///c%3A/...`).
+
 ## Content Assist
 
 ```typescript
