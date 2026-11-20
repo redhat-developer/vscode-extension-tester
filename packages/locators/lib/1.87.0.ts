@@ -26,6 +26,7 @@ export const diff: LocatorDiff = {
 		},
 		SettingsEditor: {
 			comboValue: 'value',
+			action: (label: string) => By.xpath(`.//a[@aria-label='${label}']`),
 		},
 		FindWidget: {
 			checkbox: (title: string) => By.xpath(`.//div[@role='checkbox' and starts-with(@aria-label, "${title}")]`),

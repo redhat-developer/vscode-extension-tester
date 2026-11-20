@@ -56,7 +56,7 @@ export class SettingsEditor extends Editor {
 	async findSetting(title: string, ...categories: string[]): Promise<Setting> {
 		return this.withRecovery(async (self) => {
 			const category = categories.join(self.divider);
-			const searchBox = await self.findElement(SettingsEditor.locators.Editor.inputArea);
+			const searchBox = await self.focusSearchBox();
 			await searchBox.sendKeys(Key.chord(SettingsEditor.ctlKey, 'a'));
 			await searchBox.sendKeys(`${category}>${title}`);
 
@@ -73,12 +73,23 @@ export class SettingsEditor extends Editor {
 	 * @returns Promise resolving to a Setting object if found, undefined otherwise
 	 */
 	async findSettingByID(id: string): Promise<Setting> {
-		const searchBox = await this.findElement(SettingsEditor.locators.Editor.inputArea);
+		const searchBox = await this.focusSearchBox();
 		await searchBox.sendKeys(Key.chord(SettingsEditor.ctlKey, 'a'));
 		await searchBox.sendKeys(id);
 
 		const title = id.split('.').pop();
 		return await this._getSettingItem(title);
+	}
+
+	/**
+	 * Find the settings search box and move focus into it. Interactions such as editing
+	 * an array item leave focus outside the search box, and the zero-width native edit
+	 * context used by newer VS Code versions rejects keys unless it is focused.
+	 */
+	private async focusSearchBox(): Promise<WebElement> {
+		const searchBox = await this.findElement(SettingsEditor.locators.Editor.inputArea);
+		await this.getDriver().executeScript('arguments[0].focus()', searchBox);
+		return searchBox;
 	}
 
 	private async _getSettingItem(title: string = '', category: string = ''): Promise<Setting> {

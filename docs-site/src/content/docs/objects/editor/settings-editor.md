@@ -37,9 +37,11 @@ const setting = await settingsEditor.findSettingByID("files.autoSave");
 
 ## Switch Settings Perspectives
 
-VSCode has two perspectives for its settings: 'User' and 'Workspace'. If your VSCode instance loads from both user and workspace settings.json files, you will be able to switch the perspectives in the editor:
+VSCode has two perspectives for its settings: 'User' and 'Workspace'. The 'Workspace' perspective is only available when a folder or workspace is open in VSCode. In that case you can switch the perspectives in the editor:
 
 ```typescript
 // switch to Workspace perspective
 await settingsEditor.switchToPerspective("Workspace");
 ```
+
+The tab is matched by its accessible name, so always pass `"Workspace"`, even if your VSCode version shows a different label on the tab (newer versions can display the name of the open workspace there).
