@@ -18,22 +18,23 @@
 import * as vscode from 'vscode';
 import { ShellExecution, TaskScope, workspace } from 'vscode';
 import { TestRunner } from './TestRunnerTask';
-import * as path from 'path';
 import { Logger } from '../logger/logger';
+import { getFolderTarget, getTestTargetSettings } from './testTarget';
 
 /**
  * Task for running all test files within a specified folder.
  *
  * This task executes all test files located within a given folder by converting the
- * folder path to match the compiled output structure. It retrieves necessary configurations
- * and constructs the appropriate command for execution using `extest`.
+ * folder path to match the compiled output structure, or by globbing the source folder
+ * when `runSources` is enabled. It retrieves necessary configurations and constructs the
+ * appropriate command for execution using `extest`.
  */
 export class RunFolderTask extends TestRunner {
 	/**
 	 * Creates an instance of the `RunFolderTask`.
 	 *
 	 * This constructor retrieves configurations, transforms the folder path to match the
-	 * compiled output structure, and sets up the shell execution command.
+	 * compiled output structure (unless `runSources` is enabled), and sets up the shell execution command.
 	 *
 	 * @param {string} folder - The absolute path of the folder containing test files.
 	 * @param {Logger} logger - The logger instance for logging messages.
@@ -49,38 +50,14 @@ export class RunFolderTask extends TestRunner {
 		}
 
 		// Get configuration values.
-		const outputFolder = configuration.get<string>('outputFolder') ?? 'out';
-		const rootFolder = configuration.get<string>('rootFolder');
+		const settings = getTestTargetSettings(configuration);
 		const tempDirSettings = configuration.get<string>('tempFolder');
-		logger.info(`RunFolderTask: outputFolder: ${outputFolder}, rootFolder: ${rootFolder}`);
-		logger.info(`RunFolderTask: rootFolder: ${rootFolder}`);
+		logger.info(`RunFolderTask: runSources: ${settings.runSources}, outputFolder: ${settings.outputFolder}, rootFolder: ${settings.rootFolder}`);
 		logger.info(`RunFolderTask: tempDirSettings: ${tempDirSettings}`);
-
-		// Convert folder path to relative path.
-		const folderPath = path.resolve(folder);
-		const relativePath = path.relative(workspaceFolder, folderPath);
-
-		// Get test file pattern from configuration.
-		const testFileGlob = configuration.get<string>('testFileGlob') ?? '**/ui-test/**/*.test.ts';
-		logger.debug(`RunFolderTask: Using glob pattern: ${testFileGlob}`);
-
-		// Split paths into segments.
-		const outputSegments = outputFolder.split(/[/\\]/).filter(Boolean);
-		const rootSegments = rootFolder ? rootFolder.split(/[/\\]/).filter(Boolean) : [];
-		const relativeSegments = relativePath.split(/[/\\]/).filter(Boolean);
-		logger.debug(
-			`RunFolderTask: Path segments - Output: ${JSON.stringify(outputSegments)}, Root: ${JSON.stringify(rootSegments)}, Relative: ${JSON.stringify(relativeSegments)}`,
-		);
-
-		// Find matching segments between root and relative paths.
-		const matchingSegmentsCount =
-			rootSegments.length > 0 ? rootSegments.reduce((count, segment, i) => (relativeSegments[i] === segment ? count + 1 : count), 0) : 0;
+		logger.debug(`RunFolderTask: Using glob pattern: ${settings.testFileGlob}`);
 
 		// Build final path for test execution.
-		const testFileGlobSegments = testFileGlob.split(/[/\\]/).filter(Boolean);
-		const testFilePattern = testFileGlobSegments[testFileGlobSegments.length - 1].replace(/\.ts$/, '.js');
-
-		const finalPath = path.join(workspaceFolder, outputFolder, ...relativeSegments.slice(matchingSegmentsCount), testFilePattern);
+		const finalPath = getFolderTarget(folder, workspaceFolder, settings);
 		logger.debug(`RunFolderTask: Final path: ${finalPath}`);
 
 		// Prepare command arguments.

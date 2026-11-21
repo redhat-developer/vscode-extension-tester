@@ -418,4 +418,59 @@ describe('Task Command Generation', () => {
 			'Args should include --storage with temp folder path',
 		);
 	});
+
+	/**
+	 * Tests the command generation with `runSources` enabled:
+	 * - Verifies that the TypeScript sources are passed as they are
+	 * - Ensures `rootFolder` and `outputFolder` are ignored
+	 */
+	describe('with runSources enabled', () => {
+		let workspacePath: string;
+		const sourceFolder = path.join('packages', 'ui-tests', 'src');
+
+		/** Values of all task arguments, quoted paths included. */
+		const argValues = (task: vscode.Task) =>
+			((task.execution as vscode.ShellExecution).args ?? []).map((arg) => (typeof arg === 'string' ? arg : arg.value));
+
+		before(async () => {
+			const config = vscode.workspace.getConfiguration('extesterRunner');
+			await config.update('runSources', true, vscode.ConfigurationTarget.Workspace);
+			await config.update('rootFolder', sourceFolder, vscode.ConfigurationTarget.Workspace);
+			await config.update('outputFolder', path.join('packages', 'ui-tests', 'out'), vscode.ConfigurationTarget.Workspace);
+			await config.update('testFileGlob', 'packages/ui-tests/src/**/*.source.test.ts', vscode.ConfigurationTarget.Workspace);
+			workspacePath = vscode.workspace.workspaceFolders![0].uri.fsPath;
+		});
+
+		after(async () => {
+			const config = vscode.workspace.getConfiguration('extesterRunner');
+			await config.update('runSources', undefined, vscode.ConfigurationTarget.Workspace);
+		});
+
+		it('RunFileTask passes the source file', () => {
+			const testFile = path.join(workspacePath, sourceFolder, 'editor', 'Flow.source.test.ts');
+
+			const args = argValues(new RunFileTask(testFile, dummyLogger));
+
+			assert.deepStrictEqual(args.slice(0, 3), ['extest', 'setup-and-run', `'${testFile}'`]);
+		});
+
+		it('RunFolderTask passes a glob of the source files in the folder', () => {
+			const folder = path.join(workspacePath, sourceFolder, 'editor');
+
+			const args = argValues(new RunFolderTask(folder, dummyLogger));
+
+			assert.strictEqual(args[2], `'${path.join(folder, '*.source.test.ts')}'`);
+		});
+
+		it('RunAllTestsTask passes a glob of all source files', () => {
+			const files = [
+				path.join(workspacePath, sourceFolder, 'editor', 'A.source.test.ts'),
+				path.join(workspacePath, sourceFolder, 'views', 'B.source.test.ts'),
+			];
+
+			const args = argValues(new RunAllTestsTask(files, dummyLogger));
+
+			assert.strictEqual(args[2], `'${path.join(workspacePath, sourceFolder, '**', '*.source.test.ts')}'`);
+		});
+	});
 });
