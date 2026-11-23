@@ -21,6 +21,7 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 import {
 	browserLaunchEnvironment,
+	detectLaunchProblems,
 	extractBrowserOutput,
 	findLatestMainLog,
 	formatLaunchFailure,
@@ -148,6 +149,7 @@ describe('launchDiagnostics file helpers', () => {
 		crashesDir: path.join(root, 'crashes'),
 		launchStartedMs: Date.now() - 1_000,
 		platform,
+		env: { DISPLAY: ':99' } as NodeJS.ProcessEnv,
 	});
 
 	it('formatLaunchFailure includes VS Code output, main log tail, crash dumps and causes', () => {
@@ -161,6 +163,7 @@ describe('launchDiagnostics file helpers', () => {
 		assert.match(message, /Crash dumps written during launch:\n {2}.*a\.dmp/);
 		assert.match(message, /Common causes:/);
 		assert.doesNotMatch(message, /on Windows/);
+		assert.doesNotMatch(message, /Detected:/);
 	});
 
 	it('formatLaunchFailure explains the Windows "crashed" wording and copes with a missing log', () => {
@@ -169,5 +172,32 @@ describe('launchDiagnostics file helpers', () => {
 		assert.match(message, /VS Code printed nothing before exiting/);
 		assert.match(message, /Visual C\+\+ runtime/);
 		assert.doesNotMatch(message, /main log|Crash dumps/);
+	});
+
+	it('formatLaunchFailure points at a missing display and the misleading "user data directory" wording (#1840)', () => {
+		const error = new Error(
+			"session not created: probably user data directory is already in use, please specify a unique value for --user-data-dir argument, or don't use --user-data-dir",
+		);
+		const message = formatLaunchFailure({ ...context('linux'), error, env: {} as NodeJS.ProcessEnv });
+		assert.match(message, /Detected:\n {2}- Neither DISPLAY nor WAYLAND_DISPLAY is set.*xvfb-run/);
+		assert.match(message, /\n {2}- ChromeDriver says the user data directory is "already in use"/);
+	});
+});
+
+describe('launchDiagnostics.detectLaunchProblems', () => {
+	const exited = 'session not created: Chrome instance exited.';
+
+	it('reports a missing display only on Linux', () => {
+		assert.strictEqual(detectLaunchProblems(exited, 'linux', {} as NodeJS.ProcessEnv).length, 1);
+		assert.deepStrictEqual(detectLaunchProblems(exited, 'linux', { DISPLAY: ':99' } as NodeJS.ProcessEnv), []);
+		assert.deepStrictEqual(detectLaunchProblems(exited, 'linux', { WAYLAND_DISPLAY: 'wayland-0' } as NodeJS.ProcessEnv), []);
+		assert.deepStrictEqual(detectLaunchProblems(exited, 'darwin', {} as NodeJS.ProcessEnv), []);
+		assert.deepStrictEqual(detectLaunchProblems(exited, 'win32', {} as NodeJS.ProcessEnv), []);
+	});
+
+	it('explains the "user data directory is already in use" wording on any platform', () => {
+		const problems = detectLaunchProblems('session not created: probably user data directory is already in use', 'darwin', {} as NodeJS.ProcessEnv);
+		assert.strictEqual(problems.length, 1);
+		assert.match(problems[0], /reports that for any VS Code exit during launch/);
 	});
 });

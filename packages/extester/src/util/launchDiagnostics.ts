@@ -198,6 +198,31 @@ export interface LaunchFailureContext {
 	/** epoch ms just before the launch, to ignore artifacts of earlier runs */
 	launchStartedMs: number;
 	platform?: NodeJS.Platform;
+	/** environment the launch ran in, defaults to process.env */
+	env?: NodeJS.ProcessEnv;
+}
+
+// ChromeDriver ~128 to ~146 replaced "Chrome instance exited" with this text
+// whenever --user-data-dir was passed, whatever the real reason for the exit was.
+const USER_DATA_DIR_IN_USE = /user data directory is already in use/i;
+
+/**
+ * Concrete problems detectable from the error and the environment, as opposed
+ * to the generic list of common causes.
+ */
+export function detectLaunchProblems(errorMessage: string, platform: NodeJS.Platform, env: NodeJS.ProcessEnv): string[] {
+	const problems: string[] = [];
+	if (platform === 'linux' && !env.DISPLAY && !env.WAYLAND_DISPLAY) {
+		problems.push(
+			'Neither DISPLAY nor WAYLAND_DISPLAY is set, so VS Code has no display to open its window on and exits right away. On headless Linux (CI runners, containers) run the tests under Xvfb, e.g. `xvfb-run -a npx extest setup-and-run ...`.',
+		);
+	}
+	if (USER_DATA_DIR_IN_USE.test(errorMessage)) {
+		problems.push(
+			'ChromeDriver says the user data directory is "already in use", but this ChromeDriver version reports that for any VS Code exit during launch, because ExTester always passes --user-data-dir. Another instance using the folder is only one possible reason; the VS Code output and logs here show the actual one.',
+		);
+	}
+	return problems;
 }
 
 /**
@@ -211,6 +236,10 @@ export function formatLaunchFailure(ctx: LaunchFailureContext): string {
 		`VS Code exited during launch, before ChromeDriver could connect to it.`,
 		`ChromeDriver reported: ${ctx.error.message.split('\n')[0]}`,
 	];
+	const problems = detectLaunchProblems(ctx.error.message, platform, ctx.env ?? process.env);
+	if (problems.length > 0) {
+		sections.push(`Detected:\n${indent(problems.map((problem) => '- ' + problem))}`);
+	}
 	if (platform === 'win32') {
 		sections.push(
 			`Note: on Windows ChromeDriver reports almost any non-zero exit code as "crashed"; this usually means VS Code refused to start, not that it hit a native crash.`,
