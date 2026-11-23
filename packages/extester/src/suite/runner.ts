@@ -15,18 +15,33 @@
  * limitations under the License.
  */
 
-import { VSBrowser } from '../browser';
 import * as fs from 'fs-extra';
-import Mocha from 'mocha';
 import { globSync } from 'glob';
-import { CodeUtil, CustomPageObjectsOptions, ReleaseQuality, SeedFilesOptions } from '../util/codeUtil';
-import * as path from 'node:path';
 import * as yaml from 'js-yaml';
+import Mocha from 'mocha';
+import * as os from 'node:os';
+import * as path from 'node:path';
 import sanitize from 'sanitize-filename';
 import { logging } from 'selenium-webdriver';
-import * as os from 'node:os';
+import { VSBrowser } from '../browser';
+import { CodeUtil, CustomPageObjectsOptions, ReleaseQuality, SeedFilesOptions } from '../util/codeUtil';
 import { Coverage } from '../util/coverage';
 import { registerTypeScript } from '../util/typescript';
+
+// For some reason these properties are not yet included in @types/mocha,
+// so we need to augment the MochaOptions interface ourselves.
+declare module 'mocha' {
+	interface MochaOptions {
+		// https://legacy.mochajs.org/api/mocha#enableGlobalSetup
+		enableGlobalSetup?: boolean;
+		// https://legacy.mochajs.org/api/mocha#enableGlobalTeardown
+		enableGlobalTeardown?: boolean;
+		// https://legacy.mochajs.org/api/mocha#globalSetup
+		globalSetup?: unknown;
+		// https://legacy.mochajs.org/api/mocha#globalTeardown
+		globalTeardown?: unknown;
+	}
+}
 
 /** YAML 1.2 core schema plus merge keys, matching how mocha parses .mocharc.yml */
 const MOCHARC_YAML_SCHEMA = yaml.CORE_SCHEMA.withTags(yaml.mergeTag);
@@ -75,11 +90,129 @@ export function screenshotsReport(screenshotsDir: string): string {
 		: 'INFO: No screenshots of failures were captured. Screenshots are taken only for failed tests and failed hooks imported from vscode-extension-tester while VS Code is running; see the errors above.';
 }
 
+/** A Mocha global setup or teardown fixture */
+export type GlobalFixture = (this: object) => unknown;
+
+/** Callbacks starting and stopping the VS Code workbench around the test run */
+export interface WorkbenchLifecycle {
+	setup: () => Promise<void>;
+	teardown: () => Promise<void>;
+}
+
+/** Outcome of the global fixtures, filled in while Mocha runs them */
+export interface GlobalFixturesState {
+	/** whether starting the workbench or a user-provided global setup fixture failed */
+	setupFailed: boolean;
+	/** error thrown while starting the workbench or by a user-provided global setup fixture */
+	setupError?: unknown;
+	/** whether a user-provided global teardown fixture or the workbench shutdown failed */
+	teardownFailed: boolean;
+}
+
+/**
+ * Wrap the workbench lifecycle and the user-provided global fixtures into a single Mocha global
+ * setup fixture and a single global teardown fixture.
+ *
+ * Mocha does not catch errors thrown by global fixtures on every supported version, and it stops
+ * at the first failing one, so:
+ * - errors from the setup are stored and rethrown from a root `before all` hook, failing the tests
+ *   the same way a failed root hook would, while the teardown still runs
+ * - each user-provided teardown fixture is isolated, and the workbench is always shut down last
+ *
+ * User-provided fixtures are skipped when disabled with `enableGlobalSetup` / `enableGlobalTeardown`,
+ * the workbench fixtures always run.
+ * @param mocha Mocha instance, with the user configuration already applied
+ * @param workbench callbacks starting and stopping the workbench
+ * @returns state of the fixtures, read once the run finishes
+ */
+export function installGlobalFixtures(mocha: Mocha, workbench: WorkbenchLifecycle): GlobalFixturesState {
+	const state: GlobalFixturesState = { setupFailed: false, teardownFailed: false };
+	const userSetupFixtures = userFixtures(mocha.options.globalSetup, mocha.options.enableGlobalSetup);
+	const userTeardownFixtures = userFixtures(mocha.options.globalTeardown, mocha.options.enableGlobalTeardown);
+
+	// the workbench starts before any user-provided fixture runs
+	mocha.globalSetup(async function (this: object) {
+		try {
+			await workbench.setup();
+			await runInSequence(userSetupFixtures, this);
+		} catch (err) {
+			state.setupFailed = true;
+			state.setupError = err;
+		}
+	});
+
+	// report a failed setup as a root hook failure, so that the tests fail and the teardown still runs
+	mocha.suite.beforeAll('ExTester global setup', function () {
+		if (state.setupFailed) {
+			throw state.setupError;
+		}
+	});
+
+	// user-provided fixtures can still interact with the workbench, which is shut down last
+	mocha.globalTeardown(async function (this: object) {
+		try {
+			await runInSequence(userTeardownFixtures, this, (err) => {
+				console.error('Error in global teardown fixture:', err);
+				state.teardownFailed = true;
+			});
+		} finally {
+			try {
+				await workbench.teardown();
+			} catch (err) {
+				console.error('Error shutting down the workbench:', err);
+				state.teardownFailed = true;
+			}
+		}
+	});
+
+	mocha.enableGlobalSetup(true);
+	mocha.enableGlobalTeardown(true);
+	return state;
+}
+
+/**
+ * Compute the exit code of a test run
+ * @param failures number of failures reported by Mocha
+ * @param state outcome of the global fixtures
+ * @returns 1 if a test, a hook or a global fixture failed, 0 otherwise
+ */
+export function exitCode(failures: number, state: GlobalFixturesState): number {
+	return failures > 0 || state.setupFailed || state.teardownFailed ? 1 : 0;
+}
+
+/**
+ * Run fixtures one after another, each one starting once the previous one has settled
+ * @param fixtures fixtures to run
+ * @param context `this` of every fixture, shared between the setup and the teardown
+ * @param onError called with the error of a failing fixture, the remaining ones still run;
+ * without it, the first error stops the sequence and is rethrown
+ */
+function runInSequence(fixtures: GlobalFixture[], context: object, onError?: (err: unknown) => void): Promise<void> {
+	return fixtures.reduce<Promise<void>>(async (previous, fixture) => {
+		await previous;
+		try {
+			await fixture.call(context);
+		} catch (err) {
+			if (!onError) {
+				throw err;
+			}
+			onError(err);
+		}
+	}, Promise.resolve());
+}
+
+function userFixtures(fixtures: unknown, enabled: boolean | undefined): GlobalFixture[] {
+	if (enabled === false || !fixtures) {
+		return [];
+	}
+	return (Array.isArray(fixtures) ? fixtures : [fixtures]) as GlobalFixture[];
+}
+
 /**
  * Mocha runner wrapper
  */
 export class VSRunner {
-	private readonly mocha: Mocha;
+	private readonly mochaOptions: Mocha.MochaOptions;
 	private readonly chromeBin: string;
 	private readonly customSettings: object;
 	private readonly codeVersion: string;
@@ -101,8 +234,7 @@ export class VSRunner {
 		locale?: string,
 		seedFiles?: SeedFilesOptions,
 	) {
-		const conf = this.loadConfig(config);
-		this.mocha = new Mocha(conf);
+		this.mochaOptions = this.loadConfig(config);
 		this.chromeBin = bin;
 		this.customSettings = customSettings;
 		this.codeVersion = codeVersion;
@@ -121,11 +253,12 @@ export class VSRunner {
 	 */
 	runTests(testFilesPattern: string[], code: CodeUtil, resources: string[], logLevel: logging.Level = logging.Level.INFO): Promise<number> {
 		let unregister: (() => void) | undefined;
-		return new Promise<number>((resolve, reject) => {
+		return new Promise<number>((resolve) => {
 			const testFiles = expandTestFiles(testFilesPattern);
 			unregister = registerTypeScript(withLocators(testFiles, this.customPageObjects));
 
 			const self = this;
+			const mocha = new Mocha(this.mochaOptions);
 			const browser: VSBrowser = new VSBrowser(
 				this.codeVersion,
 				this.releaseType,
@@ -137,9 +270,9 @@ export class VSRunner {
 			);
 			let coverage: Coverage | undefined;
 
-			testFiles.forEach((file) => this.mocha.addFile(file));
+			testFiles.forEach((file) => mocha.addFile(file));
 
-			this.mocha.suite.afterEach(async function () {
+			mocha.suite.afterEach(async function () {
 				// Screenshot only genuinely failed tests — 'pending' (skipped) tests
 				// would otherwise produce misleading failure screenshots in CI artifacts.
 				if (this.currentTest?.state === 'failed') {
@@ -152,70 +285,80 @@ export class VSRunner {
 				}
 			});
 
-			this.mocha.suite.beforeAll(async function () {
-				this.timeout(180000);
-				if (code.coverageEnabled) {
-					coverage = new Coverage();
-					await coverage.loadConfig();
-					process.env.NODE_V8_COVERAGE = coverage?.targetDir;
-				}
+			const setupWorkbench = this.withTimeout(
+				async () => {
+					if (code.coverageEnabled) {
+						coverage = new Coverage();
+						await coverage.loadConfig();
+						process.env.NODE_V8_COVERAGE = coverage?.targetDir;
+					}
 
-				const start = Date.now();
-				const binPath = process.platform === 'darwin' ? await self.createShortcut(code.getCodeFolder(), self.tmpLink) : self.chromeBin;
-				// resources are passed to the launch itself: opening them with a
-				// second-instance CLI call during startup triggers webview resource
-				// corruption on VS Code >= 1.123.0 (microsoft/vscode#330243, #2454)
-				await browser.start(binPath, resources);
-				await browser.waitForWorkbench();
-				console.log(`Browser ready in ${Date.now() - start} ms`);
-				console.log('Launching tests...');
-			});
+					const start = Date.now();
+					const binPath = process.platform === 'darwin' ? await self.createShortcut(code.getCodeFolder(), self.tmpLink) : self.chromeBin;
 
-			this.mocha.suite.afterAll(async function () {
-				this.timeout(180000);
+					// resources are passed to the launch itself: opening them with a
+					// second-instance CLI call during startup triggers webview resource
+					// corruption on VS Code >= 1.123.0 (microsoft/vscode#330243, #2454)
+					await browser.start(binPath, resources);
+					await browser.waitForWorkbench();
 
-				try {
-					await browser.quit();
-				} catch (err) {
-					console.error('Error shutting down browser:', err);
-				}
+					console.log(`Browser ready in ${Date.now() - start} ms`);
+					console.log('Launching tests...');
+				},
+				180000,
+				'Workbench setup timed out after 180 seconds',
+			);
 
-				if (process.platform === 'darwin') {
+			const teardownWorkbench = this.withTimeout(
+				async () => {
 					try {
-						if (await fs.pathExists(self.tmpLink)) {
-							fs.unlinkSync(self.tmpLink);
+						await browser.quit();
+					} catch (err) {
+						console.error('Error shutting down browser:', err);
+					}
+
+					if (process.platform === 'darwin') {
+						try {
+							if (await fs.pathExists(self.tmpLink)) {
+								fs.unlinkSync(self.tmpLink);
+							}
+						} catch (err) {
+							console.error('Error removing macOS symlink:', err);
 						}
-					} catch (err) {
-						console.error('Error removing macOS symlink:', err);
 					}
-				}
 
-				if (code.coverageEnabled) {
+					if (code.coverageEnabled) {
+						try {
+							await coverage?.write();
+						} catch (err) {
+							console.error('Error writing coverage data:', err);
+						}
+					}
+
 					try {
-						await coverage?.write();
+						code.uninstallExtension(self.cleanup);
 					} catch (err) {
-						console.error('Error writing coverage data:', err);
+						console.error('Error uninstalling extension:', err);
 					}
-				}
+				},
+				180000,
+				'Workbench teardown timed out after 180 seconds',
+			);
 
-				try {
-					code.uninstallExtension(self.cleanup);
-				} catch (err) {
-					console.error('Error uninstalling extension:', err);
+			const fixtures = installGlobalFixtures(mocha, { setup: setupWorkbench, teardown: teardownWorkbench });
+
+			// Finally run tests
+			mocha.run((failures) => {
+				if (fixtures.setupFailed && failures === 0) {
+					// no test ran, so the root hook never reported the error
+					console.error('Error in global setup:', fixtures.setupError);
 				}
+				process.exitCode = exitCode(failures, fixtures);
+				if (process.exitCode) {
+					console.log('\x1b[33m%s\x1b[0m', `${screenshotsReport(browser.getScreenshotsDir())}\n`);
+				}
+				resolve(process.exitCode);
 			});
-
-			try {
-				this.mocha.run((failures) => {
-					process.exitCode = failures ? 1 : 0;
-					if (process.exitCode) {
-						console.log('\x1b[33m%s\x1b[0m', `${screenshotsReport(browser.getScreenshotsDir())}\n`);
-					}
-					resolve(process.exitCode);
-				});
-			} catch (err) {
-				reject(err);
-			}
 		}).finally(() => unregister?.());
 	}
 
@@ -300,5 +443,23 @@ export class VSRunner {
 		}
 
 		return conf;
+	}
+
+	private withTimeout(fn: () => Promise<void>, ms: number, message: string): () => Promise<void> {
+		return async () => {
+			let timeout: NodeJS.Timeout | undefined;
+
+			// Keep this promise before calling fn to ensure the timeout is set up,
+			// as fn might be entirely synchronous even though it returns a Promise.
+			const timerPromise = new Promise<never>((_, reject) => {
+				timeout = setTimeout(() => reject(new Error(message)), ms);
+			});
+
+			try {
+				await Promise.race([fn(), timerPromise]);
+			} finally {
+				clearTimeout(timeout);
+			}
+		};
 	}
 }
