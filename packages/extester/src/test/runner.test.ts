@@ -19,7 +19,8 @@ import assert from 'assert';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { VSRunner } from '../suite/runner';
+import { VSBrowser } from '../browser';
+import { screenshotsReport, VSRunner } from '../suite/runner';
 import { ReleaseQuality } from '../util/codeUtil';
 
 /**
@@ -104,5 +105,47 @@ describe('VSRunner mocha config loading (YAML)', () => {
 	it('still rejects malformed YAML when the config was passed explicitly', () => {
 		const file = mocharc('timeout: [unclosed\n');
 		assert.throws(() => loadMochaConfig(file), /Failed to parse mocha configuration/);
+	});
+});
+
+describe('screenshotsReport', () => {
+	let dir: string;
+
+	beforeEach(() => {
+		dir = fs.mkdtempSync(path.join(os.tmpdir(), 'extester-screenshots-test-'));
+	});
+
+	afterEach(() => {
+		fs.rmSync(dir, { recursive: true, force: true });
+	});
+
+	it('points to the screenshots folder when screenshots were captured', () => {
+		fs.writeFileSync(path.join(dir, 'failed test.png'), '');
+		assert.strictEqual(screenshotsReport(dir), `INFO: Screenshots of failures can be found in: ${dir}`);
+	});
+
+	it('does not advertise a folder that was never created (#2073)', () => {
+		const missing = path.join(dir, 'screenshots', '20250918T180621');
+		const report = screenshotsReport(missing);
+		assert.ok(!report.includes(missing), report);
+		assert.match(report, /No screenshots of failures were captured/);
+	});
+
+	it('does not advertise an empty screenshots folder', () => {
+		assert.match(screenshotsReport(dir), /No screenshots of failures were captured/);
+	});
+});
+
+describe('VSBrowser.quit without a session', () => {
+	it('is a no-op when the browser never started (#2073)', async () => {
+		const errors: unknown[][] = [];
+		const originalError = console.error;
+		console.error = (...args: unknown[]) => errors.push(args);
+		try {
+			await new VSBrowser('1.100.0', ReleaseQuality.Stable).quit();
+		} finally {
+			console.error = originalError;
+		}
+		assert.deepStrictEqual(errors, []);
 	});
 });

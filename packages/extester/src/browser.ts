@@ -440,6 +440,10 @@ export class VSBrowser {
 	 * Terminates the webdriver/browser
 	 */
 	async quit(): Promise<void> {
+		if (!this._driver) {
+			// the session was never created (e.g. VS Code failed to launch): nothing to shut down
+			return;
+		}
 		try {
 			const entries = await this._driver.manage().logs().get(logging.Type.DRIVER);
 			const logFile = path.join(this.storagePath, 'test.log');
