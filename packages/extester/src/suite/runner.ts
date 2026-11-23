@@ -55,6 +55,27 @@ export function withLocators(testFiles: Iterable<string>, customPageObjects?: Cu
 }
 
 /**
+ * Build the message printed after a failed run, pointing to the failure screenshots.
+ * Screenshots are only captured once VS Code is up (failed tests, or failed hooks wrapped
+ * by ExTester), so failures before that (e.g. VS Code/ChromeDriver failing to start in the
+ * root `before all` hook) leave no screenshots behind — advertising an empty folder there
+ * sends users looking for files that were never written.
+ * @param screenshotsDir folder the screenshots of this run are written to
+ * @returns message to print
+ */
+export function screenshotsReport(screenshotsDir: string): string {
+	let hasScreenshots = false;
+	try {
+		hasScreenshots = fs.readdirSync(screenshotsDir).length > 0;
+	} catch {
+		// folder was never created: no screenshot was taken
+	}
+	return hasScreenshots
+		? `INFO: Screenshots of failures can be found in: ${screenshotsDir}`
+		: 'INFO: No screenshots of failures were captured. Screenshots are taken only for failed tests and failed hooks imported from vscode-extension-tester while VS Code is running; see the errors above.';
+}
+
+/**
  * Mocha runner wrapper
  */
 export class VSRunner {
@@ -188,7 +209,7 @@ export class VSRunner {
 				this.mocha.run((failures) => {
 					process.exitCode = failures ? 1 : 0;
 					if (process.exitCode) {
-						console.log('\x1b[33m%s\x1b[0m', `INFO: Screenshots of failures can be found in: ${browser.getScreenshotsDir()}\n`);
+						console.log('\x1b[33m%s\x1b[0m', `${screenshotsReport(browser.getScreenshotsDir())}\n`);
 					}
 					resolve(process.exitCode);
 				});
