@@ -90,6 +90,109 @@ export function screenshotsReport(screenshotsDir: string): string {
 		: 'INFO: No screenshots of failures were captured. Screenshots are taken only for failed tests and failed hooks imported from vscode-extension-tester while VS Code is running; see the errors above.';
 }
 
+/** A Mocha global setup or teardown fixture */
+export type GlobalFixture = (this: object) => unknown;
+
+/** Callbacks starting and stopping the VS Code workbench around the test run */
+export interface WorkbenchLifecycle {
+	setup: () => Promise<void>;
+	teardown: () => Promise<void>;
+}
+
+/** Outcome of the global fixtures, filled in while Mocha runs them */
+export interface GlobalFixturesState {
+	/** whether starting the workbench or a user-provided global setup fixture failed */
+	setupFailed: boolean;
+	/** error thrown while starting the workbench or by a user-provided global setup fixture */
+	setupError?: unknown;
+	/** whether a user-provided global teardown fixture or the workbench shutdown failed */
+	teardownFailed: boolean;
+}
+
+/**
+ * Wrap the workbench lifecycle and the user-provided global fixtures into a single Mocha global
+ * setup fixture and a single global teardown fixture.
+ *
+ * Mocha does not catch errors thrown by global fixtures on every supported version, and it stops
+ * at the first failing one, so:
+ * - errors from the setup are stored and rethrown from a root `before all` hook, failing the tests
+ *   the same way a failed root hook would, while the teardown still runs
+ * - each user-provided teardown fixture is isolated, and the workbench is always shut down last
+ *
+ * User-provided fixtures are skipped when disabled with `enableGlobalSetup` / `enableGlobalTeardown`,
+ * the workbench fixtures always run.
+ * @param mocha Mocha instance, with the user configuration already applied
+ * @param workbench callbacks starting and stopping the workbench
+ * @returns state of the fixtures, read once the run finishes
+ */
+export function installGlobalFixtures(mocha: Mocha, workbench: WorkbenchLifecycle): GlobalFixturesState {
+	const state: GlobalFixturesState = { setupFailed: false, teardownFailed: false };
+	const userSetupFixtures = userFixtures(mocha.options.globalSetup, mocha.options.enableGlobalSetup);
+	const userTeardownFixtures = userFixtures(mocha.options.globalTeardown, mocha.options.enableGlobalTeardown);
+
+	// the workbench starts before any user-provided fixture runs
+	mocha.globalSetup(async function (this: object) {
+		try {
+			await workbench.setup();
+			for (const fixture of userSetupFixtures) {
+				await fixture.call(this);
+			}
+		} catch (err) {
+			state.setupFailed = true;
+			state.setupError = err;
+		}
+	});
+
+	// report a failed setup as a root hook failure, so that the tests fail and the teardown still runs
+	mocha.suite.beforeAll('ExTester global setup', function () {
+		if (state.setupFailed) {
+			throw state.setupError;
+		}
+	});
+
+	// user-provided fixtures can still interact with the workbench, which is shut down last
+	mocha.globalTeardown(async function (this: object) {
+		try {
+			for (const fixture of userTeardownFixtures) {
+				try {
+					await fixture.call(this);
+				} catch (err) {
+					console.error('Error in global teardown fixture:', err);
+					state.teardownFailed = true;
+				}
+			}
+		} finally {
+			try {
+				await workbench.teardown();
+			} catch (err) {
+				console.error('Error shutting down the workbench:', err);
+				state.teardownFailed = true;
+			}
+		}
+	});
+
+	mocha.enableGlobalSetup(true);
+	mocha.enableGlobalTeardown(true);
+	return state;
+}
+
+/**
+ * Compute the exit code of a test run
+ * @param failures number of failures reported by Mocha
+ * @param state outcome of the global fixtures
+ * @returns 1 if a test, a hook or a global fixture failed, 0 otherwise
+ */
+export function exitCode(failures: number, state: GlobalFixturesState): number {
+	return failures > 0 || state.setupFailed || state.teardownFailed ? 1 : 0;
+}
+
+function userFixtures(fixtures: unknown, enabled: boolean | undefined): GlobalFixture[] {
+	if (enabled === false || !fixtures) {
+		return [];
+	}
+	return (Array.isArray(fixtures) ? fixtures : [fixtures]) as GlobalFixture[];
+}
+
 /**
  * Mocha runner wrapper
  */
@@ -227,28 +330,15 @@ export class VSRunner {
 				'Workbench teardown timed out after 180 seconds',
 			);
 
-			// Install our global setup fixture to initialize the workbench.
-			// Keep our fixture before other user-submitted global setup fixtures,
-			// so that the workbench is up before any user-submitted fixture runs.
-			const enableGlobalSetup = mocha.options.enableGlobalSetup !== false;
-			const globalSetupFixtures = this.normalizeGlobalFixtures(mocha.options.globalSetup, enableGlobalSetup);
-			mocha.options.globalSetup = [setupWorkbench, ...globalSetupFixtures];
-
-			// Install our global teardown fixture to shut down the workbench.
-			// Keep our fixture after other user-submitted global teardown fixtures,
-			// so that user-submitted fixtures can still interact with the workbench.
-			const enableGlobalTeardown = mocha.options.enableGlobalTeardown !== false;
-			const globalTeardownFixtures = this.normalizeGlobalFixtures(mocha.options.globalTeardown, enableGlobalTeardown);
-			mocha.options.globalTeardown = [...globalTeardownFixtures, teardownWorkbench];
-
-			// Global setup and teardown fixtures will run regardless of user configuration.
-			// If the user disables global setup or teardown, only their fixtures will be ignored.
-			mocha.enableGlobalSetup(true);
-			mocha.enableGlobalTeardown(true);
+			const fixtures = installGlobalFixtures(mocha, { setup: setupWorkbench, teardown: teardownWorkbench });
 
 			// Finally run tests
 			mocha.run((failures) => {
-				process.exitCode = failures ? 1 : 0;
+				if (fixtures.setupFailed && failures === 0) {
+					// no test ran, so the root hook never reported the error
+					console.error('Error in global setup:', fixtures.setupError);
+				}
+				process.exitCode = exitCode(failures, fixtures);
 				if (process.exitCode) {
 					console.log('\x1b[33m%s\x1b[0m', `${screenshotsReport(browser.getScreenshotsDir())}\n`);
 				}
@@ -338,11 +428,6 @@ export class VSRunner {
 		}
 
 		return conf;
-	}
-
-	private normalizeGlobalFixtures(userFixtures: unknown, preserveUserFixtures: boolean): unknown[] {
-		const fixtures = preserveUserFixtures ? userFixtures : undefined;
-		return fixtures ? (Array.isArray(fixtures) ? fixtures : [fixtures]) : [];
 	}
 
 	private withTimeout(fn: () => Promise<void>, ms: number, message: string): () => Promise<void> {
