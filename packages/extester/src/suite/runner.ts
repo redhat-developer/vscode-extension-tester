@@ -134,9 +134,7 @@ export function installGlobalFixtures(mocha: Mocha, workbench: WorkbenchLifecycl
 	mocha.globalSetup(async function (this: object) {
 		try {
 			await workbench.setup();
-			for (const fixture of userSetupFixtures) {
-				await fixture.call(this);
-			}
+			await runInSequence(userSetupFixtures, this);
 		} catch (err) {
 			state.setupFailed = true;
 			state.setupError = err;
@@ -153,14 +151,10 @@ export function installGlobalFixtures(mocha: Mocha, workbench: WorkbenchLifecycl
 	// user-provided fixtures can still interact with the workbench, which is shut down last
 	mocha.globalTeardown(async function (this: object) {
 		try {
-			for (const fixture of userTeardownFixtures) {
-				try {
-					await fixture.call(this);
-				} catch (err) {
-					console.error('Error in global teardown fixture:', err);
-					state.teardownFailed = true;
-				}
-			}
+			await runInSequence(userTeardownFixtures, this, (err) => {
+				console.error('Error in global teardown fixture:', err);
+				state.teardownFailed = true;
+			});
 		} finally {
 			try {
 				await workbench.teardown();
@@ -184,6 +178,27 @@ export function installGlobalFixtures(mocha: Mocha, workbench: WorkbenchLifecycl
  */
 export function exitCode(failures: number, state: GlobalFixturesState): number {
 	return failures > 0 || state.setupFailed || state.teardownFailed ? 1 : 0;
+}
+
+/**
+ * Run fixtures one after another, each one starting once the previous one has settled
+ * @param fixtures fixtures to run
+ * @param context `this` of every fixture, shared between the setup and the teardown
+ * @param onError called with the error of a failing fixture, the remaining ones still run;
+ * without it, the first error stops the sequence and is rethrown
+ */
+function runInSequence(fixtures: GlobalFixture[], context: object, onError?: (err: unknown) => void): Promise<void> {
+	return fixtures.reduce<Promise<void>>(async (previous, fixture) => {
+		await previous;
+		try {
+			await fixture.call(context);
+		} catch (err) {
+			if (!onError) {
+				throw err;
+			}
+			onError(err);
+		}
+	}, Promise.resolve());
 }
 
 function userFixtures(fixtures: unknown, enabled: boolean | undefined): GlobalFixture[] {
