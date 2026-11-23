@@ -18,57 +18,37 @@
 import * as vscode from 'vscode';
 import { Logger } from '../logger/logger';
 import { ExtesterTreeProvider } from '../providers/extesterTreeProvider';
-
-let watcher: vscode.FileSystemWatcher | undefined;
+import { getRunnerConfiguration, shouldReportConfigurationError } from './projectConfiguration';
+import { replaceWatchers } from './watcherStore';
 
 /**
- * Creates a file system watcher to monitor changes in the workspace.
+ * Creates (or re-creates) one file system watcher per workspace folder for its `testFileGlob`,
+ * which refreshes the test view when test files are created, changed or deleted.
  *
- * This function sets up a `FileSystemWatcher` that listens for file creation, deletion,
- * and modification events. When an event occurs, it logs the change and refreshes
- * the test tree view to reflect the updates.
- *
- * @param {vscode.ExtensionContext} context - The extension context, used for managing subscriptions.
- * @param {ExtesterTreeProvider} treeDataProvider - The tree data provider responsible for managing the test view.
- * @param {Logger} logger - The logging utility for debugging and tracking file system events.
+ * @param {vscode.ExtensionContext} context - The extension context that disposes of the watchers.
+ * @param {ExtesterTreeProvider} provider - The tree data provider of the test view.
+ * @param {Logger} logger - The logging utility.
  */
-export function createFileWatcher(context: vscode.ExtensionContext, treeDataProvider: ExtesterTreeProvider, logger: Logger) {
-	if (watcher) {
-		watcher.dispose();
-		logger.debug('FileWatcher: Disposed previous file watcher.');
-	}
-
-	logger.debug('FileWatcher: Creating file system watcher.');
-
-	const configuration = vscode.workspace.getConfiguration('extesterRunner');
-	const testFileGlob = configuration.get<string>('testFileGlob') ?? '**/*.test.ts';
-
-	watcher = vscode.workspace.createFileSystemWatcher(testFileGlob);
-
-	/**
-	 * Event listener for file creation.
-	 */
-	watcher.onDidCreate((uri) => {
-		logger.debug(`FileWatcher: Relevant file created: ${uri.fsPath}`);
-		void treeDataProvider.refresh();
+export function createFileWatcher(context: vscode.ExtensionContext, provider: ExtesterTreeProvider, logger: Logger) {
+	replaceWatchers(context, 'tests', () => {
+		const patterns = (vscode.workspace.workspaceFolders ?? []).flatMap((folder) => {
+			try {
+				return [new vscode.RelativePattern(folder, getRunnerConfiguration(folder.uri).get<string>('testFileGlob') ?? '**/*.test.ts')];
+			} catch (error) {
+				if (shouldReportConfigurationError(folder.uri, 'watcher')) {
+					logger.error(`Cannot watch tests in ${folder.name}: ${error instanceof Error ? error.message : String(error)}`);
+				}
+				return [];
+			}
+		});
+		return patterns.flatMap((pattern) => {
+			logger.debug(`Watching test pattern ${pattern.baseUri.fsPath}: ${pattern.pattern}`);
+			const watcher = vscode.workspace.createFileSystemWatcher(pattern);
+			const refresh = () => {
+				logger.debug('Test files changed; refreshing tests.');
+				void provider.refresh();
+			};
+			return [watcher, watcher.onDidCreate(refresh), watcher.onDidChange(refresh), watcher.onDidDelete(refresh)];
+		});
 	});
-
-	/**
-	 * Event listener for file deletion.
-	 */
-	watcher.onDidChange((uri) => {
-		logger.debug(`FileWatcher: Relevant file changed: ${uri.fsPath}`);
-		void treeDataProvider.refresh();
-	});
-
-	/**
-	 * Event listener for file modification.
-	 */
-	watcher.onDidDelete((uri) => {
-		logger.debug(`FileWatcher: Relevant file deleted: ${uri.fsPath}`);
-		void treeDataProvider.refresh();
-	});
-
-	// Register the watcher for automatic disposal when the extension is deactivated.
-	context.subscriptions.push(watcher);
 }

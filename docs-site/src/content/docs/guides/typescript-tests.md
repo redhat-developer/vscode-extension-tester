@@ -63,3 +63,7 @@ npx tsc --noEmit --project tsconfig.json
 ```
 
 You can remove the step that emits compiled **test** files. The extension and its webview still need to be built as usual, unless you test a prebuilt VSIX.
+
+## ExTester Runner
+
+[ExTester Runner](/vscode-extension-tester/guides/extester-runner/) runs compiled JavaScript tests by default. To run TypeScript sources from its UI Tests view, enable the `extesterRunner.runSources` setting. See [Running TypeScript Sources](/vscode-extension-tester/guides/extester-runner/#running-typescript-sources).

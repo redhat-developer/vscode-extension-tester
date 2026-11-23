@@ -18,6 +18,7 @@
 import * as vscode from 'vscode';
 import { ExtesterTreeProvider } from '../providers/extesterTreeProvider';
 import { Logger } from '../logger/logger';
+import { clearProjectConfigurationCache } from '../utils/projectConfiguration';
 
 /**
  * Registers view-related commands for the VS Code extension.
@@ -32,10 +33,12 @@ export function registerViewCommands(context: vscode.ExtensionContext, treeDataP
 	/**
 	 * Registers the `extester-runner.refreshTests` command.
 	 * This command refreshes the test tree view by triggering an update on the tree data provider.
+	 * It also reads the ExTester configuration files again, e.g. after a change in a base file they extend.
 	 */
 	context.subscriptions.push(
 		vscode.commands.registerCommand('extester-runner.refreshTests', async () => {
 			logger.debug('Command triggered: extester-runner.refreshTests');
+			clearProjectConfigurationCache();
 			await treeDataProvider.refresh();
 		}),
 	);

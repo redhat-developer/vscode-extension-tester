@@ -369,6 +369,20 @@ Controls test execution inside VS Code. Used by `run-tests` and `setup-and-run`.
 | `customPageObjects` | string                    | —                                             | `-p` / `--custom_page_objects` | Path to a JavaScript or TypeScript locator contribution file                                                                                                                                                                |
 | `locale`            | string                    | —                                             | `-L` / `--locale`              | Display language locale (e.g. `ru`, `zh-cn`). Requires the language pack extension to be installed. See [Locale Testing](/vscode-extension-tester/guides/locale-testing/)                                                                                     |
 
+#### `runner` section
+
+Read only by the [ExTester Runner](/vscode-extension-tester/guides/extester-runner/#project-configuration) VS Code extension. The CLI ignores it. The Runner takes the VS Code version, type and storage folder from `setup` and `run`, so they are not repeated here.
+
+| Field            | Type     | Default                   | Description                                                                          |
+| ---------------- | -------- | ------------------------- | ------------------------------------------------------------------------------------ |
+| `testFileGlob`   | string   | `**/ui-test/**/*.test.ts` | Glob that discovers the test files shown in the Runner's test view                   |
+| `excludeGlob`    | string   | `**/node_modules/**`      | Glob of paths excluded from test discovery                                           |
+| `ignorePathPart` | string   | —                         | Leading path segment hidden from folder names in the test view                       |
+| `rootFolder`     | string   | —                         | Folder with the TypeScript test sources, dropped when a test is mapped to the output |
+| `outputFolder`   | string   | `out`                     | Folder with the compiled JavaScript tests                                            |
+| `runSources`     | boolean  | `false`                   | Run the TypeScript sources instead of the compiled tests                             |
+| `additionalArgs` | string[] | `[]`                      | Additional arguments for `extest setup-and-run`                                      |
+
 ### Editor autocomplete
 
 Add a `$schema` field to get inline validation and autocomplete in VS Code and other JSON-aware editors:

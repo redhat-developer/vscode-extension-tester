@@ -330,6 +330,51 @@
           "examples": ["ru", "zh-cn", "fr", "de", "es", "ja", "ko", "pt-br", "tr"]
         }
       }
+    },
+    "runner": {
+      "type": "object",
+      "description": "ExTester Runner options: test discovery and execution from the ExTester Runner VS Code extension. The extest CLI ignores this section. The Runner reads the VS Code version, release type and storage folder from 'setup' and 'run'. Relative paths and globs resolve against this file's directory.",
+      "additionalProperties": false,
+      "properties": {
+        "testFileGlob": {
+          "type": "string",
+          "description": "Glob pattern that discovers the test files shown in the Runner's test view.",
+          "examples": ["src/ui-test/**/*.test.ts"]
+        },
+        "excludeGlob": {
+          "type": "string",
+          "description": "Glob pattern of paths excluded from test discovery.",
+          "examples": ["**/node_modules/**"]
+        },
+        "ignorePathPart": {
+          "type": "string",
+          "description": "Leading path segment hidden from folder names in the Runner's test view.",
+          "examples": ["src/ui-test/"]
+        },
+        "rootFolder": {
+          "type": "string",
+          "description": "Folder with the TypeScript test sources. Its leading segments are dropped when a test is mapped to outputFolder.",
+          "examples": ["src"]
+        },
+        "outputFolder": {
+          "type": "string",
+          "description": "Folder with the compiled JavaScript tests.",
+          "examples": ["out"]
+        },
+        "runSources": {
+          "type": "boolean",
+          "description": "Run the TypeScript test sources instead of the compiled JavaScript in outputFolder. Requires ExTester 8.29.0 or later and tsx.",
+          "default": false
+        },
+        "additionalArgs": {
+          "type": "array",
+          "description": "Additional arguments for 'extest setup-and-run'.",
+          "items": {
+            "type": "string"
+          },
+          "examples": [["--log_level Debug"]]
+        }
+      }
     }
   }
 }
