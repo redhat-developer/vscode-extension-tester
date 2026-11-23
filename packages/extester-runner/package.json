@@ -267,6 +267,33 @@
         "category": "ExTester Runner"
       },
       {
+        "command": "extester-runner.runCurrentFile",
+        "title": "Run Test File",
+        "icon": "$(play)",
+        "tooltip": "Run this test file.",
+        "category": "ExTester Runner"
+      },
+      {
+        "command": "extester-runner.stopRun",
+        "title": "Stop Test Run",
+        "icon": "$(debug-stop)",
+        "tooltip": "Stop the test run in progress.",
+        "category": "ExTester Runner"
+      },
+      {
+        "command": "extester-runner.rerunLastRun",
+        "title": "Rerun Last Run",
+        "icon": "$(debug-rerun)",
+        "tooltip": "Run the last test run again.",
+        "category": "ExTester Runner"
+      },
+      {
+        "command": "extester-runner.openWalkthrough",
+        "title": "Open Getting Started Guide",
+        "icon": "$(book)",
+        "category": "ExTester Runner"
+      },
+      {
         "command": "extester-runner.refreshTests",
         "title": "Refresh Tests",
         "icon": "$(refresh)",
@@ -371,6 +398,21 @@
         }
       ]
     },
+    "viewsWelcome": [
+      {
+        "view": "extesterView",
+        "when": "extesterRunner.hasTestFiles == false",
+        "contents": "No test files found. ExTester Runner lists files that match the test file pattern, by default .test.ts files in a ui-test folder. Set the pattern in the workspace settings or in the runner section of extester.config.json.\n[Configure Test File Pattern](command:workbench.action.openWorkspaceSettings?%22extesterRunner.testFileGlob%22)\n[Refresh Tests](command:extester-runner.refreshTests)\nNew to ExTester Runner? Read the [getting started guide](command:extester-runner.openWalkthrough)."
+      },
+      {
+        "view": "extesterResourcesScreenshotsView",
+        "contents": "No screenshots yet. ExTester saves a screenshot of VS Code when a test fails, and they appear here after the run.\nScreenshots are read from the storage folder set by the [Temp Folder](command:workbench.action.openWorkspaceSettings?%22extesterRunner.tempFolder%22) setting."
+      },
+      {
+        "view": "extesterResourcesLogsView",
+        "contents": "No logs yet. The logs of the VS Code instance started by ExTester appear here after a test run.\nLogs are read from the storage folder set by the [Temp Folder](command:workbench.action.openWorkspaceSettings?%22extesterRunner.tempFolder%22) setting."
+      }
+    ],
     "menus": {
       "view/title": [
         {
@@ -380,8 +422,18 @@
         },
         {
           "command": "extester-runner.runAll",
-          "when": "view == extesterView && extesterRunner.hasTestFiles",
+          "when": "view == extesterView && extesterRunner.hasTestFiles && !extesterRunner.isRunning",
           "group": "navigation@2"
+        },
+        {
+          "command": "extester-runner.stopRun",
+          "when": "view == extesterView && extesterRunner.isRunning",
+          "group": "navigation@2"
+        },
+        {
+          "command": "extester-runner.rerunLastRun",
+          "when": "view == extesterView && extesterRunner.hasLastRun && !extesterRunner.isRunning",
+          "group": "navigation@3"
         },
         {
           "command": "extester-runner.refreshLogs",
@@ -417,12 +469,12 @@
       "view/item/context": [
         {
           "command": "extester-runner.runFolder",
-          "when": "view == extesterView && viewItem == folder",
+          "when": "view == extesterView && viewItem == folder && !extesterRunner.isRunning",
           "group": "inline"
         },
         {
           "command": "extester-runner.runFile",
-          "when": "view == extesterView && viewItem == file",
+          "when": "view == extesterView && viewItem == file && !extesterRunner.isRunning",
           "group": "inline"
         },
         {
@@ -458,6 +510,18 @@
       ],
       "commandPalette": [
         {
+          "command": "extester-runner.runCurrentFile",
+          "when": "extesterRunner.hasTestFiles && !extesterRunner.isRunning"
+        },
+        {
+          "command": "extester-runner.stopRun",
+          "when": "extesterRunner.isRunning"
+        },
+        {
+          "command": "extester-runner.rerunLastRun",
+          "when": "extesterRunner.hasLastRun && !extesterRunner.isRunning"
+        },
+        {
           "command": "extester-runner.runFile",
           "when": "false"
         },
@@ -467,7 +531,7 @@
         },
         {
           "command": "extester-runner.runAll",
-          "when": "false"
+          "when": "extesterRunner.hasTestFiles && !extesterRunner.isRunning"
         },
         {
           "command": "extester-runner.clearLogs",
@@ -500,6 +564,25 @@
         {
           "command": "extester-runner.revealScreenshotsItem",
           "when": "false"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "extester-runner.runCurrentFile",
+          "when": "resourceScheme == file && resourcePath in extesterRunner.testFiles && !extesterRunner.isRunning",
+          "group": "navigation@1"
+        },
+        {
+          "command": "extester-runner.stopRun",
+          "when": "resourceScheme == file && resourcePath in extesterRunner.testFiles && extesterRunner.isRunning",
+          "group": "navigation@1"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "extester-runner.runCurrentFile",
+          "when": "resourceScheme == file && resourcePath in extesterRunner.testFiles && !extesterRunner.isRunning",
+          "group": "extester@1"
         }
       ]
     }

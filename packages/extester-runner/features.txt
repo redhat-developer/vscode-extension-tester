@@ -2,7 +2,7 @@
 ExTester Runner view is available
 Folder structure from explorer is available inside Test Explorer
     - only folders with with at least one test matching pattern are listed
-    - if no folder nor file is available, info message is showed inside TreeView
+    - if no folder nor file is available, welcome content explains why and links to the test file pattern setting
 Folders contains test files matching prescription
 Folders are listed with icon folder in white color
 Files inside folder are parsed
@@ -12,15 +12,15 @@ Test structure (describe, it) is available for individual files
     - if file don't have any describe or it, expand button is not available
     - if describe or it has variable (like ${foo}) inside name, this variable is processed as string
 Describes are listed with icon bracket in white color
-    - if modifier skip is present, icon has (x) and orange color and name contains [skip]
-    - if modifier only is present, icon has dot and blue color and name contains [only]
+    - if modifier skip is present, icon has (x) and orange color and description shows skip
+    - if modifier only is present, icon has dot and blue color and description shows only
     - if describe doesn't have any describe or it, expand button is not available
 It are listed with icon variable in white color
-    - if modifier skip is present icon has orange color and name contains [skip]
-    - if modifier only is present, icon has blue color and name contains [only]
+    - if modifier skip is present icon has orange color and description shows skip
+    - if modifier only is present, icon has blue color and description shows only
 Inherit for modifier is working as following: 
-    - if describe has modifier skip, all it's inside are shown in orange color but don't have [skip] in test name
-    - if describe has modifier skip, all it's inside are shown in blue color but don't have [only] in test name
+    - if describe has modifier skip, all it's inside are shown in orange color but don't have skip in description
+    - if describe has modifier only, all it's inside are shown in blue color but don't have only in description
     - own modifier of it inside this scope has priority (overrides the describe one)
 Clicking on describe or it opens editor on line of occurrence
 Collapse All button is available
@@ -37,12 +37,21 @@ Each file has Run File button available on hover
 Run All button executes all tests
 Run Folder button executes all tests inside folder
 Run File button executes only one file
+Folders show the number of test files, files show the number of tests
+File that cannot be parsed has error icon and "cannot parse" description, no notification is shown
+View title description shows the number of files with .only
+Run Test File is available in editor title and Explorer context menu for test files, and in Command Palette
+While a run is in progress, status bar shows it, Run buttons are replaced by Stop, a second run is refused
+Stop button and status bar item stop the run in progress
+Notification shows whether a run passed or failed, with Show Screenshots, Show Logs and Rerun buttons
+Rerun Last Run runs the last run again
+Empty Screenshots and Logs views show welcome content
 
 ** Logs view **
 Folder structure from logs is available inside
     - all folders are listed
     - empty folders don't have expand button
-    - if no folder nor file is available, info message is showed inside TreeView
+    - if no folder nor file is available, welcome content explains why and links to the test file pattern setting
 Folders are sorted newest-first (by mtime)
 Timestamp-named folders (YYYY-MM-DD_HH-mm-ss) display a human-readable label with raw name as description
 Clicking on filename opens file in editor on line 0

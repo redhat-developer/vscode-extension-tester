@@ -22,6 +22,7 @@ import { Logger } from '../logger/logger';
 import { RunFolderTask } from '../tasks/RunFolderTask';
 import { ExtesterTreeProvider } from '../providers/extesterTreeProvider';
 import { TestRunner } from '../tasks/TestRunnerTask';
+import { TestRunManager } from '../tasks/runManager';
 import { getProjectConfigurationError } from '../utils/projectConfiguration';
 
 /**
@@ -30,9 +31,10 @@ import { getProjectConfigurationError } from '../utils/projectConfiguration';
  *
  * @param {string} target - What is run, used in the error message.
  * @param {() => TestRunner} createTask - Creates the task to execute.
+ * @param {TestRunManager} runManager - Runs the task and shows its state.
  * @param {Logger} logger - Logger instance for reporting errors.
  */
-async function runTask(target: string, createTask: () => TestRunner, logger: Logger): Promise<void> {
+async function runTask(target: string, createTask: () => TestRunner, runManager: TestRunManager, logger: Logger): Promise<void> {
 	let task: TestRunner;
 	try {
 		task = createTask();
@@ -42,7 +44,7 @@ async function runTask(target: string, createTask: () => TestRunner, logger: Log
 		void vscode.window.showErrorMessage(message);
 		return;
 	}
-	await task.execute();
+	await runManager.run(task);
 }
 
 /**
@@ -51,12 +53,13 @@ async function runTask(target: string, createTask: () => TestRunner, logger: Log
  *
  * @param {vscode.WorkspaceFolder} folder - The workspace folder to run.
  * @param {string[]} allFiles - Absolute paths of all discovered test files.
+ * @param {TestRunManager} runManager - Runs the task and shows its state.
  * @param {Logger} logger - Logger instance.
  */
-async function runAllInFolder(folder: vscode.WorkspaceFolder, allFiles: string[], logger: Logger): Promise<void> {
+async function runAllInFolder(folder: vscode.WorkspaceFolder, allFiles: string[], runManager: TestRunManager, logger: Logger): Promise<void> {
 	const files = allFiles.filter((file) => vscode.workspace.getWorkspaceFolder(vscode.Uri.file(file))?.uri.toString() === folder.uri.toString());
 	if (files.length) {
-		await runTask(`tests in ${folder.name}`, () => new RunAllTestsTask(files, logger), logger);
+		await runTask(`tests in ${folder.name}`, () => new RunAllTestsTask(files, logger), runManager, logger);
 		return;
 	}
 	// Test discovery finds no files in a root whose configuration file is invalid; say why it is skipped.
@@ -69,48 +72,96 @@ async function runAllInFolder(folder: vscode.WorkspaceFolder, allFiles: string[]
  * Registers test-related commands for the VS Code extension.
  *
  * This function registers commands for running all tests, running tests within a folder,
- * and running a single test file. Each command creates and executes a corresponding test task.
+ * running a single test file, running the file open in the editor, stopping the current run
+ * and running the last run again. Each run command creates and executes a corresponding test task.
  *
  * @param {vscode.ExtensionContext} context - The extension context, used for registering and managing command lifecycle.
  * @param {ExtesterTreeProvider} treeDataProvider - Provider for managing and updating the test tree view.
+ * @param {TestRunManager} runManager - Runs one test task at a time and shows its state.
  * @param {Logger} logger - Logger instance for debugging, diagnostics, and tracking command activity.
  */
-export function registerTestCommands(context: vscode.ExtensionContext, treeDataProvider: ExtesterTreeProvider, logger: Logger) {
-	/**
-	 * Registers the `extester-runner.runAll` command.
-	 * This command runs the tests of each workspace folder, one folder after another.
-	 */
+export function registerTestCommands(context: vscode.ExtensionContext, treeDataProvider: ExtesterTreeProvider, runManager: TestRunManager, logger: Logger) {
 	context.subscriptions.push(
+		/**
+		 * Registers the `extester-runner.runAll` command.
+		 * This command runs the tests of each workspace folder, one folder after another.
+		 */
 		vscode.commands.registerCommand('extester-runner.runAll', async () => {
 			logger.debug('Command triggered: extester-runner.runAll');
-			const allFiles = await treeDataProvider.getAllAbsolutePaths();
-			// Test tasks share runner resources, so chain the roots: each starts after the previous one ended.
-			await (vscode.workspace.workspaceFolders ?? []).reduce(
-				(previous, folder) => previous.then(() => runAllInFolder(folder, allFiles, logger)),
-				Promise.resolve(),
-			);
+			await runManager.startGroup(async () => {
+				const allFiles = await treeDataProvider.getAllAbsolutePaths();
+				// Test tasks share runner resources, so chain the roots: each starts after the previous one ended.
+				await (vscode.workspace.workspaceFolders ?? []).reduce(
+					(previous, folder) =>
+						previous.then(async () => {
+							if (runManager.wasStopped) {
+								logger.info(`Run All: stopped, skipping ${folder.name}.`);
+								return;
+							}
+							await runAllInFolder(folder, allFiles, runManager, logger);
+						}),
+					Promise.resolve(),
+				);
+			});
 		}),
-	);
 
-	/**
-	 * Registers the `extester-runner.runFolder` command.
-	 * This command runs all test files within a specified folder.
-	 */
-	context.subscriptions.push(
+		/**
+		 * Registers the `extester-runner.runFolder` command.
+		 * This command runs all test files within a specified folder.
+		 */
 		vscode.commands.registerCommand('extester-runner.runFolder', async (item) => {
 			logger.debug(`Command triggered: extester-runner.runFolder for folder ${item.folderPath}`);
-			await runTask(item.folderPath, () => new RunFolderTask(item.folderPath, logger), logger);
+			const folderPath: string = item.folderPath;
+			await runManager.startGroup(() => runTask(folderPath, () => new RunFolderTask(folderPath, logger), runManager, logger));
 		}),
-	);
 
-	/**
-	 * Registers the `extester-runner.runFile` command.
-	 * This command runs a specific test file within the workspace.
-	 */
-	context.subscriptions.push(
+		/**
+		 * Registers the `extester-runner.runFile` command.
+		 * This command runs a specific test file within the workspace.
+		 */
 		vscode.commands.registerCommand('extester-runner.runFile', async (item) => {
 			logger.debug(`Command triggered: extester-runner.runFile for file ${item.filePath}`);
-			await runTask(item.filePath, () => new RunFileTask(item.filePath, logger), logger);
+			const filePath: string = item.filePath;
+			await runManager.startGroup(() => runTask(filePath, () => new RunFileTask(filePath, logger), runManager, logger));
+		}),
+
+		/**
+		 * Registers the `extester-runner.runCurrentFile` command.
+		 * This command runs the test file given by the editor or explorer menu, or the file open in the active editor.
+		 */
+		vscode.commands.registerCommand('extester-runner.runCurrentFile', async (uri?: vscode.Uri) => {
+			const fileUri = uri instanceof vscode.Uri ? uri : vscode.window.activeTextEditor?.document.uri;
+			logger.debug(`Command triggered: extester-runner.runCurrentFile for file ${fileUri?.fsPath}`);
+			if (fileUri?.scheme !== 'file') {
+				void vscode.window.showWarningMessage('Open an ExTester test file to run it.');
+				return;
+			}
+			if (!treeDataProvider.isTestFile(fileUri.fsPath)) {
+				void vscode.window.showWarningMessage(
+					`${vscode.workspace.asRelativePath(fileUri)} is not an ExTester test file. It does not match the test file pattern.`,
+				);
+				return;
+			}
+			const filePath = fileUri.fsPath;
+			await runManager.startGroup(() => runTask(filePath, () => new RunFileTask(filePath, logger), runManager, logger));
+		}),
+
+		/**
+		 * Registers the `extester-runner.stopRun` command.
+		 * This command stops the test run in progress.
+		 */
+		vscode.commands.registerCommand('extester-runner.stopRun', () => {
+			logger.debug('Command triggered: extester-runner.stopRun');
+			runManager.stop();
+		}),
+
+		/**
+		 * Registers the `extester-runner.rerunLastRun` command.
+		 * This command starts the last run again, with the current settings.
+		 */
+		vscode.commands.registerCommand('extester-runner.rerunLastRun', async () => {
+			logger.debug('Command triggered: extester-runner.rerunLastRun');
+			await runManager.rerunLast();
 		}),
 	);
 }

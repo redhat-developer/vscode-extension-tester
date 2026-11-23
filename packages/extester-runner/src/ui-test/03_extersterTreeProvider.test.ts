@@ -21,7 +21,7 @@
  * and displayed in the VS Code test explorer tree view.
  */
 
-import { VSBrowser, ActivityBar, DefaultTreeSection, WaitHelper, createWaitHelper } from 'vscode-extension-tester';
+import { VSBrowser, ActivityBar, By, DefaultTreeSection, error, TreeItem, WaitHelper, createWaitHelper } from 'vscode-extension-tester';
 import {
 	EXAMPLE_PROJECT,
 	TEST_FILE_GLOB_SETTINGS_ID,
@@ -36,6 +36,38 @@ import {
 } from './utils/testUtils';
 import * as assert from 'assert';
 import { expect } from 'chai';
+
+/**
+ * Reads the description shown next to a tree item label, for example a `.only` or `.skip` modifier.
+ * Uses the text content instead of the visible text: a narrow side bar can clip the description, and
+ * WebDriver then returns an empty string for the visible text.
+ *
+ * @param {TreeItem} item - The tree item.
+ * @returns {Promise<string>} The description text.
+ */
+async function getModifier(item: TreeItem): Promise<string> {
+	const description = await item.findElement(By.className('label-description'));
+	return ((await description.getAttribute('textContent')) ?? '').trim();
+}
+
+/**
+ * Returns the visible items of the tree, or none while the view still shows its welcome content.
+ * An empty view hides its tree behind the welcome content until the tests are discovered, and
+ * WebDriver cannot interact with the hidden tree in the meantime.
+ *
+ * @param {DefaultTreeSection} tree - The tree section.
+ * @returns {Promise<TreeItem[]>} The visible items, or an empty list while the tree is hidden.
+ */
+async function getVisibleItemsWhenShown(tree: DefaultTreeSection): Promise<TreeItem[]> {
+	try {
+		return await tree.getVisibleItems();
+	} catch (e) {
+		if (e instanceof error.ElementNotInteractableError) {
+			return [];
+		}
+		throw e;
+	}
+}
 
 // Constants for test values
 const TEST_FILE_GLOB = '**/parser/*.test.ts';
@@ -102,7 +134,7 @@ describe('Parser test suite', function () {
 		// Verify parser folder exists
 		await waitHelper.forCondition(
 			async () => {
-				const items = await tree.getVisibleItems();
+				const items = await getVisibleItemsWhenShown(tree);
 				const item = await items[0]?.getLabel();
 				if (!item) {
 					return false;
@@ -154,8 +186,10 @@ describe('Parser test suite', function () {
 	 * Tests that the describe.only and it.skip modifiers are correctly displayed in the tree view
 	 */
 	it('simpleFileWithModifier.test.ts', async function () {
-		const EXPECTED_DESCRIBE = 'Simple suite with only modifier [only]';
-		const EXPECTED_TEST = 'Simple test with skip modifier [skip]';
+		const EXPECTED_DESCRIBE = 'Simple suite with only modifier';
+		const EXPECTED_DESCRIBE_MODIFIER = 'only';
+		const EXPECTED_TEST = 'Simple test with skip modifier';
+		const EXPECTED_TEST_MODIFIER = 'skip';
 
 		// Setup test view
 		const runnerView = await (await new ActivityBar().getViewControl(EXTESTER_RUNNER))?.openView();
@@ -172,7 +206,7 @@ describe('Parser test suite', function () {
 		// Verify parser folder exists
 		await waitHelper.forCondition(
 			async () => {
-				const items = await tree.getVisibleItems();
+				const items = await getVisibleItemsWhenShown(tree);
 				const item = await items[0]?.getLabel();
 				if (!item) {
 					return false;
@@ -198,6 +232,7 @@ describe('Parser test suite', function () {
 		const firstDescribe = describes[0];
 		const describeLabel = await firstDescribe.getLabel();
 		assert.strictEqual(describeLabel.trim(), EXPECTED_DESCRIBE);
+		assert.strictEqual(await getModifier(firstDescribe), EXPECTED_DESCRIBE_MODIFIER);
 
 		// Verify test block
 		await waitHelper.forCondition(
@@ -217,6 +252,7 @@ describe('Parser test suite', function () {
 		const firstIt = its[0];
 		const firstItLabel = await firstIt.getLabel();
 		assert.strictEqual(firstItLabel.trim(), EXPECTED_TEST);
+		assert.strictEqual(await getModifier(firstIt), EXPECTED_TEST_MODIFIER);
 	});
 
 	/**
@@ -242,7 +278,7 @@ describe('Parser test suite', function () {
 		// Verify parser folder exists
 		await waitHelper.forCondition(
 			async () => {
-				const items = await tree.getVisibleItems();
+				const items = await getVisibleItemsWhenShown(tree);
 				const item = await items[0]?.getLabel();
 				if (!item) {
 					return false;
@@ -314,7 +350,7 @@ describe('Parser test suite', function () {
 		// Verify parser folder exists
 		await waitHelper.forCondition(
 			async () => {
-				const items = await tree.getVisibleItems();
+				const items = await getVisibleItemsWhenShown(tree);
 				const item = await items[0]?.getLabel();
 				if (!item) {
 					return false;

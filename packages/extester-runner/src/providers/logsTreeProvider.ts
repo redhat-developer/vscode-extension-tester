@@ -43,7 +43,8 @@ export class LogsTreeProvider extends ResourceTreeProvider<LogsResourcesItem> {
 
 		if (!fs.existsSync(dirPath)) {
 			this.logger.debug(`Directory does not exist: ${dirPath}`);
-			return [new LogsResourcesItem('No logs', '', false, true)];
+			// An empty view shows its welcome content; an empty folder shows a placeholder.
+			return element ? [new LogsResourcesItem('No logs', '', false, true)] : [];
 		}
 
 		const entries = fs.readdirSync(dirPath, { withFileTypes: true });
@@ -63,7 +64,8 @@ export class LogsTreeProvider extends ResourceTreeProvider<LogsResourcesItem> {
 			.filter(Boolean) as LogsResourcesItem[];
 
 		if (items.length === 0) {
-			return [new LogsResourcesItem('No logs', '', false, true)];
+			// An empty view shows its welcome content; an empty folder shows a placeholder.
+			return element ? [new LogsResourcesItem('No logs', '', false, true)] : [];
 		}
 
 		// Sort root-level items newest-first by mtime; leave nested items (children of a folder) unsorted.
