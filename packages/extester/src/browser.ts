@@ -37,6 +37,7 @@ import {
 } from './util/codeUtil';
 import { DEFAULT_STORAGE_FOLDER } from './extester';
 import { DriverUtil } from './util/driverUtil';
+import { browserLaunchEnvironment, formatLaunchFailure, isSessionNotCreated } from './util/launchDiagnostics';
 
 export class VSBrowser {
 	static readonly baseVersion = '1.37.0';
@@ -227,13 +228,36 @@ export class VSBrowser {
 		const chromeDriverLog = path.join(this.storagePath, 'chromedriver.log');
 		console.log(`Launching browser... (ChromeDriver log: ${chromeDriverLog})`);
 
-		this._driver = await new Builder()
-			.setChromeService(
-				new ServiceBuilder(chromeDriverBinaryPath).loggingTo(chromeDriverLog).addArguments(...DriverUtil.chromeDriverLogLevelArgs(this.logLevel)),
-			)
-			.forBrowser(Browser.CHROME)
-			.setChromeOptions(options)
-			.build();
+		// --enable-chrome-logs routes VS Code's own stdout/stderr into the
+		// ChromeDriver log; without it ChromeDriver discards them, and a VS Code
+		// that exits during startup leaves no trace of why (#2049).
+		// The environment is filtered so that e.g. an inherited ELECTRON_RUN_AS_NODE
+		// cannot turn the Electron binary into plain Node.
+		const service = new ServiceBuilder(chromeDriverBinaryPath)
+			.loggingTo(chromeDriverLog)
+			.addArguments(...DriverUtil.chromeDriverLogLevelArgs(this.logLevel), '--enable-chrome-logs')
+			.setEnvironment(browserLaunchEnvironment(process.env));
+
+		const launchStartedMs = Date.now();
+		try {
+			this._driver = await new Builder().setChromeService(service).forBrowser(Browser.CHROME).setChromeOptions(options).build();
+		} catch (err) {
+			if (!isSessionNotCreated(err)) {
+				throw err;
+			}
+			const message = formatLaunchFailure({
+				error: err as Error,
+				codePath,
+				chromeDriverLog,
+				userDataDir: settingsDir,
+				crashesDir,
+				launchStartedMs,
+			});
+			// rethrow as the same selenium error type so `instanceof` and name
+			// checks upstream still recognise it; the original stays as `cause`
+			const ErrorType = (err as Error).constructor as new (message: string) => Error;
+			throw Object.assign(new ErrorType(message), { cause: err });
+		}
 
 		await this._driver.manage().setTimeouts({
 			implicit: 0,
