@@ -46,9 +46,6 @@ jobs:
       - name: 🔧 Install - Test Project
         run: npm install --workspace=extester-test
 
-      - name: ⚙️ Allow unprivileged user namespace (ubuntu)
-        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
-
       - name: 📊 Run Tests with Coverage enabled
         # Test failures are not a problem for the coverage report, so the run
         # is allowed to fail; only a missing report fails the job.

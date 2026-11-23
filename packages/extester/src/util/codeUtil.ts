@@ -656,7 +656,16 @@ export class CodeUtil {
 	 */
 	open(...paths: string[]): void {
 		const segments = paths.map((f) => `"${f}"`).join(' ');
-		const command = `${this.getCliInitCommand()} -r ${segments} --user-data-dir="${path.join(this.downloadFolder, 'settings')}"`;
+		const userDataDir = path.join(this.downloadFolder, 'settings');
+		// Unlike --install-extension, an open request is not handled by cli.js itself: it
+		// spawns a second, detached Electron process (without ELECTRON_RUN_AS_NODE) that
+		// forwards the paths to the running instance over IPC. That process initializes the
+		// Chromium sandbox before any VS Code code runs, so on Linux hosts where the sandbox
+		// is unavailable (chrome-sandbox not setuid root, or unprivileged user namespaces
+		// blocked by AppArmor on Ubuntu 24.04+) it aborts immediately. Because it is detached
+		// with its output ignored, the CLI still exits 0 and nothing gets opened. The test
+		// instance itself is launched with --no-sandbox, so the forwarding process needs it too.
+		const command = `${this.getCliInitCommand()} -r ${segments} --no-sandbox --user-data-dir="${userDataDir}"`;
 		childProcess.execSync(command, { timeout: 30000 });
 	}
 

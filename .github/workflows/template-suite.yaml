@@ -80,10 +80,6 @@ jobs:
         if: ${{ !startsWith(matrix.os, 'ubuntu') }}
         run: npm run test:${{ inputs.test_group }} --workspace=extester-test
 
-      - name: ⚙️ Allow unprivileged user namespace (ubuntu)
-        if: ${{ startsWith(matrix.os, 'ubuntu') }}
-        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
-
       - name: 🔍 Run Tests (linux)
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
         run: xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' npm run test:${{ inputs.test_group }} --workspace=extester-test

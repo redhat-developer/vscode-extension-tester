@@ -463,6 +463,40 @@ describe('CodeUtil.uninstallExtension', () => {
 	});
 });
 
+describe('CodeUtil.open', () => {
+	// stub via the underlying CJS module object, see removeDirWithRetry
+	const cpModule = require('child_process') as { execSync: (command: string, options?: object) => Buffer };
+	const originalExecSync = cpModule.execSync;
+	let commands: string[];
+	let dir: string;
+
+	beforeEach(async () => {
+		dir = await fs.mkdtemp(path.join(os.tmpdir(), 'extest-open-'));
+		commands = [];
+		cpModule.execSync = (command: string) => {
+			commands.push(command);
+			return Buffer.from('');
+		};
+	});
+
+	afterEach(async () => {
+		cpModule.execSync = originalExecSync;
+		await fs.remove(dir);
+	});
+
+	it('reuses the running window and the test instance user data dir', () => {
+		new CodeUtil(dir, ReleaseQuality.Stable).open('/some/folder', '/some/file.ts');
+		assert.strictEqual(commands.length, 1);
+		assert.ok(commands[0].includes(' -r "/some/folder" "/some/file.ts" '), commands[0]);
+		assert.ok(commands[0].includes(`--user-data-dir="${path.join(dir, 'settings')}"`), commands[0]);
+	});
+
+	it('passes --no-sandbox so the forwarding Electron process starts where the Chromium sandbox is unavailable (#2050)', () => {
+		new CodeUtil(dir, ReleaseQuality.Stable).open('/some/folder');
+		assert.ok(commands[0].includes(' --no-sandbox '), commands[0]);
+	});
+});
+
 describe('overriddenDefaultKeys', () => {
 	const defaults = { 'update.mode': 'none', 'window.titleBarStyle': 'custom', 'workbench.reduceMotion': 'on' };
 
