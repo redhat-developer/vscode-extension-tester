@@ -79,13 +79,7 @@ const DRIVER_STACK_LINE = /^(Stacktrace:|#\d+ 0x|\s*\(No symbol\))/;
  */
 export function extractBrowserOutput(logText: string, maxLines: number = 40): string[] {
 	const lines = logText.split(/\r?\n/);
-	let start = -1;
-	for (let i = lines.length - 1; i >= 0; i--) {
-		if (DRIVER_LINE.test(lines[i]) && LAUNCH_LINE.test(lines[i])) {
-			start = i + 1;
-			break;
-		}
-	}
+	const start = lastLaunchIndex(lines);
 	if (start < 0) {
 		return [];
 	}
@@ -93,28 +87,40 @@ export function extractBrowserOutput(logText: string, maxLines: number = 40): st
 	// ChromeDriver pretty-prints JSON payloads over several lines after an
 	// entry ending in "{" or "["; skip them until the closing bracket at column 0.
 	let jsonCloser: string | undefined;
-	for (const line of lines.slice(start)) {
+	for (const line of lines.slice(start + 1)) {
 		if (jsonCloser) {
-			if (line === jsonCloser) {
-				jsonCloser = undefined;
-			}
-			continue;
+			jsonCloser = line === jsonCloser ? undefined : jsonCloser;
+		} else if (DRIVER_LINE.test(line)) {
+			jsonCloser = jsonBlockCloser(line);
+		} else if (isBrowserLine(line)) {
+			output.push(line);
 		}
-		if (DRIVER_LINE.test(line)) {
-			const trimmed = line.trimEnd();
-			if (trimmed.endsWith('{')) {
-				jsonCloser = '}';
-			} else if (trimmed.endsWith('[')) {
-				jsonCloser = ']';
-			}
-			continue;
-		}
-		if (DRIVER_STACK_LINE.test(line) || line.trim() === '') {
-			continue;
-		}
-		output.push(line);
 	}
 	return output.slice(-maxLines);
+}
+
+/** Index of the last ChromeDriver "Launching chrome:" entry, or -1. */
+function lastLaunchIndex(lines: string[]): number {
+	for (let i = lines.length - 1; i >= 0; i--) {
+		if (DRIVER_LINE.test(lines[i]) && LAUNCH_LINE.test(lines[i])) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+/** Closing bracket of a JSON payload a ChromeDriver entry opens, if any. */
+function jsonBlockCloser(driverLine: string): string | undefined {
+	const trimmed = driverLine.trimEnd();
+	if (trimmed.endsWith('{')) {
+		return '}';
+	}
+	return trimmed.endsWith('[') ? ']' : undefined;
+}
+
+/** A non-driver line worth reporting: not blank and not part of a native stack trace. */
+function isBrowserLine(line: string): boolean {
+	return line.trim() !== '' && !DRIVER_STACK_LINE.test(line);
 }
 
 /**
@@ -158,7 +164,12 @@ export function listNewFiles(dir: string, sinceMs: number): string[] {
 		}
 	};
 	walk(dir);
-	return found.sort();
+	return found.sort((a, b) => a.localeCompare(b));
+}
+
+/** Indent each line for nesting under a section heading. */
+function indent(lines: string[]): string {
+	return lines.map((line) => '  ' + line).join('\n');
 }
 
 function tail(file: string, maxLines: number): string[] {
@@ -213,7 +224,7 @@ export function formatLaunchFailure(ctx: LaunchFailureContext): string {
 		// log missing or unreadable — fall through to the other sources
 	}
 	if (browserOutput.length > 0) {
-		sections.push(`VS Code output (from ${ctx.chromeDriverLog}):\n${browserOutput.map((line) => `  ${line}`).join('\n')}`);
+		sections.push(`VS Code output (from ${ctx.chromeDriverLog}):\n${indent(browserOutput)}`);
 	} else {
 		sections.push(`VS Code printed nothing before exiting. Full ChromeDriver log: ${ctx.chromeDriverLog}`);
 	}
@@ -222,13 +233,13 @@ export function formatLaunchFailure(ctx: LaunchFailureContext): string {
 	if (mainLog) {
 		const lines = tail(mainLog, 20);
 		if (lines.length > 0) {
-			sections.push(`VS Code main log (${mainLog}):\n${lines.map((line) => `  ${line}`).join('\n')}`);
+			sections.push(`VS Code main log (${mainLog}):\n${indent(lines)}`);
 		}
 	}
 
 	const dumps = listNewFiles(ctx.crashesDir, ctx.launchStartedMs);
 	if (dumps.length > 0) {
-		sections.push(`Crash dumps written during launch:\n${dumps.map((dump) => `  ${dump}`).join('\n')}`);
+		sections.push(`Crash dumps written during launch:\n${indent(dumps)}`);
 	}
 
 	sections.push(
