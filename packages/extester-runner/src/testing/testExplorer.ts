@@ -92,7 +92,8 @@ export class TestExplorer implements vscode.Disposable {
 			clearProjectConfigurationCache();
 			return this.provider.refresh();
 		};
-		this.controller.createRunProfile('Run', vscode.TestRunProfileKind.Run, (request, token) => this.runHandler(request, token), true);
+		this.controller.createRunProfile('Run', vscode.TestRunProfileKind.Run, (request, token) => this.runHandler(request, token, false), true);
+		this.controller.createRunProfile('Debug', vscode.TestRunProfileKind.Debug, (request, token) => this.runHandler(request, token, true), true);
 		this.disposables.push(
 			this.controller,
 			provider.onDidChange(() => this.scheduleRefresh()),
@@ -186,7 +187,7 @@ export class TestExplorer implements vscode.Disposable {
 	/**
 	 * Runs the requested tests: one test task per requested item, or one per workspace folder for all tests.
 	 */
-	private async runHandler(request: vscode.TestRunRequest, token: vscode.CancellationToken): Promise<void> {
+	private async runHandler(request: vscode.TestRunRequest, token: vscode.CancellationToken, debug: boolean): Promise<void> {
 		if (request.exclude?.length) {
 			this.logger.info('Testing view: excluded tests are not supported yet and run with the others.');
 		}
@@ -197,7 +198,7 @@ export class TestExplorer implements vscode.Disposable {
 				// Show the run's output in Test Results instead of the task terminal.
 				void vscode.commands.executeCommand('testing.showMostRecentOutput').then(undefined, () => undefined);
 				try {
-					await this.createJobs(request).reduce((previous, job) => previous.then(() => this.runJob(run, job)), Promise.resolve());
+					await this.createJobs(request).reduce((previous, job) => previous.then(() => this.runJob(run, job, debug)), Promise.resolve());
 				} finally {
 					run.end();
 				}
@@ -241,7 +242,7 @@ export class TestExplorer implements vscode.Disposable {
 	/**
 	 * Runs one test task and reports the result of each of its tests.
 	 */
-	private async runJob(run: vscode.TestRun, job: Job): Promise<void> {
+	private async runJob(run: vscode.TestRun, job: Job, debug: boolean): Promise<void> {
 		const leaves = job.items.flatMap((item) => this.collectLeaves(item));
 		leaves.forEach((leaf) => run.enqueued(leaf.item));
 		if (this.runManager.wasStopped) {
@@ -263,6 +264,9 @@ export class TestExplorer implements vscode.Disposable {
 		const hookOption = `--require "${this.hookPath}"`;
 		const nodeOptions = [process.env.NODE_OPTIONS, hookOption].filter(Boolean).join(' ');
 		task.addEnvironment({ EXTESTER_RUNNER_RESULTS: resultsFile, EXTESTER_RUNNER_HOOK_OPTION: hookOption, NODE_OPTIONS: nodeOptions });
+		if (debug) {
+			task.useDebugger();
+		}
 		const reporter = new RunReporter(run, leaves, this.getScreenshotsRoot(), Date.now(), this.logger);
 		const reader = new ResultReader(resultsFile, (event) => reporter.report(event));
 		try {

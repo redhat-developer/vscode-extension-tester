@@ -17,9 +17,10 @@
 
 /*
  * Preloaded into the `extest` process with `NODE_OPTIONS=--require`, so the Testing view can show
- * the result of each test. It does not change how tests run: when Mocha is loaded, it listens to
- * the events of each Mocha runner and appends one JSON line per event to the file named by
- * `EXTESTER_RUNNER_RESULTS`. It works with any ExTester version and any reporter.
+ * the result of each test. When Mocha is loaded, it listens to the events of each Mocha runner and
+ * appends one JSON line per event to the file named by `EXTESTER_RUNNER_RESULTS`. It works with any
+ * ExTester version and any reporter. It does not change how tests run, except that debug runs
+ * (`EXTESTER_RUNNER_NO_TIMEOUT=true`) turn off Mocha's timeouts.
  *
  * Once Mocha is loaded, the process that runs the tests is found, so the hook removes itself from
  * `NODE_OPTIONS`. The processes that extest starts next (the `code` CLI, VS Code, ChromeDriver) then
@@ -56,6 +57,20 @@ interface MochaRunnable {
 
 interface MochaRunner {
 	on(event: string, listener: (runnable: MochaRunnable, error?: unknown) => void): void;
+	suite?: MochaSuite;
+}
+
+interface MochaTimeouts {
+	timeout(ms: number): unknown;
+}
+
+interface MochaSuite extends MochaTimeouts {
+	suites: MochaSuite[];
+	tests: MochaTimeouts[];
+	_beforeAll?: MochaTimeouts[];
+	_beforeEach?: MochaTimeouts[];
+	_afterAll?: MochaTimeouts[];
+	_afterEach?: MochaTimeouts[];
 }
 
 const resultsFile = process.env.EXTESTER_RUNNER_RESULTS;
@@ -147,6 +162,17 @@ function listen(runner: MochaRunner): void {
 	runner.on('pending', report('skipped'));
 }
 
+/**
+ * Turns off the timeouts of all suites, tests and hooks, so a test does not fail while it waits
+ * at a breakpoint. Used by debug runs only. A test that sets its own timeout while it runs keeps it.
+ */
+function disableTimeouts(suite: MochaSuite): void {
+	suite.timeout(0);
+	const runnables = [...suite.tests, ...(suite._beforeAll ?? []), ...(suite._beforeEach ?? []), ...(suite._afterAll ?? []), ...(suite._afterEach ?? [])];
+	runnables.forEach((runnable) => runnable.timeout(0));
+	suite.suites.forEach(disableTimeouts);
+}
+
 if (resultsFile) {
 	captureOutput(process.stdout);
 	captureOutput(process.stderr);
@@ -161,6 +187,9 @@ if (resultsFile) {
 			const run = exported.Runner.prototype.run;
 			exported.Runner.prototype.run = function (this: MochaRunner, ...args: unknown[]) {
 				listen(this);
+				if (process.env.EXTESTER_RUNNER_NO_TIMEOUT === 'true' && this.suite) {
+					disableTimeouts(this.suite);
+				}
 				return run.apply(this, args);
 			};
 		}
