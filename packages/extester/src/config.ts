@@ -107,6 +107,11 @@ export interface ExTesterRunnerConfig {
 	env?: Record<string, string>;
 	/** VS Code task to run before the tests, such as `npm: compile`. The tests start only when it succeeds. */
 	preRunTask?: string;
+	/**
+	 * Command that runs the tests instead of `extest setup-and-run`, such as `npm run ui-test -- ${target}`.
+	 * `${target}` is replaced by the quoted path or glob of the tests to run, or appended when it is missing.
+	 */
+	runCommand?: string;
 }
 
 /**

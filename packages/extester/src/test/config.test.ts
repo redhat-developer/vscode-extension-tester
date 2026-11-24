@@ -225,6 +225,7 @@ describe('loadConfig', () => {
 						additionalArgs: ['--log_level Debug'],
 						env: { TEST_USER: 'tester' },
 						preRunTask: 'npm: compile',
+						runCommand: 'npm run ui-test -- ${target}',
 					},
 				}),
 			);
@@ -241,6 +242,7 @@ describe('loadConfig', () => {
 					additionalArgs: ['--log_level Debug'],
 					env: { TEST_USER: 'tester' },
 					preRunTask: 'npm: compile',
+					runCommand: 'npm run ui-test -- ${target}',
 				});
 			} finally {
 				fs.rmSync(dir, { recursive: true });

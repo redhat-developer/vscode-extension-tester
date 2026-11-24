@@ -62,6 +62,7 @@ describe('Project configuration file', () => {
 				additionalArgs: ['--log_level Debug'],
 				env: { TEST_USER: 'tester' },
 				preRunTask: 'npm: compile',
+				runCommand: 'npm run ui-test -- ${target}',
 			},
 		});
 		assert.deepEqual(readProjectConfiguration(root), {
@@ -74,6 +75,7 @@ describe('Project configuration file', () => {
 			additionalArgs: ['--log_level Debug'],
 			env: { TEST_USER: 'tester' },
 			preRunTask: 'npm: compile',
+			runCommand: 'npm run ui-test -- ${target}',
 		});
 	});
 	it('reads the VS Code version, type and storage folder from setup before run', () => {
@@ -174,6 +176,7 @@ describe('Project configuration file', () => {
 		{ runner: { env: { PORT: 8080 } } },
 		{ runner: { env: ['TEST_USER=tester'] } },
 		{ runner: { preRunTask: ['npm: compile'] } },
+		{ runner: { runCommand: ['npm', 'test'] } },
 		{ runner: { tempFolder: 'tmp' } },
 		{ runner: { typo: true } },
 		{ runner: { outputFolder: '../outside' } },

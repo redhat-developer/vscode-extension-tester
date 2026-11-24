@@ -514,4 +514,28 @@ describe('Task Command Generation', () => {
 			assert.strictEqual(env(task)?.MOCHA_GREP, '^Editor ');
 		});
 	});
+
+	describe('with a custom run command', () => {
+		let workspacePath: string;
+
+		before(async () => {
+			const config = vscode.workspace.getConfiguration('extesterRunner');
+			await config.update('runCommand', 'npm run ui-test -- ${target}', vscode.ConfigurationTarget.Workspace);
+			workspacePath = vscode.workspace.workspaceFolders![0].uri.fsPath;
+		});
+
+		after(async () => {
+			const config = vscode.workspace.getConfiguration('extesterRunner');
+			await config.update('runCommand', undefined, vscode.ConfigurationTarget.Workspace);
+		});
+
+		it('runs the command with the target instead of extest setup-and-run', () => {
+			const task = new RunFileTask(path.join(workspacePath, 'src', 'ui-test', 'a.test.ts'), dummyLogger);
+			const execution = task.execution as vscode.ShellExecution;
+
+			assert.ok(execution.commandLine?.startsWith("npm run ui-test -- '"), String(execution.commandLine));
+			assert.deepStrictEqual(execution.args ?? [], []);
+			assert.strictEqual(execution.options?.cwd, workspacePath);
+		});
+	});
 });

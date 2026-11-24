@@ -78,6 +78,7 @@ The extension supports both VS Code settings and a [project configuration](#proj
    - `configFile`: Path of the ExTester configuration file, relative to the workspace folder; see [Configuration file in a subfolder](#configuration-file-in-a-subfolder) (default: not set — `extester.config.json` in the workspace folder)
    - `env`: Environment variables for test runs (default: `{}`)
    - `preRunTask`: VS Code task to run before each test run, such as `npm: compile` (default: not set)
+   - `runCommand`: Command that runs the tests instead of `npx extest setup-and-run`; see [Custom run command](#custom-run-command) (default: not set)
 
 3. **Log Management**
    - `hideEmptyLogFolders`: Controls visibility of empty log directories (default: `true`)
@@ -105,7 +106,7 @@ Put the Runner settings in the `runner` section, next to `setup` and `run`:
 }
 ```
 
-The `runner` section accepts `testFileGlob`, `excludeGlob`, `ignorePathPart`, `rootFolder`, `outputFolder`, `runSources`, `additionalArgs`, `env` and `preRunTask`, with the same meaning as the settings in the [Configuration](#configuration) section. Unknown properties and invalid values are reported as configuration errors. The `$schema` reference gives completion and validation for the whole file. The CLI ignores the `runner` section.
+The `runner` section accepts `testFileGlob`, `excludeGlob`, `ignorePathPart`, `rootFolder`, `outputFolder`, `runSources`, `additionalArgs`, `env`, `preRunTask` and `runCommand`, with the same meaning as the settings in the [Configuration](#configuration) section. Unknown properties and invalid values are reported as configuration errors. The `$schema` reference gives completion and validation for the whole file. The CLI ignores the `runner` section.
 
 The VS Code version, the release type and the storage folder are not repeated in `runner`. The Runner reads them from the CLI sections, in the same order as `extest setup-and-run`:
 
@@ -216,6 +217,22 @@ Set `env` to pass environment variables to the tests, for example account names 
   }
 }
 ```
+
+### Custom run command
+
+By default the Runner runs `npx extest setup-and-run <target>` with the arguments from its settings. Set `runCommand` to run your own command instead, for example an npm script that also starts a mock server, or `extest run-tests` when VS Code and ChromeDriver are already set up:
+
+```json
+{
+  "runner": {
+    "runCommand": "npm run ui-test -- ${target}"
+  }
+}
+```
+
+- `${target}` is replaced by the quoted path or glob of the tests to run: the test file, a glob of the files in a folder, or a glob of all test files. If the command has no `${target}`, the target is appended at the end.
+- The command runs in the workspace folder and gets the `env` variables and, when a single test or `describe` block runs, `MOCHA_GREP`. `preRunTask` still runs first.
+- The VS Code version, type, temp folder, `additionalArgs` and `configFile` are not added to the command. Put the options it needs in the command itself.
 
 ### Running TypeScript Sources
 

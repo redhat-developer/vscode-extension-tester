@@ -19,6 +19,7 @@ import * as vscode from 'vscode';
 import { Logger } from '../logger/logger';
 import { ConfigurationReader } from '../utils/projectConfigFile';
 import { getRunnerConfiguration, getConfigArguments } from '../utils/projectConfiguration';
+import { buildRunCommand } from '../utils/runCommand';
 
 /**
  * Resolve the task's workspace root and configuration consistently for all run commands.
@@ -69,7 +70,10 @@ export function getRunEnvironment(configuration: ConfigurationReader, grep?: str
 	return env;
 }
 
-/** Build the shared CLI invocation, run from the workspace root that owns the tests. */
+/**
+ * Build the test command, run from the workspace root that owns the tests: `npx extest setup-and-run`
+ * with the arguments from the settings, or the custom `runCommand` when it is set.
+ */
 export function createTestExecution(
 	owner: vscode.WorkspaceFolder,
 	configuration: ConfigurationReader,
@@ -77,13 +81,28 @@ export function createTestExecution(
 	logger: Logger,
 	grep?: string,
 ): vscode.ShellExecution {
+	const env = getRunEnvironment(configuration, grep);
+	const envNames = Object.keys(env);
+	if (envNames.length) {
+		// Log names only: values can hold secrets. The grep pattern is not secret and helps when no test runs.
+		const grepText = grep ? ' (MOCHA_GREP=' + grep + ')' : '';
+		logger.info(`Environment variables: ${envNames.join(', ')}${grepText}`);
+	}
+
+	const runCommand = configuration.get<string>('runCommand')?.trim();
+	if (runCommand) {
+		// The custom command owns all of its arguments: the VS Code version, type, storage and additionalArgs are not added.
+		const commandLine = buildRunCommand(runCommand, finalPath);
+		logger.info(`Running custom command: ${commandLine}`);
+		return new vscode.ShellExecution(commandLine, { cwd: owner.uri.fsPath, env });
+	}
+
 	const storageArgs = optionArgs(configuration, 'tempFolder', '--storage', true);
 	const versionArgs = optionArgs(configuration, 'visualStudioCode.Version', '--code_version');
 	const typeArgs = optionArgs(configuration, 'visualStudioCode.Type', '--type');
 	const additionalArgs = configuration.get<string[]>('additionalArgs', []) ?? [];
 	const processedArgs = additionalArgs.flatMap((arg) => arg.match(/(?:[^\s"]+|"[^"]*")+/g) ?? []);
 	const configArgs = getConfigArguments(owner, processedArgs);
-	const env = getRunEnvironment(configuration, grep);
 
 	const shellExecution = new vscode.ShellExecution(
 		'npx',
@@ -99,12 +118,6 @@ export function createTestExecution(
 		...configArgs.map((arg) => (typeof arg === 'string' ? arg : `'${arg.value}'`)),
 	];
 	logger.info(`Running command: npx extest setup-and-run '${finalPath}' ${commandArgs.join(' ')}`);
-	const envNames = Object.keys(env);
-	if (envNames.length) {
-		// Log names only: values can hold secrets. The grep pattern is not secret and helps when no test runs.
-		const grepText = grep ? ' (MOCHA_GREP=' + grep + ')' : '';
-		logger.info(`Environment variables: ${envNames.join(', ')}${grepText}`);
-	}
 
 	return shellExecution;
 }
