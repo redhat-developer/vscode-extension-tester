@@ -67,7 +67,9 @@ export class TestCodeLensProvider implements vscode.CodeLensProvider {
 		if (document.uri.scheme !== 'file' || !this.isTestFile(document.uri.fsPath)) {
 			return [];
 		}
-		if (!vscode.workspace.getConfiguration('extesterRunner', document.uri).get<boolean>('codeLens', true)) {
+		// With the Testing view on, its gutter icons run the tests, so the CodeLenses would only repeat them.
+		const configuration = vscode.workspace.getConfiguration('extesterRunner', document.uri);
+		if (!configuration.get<boolean>('codeLens', true) || configuration.get<boolean>('testExplorer', true)) {
 			return [];
 		}
 		try {

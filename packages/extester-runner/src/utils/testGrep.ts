@@ -56,3 +56,25 @@ export function buildGrepPattern(titles: string[], isTest: boolean): string {
 		.join(' ');
 	return `^${fullTitle}${isTest ? '$' : ' '}`;
 }
+
+/**
+ * Whether the titles of a test or suite at run time match the titles the parser read from the source.
+ * Template literal expressions in parsed titles match any text.
+ *
+ * @param {string[]} parsed - The titles the parser read, from the outermost `describe` block.
+ * @param {string[]} runtime - The titles Mocha reports, from the outermost `describe` block.
+ * @param {boolean} [prefix] - Whether `runtime` only has to match the start of `parsed`, as for the suite of a test.
+ * @returns {boolean} `true` when the titles match.
+ */
+export function matchesTitles(parsed: string[], runtime: string[], prefix = false): boolean {
+	if (prefix ? runtime.length > parsed.length : runtime.length !== parsed.length) {
+		return false;
+	}
+	return runtime.every((title, index) => {
+		const pattern = parsed[index]
+			.split(PLACEHOLDER_PATTERN)
+			.map((part) => escapeRegExp(part))
+			.join('.*');
+		return new RegExp(`^${pattern}$`).test(title);
+	});
+}

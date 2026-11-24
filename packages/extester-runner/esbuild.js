@@ -25,14 +25,15 @@ const esbuildProblemMatcherPlugin = {
 
 async function main() {
 	const ctx = await esbuild.context({
-		entryPoints: ['src/extension.ts'],
+		// resultHook is preloaded into the extest process to report test results to the Testing view.
+		entryPoints: { extension: 'src/extension.ts', resultHook: 'src/testing/resultHook.ts' },
 		bundle: true,
 		format: 'cjs',
 		minify: production,
 		sourcemap: !production,
 		sourcesContent: false,
 		platform: 'node',
-		outfile: 'out/extension.js',
+		outdir: 'out',
 		external: ['vscode'],
 		logLevel: 'silent',
 		plugins: [

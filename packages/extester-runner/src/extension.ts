@@ -16,6 +16,7 @@
  */
 
 import * as vscode from 'vscode';
+import * as path from 'node:path';
 import { createLogger, Logger } from './logger/logger';
 import { ExtesterTreeProvider } from './providers/extesterTreeProvider';
 import { registerCommands } from './commands/registerCommands';
@@ -23,6 +24,8 @@ import { ScreenshotsTreeProvider } from './providers/screenshotsTreeProvider';
 import { LogsTreeProvider } from './providers/logsTreeProvider';
 import { TestRunManager } from './tasks/runManager';
 import { TestCodeLensProvider } from './providers/testCodeLensProvider';
+import { TestExplorer } from './testing/testExplorer';
+import { screenshotOfMessage } from './testing/runReporter';
 
 let logger: Logger;
 
@@ -102,7 +105,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	);
 	const codeLensRefresh = treeDataProvider.onDidChangeTreeData(() => codeLensProvider.refresh());
 	const codeLensSetting = vscode.workspace.onDidChangeConfiguration((e) => {
-		if (e.affectsConfiguration('extesterRunner.codeLens')) {
+		if (e.affectsConfiguration('extesterRunner.codeLens') || e.affectsConfiguration('extesterRunner.testExplorer')) {
 			codeLensProvider.refresh();
 		}
 	});
@@ -118,6 +121,40 @@ export async function activate(context: vscode.ExtensionContext) {
 		codeLensRegistration,
 		codeLensRefresh,
 		codeLensSetting,
+	);
+
+	// Tests in VS Code's Testing view, with a result for each test. Turned on and off by a setting.
+	let testExplorer: TestExplorer | undefined;
+	const updateTestExplorer = () => {
+		const enabled = vscode.workspace.getConfiguration('extesterRunner').get<boolean>('testExplorer', true);
+		if (enabled && !testExplorer) {
+			testExplorer = new TestExplorer(
+				treeDataProvider,
+				runManager,
+				context.asAbsolutePath(path.join('out', 'resultHook.js')),
+				() => screenshotsDataProvider.resolveRootPath(),
+				logger,
+			);
+		} else if (!enabled && testExplorer) {
+			testExplorer.dispose();
+			testExplorer = undefined;
+		}
+	};
+	updateTestExplorer();
+	context.subscriptions.push(
+		vscode.workspace.onDidChangeConfiguration((e) => {
+			if (e.affectsConfiguration('extesterRunner.testExplorer')) {
+				updateTestExplorer();
+			}
+		}),
+		{ dispose: () => testExplorer?.dispose() },
+		// "Open Screenshot" in the failure peek of the Testing view.
+		vscode.commands.registerCommand('extester-runner.openTestScreenshot', (context?: { message?: vscode.TestMessage }) => {
+			const screenshot = screenshotOfMessage(context?.message);
+			if (screenshot) {
+				void vscode.commands.executeCommand('vscode.open', screenshot);
+			}
+		}),
 	);
 
 	// Register extension commands.
