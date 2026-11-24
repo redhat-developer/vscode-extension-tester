@@ -16,6 +16,7 @@
  */
 
 import * as vscode from 'vscode';
+import { TestRunTarget } from './testTypes';
 
 /**
  * Represents a tree item in the test explorer.
@@ -28,6 +29,7 @@ export class TreeItem extends vscode.TreeItem {
 	children: TreeItem[] | undefined; // child items of this tree item, if it is a folder
 	public lineNumber?: number; // line number associated with this item
 	public folderPath?: string; // folder path associated with this item
+	public runTarget?: TestRunTarget; // the `describe` block or `it` test this item runs, if any
 
 	/**
 	 * Creates an instance of the `TreeItem`.

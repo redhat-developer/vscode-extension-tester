@@ -36,14 +36,18 @@ export type RunOutcome = 'passed' | 'failed' | 'stopped' | 'unknown';
 export interface RunResult {
 	outcome: RunOutcome;
 	exitCode?: number;
+	/**
+	 * Why the tests did not start, when a step before them failed, for example the pre-run task.
+	 */
+	failedStep?: string;
 }
 
 /**
  * Abstract base class for test execution tasks.
  *
  * This class extends VS Code's `Task` and provides a standardized way to execute
- * test-related tasks using a shell command. It waits for the started execution to end
- * and reports how it ended.
+ * test-related tasks using a shell command. It runs the configured pre-run task first, waits
+ * for the started execution to end and reports how it ended.
  *
  * Subclasses should implement specific test execution logic while inheriting
  * the task execution and tracking behavior.
@@ -52,6 +56,7 @@ export abstract class TestRunner extends Task {
 	protected label: string;
 	protected logger: Logger;
 	private readonly runId: string;
+	private readonly preRunTask: string | undefined;
 	private taskExecution: vscode.TaskExecution | undefined;
 	private stopRequested = false;
 
@@ -62,8 +67,9 @@ export abstract class TestRunner extends Task {
 	 * @param {string} label - The name of the task.
 	 * @param {ShellExecution} shellExecution - The shell command to execute for the task.
 	 * @param {Logger} logger - Logger instance for tracking task execution.
+	 * @param {string} [preRunTask] - Name of a VS Code task to run before the tests, such as `npm: compile`.
 	 */
-	constructor(scope: WorkspaceFolder | TaskScope.Workspace, label: string, shellExecution: ShellExecution, logger: Logger) {
+	constructor(scope: WorkspaceFolder | TaskScope.Workspace, label: string, shellExecution: ShellExecution, logger: Logger, preRunTask?: string) {
 		// A unique id in the definition identifies this run in task events, even when another run has the same name.
 		const runId = randomUUID();
 		const taskDefinition: TaskDefinition = {
@@ -76,6 +82,7 @@ export abstract class TestRunner extends Task {
 		this.runId = runId;
 		this.label = label;
 		this.logger = logger;
+		this.preRunTask = preRunTask?.trim() || undefined;
 		this.presentationOptions.echo = false; // hide command in terminal
 		this.presentationOptions.clear = true; // clean terminal output before each execution
 	}
@@ -89,35 +96,19 @@ export abstract class TestRunner extends Task {
 
 	/**
 	 * Executes the test task asynchronously.
-	 * This method starts the task execution and waits for its completion before returning.
+	 * This method runs the pre-run task, if one is configured, then starts the test task and
+	 * waits for its completion before returning.
 	 *
 	 * @returns {Promise<RunResult>} Resolves with how the run ended once the task has completed.
 	 */
 	public async execute(): Promise<RunResult> {
-		this.logger.info(`Starting test execution: ${this.label}`);
-		let exitCode: number | undefined;
-		let resolveEnded: (() => void) | undefined;
-		const ended = new Promise<void>((resolve) => (resolveEnded = resolve));
-		// Subscribe before starting the task, so a quickly finishing task cannot end unnoticed.
-		// Events are matched by the run id, not by task name, so two runs with the same name cannot be confused.
-		const processListener = tasks.onDidEndTaskProcess((e) => {
-			if (this.isThisRun(e.execution)) {
-				exitCode = e.exitCode;
-			}
-		});
-		const endListener = tasks.onDidEndTask((e) => {
-			if (this.isThisRun(e.execution)) {
-				this.logger.debug(`Task finished: ${this.label}`);
-				resolveEnded?.();
-			}
-		});
 		try {
-			this.taskExecution = await tasks.executeTask(this);
-			if (this.stopRequested) {
-				// Stop was requested while the task was starting.
-				this.taskExecution.terminate();
+			const preRunResult = await this.runPreRunTask();
+			if (preRunResult) {
+				return preRunResult;
 			}
-			await ended;
+			this.logger.info(`Starting test execution: ${this.label}`);
+			const exitCode = await this.executeAndWait(this, (execution) => execution.task.definition.runId === this.runId);
 			const result = this.toResult(exitCode);
 			const exitCodeText = exitCode === undefined ? '' : ', exit code ' + exitCode;
 			this.logger.info(`Test execution completed: ${this.label} (${result.outcome}${exitCodeText})`);
@@ -126,9 +117,6 @@ export abstract class TestRunner extends Task {
 			this.logger.error(`Test execution failed: ${this.label} - ${error}`);
 			return { outcome: 'unknown' };
 		} finally {
-			processListener.dispose();
-			endListener.dispose();
-			this.taskExecution = undefined;
 			this.logger.debug('Refreshing all trees after test run.');
 			void vscode.commands.executeCommand('extester-runner.refreshTests');
 			void vscode.commands.executeCommand('extester-runner.refreshLogs');
@@ -148,13 +136,89 @@ export abstract class TestRunner extends Task {
 	}
 
 	/**
-	 * Whether a task event belongs to this run.
+	 * Runs the configured pre-run task, such as a build, and waits for it to end.
 	 *
-	 * @param {vscode.TaskExecution} execution - The execution reported by a task event.
-	 * @returns {boolean} `true` when the execution runs this task.
+	 * @returns {Promise<RunResult | undefined>} `undefined` when the tests can start, otherwise how the run ended.
 	 */
-	private isThisRun(execution: vscode.TaskExecution): boolean {
-		return execution === this.taskExecution || execution.task.definition.runId === this.runId;
+	private async runPreRunTask(): Promise<RunResult | undefined> {
+		if (!this.preRunTask) {
+			return undefined;
+		}
+		const name = this.preRunTask;
+		const preRunTask = await this.findTask(name);
+		if (!preRunTask) {
+			return { outcome: 'failed', failedStep: `pre-run task "${name}" was not found` };
+		}
+		if (preRunTask.isBackground) {
+			// A background task, such as a watch task, does not end, so the tests would never start.
+			return { outcome: 'failed', failedStep: `pre-run task "${name}" is a background task that does not end` };
+		}
+		this.logger.info(`Running pre-run task: ${name}`);
+		const exitCode = await this.executeAndWait(
+			preRunTask,
+			(execution) => execution.task.name === preRunTask.name && execution.task.source === preRunTask.source,
+		);
+		this.logger.info(`Pre-run task ended: ${name} (exit code ${exitCode ?? 'unknown'})`);
+		if (this.stopRequested) {
+			return { outcome: 'stopped', exitCode };
+		}
+		if (exitCode !== undefined && exitCode !== 0) {
+			return { outcome: 'failed', exitCode, failedStep: `pre-run task "${name}" failed (exit code ${exitCode})` };
+		}
+		return undefined;
+	}
+
+	/**
+	 * Finds a VS Code task by the name it has in the "Run Task" list.
+	 *
+	 * @param {string} name - The task name, either alone (`compile`) or with its source (`npm: compile`).
+	 * @returns {Promise<vscode.Task | undefined>} The task, or `undefined` when no task has this name.
+	 */
+	private async findTask(name: string): Promise<vscode.Task | undefined> {
+		const available = await tasks.fetchTasks();
+		const matches = available.filter((task) => task.name === name || task.source + ': ' + task.name === name);
+		// In a multi-root workspace, prefer the task of the workspace folder that runs the tests.
+		const ownFolder = folderUri(this.scope);
+		return matches.find((task) => ownFolder !== undefined && folderUri(task.scope) === ownFolder) ?? matches[0];
+	}
+
+	/**
+	 * Starts a task and waits for it to end. The task can be stopped with `stop()` while it runs.
+	 *
+	 * @param {vscode.Task} task - The task to start.
+	 * @param {(execution: vscode.TaskExecution) => boolean} isSameTask - Whether a task event belongs to the started task.
+	 * @returns {Promise<number | undefined>} The exit code of the task process, if it reported one.
+	 */
+	private async executeAndWait(task: vscode.Task, isSameTask: (execution: vscode.TaskExecution) => boolean): Promise<number | undefined> {
+		let exitCode: number | undefined;
+		let resolveEnded: (() => void) | undefined;
+		const ended = new Promise<void>((resolve) => (resolveEnded = resolve));
+		const isThisExecution = (execution: vscode.TaskExecution) => execution === this.taskExecution || isSameTask(execution);
+		// Subscribe before starting the task, so a quickly finishing task cannot end unnoticed.
+		const processListener = tasks.onDidEndTaskProcess((e) => {
+			if (isThisExecution(e.execution)) {
+				exitCode = e.exitCode;
+			}
+		});
+		const endListener = tasks.onDidEndTask((e) => {
+			if (isThisExecution(e.execution)) {
+				this.logger.debug(`Task finished: ${e.execution.task.name}`);
+				resolveEnded?.();
+			}
+		});
+		try {
+			this.taskExecution = await tasks.executeTask(task);
+			if (this.stopRequested) {
+				// Stop was requested while the task was starting.
+				this.taskExecution.terminate();
+			}
+			await ended;
+			return exitCode;
+		} finally {
+			processListener.dispose();
+			endListener.dispose();
+			this.taskExecution = undefined;
+		}
 	}
 
 	/**
@@ -172,4 +236,14 @@ export abstract class TestRunner extends Task {
 		}
 		return { outcome: exitCode === 0 ? 'passed' : 'failed', exitCode };
 	}
+}
+
+/**
+ * The URI of the workspace folder a task belongs to.
+ *
+ * @param {Task['scope']} scope - The scope of a task.
+ * @returns {string | undefined} The folder URI, or `undefined` when the task does not belong to one folder.
+ */
+function folderUri(scope: Task['scope']): string | undefined {
+	return typeof scope === 'object' ? scope.uri.toString() : undefined;
 }

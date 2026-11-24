@@ -180,6 +180,10 @@ export class TestRunManager implements vscode.Disposable {
 				notification = vscode.window.showInformationMessage(`ExTester: ${label} passed.`, RERUN);
 				break;
 			case 'failed':
+				if (result.failedStep) {
+					notification = vscode.window.showWarningMessage(`ExTester: ${label} did not start: ${result.failedStep}.`, RERUN);
+					break;
+				}
 				notification = vscode.window.showWarningMessage(
 					`ExTester: ${label} failed (exit code ${result.exitCode}).`,
 					SHOW_SCREENSHOTS,

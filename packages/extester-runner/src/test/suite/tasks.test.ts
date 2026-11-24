@@ -23,6 +23,7 @@ import { RunFileTask } from '../../tasks/RunFileTask';
 import { RunAllTestsTask } from '../../tasks/RunAllTask';
 import { Logger } from '../../logger/logger';
 import { RunFolderTask } from '../../tasks/RunFolderTask';
+import { RunTestTask } from '../../tasks/RunTestTask';
 
 /**
  * Dummy implementation of vscode.OutputChannel for testing purposes.
@@ -471,6 +472,46 @@ describe('Task Command Generation', () => {
 			const args = argValues(new RunAllTestsTask(files, dummyLogger));
 
 			assert.strictEqual(args[2], `'${path.join(workspacePath, sourceFolder, '**', '*.source.test.ts')}'`);
+		});
+	});
+
+	describe('environment of a run', () => {
+		let workspacePath: string;
+		const env = (task: vscode.Task) => (task.execution as vscode.ShellExecution).options?.env;
+
+		before(async () => {
+			const config = vscode.workspace.getConfiguration('extesterRunner');
+			await config.update('env', { TEST_USER: 'tester' }, vscode.ConfigurationTarget.Workspace);
+			workspacePath = vscode.workspace.workspaceFolders![0].uri.fsPath;
+		});
+
+		after(async () => {
+			const config = vscode.workspace.getConfiguration('extesterRunner');
+			await config.update('env', undefined, vscode.ConfigurationTarget.Workspace);
+		});
+
+		it('RunFileTask passes the configured environment variables', () => {
+			const task = new RunFileTask(path.join(workspacePath, 'src', 'ui-test', 'a.test.ts'), dummyLogger);
+
+			assert.deepStrictEqual(env(task), { TEST_USER: 'tester' });
+		});
+
+		it('RunTestTask runs the file and selects the test with MOCHA_GREP', () => {
+			const testFile = path.join(workspacePath, 'src', 'ui-test', 'a.test.ts');
+
+			const task = new RunTestTask(testFile, ['Editor (1.2)', 'opens a file'], true, dummyLogger);
+
+			assert.strictEqual(task.runLabel, 'Run Test: opens a file');
+			assert.deepStrictEqual(env(task), { TEST_USER: 'tester', MOCHA_GREP: String.raw`^Editor \(1\.2\) opens a file$` });
+		});
+
+		it('RunTestTask selects all tests of a describe block', () => {
+			const testFile = path.join(workspacePath, 'src', 'ui-test', 'a.test.ts');
+
+			const task = new RunTestTask(testFile, ['Editor'], false, dummyLogger);
+
+			assert.strictEqual(task.runLabel, 'Run Suite: Editor');
+			assert.strictEqual(env(task)?.MOCHA_GREP, '^Editor ');
 		});
 	});
 });

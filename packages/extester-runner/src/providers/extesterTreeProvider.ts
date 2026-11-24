@@ -301,9 +301,10 @@ export class ExtesterTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 	 * (e.g., `only`, `skip`).
 	 *
 	 * @param {TestBlock[]} testBlocks - The parsed test blocks representing the test structure.
+	 * @param {string[]} [parentTitles] - The titles of the `describe` blocks that contain the blocks.
 	 * @returns {TreeItem[]} - A list of `TreeItem` instances representing the test hierarchy.
 	 */
-	private convertTestBlocksToTreeItems(testBlocks: TestBlock[]): TreeItem[] {
+	private convertTestBlocksToTreeItems(testBlocks: TestBlock[], parentTitles: string[] = []): TreeItem[] {
 		return testBlocks.map((block) => {
 			let describeIcon;
 
@@ -321,7 +322,8 @@ export class ExtesterTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 			describeIcon = modifier || parentModifier ? getThemeIcon(modifier ?? parentModifier) : new vscode.ThemeIcon('bracket');
 
 			// Recursively process nested `describe` blocks.
-			const nestedDescribeItems = this.convertTestBlocksToTreeItems(block.children);
+			const titles = [...parentTitles, block.describe];
+			const nestedDescribeItems = this.convertTestBlocksToTreeItems(block.children, titles);
 
 			// Create TreeItems for `it` tests inside this `describe` block.
 			const itItems = block.its.map((it) => {
@@ -353,6 +355,7 @@ export class ExtesterTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 				itItem.tooltip = this.buildTooltip('it', it.name, it);
 				itItem.contextValue = 'itBlock';
 				itItem.iconPath = itIcon;
+				itItem.runTarget = { file: it.filePath, titles: [...titles, it.name], isTest: true, line: it.line };
 
 				// Define command for opening the test item in the editor.
 				itItem.command = {
@@ -382,6 +385,7 @@ export class ExtesterTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 			describeItem.tooltip = this.buildTooltip('describe', block.describe, block);
 			describeItem.contextValue = 'describeBlock';
 			describeItem.iconPath = describeIcon;
+			describeItem.runTarget = { file: block.filePath, titles, isTest: false, line: block.line };
 
 			// Define command for opening the test item in the editor.
 			describeItem.command = {

@@ -20,6 +20,9 @@ import { RunAllTestsTask } from '../tasks/RunAllTask';
 import { RunFileTask } from '../tasks/RunFileTask';
 import { Logger } from '../logger/logger';
 import { RunFolderTask } from '../tasks/RunFolderTask';
+import { RunTestTask } from '../tasks/RunTestTask';
+import { TestRunTarget } from '../types/testTypes';
+import { TreeItem } from '../types/treeItem';
 import { ExtesterTreeProvider } from '../providers/extesterTreeProvider';
 import { TestRunner } from '../tasks/TestRunnerTask';
 import { TestRunManager } from '../tasks/runManager';
@@ -113,6 +116,20 @@ export function registerTestCommands(context: vscode.ExtensionContext, treeDataP
 			logger.debug(`Command triggered: extester-runner.runFolder for folder ${item.folderPath}`);
 			const folderPath: string = item.folderPath;
 			await runManager.startGroup(() => runTask(folderPath, () => new RunFolderTask(folderPath, logger), runManager, logger));
+		}),
+
+		/**
+		 * Registers the `extester-runner.runTest` command.
+		 * This command runs one `describe` block or `it` test, from the test view or from a CodeLens in the editor.
+		 */
+		vscode.commands.registerCommand('extester-runner.runTest', async (item: TreeItem | TestRunTarget) => {
+			const target = item instanceof TreeItem ? item.runTarget : item;
+			if (!target) {
+				return;
+			}
+			const name = target.titles.join(' > ');
+			logger.debug(`Command triggered: extester-runner.runTest for ${name} in ${target.file}`);
+			await runManager.startGroup(() => runTask(name, () => new RunTestTask(target.file, target.titles, target.isTest, logger), runManager, logger));
 		}),
 
 		/**

@@ -37,6 +37,10 @@ Each file has Run File button available on hover
 Run All button executes all tests
 Run Folder button executes all tests inside folder
 Run File button executes only one file
+Each describe and it has Run button available on hover, it runs only that block (MOCHA_GREP)
+Test files show Run CodeLens above each describe and it (setting codeLens)
+preRunTask setting runs a VS Code task before each run; tests do not start when it fails or is missing
+env setting passes environment variables to test runs; only names are logged
 Folders show the number of test files, files show the number of tests
 File that cannot be parsed has error icon and "cannot parse" description, no notification is shown
 View title description shows the number of files with .only

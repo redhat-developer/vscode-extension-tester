@@ -38,6 +38,7 @@ The extension integrates into VS Code's Activity Bar and provides three main vie
 2. **Test Execution**
    - One-click test running for individual files, folders or all tests
    - Supports running tests at different levels:
+     - One `describe` block or `it` test, from its play button in the UI Tests view or from **Run** above it in the editor
      - Test file (all tests in a file)
      - All test files in a folder
      - All tests in the workspace
@@ -45,6 +46,7 @@ The extension integrates into VS Code's Activity Bar and provides three main vie
    - Shows the running test in the status bar; click it, or the stop button in the UI Tests view, to stop the run. Only one run starts at a time
    - Reports whether a run passed or failed in a notification, with buttons to show the screenshots and logs or to run it again
    - **ExTester Runner: Rerun Last Run** repeats the last run with the current settings
+   - Runs a build task before the tests with `preRunTask`, and passes environment variables to the tests with `env`; see [Build before running and environment variables](#build-before-running-and-environment-variables)
 
 3. **Test, Logs and Screenshots Management**
    - Automatic refresh of views when test files change
@@ -63,6 +65,7 @@ The extension supports both VS Code settings and a [project configuration](#proj
    - `testFileGlob`: Pattern to locate test files (default: `**/ui-test/**/*.test.ts`)
    - `excludeGlob`: Pattern to exclude paths from test search (default: `**/node_modules/**`)
    - `ignorePathPart`: Pattern to hide specific path segments in the test view
+   - `codeLens`: Show **Run** above each `describe` block and `it` test in test files (default: `true`)
 
 2. **Test Execution Settings**
    - `runSources`: Run the TypeScript test sources without compiling them; see [Running TypeScript Sources](#running-typescript-sources) (default: `false`)
@@ -73,6 +76,8 @@ The extension supports both VS Code settings and a [project configuration](#proj
    - `visualStudioCode.Type`: VS Code build type — `stable` or `insider` (default: `stable`)
    - `additionalArgs`: Additional CLI arguments for test runner (default: `[]`)
    - `configFile`: Path of the ExTester configuration file, relative to the workspace folder; see [Configuration file in a subfolder](#configuration-file-in-a-subfolder) (default: not set — `extester.config.json` in the workspace folder)
+   - `env`: Environment variables for test runs (default: `{}`)
+   - `preRunTask`: VS Code task to run before each test run, such as `npm: compile` (default: not set)
 
 3. **Log Management**
    - `hideEmptyLogFolders`: Controls visibility of empty log directories (default: `true`)
@@ -100,7 +105,7 @@ Put the Runner settings in the `runner` section, next to `setup` and `run`:
 }
 ```
 
-The `runner` section accepts `testFileGlob`, `excludeGlob`, `ignorePathPart`, `rootFolder`, `outputFolder`, `runSources` and `additionalArgs`, with the same meaning as the settings in the [Configuration](#configuration) section. Unknown properties and invalid values are reported as configuration errors. The `$schema` reference gives completion and validation for the whole file. The CLI ignores the `runner` section.
+The `runner` section accepts `testFileGlob`, `excludeGlob`, `ignorePathPart`, `rootFolder`, `outputFolder`, `runSources`, `additionalArgs`, `env` and `preRunTask`, with the same meaning as the settings in the [Configuration](#configuration) section. Unknown properties and invalid values are reported as configuration errors. The `$schema` reference gives completion and validation for the whole file. The CLI ignores the `runner` section.
 
 The VS Code version, the release type and the storage folder are not repeated in `runner`. The Runner reads them from the CLI sections, in the same order as `extest setup-and-run`:
 
@@ -192,6 +197,25 @@ If you prefer to configure the extension manually, you can access all settings t
 1. Open VS Code Settings (Ctrl+, / Cmd+,)
 2. Search for "ExTester Runner"
 3. Configure the settings listed in the [Configuration](#configuration) section above (prefixed `extesterRunner.*` when editing `settings.json` directly)
+
+### Running a single test
+
+Each `describe` block and `it` test has a play button in the UI Tests view, and test files show **Run** above each of them. The Runner runs the file and passes the full title of the block to Mocha's `grep` option in the `MOCHA_GREP` environment variable, so only that block runs. Titles with template literal expressions, such as `` `works on ${platform}` ``, match any value of the expression. Turn the editor buttons off with the `extesterRunner.codeLens` setting.
+
+### Build before running and environment variables
+
+Set `preRunTask` to a VS Code task, as named in **Tasks: Run Task**, to run it before every test run, for example to compile the tests. The tests start only when the task ends successfully; if it fails or is not found, a notification says so. Use a task that ends, not a background (watch) task.
+
+Set `env` to pass environment variables to the tests, for example account names or feature flags. Only the variable names are written to the ExTester Runner log.
+
+```json
+{
+  "runner": {
+    "preRunTask": "npm: compile",
+    "env": { "TEST_USER": "tester" }
+  }
+}
+```
 
 ### Running TypeScript Sources
 

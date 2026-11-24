@@ -53,9 +53,8 @@ export class RunAllTestsTask extends TestRunner {
 		const finalPath = getAllTarget(allFilesAbsolutePaths, workspaceFolder, settings);
 		logger.debug(`RunAllTask: Final path: ${finalPath}`);
 
-		// Name the root in a multi-root workspace: the label shows which root runs, and
-		// TestRunner.waitForEnd() matches the finished task by this label.
+		// Name the root in a multi-root workspace, so the label shows which root runs.
 		const label = (vscode.workspace.workspaceFolders?.length ?? 0) > 1 ? `Run All Tests (${owner.name})` : 'Run All Tests';
-		super(owner, label, createTestExecution(owner, configuration, finalPath, logger), logger);
+		super(owner, label, createTestExecution(owner, configuration, finalPath, logger), logger, configuration.get<string>('preRunTask'));
 	}
 }

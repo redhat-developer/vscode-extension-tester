@@ -22,6 +22,7 @@ import { registerCommands } from './commands/registerCommands';
 import { ScreenshotsTreeProvider } from './providers/screenshotsTreeProvider';
 import { LogsTreeProvider } from './providers/logsTreeProvider';
 import { TestRunManager } from './tasks/runManager';
+import { TestCodeLensProvider } from './providers/testCodeLensProvider';
 
 let logger: Logger;
 
@@ -89,8 +90,35 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Runs one test task at a time and shows its state in the status bar.
 	const runManager = new TestRunManager(logger);
 
-	// Dispose the views, listener and status bar item with the extension.
-	context.subscriptions.push(testsView, focusedTestsListener, screenshotsView, logsView, runManager);
+	// Run buttons above each `describe` block and `it` test in the editor.
+	// They are updated when test discovery finishes and when the setting that shows them changes.
+	const codeLensProvider = new TestCodeLensProvider((filePath) => treeDataProvider.isTestFile(filePath), logger);
+	const codeLensRegistration = vscode.languages.registerCodeLensProvider(
+		[
+			{ scheme: 'file', language: 'typescript' },
+			{ scheme: 'file', language: 'javascript' },
+		],
+		codeLensProvider,
+	);
+	const codeLensRefresh = treeDataProvider.onDidChangeTreeData(() => codeLensProvider.refresh());
+	const codeLensSetting = vscode.workspace.onDidChangeConfiguration((e) => {
+		if (e.affectsConfiguration('extesterRunner.codeLens')) {
+			codeLensProvider.refresh();
+		}
+	});
+
+	// Dispose the views, listeners, CodeLens provider and status bar item with the extension.
+	context.subscriptions.push(
+		testsView,
+		focusedTestsListener,
+		screenshotsView,
+		logsView,
+		runManager,
+		codeLensProvider,
+		codeLensRegistration,
+		codeLensRefresh,
+		codeLensSetting,
+	);
 
 	// Register extension commands.
 	registerCommands(context, treeDataProvider, screenshotsDataProvider, logsDataProvider, runManager, logger);

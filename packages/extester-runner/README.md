@@ -32,10 +32,12 @@
 ### One-click test runs
 
 - Run a single file, a whole folder, or every test in the workspace from the play buttons in the **UI Tests** view.
+- Run one `describe` block or `it` test from its play button in the **UI Tests** view, or from **Run** above it in the editor.
 - Run the test file open in the editor from the editor title bar, the Explorer context menu or **ExTester Runner: Run Test File** in the Command Palette.
 - While tests run, the status bar shows what is running; click it, or the stop button in the **UI Tests** view, to stop the run. Only one run starts at a time.
 - When a run ends, a notification says whether it passed or failed, with buttons to show the screenshots and logs or to run it again. **ExTester Runner: Rerun Last Run** repeats the last run.
 - Each run calls `extest setup-and-run` with the VS Code version, release type and extra arguments from your settings.
+- Build before each run with [`preRunTask`](#settings), and pass environment variables to the tests with [`env`](#settings).
 - Run the compiled JavaScript tests from your output folder, or the TypeScript sources with [`runSources`](#running-typescript-sources).
 
 ### Always up to date
@@ -50,11 +52,12 @@ All settings live under the `extesterRunner` namespace in your workspace setting
 
 **View**
 
-| Setting          | Default                   | Description                                                      |
-| ---------------- | ------------------------- | ---------------------------------------------------------------- |
-| `testFileGlob`   | `**/ui-test/**/*.test.ts` | Glob pattern that locates test files.                            |
-| `excludeGlob`    | `**/node_modules/**`      | Glob pattern for paths to leave out of the search.               |
-| `ignorePathPart` | —                         | Path segment hidden from folder labels in the **UI Tests** view. |
+| Setting          | Default                   | Description                                                           |
+| ---------------- | ------------------------- | --------------------------------------------------------------------- |
+| `testFileGlob`   | `**/ui-test/**/*.test.ts` | Glob pattern that locates test files.                                 |
+| `excludeGlob`    | `**/node_modules/**`      | Glob pattern for paths to leave out of the search.                    |
+| `ignorePathPart` | —                         | Path segment hidden from folder labels in the **UI Tests** view.      |
+| `codeLens`       | `true`                    | Show **Run** above each `describe` block and `it` test in test files. |
 
 **Command line**
 
@@ -68,6 +71,8 @@ All settings live under the `extesterRunner` namespace in your workspace setting
 | `visualStudioCode.Type`    | `stable`           | `stable` or `insider`.                                                                                                     |
 | `additionalArgs`           | `[]`               | Extra arguments passed to `extest setup-and-run`.                                                                          |
 | `configFile`               | —                  | Path of the ExTester configuration file, relative to the workspace folder. Default: `extester.config.json` in the folder.  |
+| `env`                      | `{}`               | Environment variables for test runs, such as `{ "TEST_USER": "tester" }`. Only their names are logged.                     |
+| `preRunTask`               | —                  | VS Code task to run before each test run, such as `npm: compile`. The tests start only when it succeeds.                   |
 
 **Logs**
 

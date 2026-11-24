@@ -229,6 +229,30 @@
             "scope": "resource",
             "order": 7,
             "markdownDescription": "Path of the ExTester configuration file, relative to the workspace folder. Default: `extester.config.json` in the workspace folder. ExTester Runner reads its shared project settings from the `runner` section of this file and the VS Code version, type and storage folder from its `setup` and `run` sections. Workspace settings override the file. When this setting is set, the file is passed to `extest setup-and-run` with `--config`. See [ExTester Runner](https://redhat-developer.github.io/vscode-extension-tester/guides/extester-runner/#project-configuration)."
+          },
+          "extesterRunner.env": {
+            "type": "object",
+            "default": {},
+            "scope": "resource",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "order": 8,
+            "markdownDescription": "Environment variables for test runs, such as credentials or feature flags that the tests read. For example: `{ \"TEST_USER\": \"tester\" }`. Only the names are written to the ExTester Runner log."
+          },
+          "extesterRunner.preRunTask": {
+            "type": "string",
+            "default": "",
+            "scope": "resource",
+            "order": 9,
+            "markdownDescription": "VS Code task to run before each test run, as named in **Tasks: Run Task**, for example `npm: compile`. The tests start only when the task ends successfully. It must not be a background (watch) task."
+          },
+          "extesterRunner.codeLens": {
+            "type": "boolean",
+            "default": true,
+            "scope": "resource",
+            "order": 10,
+            "markdownDescription": "Show **Run** above each `describe` block and `it` test in test files."
           }
         }
       },
@@ -245,6 +269,13 @@
       }
     ],
     "commands": [
+      {
+        "command": "extester-runner.runTest",
+        "icon": "$(play)",
+        "title": "Run",
+        "tooltip": "Run this describe block or test.",
+        "category": "ExTester Runner"
+      },
       {
         "command": "extester-runner.runFile",
         "icon": "$(play)",
@@ -478,6 +509,11 @@
           "group": "inline"
         },
         {
+          "command": "extester-runner.runTest",
+          "when": "view == extesterView && (viewItem == describeBlock || viewItem == itBlock) && !extesterRunner.isRunning",
+          "group": "inline"
+        },
+        {
           "command": "extester-runner.deleteLogsItem",
           "when": "view == extesterResourcesLogsView && (viewItem == logFolder || viewItem == logFile)",
           "group": "inline"
@@ -523,6 +559,10 @@
         },
         {
           "command": "extester-runner.runFile",
+          "when": "false"
+        },
+        {
+          "command": "extester-runner.runTest",
           "when": "false"
         },
         {

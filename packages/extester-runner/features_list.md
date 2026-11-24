@@ -14,6 +14,7 @@ The extension defines several commands (with their Command IDs), used in the UI 
 - Run All Tests – (`extester-runner.runAll`): Runs all test files in the workspace.
 - Run Folder – (`extester-runner.runFolder`): Runs all tests in a specific folder.
 - Run File – (`extester-runner.runFile`): Runs the tests in a single file.
+- Run – (`extester-runner.runTest`): Runs one `describe` block or `it` test. Shown on hover in the tree and as a CodeLens above each block in test files (setting `codeLens`).
 - Refresh Screenshots – (`extester-runner.refreshScreenshots`): Refreshes the Screenshots tree.
 - Refresh Logs – (`extester-runner.refreshLogs`): Refreshes the Logs tree.
 - (Internal command) Open Test Item – (`extesterRunner.openTestItem`): Opens a test file in the editor at a specific line (used when user clicks a test in the tree). Similarly, the Logs and Screenshots trees likely use this or a similar internal command to open files.
@@ -76,6 +77,8 @@ The extension defines an `extester-runner-task` task type in `package.json` and 
 - RunFolderTask: Similar, but runs tests only under a specific folder path.
 - RunFileTask: Runs tests from a single file. It calculates the output `.js` file path corresponding to the source `.ts` file (using `rootFolder`/`outputFolder` settings and then runs `npx extest setup-and-run '<compiled-file-path>' [options]`.
 - Each task runs in the workspace root that owns the tests (`cwd`) with that root's configuration. Run All runs one task per root, one after another. Values that come from `extester.config.json` (VS Code version, type, storage) are not passed as CLI arguments; the CLI reads them from the file.
+- RunTestTask: Runs one file like RunFileTask and selects one `describe` block or `it` test with Mocha's `grep`, passed in the `MOCHA_GREP` environment variable. The pattern (`src/utils/testGrep.ts`) is the escaped full title, anchored at the start, and at the end for a test.
+- All tasks pass the `env` setting as environment variables, and run the `preRunTask` VS Code task, if set, before the tests. A missing, background or failing pre-run task stops the run with a notification.
 - With `runSources` enabled, all three tasks skip the `rootFolder`/`outputFolder` mapping and pass the source file, `<folder>/<pattern>` or `<common folder>/**/<pattern>` (pattern = last segment of `testFileGlob`) to `extest setup-and-run`. The path computation lives in `src/tasks/testTarget.ts`.
 - These tasks use `ShellExecution` to invoke the `extest` CLI and pass arguments based on the settings (e.g., `--storage <tempFolder>`for custom temp directory, `--code_version`, `--code_type`, and any extra `additionalArgs`). They ensure the task execution is awaited (using `vscode.tasks.executeTas` and listening for task completion) before allowing another run.
 

@@ -223,6 +223,8 @@ describe('loadConfig', () => {
 						outputFolder: 'out',
 						runSources: true,
 						additionalArgs: ['--log_level Debug'],
+						env: { TEST_USER: 'tester' },
+						preRunTask: 'npm: compile',
 					},
 				}),
 			);
@@ -237,6 +239,8 @@ describe('loadConfig', () => {
 					outputFolder: path.resolve(dir, 'out'),
 					runSources: true,
 					additionalArgs: ['--log_level Debug'],
+					env: { TEST_USER: 'tester' },
+					preRunTask: 'npm: compile',
 				});
 			} finally {
 				fs.rmSync(dir, { recursive: true });
