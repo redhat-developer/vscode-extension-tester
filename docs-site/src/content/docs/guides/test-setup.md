@@ -384,6 +384,7 @@ Read only by the [ExTester Runner](/vscode-extension-tester/guides/extester-runn
 | `additionalArgs` | string[] | `[]`                      | Additional arguments for `extest setup-and-run`                                      |
 | `env` | object | `{}` | Environment variables for test runs, as names and string values |
 | `preRunTask` | string | — | VS Code task to run before each test run, such as `npm: compile` |
+| `runCommand` | string | — | Command that runs the tests instead of `extest setup-and-run`; `${target}` is replaced by the tests to run |
 
 ### Editor autocomplete
 

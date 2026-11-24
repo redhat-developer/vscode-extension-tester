@@ -92,7 +92,7 @@ function readRunnerValue(key: string, value: unknown, root: string): unknown {
 		if (runnerGlobKeys.has(key)) {
 			return toRootRelativeGlob(root, value, key);
 		}
-		if (key === 'preRunTask') {
+		if (key === 'preRunTask' || key === 'runCommand') {
 			return value;
 		}
 	}

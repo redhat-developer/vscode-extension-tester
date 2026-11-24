@@ -61,18 +61,19 @@ All settings live under the `extesterRunner` namespace in your workspace setting
 
 **Command line**
 
-| Setting                    | Default            | Description                                                                                                                |
-| -------------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------- |
-| `runSources`               | `false`            | Run the TypeScript test sources without compiling them. `rootFolder` and `outputFolder` are then ignored.                  |
-| `rootFolder`               | —                  | Root of your TypeScript test sources. When set, this segment is dropped when mapping a source file to its compiled output. |
-| `outputFolder`             | `out`              | Directory with the compiled JavaScript test files.                                                                         |
-| `tempFolder`               | system temp folder | Directory ExTester uses for the downloaded VS Code, ChromeDriver and other test resources.                                 |
-| `visualStudioCode.Version` | `max`              | VS Code version to test with: `max`, `min`, `latest` or an exact version such as `1.97.1`.                                 |
-| `visualStudioCode.Type`    | `stable`           | `stable` or `insider`.                                                                                                     |
-| `additionalArgs`           | `[]`               | Extra arguments passed to `extest setup-and-run`.                                                                          |
-| `configFile`               | —                  | Path of the ExTester configuration file, relative to the workspace folder. Default: `extester.config.json` in the folder.  |
-| `env`                      | `{}`               | Environment variables for test runs, such as `{ "TEST_USER": "tester" }`. Only their names are logged.                     |
-| `preRunTask`               | —                  | VS Code task to run before each test run, such as `npm: compile`. The tests start only when it succeeds.                   |
+| Setting                    | Default            | Description                                                                                                                                               |
+| -------------------------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `runSources`               | `false`            | Run the TypeScript test sources without compiling them. `rootFolder` and `outputFolder` are then ignored.                                                 |
+| `rootFolder`               | —                  | Root of your TypeScript test sources. When set, this segment is dropped when mapping a source file to its compiled output.                                |
+| `outputFolder`             | `out`              | Directory with the compiled JavaScript test files.                                                                                                        |
+| `tempFolder`               | system temp folder | Directory ExTester uses for the downloaded VS Code, ChromeDriver and other test resources.                                                                |
+| `visualStudioCode.Version` | `max`              | VS Code version to test with: `max`, `min`, `latest` or an exact version such as `1.97.1`.                                                                |
+| `visualStudioCode.Type`    | `stable`           | `stable` or `insider`.                                                                                                                                    |
+| `additionalArgs`           | `[]`               | Extra arguments passed to `extest setup-and-run`.                                                                                                         |
+| `configFile`               | —                  | Path of the ExTester configuration file, relative to the workspace folder. Default: `extester.config.json` in the folder.                                 |
+| `env`                      | `{}`               | Environment variables for test runs, such as `{ "TEST_USER": "tester" }`. Only their names are logged.                                                    |
+| `runCommand`               | —                  | Command that runs the tests instead of `npx extest setup-and-run`, such as `npm run ui-test -- ${target}`. See [Custom run command](#custom-run-command). |
+| `preRunTask`               | —                  | VS Code task to run before each test run, such as `npm: compile`. The tests start only when it succeeds.                                                  |
 
 **Logs**
 
@@ -96,6 +97,16 @@ ExTester Runner also reads `extester.config.json`, the configuration file of the
 ```
 
 Paths in the file are relative to the file. Values from the file beat your user settings, and workspace settings beat the file. If the file is in a subfolder, point `extesterRunner.configFile` to it. See the [ExTester Runner guide](https://redhat-developer.github.io/vscode-extension-tester/guides/extester-runner/#project-configuration).
+
+## Custom run command
+
+Set `runCommand` to run the tests with your own command instead of `npx extest setup-and-run`, for example an npm script that also prepares the environment, or `extest run-tests` with VS Code already set up:
+
+```json
+{ "runner": { "runCommand": "npm run ui-test -- ${target}" } }
+```
+
+`${target}` is replaced by the quoted path or glob of the tests to run: the file, a glob of the files in the folder, or a glob of all test files. Without `${target}`, the target is appended. The command runs in the workspace folder and gets `env` and, when one test runs, `MOCHA_GREP`. The VS Code version, type, temp folder, `additionalArgs` and `configFile` are not added to it: put the options it needs in the command.
 
 ## Running TypeScript sources
 

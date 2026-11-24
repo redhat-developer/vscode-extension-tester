@@ -247,6 +247,13 @@
             "order": 9,
             "markdownDescription": "VS Code task to run before each test run, as named in **Tasks: Run Task**, for example `npm: compile`. The tests start only when the task ends successfully. It must not be a background (watch) task."
           },
+          "extesterRunner.runCommand": {
+            "type": "string",
+            "default": "",
+            "scope": "resource",
+            "order": 11,
+            "markdownDescription": "Command that runs the tests instead of `npx extest setup-and-run`, for example `npm run ui-test -- ${target}`. `${target}` is replaced by the quoted path or glob of the tests to run; when it is missing, the target is appended. The command runs in the workspace folder and gets `env` and, for a single test, `MOCHA_GREP`. The VS Code version, type, temp folder and `additionalArgs` settings are not added to it."
+          },
           "extesterRunner.codeLens": {
             "type": "boolean",
             "default": true,
