@@ -3,14 +3,14 @@
 <p align="center">Run and manage <a href="https://www.npmjs.com/package/vscode-extension-tester">ExTester</a> UI tests for your VS Code extension without leaving VS Code.</p>
 
 <p align="center">
-  <img alt="ExTester Runner views in the VS Code Activity Bar" width="95%" src="https://github.com/redhat-developer/vscode-extension-tester/blob/main/packages/extester-runner/resources/workbench.png?raw=true">
+  <img alt="ExTester tests in the VS Code Testing view" width="95%" src="https://github.com/redhat-developer/vscode-extension-tester/blob/main/packages/extester-runner/resources/workbench.png?raw=true">
 </p>
 
 ## Quick start
 
 1. Install the extension from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=redhat.extester-runner) or the [Open VSX Registry](https://open-vsx.org/extension/redhat/extester-runner).
 2. Open the extension project that contains your ExTester UI tests.
-3. Open the Command Palette, run **Welcome: Open Walkthrough...** and pick **Get started with ExTester Runner**. The walkthrough stores the source and output folders, or the choice to run TypeScript sources, and the test file pattern in your workspace settings.
+3. Open the Command Palette, run **Welcome: Open Walkthrough...** and pick **Get started with ExTester Runner**. The walkthrough shows where your tests are, sets the test file pattern and the source and output folders (or the choice to run TypeScript sources), and covers `extester.config.json`, building before a run and reading the results.
 4. Open the **Testing** view, find a test under **ExTester** and press its play button (▶️).
 
 ## Requirements
@@ -117,7 +117,7 @@ By default, a run maps the selected test from `rootFolder` to `outputFolder` (fo
 }
 ```
 
-With `runSources` enabled, **Run File** passes the selected `.ts` file to `extest setup-and-run`, **Run Folder** the matching files in the folder (`<folder>/*.test.ts`) and **Run All** the matching files below the folder that contains all tests (`<folder>/**/*.test.ts`).
+With `runSources` enabled, running a file passes the `.ts` file to `extest setup-and-run`, running a folder the matching files in the folder (`<folder>/*.test.ts`) and running all tests the matching files below the folder that contains all tests (`<folder>/**/*.test.ts`).
 
 ExTester resolves `tsx` from its working directory, and the runner starts `extest` in the workspace folder of the tests. In a monorepo, install `tsx` in the repository root or let your package manager hoist it there. If `tsx` is missing, ExTester reports it with install instructions before it downloads VS Code. See the [TypeScript tests guide](https://redhat-developer.github.io/vscode-extension-tester/guides/typescript-tests/).
 

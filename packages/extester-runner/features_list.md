@@ -1,92 +1,64 @@
-# Activity Bar View Container:
+# Testing view integration
 
-A new container titled **”ExTester Runner”** in the VS Code Activity Bar. This container hosts three custom tree views:
+ExTester Runner contributes a test controller (`extesterRunner`, label **ExTester**) to VS Code's Testing view (`src/testing/testExplorer.ts`):
 
-- UI Tests (Tree View ID: `extesterView`): Displays the UI test files and their test structure (Mocha `describe/it` blocks).
-- Screenshots (Tree View ID: `extesterResourcesScreenshotsView`): Shows screenshot image files.
-- Logs (Tree View ID: `extesterResourcesLogsView`): Shows log files from test runs.
+- Test items: folder (one per folder that contains test files) → file → `describe` block → `it` test. Item ids join the titles with `›` (never `\0`, which VS Code rejects).
+- Discovery comes from `ExtesterTreeProvider` (glob search, file watching, configuration) and `listRunTargets` (`src/utils/runTargets.ts`), which parses `describe`/`it` blocks from the sources.
+- Tests marked `.only`/`.skip` get `only`/`skip` as their description, and own or inherited modifiers as the tags `only`/`skip` (filter `@extesterRunner:only`). Files that contain `.only` get the description `.only`.
+- One run profile, **Run** (default). `refreshHandler` refreshes discovery.
+- The run handler creates one task per requested item (`RunFolderTask`, `RunFileTask`, `RunTestTask`), or one `RunAllTestsTask` per workspace folder when all tests run, and runs them one after another through `TestRunManager.startGroup` (one run at a time; a second run offers to stop the first).
 
-# Commands:
+# Per-test results
 
-The extension defines several commands (with their Command IDs), used in the UI and via the command palette:
+- `src/testing/resultHook.ts` (built to `out/resultHook.js`) is preloaded into the `extest` process with `NODE_OPTIONS=--require`. It hooks Mocha's runner and writes JSON lines (`started`, `passed`, `failed`, `skipped`, `output`) to the file named by `EXTESTER_RUNNER_RESULTS`. It does not change how the tests run.
+- `src/testing/resultReader.ts` follows that file during the run.
+- `src/testing/runReporter.ts` maps events to test items by their titles (`matchesTitles` in `src/utils/testGrep.ts`), reports output per test, and builds failure messages: diff of expected/actual, stack frames of the user's code, and a screenshot thumbnail. Failures are reported when the next test starts or the run ends, because ExTester takes the screenshot in an `afterEach` hook.
+- Screenshots are looked up in the newest `<storage>/screenshots/<run>` folder written since the run started, named after the sanitized full title. The **Open Screenshot** action of the failure view (`extester-runner.openTestScreenshot`) opens the image.
+- Tests without a result are marked skipped; if the run failed before any test (failed `preRunTask`, missing `extest`, invalid configuration), they are marked errored with the reason.
 
-- Refresh Tests – (`extester-runner.refreshTests`): Refreshes the UI Tests tree.
-- Run All Tests – (`extester-runner.runAll`): Runs all test files in the workspace.
-- Run Folder – (`extester-runner.runFolder`): Runs all tests in a specific folder.
-- Run File – (`extester-runner.runFile`): Runs the tests in a single file.
-- Run – (`extester-runner.runTest`): Runs one `describe` block or `it` test. Shown on hover in the tree and as a CodeLens above each block in test files (setting `codeLens`).
-- Refresh Screenshots – (`extester-runner.refreshScreenshots`): Refreshes the Screenshots tree.
-- Refresh Logs – (`extester-runner.refreshLogs`): Refreshes the Logs tree.
-- (Internal command) Open Test Item – (`extesterRunner.openTestItem`): Opens a test file in the editor at a specific line (used when user clicks a test in the tree). Similarly, the Logs and Screenshots trees likely use this or a similar internal command to open files.
+# Views
 
-# Tree View Features:
+Contributed to the built-in Testing view container (`views.test`):
 
-The UI Tests tree displays a hierarchical view of test files:
+- Screenshots (`extesterResourcesScreenshotsView`): screenshot files, one folder per run, newest first.
+- Logs (`extesterResourcesLogsView`): log files of the runs; empty folders hidden with `hideEmptyLogFolders`.
 
-- Top level: Folders (only those containing matching test files, determined by a glob pattern).
-- Next level: Test files (with an icon and label).
-- Nested under each file: Test suites (`describe` blocks) and test cases (`it` blocks) parsed from the file.
-- Each tree item uses icons and labels to indicate status:
-  - “describe” blocks use a bracket icon. If marked `.only` or `.skip`, the icon or label changes (e.g., blue dot for `.only` orange (×) for `.skip`, and label text appends “[only]” or “[skip]” acc√o√©rdingly).
-  - “it” blocks use a beaker/test-tube icon (or similar). They also reflect “[only]” or “[skip]” in labels and colored icons if applicable.
-  - If a parent suite is skipped, its children appear in the skipped color (inheritance of modifiers).
-- Clicking a file or test node opens the source file in the editor at the relevant line.
-- If no test files are found, the tree shows a single info item “No tests found” with a warning icon.
-- The Collapse All button is available for the UI Tests view (enabled only if there are items to collapse).
+Both refresh on file changes and offer Refresh, Clear, Delete and Reveal in File Explorer.
 
-# The Logs tree displays log files organized in directories:
+# Commands
 
-- Shows all folders and files under a designated logs directory (the location is determined by a Temp Folder setting or environment variable).
-- Empty folders are shown but not expandable.
-- Clicking a log file opens it in the editor (at line 0).
-- If no logs are present, (planned: show an info message like “No logs” – this may be a TODO).
-- A Collapse All and Refresh button exist (refresh reloads the log list).
+- `extester-runner.openWalkthrough`: opens the Getting Started walkthrough.
+- `extester-runner.openTestScreenshot`: opens the screenshot of a failure message (failure view only).
+- `extester-runner.refreshScreenshots`, `extester-runner.refreshLogs`: refresh the views.
+- `extester-runner.clearScreenshots`, `extester-runner.clearLogs`: delete all screenshots or logs, with confirmation.
+- `extester-runner.deleteScreenshotsItem`, `extester-runner.deleteLogsItem`: delete one item, with confirmation.
+- `extester-runner.revealScreenshots`, `extester-runner.revealLogs`, `extester-runner.revealScreenshotsItem`, `extester-runner.revealLogsItem`: reveal in the OS file manager.
 
-# The Screenshots tree similarly shows screenshot image files (usually in a “screenshots” subdirectory of the test run output):
+Running, stopping and rerunning tests use VS Code's own **Test:** commands.
 
-- Lists image files (possibly grouped in subfolders if present).
-- Clicking an image opens the image preview in VS Code.
-- If no screenshots exist, an info placeholder (“No screenshots”) is expected (marked as TODO).
-- A Refresh button is available to manually reload screenshots.
+# Settings (Configuration)
 
-# Settings (Configuration):
+Settings live under `extesterRunner`: `testFileGlob`, `excludeGlob`, `ignorePathPart`, `runSources`, `rootFolder`, `outputFolder`, `tempFolder`, `visualStudioCode.Version`, `visualStudioCode.Type`, `additionalArgs`, `configFile`, `env`, `preRunTask`, `runCommand`, `hideEmptyLogFolders`.
 
-The extension contributes several settings under the namespace extesterRunner:
+Project configuration: the `runner` section of `extester.config.json` (read with the CLI's own loader, `extends` included) holds the shared values of `testFileGlob`, `excludeGlob`, `ignorePathPart`, `rootFolder`, `outputFolder`, `runSources`, `additionalArgs`, `env` and `preRunTask`; `visualStudioCode.Version`, `visualStudioCode.Type` and `tempFolder` come from `setup` / `run`. Precedence: defaults < user settings < file < workspace / workspace-folder settings. The file is read per workspace root, cached, and watched.
 
-- `testFileGlob` (string): Glob pattern to find test files (default `**/ui-test/**/*.test.ts`).
-- `excludeGlob` (string): Glob pattern of paths to exclude from test search (default `**/node_modules/**`).
-- `ignorePathPart` (string): If set, any matching path segment is removed from folder labels in the UI Tests view (for cleaner display, e.g., remove common prefix paths).
-- `additionalArgs` (array of strings): Additional CLI arguments to pass to the test runner (`extest`) when executing tests (e.g., user-defined options).
-- `runSources` (boolean): Run the test sources as they are instead of the compiled JavaScript (default `false`). `outputFolder` and `rootFolder` are then ignored. Requires ExTester 8.29.0+ and `tsx` for TypeScript sources.
-- `configFile` (string): Path of the ExTester configuration file, relative to the workspace folder (default: `extester.config.json` in the folder). Passed to `extest setup-and-run` with `--config` when set.
-- Project configuration: the `runner` section of `extester.config.json` (read with the CLI's own loader, `extends` included) holds the shared values of `testFileGlob`, `excludeGlob`, `ignorePathPart`, `rootFolder`, `outputFolder`, `runSources` and `additionalArgs`; `visualStudioCode.Version`, `visualStudioCode.Type` and `tempFolder` come from `setup` / `run`. Precedence: defaults < user settings < file < workspace / workspace-folder settings. The file is read per workspace root, cached, and watched.
-- `outputFolder` (string): Path to the compiled output directory for tests (default `out`).
-- `rootFolder` (string): Path to the test source root.
-- `tempFolder` (string): Directory for test artifacts (logs, screenshots). If empty, the extension uses a default temp directory or an environment variable `TEST_RESOURCES`.
-- `visualStudioCode.Version` (string): Which VS Code version to use for running tests (passed to the test runner CLI as `--code_version`; `max`, `min`, `latest`, or a specific version like `"1.97.1"`; default `max`).
-- `visualStudioCode.Type` (string): Which VS Code build to use for tests (`stable` or `insider`, passed as `--code_type`; default `stable`).
-- `hideEmptyLogFolders` (boolean): When enabled (default), only log folders containing files are shown in the Logs view.
+Changing a setting or the file refreshes discovery and the views.
 
-Changing any extesterRunner setting triggers a refresh of the test, logs, and screenshots views (the extension listens to configuration changes and refreshes accordingly).
+# Tasks
 
-# Tasks / Test Runner Integration:
+Tests run in VS Code tasks of type `extester-runner-task` that call `extest setup-and-run` with `ShellExecution`:
 
-The extension defines an `extester-runner-task` task type in `package.json` and uses the VS Code Task API to run tests via the `vscode-extension-tester` CLI (`extest`). Specifically:
+- `RunAllTestsTask`, `RunFolderTask`, `RunFileTask`: map sources from `rootFolder` to `outputFolder`, or with `runSources` pass the source file, `<folder>/<pattern>` or `<common folder>/**/<pattern>` (`src/tasks/testTarget.ts`).
+- `RunTestTask`: runs one file and selects one `describe`/`it` with Mocha's `grep` in `MOCHA_GREP` (`src/utils/testGrep.ts`).
+- Each task runs in the workspace root that owns the tests, with that root's configuration. Values from `extester.config.json` (VS Code version, type, storage) are not passed as CLI arguments; the CLI reads them from the file.
+- All tasks pass `env`, and run the `preRunTask` VS Code task first, if set.
 
-- RunAllTestsTask (extends vscode.Task): Configured to run npx extest setup-and-run <outDir> [options] for all tests.
-- RunFolderTask: Similar, but runs tests only under a specific folder path.
-- RunFileTask: Runs tests from a single file. It calculates the output `.js` file path corresponding to the source `.ts` file (using `rootFolder`/`outputFolder` settings and then runs `npx extest setup-and-run '<compiled-file-path>' [options]`.
-- Each task runs in the workspace root that owns the tests (`cwd`) with that root's configuration. Run All runs one task per root, one after another. Values that come from `extester.config.json` (VS Code version, type, storage) are not passed as CLI arguments; the CLI reads them from the file.
-- RunTestTask: Runs one file like RunFileTask and selects one `describe` block or `it` test with Mocha's `grep`, passed in the `MOCHA_GREP` environment variable. The pattern (`src/utils/testGrep.ts`) is the escaped full title, anchored at the start, and at the end for a test.
-- With `runCommand` set, all tasks run that command instead of `npx extest setup-and-run`; `${target}` is replaced by the quoted target, or the target is appended (`src/utils/runCommand.ts`). Version, type, storage, `additionalArgs` and `--config` are not added.
-- All tasks pass the `env` setting as environment variables, and run the `preRunTask` VS Code task, if set, before the tests. A missing, background or failing pre-run task stops the run with a notification.
-- With `runSources` enabled, all three tasks skip the `rootFolder`/`outputFolder` mapping and pass the source file, `<folder>/<pattern>` or `<common folder>/**/<pattern>` (pattern = last segment of `testFileGlob`) to `extest setup-and-run`. The path computation lives in `src/tasks/testTarget.ts`.
-- These tasks use `ShellExecution` to invoke the `extest` CLI and pass arguments based on the settings (e.g., `--storage <tempFolder>`for custom temp directory, `--code_version`, `--code_type`, and any extra `additionalArgs`). They ensure the task execution is awaited (using `vscode.tasks.executeTas` and listening for task completion) before allowing another run.
+- With `runCommand` set, all tasks run that command instead of `npx extest setup-and-run`; `${target}` is replaced by the quoted target, or the target is appended (`src/utils/runCommand.ts`). Version, type, storage, `additionalArgs` and `--config` are not added. The result hook still works when the command keeps `NODE_OPTIONS` and `EXTESTER_RUNNER_RESULTS` for the Mocha process.
 
-# Logging:
+# Logging
 
-An output channel “ExTester Runner” is created on activation for logging information and debug messages. The extension’s `Logger` class wraps this channel to provide methods like `info`, `debug`, `error` (writing messages with appropriate formatting to the channel). These logs can help verify behavior (e.g., logs when tests start/finish, when files are discovered or refreshed, etc.).
+The **ExTester Runner** output channel records discovery, runs and errors through the `Logger` class.
 
-# Walkthrough/Guide (Getting Started):
+# Walkthrough
 
-The extension contributes a “Get started with ExTester Runner” walkthrough with steps guiding the user to configure plugin. (While this is a feature, it likely doesn’t need automated testing beyond verifying its existence.)
+The **Get started with ExTester Runner** walkthrough (`extester-runner.gettingStarted`) covers the Testing view, the test file pattern and excluded paths, `extester.config.json`, compiled tests or TypeScript sources, `preRunTask` and `env`, running tests and reading results, and the remaining settings. The new steps use Markdown media in `resources/walkthroughs/`.
