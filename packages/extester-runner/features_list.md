@@ -46,7 +46,7 @@ Changing a setting or the file refreshes discovery and the views.
 
 # Tasks
 
-Tests run in VS Code tasks of type `extester-runner-task` that call `extest setup-and-run` with `ShellExecution`:
+Tests run in VS Code shell tasks (source `extester-runner`) that call `extest setup-and-run` with `ShellExecution`:
 
 - `RunAllTestsTask`, `RunFolderTask`, `RunFileTask`: map sources from `rootFolder` to `outputFolder`, or with `runSources` pass the source file, `<folder>/<pattern>` or `<common folder>/**/<pattern>` (`src/tasks/testTarget.ts`).
 - `RunTestTask`: runs one file and selects one `describe`/`it` with Mocha's `grep` in `MOCHA_GREP` (`src/utils/testGrep.ts`).

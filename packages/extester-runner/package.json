@@ -2,7 +2,7 @@
   "name": "extester-runner",
   "displayName": "ExTester Runner",
   "icon": "resources/logo.png",
-  "description": "Extension for vscode-extension-tester which allows users to list and run UI tests directly inside VS Code.",
+  "description": "Run ExTester UI tests of your VS Code extension from VS Code's Testing view, with results, screenshots and logs.",
   "publisher": "redhat",
   "preview": true,
   "private": true,
@@ -11,6 +11,10 @@
     "url": "https://github.com/redhat-developer/vscode-extension-tester.git",
     "directory": "packages/extester-runner"
   },
+  "bugs": {
+    "url": "https://github.com/redhat-developer/vscode-extension-tester/issues"
+  },
+  "homepage": "https://redhat-developer.github.io/vscode-extension-tester/guides/extester-runner/",
   "author": {
     "name": "Red Hat"
   },
@@ -20,7 +24,15 @@
     "vscode": "^1.100.0"
   },
   "categories": [
-    "Other"
+    "Testing"
+  ],
+  "keywords": [
+    "extester",
+    "vscode-extension-tester",
+    "ui-test",
+    "testing",
+    "mocha",
+    "selenium"
   ],
   "activationEvents": [
     "onStartupFinished"
@@ -148,38 +160,6 @@
         ]
       }
     ],
-    "taskDefinitions": [
-      {
-        "type": "extester-runner-task",
-        "required": [],
-        "properties": {
-          "label": {
-            "type": "string",
-            "description": "ExTester runner tasks definitions."
-          }
-        }
-      }
-    ],
-    "colors": [
-      {
-        "id": "extesterrunner.only",
-        "description": "The color used for the 'only' modifier.",
-        "defaults": {
-          "light": "#42A5F5",
-          "dark": "#64B5F6",
-          "highContrast": "#00BFFF"
-        }
-      },
-      {
-        "id": "extesterrunner.skip",
-        "description": "The color used for the 'skip' modifier.",
-        "defaults": {
-          "light": "#FFA726",
-          "dark": "#FFB74D",
-          "highContrast": "#FF8C00"
-        }
-      }
-    ],
     "configuration": [
       {
         "title": "View",
@@ -202,7 +182,7 @@
             "type": "string",
             "scope": "resource",
             "order": 2,
-            "markdownDescription": "Pattern to hide specific segments of folder paths in the test view. Matching parts will be removed from displayed paths."
+            "markdownDescription": "Leading path segment hidden from the folder labels of the test tree in the Testing view, for example `src/`. It only changes the labels, not which tests are found or run."
           }
         }
       },
@@ -214,7 +194,7 @@
             "default": false,
             "scope": "resource",
             "order": 0,
-            "markdownDescription": "Run the test files matched by `#extesterRunner.testFileGlob#` as they are, without compiling them. Run File, Run Folder and Run All pass the TypeScript sources to `extest setup-and-run` and ignore `#extesterRunner.rootFolder#` and `#extesterRunner.outputFolder#`. Requires ExTester 8.29.0 or later and `tsx` resolvable from the workspace folder of the tests, where ExTester runs. See [TypeScript Tests](https://redhat-developer.github.io/vscode-extension-tester/guides/typescript-tests/). Default: `false` (run the compiled JavaScript in `#extesterRunner.outputFolder#`)."
+            "markdownDescription": "Run the test files matched by `#extesterRunner.testFileGlob#` as they are, without compiling them. Running a file, a folder or all tests passes the TypeScript sources to `extest setup-and-run` and ignore `#extesterRunner.rootFolder#` and `#extesterRunner.outputFolder#`. Requires ExTester 8.29.0 or later and `tsx` resolvable from the workspace folder of the tests, where ExTester runs. See [TypeScript Tests](https://redhat-developer.github.io/vscode-extension-tester/guides/typescript-tests/). Default: `false` (run the compiled JavaScript in `#extesterRunner.outputFolder#`)."
           },
           "extesterRunner.outputFolder": {
             "type": "string",
@@ -302,7 +282,7 @@
             "type": "boolean",
             "default": true,
             "order": 0,
-            "markdownDescription": "Hides empty log directories in the test results. If enabled (`true`), only folders containing any log files will be displayed. If disabled (`false`), all log folders, including empty ones, will be visible."
+            "markdownDescription": "Hide log folders that contain no files in the **Logs** view. Default: `true`."
           }
         }
       }
@@ -393,13 +373,13 @@
           "id": "extesterResourcesScreenshotsView",
           "name": "Screenshots",
           "initialSize": 1,
-          "icon": ""
+          "visibility": "collapsed"
         },
         {
           "id": "extesterResourcesLogsView",
           "name": "Logs",
           "initialSize": 1,
-          "icon": ""
+          "visibility": "collapsed"
         }
       ]
     },
