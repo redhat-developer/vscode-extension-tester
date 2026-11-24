@@ -259,8 +259,10 @@ export class TestExplorer implements vscode.Disposable {
 		}
 
 		const resultsFile = path.join(tmpdir(), `extester-runner-${randomUUID()}.jsonl`);
-		const nodeOptions = [process.env.NODE_OPTIONS, `--require "${this.hookPath}"`].filter(Boolean).join(' ');
-		task.addEnvironment({ EXTESTER_RUNNER_RESULTS: resultsFile, NODE_OPTIONS: nodeOptions });
+		// The hook removes this option again in the process that loads Mocha, so that VS Code does not inherit it.
+		const hookOption = `--require "${this.hookPath}"`;
+		const nodeOptions = [process.env.NODE_OPTIONS, hookOption].filter(Boolean).join(' ');
+		task.addEnvironment({ EXTESTER_RUNNER_RESULTS: resultsFile, EXTESTER_RUNNER_HOOK_OPTION: hookOption, NODE_OPTIONS: nodeOptions });
 		const reporter = new RunReporter(run, leaves, this.getScreenshotsRoot(), Date.now(), this.logger);
 		const reader = new ResultReader(resultsFile, (event) => reporter.report(event));
 		try {
