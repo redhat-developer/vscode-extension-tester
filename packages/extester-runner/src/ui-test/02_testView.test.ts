@@ -16,8 +16,8 @@
  */
 
 /**
- * This test suite verifies the UI components and functionality of the ExTester Runner extension's test views.
- * It performs UI-based tests to ensure that the Tests, Screenshots, and Logs views are properly displayed,
+ * This test suite verifies the views of the ExTester Runner extension in VS Code's Testing view.
+ * It performs UI-based tests to ensure that the Test Explorer, Screenshots and Logs views are displayed,
  * contain the correct elements, and show appropriate messages when no data is present.
  */
 
@@ -25,12 +25,10 @@ import { ViewSection } from 'vscode-extension-tester';
 import {
 	SCREENSHOTS_VIEW,
 	SCREENSHOTS_VIEW_NO_SCREENSHOTS,
-	TESTS_VIEW_NO_TESTS,
-	TESTS_VIEW,
+	TEST_EXPLORER_SECTION,
 	LOGS_VIEW,
 	LOGS_VIEW_NO_LOGS,
 	COLLAPSE_ALL_BTN,
-	TEST_VIEW_REFRESH_BTN,
 	SCREENSHOTS_VIEW_REFRESH_BTN,
 	SCREENSHOTS_VIEW_REVEAL_BTN,
 	SCREENSHOTS_VIEW_CLEAR_BTN,
@@ -38,7 +36,7 @@ import {
 	LOGS_VIEW_REVEAL_BTN,
 	LOGS_VIEW_CLEAR_BTN,
 	TEMP_FOLDER_SETTINGS_ID,
-	getSection,
+	getTestingSection,
 	updateSettings,
 } from './utils/testUtils';
 import { assert } from 'chai';
@@ -48,6 +46,8 @@ import { assert } from 'chai';
  * Verifies the correct display and functionality of all views when no data is present
  */
 describe('Empty View Tests', function () {
+	this.timeout(30000);
+
 	/**
 	 * Setup function that runs before all tests
 	 * Configures a temporary folder for test data and ensures a clean editor state
@@ -68,53 +68,13 @@ describe('Empty View Tests', function () {
 	});
 
 	/**
-	 * Test suite for the Tests view
-	 * Verifies the correct display and functionality of the Tests view panel
+	 * Test suite for the Test Explorer of the Testing view
+	 * The ExTester tests are listed there; the parser suite checks the tree itself.
 	 */
-	describe('UI Tests view', function () {
-		let section: ViewSection;
-
-		/**
-		 * Setup function that runs before each test in this suite
-		 * Retrieves the Tests view section
-		 */
-		before(async function () {
-			section = await getSection(0);
-		});
-
-		/**
-		 * Verifies that the Tests view has the correct title
-		 */
-		it('has right title', async function () {
-			const title = await section.getTitle();
-			assert.equal(title, TESTS_VIEW);
-		});
-
-		/**
-		 * Verifies that the Tests view shows the correct message when no tests are present
-		 */
-		it('shows no tests message', async function () {
-			// An empty view shows welcome content that explains why it is empty.
-			const welcome = await section.findWelcomeContent();
-			assert.ok(welcome, 'Tests view should show welcome content');
-			const [firstSection] = await welcome.getTextSections();
-			assert.ok(firstSection?.startsWith(TESTS_VIEW_NO_TESTS), `Unexpected welcome content: ${firstSection}`);
-		});
-
-		/**
-		 * Verifies that the Tests view has the correct action buttons with proper labels and states
-		 */
-		it('action buttons are correct', async function () {
-			const actions = await section.getActions();
-			assert.equal(actions.length, 2);
-
-			const [refreshBtn, collapseBtn] = actions;
-
-			assert.equal(await refreshBtn.getLabel(), TEST_VIEW_REFRESH_BTN);
-			assert.equal(await refreshBtn.isEnabled(), true);
-
-			assert.equal(await collapseBtn.getLabel(), COLLAPSE_ALL_BTN);
-			assert.equal(await collapseBtn.isEnabled(), false);
+	describe('Test Explorer', function () {
+		it('is shown in the Testing view', async function () {
+			const section = await getTestingSection(TEST_EXPLORER_SECTION);
+			assert.equal(await section.getTitle(), TEST_EXPLORER_SECTION);
 		});
 	});
 
@@ -130,7 +90,8 @@ describe('Empty View Tests', function () {
 		 * Retrieves the Screenshots view section
 		 */
 		before(async function () {
-			section = await getSection(1);
+			section = await getTestingSection(SCREENSHOTS_VIEW);
+			await section.expand();
 		});
 
 		/**
@@ -187,7 +148,8 @@ describe('Empty View Tests', function () {
 		 * Retrieves the Logs view section
 		 */
 		before(async function () {
-			section = await getSection(2);
+			section = await getTestingSection(LOGS_VIEW);
+			await section.expand();
 		});
 
 		/**

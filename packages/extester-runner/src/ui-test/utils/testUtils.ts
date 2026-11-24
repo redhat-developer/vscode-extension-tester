@@ -6,8 +6,11 @@ import {
 	EditorView,
 	ExtensionsViewItem,
 	ExtensionsViewSection,
+	SideBarView,
 	TerminalView,
 	ViewSection,
+	ViewSectionConstructor,
+	VSBrowser,
 	WebDriver,
 	Workbench,
 } from 'vscode-extension-tester';
@@ -31,6 +34,10 @@ export const SIMPLE_FILE_WITH_VARIABLES = 'simpleFileWithVariable.test.ts';
 
 export const EXTESTER_RUNNER = 'ExTester Runner';
 
+// The built-in Testing view hosts the tests of the ExTester controller and the Screenshots and Logs views.
+export const TESTING_VIEW = 'Testing';
+export const TEST_EXPLORER_SECTION = 'Test Explorer';
+
 // view
 export const TEST_FILE_GLOB_SETTINGS_ID = 'extesterRunner.testFileGlob';
 export const EXCLUDE_GLOB_SETTINGS_ID = 'extesterRunner.excludeGlob';
@@ -49,10 +56,6 @@ export const HIDE_EMPTY_LOGS_FOLDERS_SETTINGS_ID = 'extesterRunner.hideEmptyLogF
 
 // defaults
 export const TEST_FILE_GLOB_SETTINGS_DEFAULT = '**/ui-test/**/*.test.ts';
-
-export const TESTS_VIEW = 'UI Tests';
-export const TESTS_VIEW_NO_TESTS = 'No test files found.';
-export const TEST_VIEW_REFRESH_BTN = 'Refresh Tests';
 
 export const SCREENSHOTS_VIEW = 'Screenshots';
 export const SCREENSHOTS_VIEW_NO_SCREENSHOTS = 'No screenshots yet.';
@@ -110,21 +113,49 @@ export async function extensionIsActivated(displayName: string): Promise<boolean
 }
 
 /**
- * Retrieves a specific section from the ExTester Runner view
- * @param sectionIndex - Index of the section to retrieve
- * @returns Promise resolving to the requested ViewSection
- * @throws Error if section is not found or index is out of bounds
+ * Opens the built-in Testing view in the side bar.
+ * @returns Promise resolving to the Testing view
+ * @throws Error if the Testing view is not in the activity bar
  */
-export async function getSection(sectionIndex: number): Promise<ViewSection> {
-	const runnerView = await (await new ActivityBar().getViewControl(EXTESTER_RUNNER))?.openView();
-	const content = await runnerView?.getContent()?.getSections();
-	if (!content) {
-		throw new Error('Content sections not found');
+export async function openTestingView(): Promise<SideBarView> {
+	const control = await new ActivityBar().getViewControl(TESTING_VIEW);
+	if (!control) {
+		throw new Error(`View control not found: ${TESTING_VIEW}`);
 	}
-	if (content.length <= sectionIndex) {
-		throw new Error(`Content section at index ${sectionIndex} is unavailable`);
+	return await control.openView();
+}
+
+/**
+ * Retrieves a section of the Testing view by its title, waiting until it is shown.
+ * The sections appear only once the Testing view has loaded the contributed views.
+ * @param title - Title of the section, such as `Test Explorer`, `Screenshots` or `Logs`
+ * @param type - Page object type of the section
+ * @param timeout - Maximum time to wait in milliseconds (default: 15000)
+ * @returns Promise resolving to the section
+ */
+export async function getTestingSection<T extends ViewSection>(title: string, type?: ViewSectionConstructor<T>, timeout = 15000): Promise<T> {
+	let section: T | undefined;
+	let lastError: unknown;
+	try {
+		await VSBrowser.instance.driver.wait(
+			async () => {
+				try {
+					const content = (await openTestingView()).getContent();
+					section = type ? await content.getSection(title, type) : await content.getSection<T>(title);
+					return true;
+				} catch (e) {
+					lastError = e;
+					return false;
+				}
+			},
+			timeout,
+			undefined,
+			500,
+		);
+	} catch (e) {
+		throw new Error(`Section "${title}" of the ${TESTING_VIEW} view not found: ${lastError ?? e}`);
 	}
-	return content[sectionIndex];
+	return section!;
 }
 
 /**
