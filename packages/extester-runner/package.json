@@ -271,7 +271,7 @@
             "default": "",
             "scope": "resource",
             "order": 10,
-            "markdownDescription": "Command that runs the tests instead of `npx extest setup-and-run`, for example `npm run ui-test -- ${target}`. `${target}` is replaced by the quoted path or glob of the tests to run; when it is missing, the target is appended. The command runs in the workspace folder and gets `env` and, for a single test, `MOCHA_GREP`. The VS Code version, type, temp folder and `additionalArgs` settings are not added to it."
+            "markdownDescription": "Command that runs the tests instead of `npx extest setup-and-run`, for example `npm run ui-test -- ${target}`. `${target}` is replaced by the quoted path or glob of the tests to run; when it is missing, the target is appended. The command runs in the workspace folder and gets `env` and, for a single test, `MOCHA_GREP`. The VS Code version, type, temp folder and `additionalArgs` settings are not added to it. Per-test results in the Testing view need the command to keep the environment variables, such as `NODE_OPTIONS`, for the Node.js process that runs Mocha."
           }
         }
       },
