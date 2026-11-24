@@ -15,6 +15,9 @@ permissions:
 jobs:
   dependency-review:
     name: 🛡️ Review dependency changes
+    # The dependency review API answers 403 on forks without the dependency
+    # graph, so a fork's pull requests skip the job instead of failing it.
+    if: github.repository == 'redhat-developer/vscode-extension-tester'
     runs-on: ubuntu-latest
     steps:
       - name: 👷🏻 Checkout Repository
