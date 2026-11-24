@@ -18,7 +18,7 @@
 import * as vscode from 'vscode';
 import * as path from 'node:path';
 import { createLogger, Logger } from './logger/logger';
-import { ExtesterTreeProvider } from './providers/extesterTreeProvider';
+import { TestFileDiscovery } from './testing/testFileDiscovery';
 import { registerCommands } from './commands/registerCommands';
 import { ScreenshotsTreeProvider } from './providers/screenshotsTreeProvider';
 import { LogsTreeProvider } from './providers/logsTreeProvider';
@@ -56,7 +56,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	logger = createLogger(outputChannel);
 
 	// Discovers the test files; the Testing view lists and runs them.
-	const treeDataProvider = await ExtesterTreeProvider.create(logger);
+	const testFileDiscovery = await TestFileDiscovery.create(logger);
 
 	// screenshots view
 	const screenshotsDataProvider = new ScreenshotsTreeProvider(logger);
@@ -79,18 +79,19 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	// Tests in VS Code's Testing view, with a result, output and screenshot for each test.
 	const testExplorer = new TestExplorer(
-		treeDataProvider,
+		testFileDiscovery,
 		runManager,
 		context.asAbsolutePath(path.join('out', 'resultHook.js')),
 		() => screenshotsDataProvider.resolveRootPath(),
 		logger,
 	);
 
-	// Dispose the views, the test controller and the status bar item with the extension.
+	// Dispose the views, the test discovery and the test controller with the extension.
 	context.subscriptions.push(
 		screenshotsView,
 		logsView,
 		runManager,
+		testFileDiscovery,
 		testExplorer,
 		// "Open Screenshot" in the failure peek of the Testing view.
 		vscode.commands.registerCommand('extester-runner.openTestScreenshot', (context?: { message?: vscode.TestMessage }) => {
@@ -102,7 +103,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	);
 
 	// Register extension commands.
-	registerCommands(context, treeDataProvider, screenshotsDataProvider, logsDataProvider, logger);
+	registerCommands(context, testFileDiscovery, screenshotsDataProvider, logsDataProvider, logger);
 
 	logger.info('ExTester Runner extension activated successfully.');
 }
@@ -111,7 +112,7 @@ export async function activate(context: vscode.ExtensionContext) {
  * Deactivates the ExTester Runner extension.
  *
  * This function is called when VS Code shuts down or the extension is deactivated.
- * The output channel, views and status bar item are disposed with the extension's subscriptions.
+ * The output channel, views and test controller are disposed with the extension's subscriptions.
  */
 export function deactivate() {
 	// Nothing to clean up beyond the extension's subscriptions.

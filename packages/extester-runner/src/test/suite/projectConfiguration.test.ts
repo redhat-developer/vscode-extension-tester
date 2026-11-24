@@ -27,7 +27,7 @@ import { ScreenshotsTreeProvider } from '../../providers/screenshotsTreeProvider
 import { RunFileTask } from '../../tasks/RunFileTask';
 import { RunFolderTask } from '../../tasks/RunFolderTask';
 import { RunAllTestsTask } from '../../tasks/RunAllTask';
-import { ExtesterTreeProvider } from '../../providers/extesterTreeProvider';
+import { folderLabel, TestFileDiscovery } from '../../testing/testFileDiscovery';
 import { Logger } from '../../logger/logger';
 import {
 	clearProjectConfigurationCache,
@@ -146,13 +146,9 @@ describe('Project configuration integration', () => {
 	it('discovers and displays tests using project values', async () => {
 		write({ ignorePathPart: 'project-config-fixture/' });
 		clearProjectConfigurationCache();
-		const provider = await ExtesterTreeProvider.create(logger);
-		const roots = await provider.getChildren();
-		assert.deepEqual(
-			roots.map((item) => item.label),
-			['source'],
-		);
-		assert.deepEqual(await provider.getAllAbsolutePaths(), [join(root, source, 'sample.test.ts')]);
+		const provider = await TestFileDiscovery.create(logger);
+		assert.equal(folderLabel(join(root, source)), 'source');
+		assert.deepEqual(provider.getTestFiles(), [join(root, source, 'sample.test.ts')]);
 	});
 	it('does not execute with fallback values when the project config is invalid', () => {
 		writeFileSync(configPath, '{');
@@ -169,9 +165,9 @@ describe('Project configuration integration', () => {
 	});
 	it('does not duplicate files when refreshes overlap', async () => {
 		write();
-		const provider = await ExtesterTreeProvider.create(logger);
+		const provider = await TestFileDiscovery.create(logger);
 		await Promise.all([provider.refresh(), provider.refresh()]);
-		assert.deepEqual(await provider.getAllAbsolutePaths(), [join(root, source, 'sample.test.ts')]);
+		assert.deepEqual(provider.getTestFiles(), [join(root, source, 'sample.test.ts')]);
 	});
 	it('retains VS Code settings for omitted values and lets workspace settings override the file', async () => {
 		const settings = vscode.workspace.getConfiguration('extesterRunner');
@@ -217,17 +213,17 @@ describe('Project configuration integration', () => {
 		}
 	}
 	it('updates discovery and test watchers when the project file is created, edited and deleted', async () => {
-		const provider = await ExtesterTreeProvider.create(logger);
+		const provider = await TestFileDiscovery.create(logger);
 		const context = { subscriptions: disposables } as vscode.ExtensionContext;
 		settingsWatcher(context, provider, new ScreenshotsTreeProvider(logger), new LogsTreeProvider(logger), logger);
 		write();
-		await waitFor(async () => (await provider.getAllAbsolutePaths()).includes(join(root, source, 'sample.test.ts')));
+		await waitFor(async () => provider.getTestFiles().includes(join(root, source, 'sample.test.ts')));
 		write({ testFileGlob: '**/*.other.ts' });
-		await waitFor(async () => (await provider.getAllAbsolutePaths()).length === 0);
+		await waitFor(async () => provider.getTestFiles().length === 0);
 		await vscode.workspace.fs.writeFile(vscode.Uri.file(join(root, 'new.other.ts')), Buffer.from("describe('new', () => {});"));
-		await waitFor(async () => (await provider.getAllAbsolutePaths()).includes(join(root, 'new.other.ts')));
+		await waitFor(async () => provider.getTestFiles().includes(join(root, 'new.other.ts')));
 		rmSync(configPath);
-		await waitFor(async () => !(await provider.getAllAbsolutePaths()).includes(join(root, 'new.other.ts')));
+		await waitFor(async () => !provider.getTestFiles().includes(join(root, 'new.other.ts')));
 	});
 	it('uses the storage folder of the configuration file in resource views', () => {
 		write({}, { setup: { storage: 'project-config-fixture/resources' } });
@@ -260,12 +256,12 @@ describe('Project configuration integration', () => {
 			const task = new RunFileTask(join(other, 'tests/second.test.ts'), logger);
 			assert.ok(args(task).some((arg) => arg.replaceAll("'", '') === join(other, 'built/second.test.js')));
 			assert.equal((task.execution as vscode.ShellExecution).options?.cwd, other);
-			const provider = await ExtesterTreeProvider.create(logger);
-			assert.deepEqual((await provider.getAllAbsolutePaths()).sort(), [join(root, source, 'sample.test.ts'), join(other, 'tests/second.test.ts')].sort());
+			const provider = await TestFileDiscovery.create(logger);
+			assert.deepEqual(provider.getTestFiles().sort(), [join(root, source, 'sample.test.ts'), join(other, 'tests/second.test.ts')].sort());
 			writeFileSync(join(other, 'extester.config.json'), '{');
 			clearProjectConfigurationCache();
 			await provider.refresh();
-			assert.deepEqual(await provider.getAllAbsolutePaths(), [join(root, source, 'sample.test.ts')]);
+			assert.deepEqual(provider.getTestFiles(), [join(root, source, 'sample.test.ts')]);
 			write({ testFileGlob: '**/*.test.ts', excludeGlob: '**/{src,test-folder-2}/**' });
 			clearProjectConfigurationCache();
 			settingsWatcher(
@@ -277,7 +273,7 @@ describe('Project configuration integration', () => {
 			);
 			await provider.refresh();
 			writeFileSync(join(root, 'healthy.test.ts'), "describe('healthy', () => {});");
-			await waitFor(async () => (await provider.getAllAbsolutePaths()).includes(join(root, 'healthy.test.ts')));
+			await waitFor(async () => provider.getTestFiles().includes(join(root, 'healthy.test.ts')));
 		} finally {
 			try {
 				const index = vscode.workspace.workspaceFolders?.findIndex((folder) => folder.uri.toString() === otherUri.toString()) ?? -1;
