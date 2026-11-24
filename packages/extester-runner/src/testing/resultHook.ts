@@ -21,6 +21,10 @@
  * the events of each Mocha runner and appends one JSON line per event to the file named by
  * `EXTESTER_RUNNER_RESULTS`. It works with any ExTester version and any reporter.
  *
+ * Once Mocha is loaded, the process that runs the tests is found, so the hook removes itself from
+ * `NODE_OPTIONS`. The processes that extest starts next (the `code` CLI, VS Code, ChromeDriver) then
+ * do not inherit it: Electron rejects `NODE_OPTIONS` when another app starts it, and logs an error.
+ *
  * This file is bundled on its own and must not import `vscode`.
  */
 
@@ -55,6 +59,24 @@ interface MochaRunner {
 }
 
 const resultsFile = process.env.EXTESTER_RUNNER_RESULTS;
+
+/**
+ * Removes the `--require` option of this hook from `NODE_OPTIONS`, as the Testing view added it
+ * (`EXTESTER_RUNNER_HOOK_OPTION`), so that the processes started from now on do not load the hook.
+ */
+function removeFromNodeOptions(): void {
+	const option = process.env.EXTESTER_RUNNER_HOOK_OPTION;
+	const nodeOptions = process.env.NODE_OPTIONS;
+	if (!option || !nodeOptions?.includes(option)) {
+		return;
+	}
+	const rest = nodeOptions.replace(option, '').replace(/\s+/g, ' ').trim();
+	if (rest) {
+		process.env.NODE_OPTIONS = rest;
+	} else {
+		delete process.env.NODE_OPTIONS;
+	}
+}
 
 function stringify(value: unknown): string | undefined {
 	if (value === undefined) {
@@ -135,6 +157,7 @@ if (resultsFile) {
 		const exported = originalLoad.call(this, request, ...rest) as { Runner?: { prototype: { run: (...args: unknown[]) => unknown } } };
 		if (!patched && request === 'mocha' && exported?.Runner) {
 			patched = true;
+			removeFromNodeOptions();
 			const run = exported.Runner.prototype.run;
 			exported.Runner.prototype.run = function (this: MochaRunner, ...args: unknown[]) {
 				listen(this);
