@@ -24,13 +24,17 @@
 
 ### Three views in one Activity Bar container
 
-- **UI Tests** shows every file matched by your test glob as a tree of folders, files, `describe` suites and `it` cases, marks `.only` and `.skip` modifiers, and jumps to the source when you click a node.
+- **UI Tests** shows every file matched by your test glob as a tree of folders, files, `describe` suites and `it` cases, marks `.only` and `.skip` modifiers, and jumps to the source when you click a node. Folders show how many test files they hold and files how many tests. A file that cannot be parsed is marked with an error icon, and the view title shows how many files contain `.only`.
+- An empty view explains why it is empty and links to the setting that fixes it.
 - **Screenshots** lists the screenshots captured during test runs.
 - **Logs** lists the log files written by test runs.
 
 ### One-click test runs
 
 - Run a single file, a whole folder, or every test in the workspace from the play buttons in the **UI Tests** view.
+- Run the test file open in the editor from the editor title bar, the Explorer context menu or **ExTester Runner: Run Test File** in the Command Palette.
+- While tests run, the status bar shows what is running; click it, or the stop button in the **UI Tests** view, to stop the run. Only one run starts at a time.
+- When a run ends, a notification says whether it passed or failed, with buttons to show the screenshots and logs or to run it again. **ExTester Runner: Rerun Last Run** repeats the last run.
 - Each run calls `extest setup-and-run` with the VS Code version, release type and extra arguments from your settings.
 - Run the compiled JavaScript tests from your output folder, or the TypeScript sources with [`runSources`](#running-typescript-sources).
 

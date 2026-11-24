@@ -51,17 +51,17 @@ export const HIDE_EMPTY_LOGS_FOLDERS_SETTINGS_ID = 'extesterRunner.hideEmptyLogF
 export const TEST_FILE_GLOB_SETTINGS_DEFAULT = '**/ui-test/**/*.test.ts';
 
 export const TESTS_VIEW = 'UI Tests';
-export const TESTS_VIEW_NO_TESTS = 'No tests';
+export const TESTS_VIEW_NO_TESTS = 'No test files found.';
 export const TEST_VIEW_REFRESH_BTN = 'Refresh Tests';
 
 export const SCREENSHOTS_VIEW = 'Screenshots';
-export const SCREENSHOTS_VIEW_NO_SCREENSHOTS = 'No screenshots';
+export const SCREENSHOTS_VIEW_NO_SCREENSHOTS = 'No screenshots yet.';
 export const SCREENSHOTS_VIEW_REFRESH_BTN = 'Refresh Screenshots';
 export const SCREENSHOTS_VIEW_REVEAL_BTN = 'Reveal Screenshots in File Explorer';
 export const SCREENSHOTS_VIEW_CLEAR_BTN = 'Clear Screenshots';
 
 export const LOGS_VIEW = 'Logs';
-export const LOGS_VIEW_NO_LOGS = 'No logs';
+export const LOGS_VIEW_NO_LOGS = 'No logs yet.';
 export const LOGS_VIEW_REFRESH_BTN = 'Refresh Logs';
 export const LOGS_VIEW_REVEAL_BTN = 'Reveal Logs in File Explorer';
 export const LOGS_VIEW_CLEAR_BTN = 'Clear Logs';

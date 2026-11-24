@@ -42,13 +42,15 @@ export class ScreenshotsTreeProvider extends ResourceTreeProvider<ScreenshotsRes
 
 		if (!fs.existsSync(dirPath)) {
 			this.logger.debug(`Directory does not exist: ${dirPath}`);
-			return [new ScreenshotsResourcesItem('No screenshots', '', false)];
+			// An empty view shows its welcome content; an empty folder shows a placeholder.
+			return element ? [new ScreenshotsResourcesItem('No screenshots', '', false)] : [];
 		}
 
 		const files = await fs.promises.readdir(dirPath);
 
 		if (files.length === 0) {
-			return [new ScreenshotsResourcesItem('No screenshots', '', false)];
+			// An empty view shows its welcome content; an empty folder shows a placeholder.
+			return element ? [new ScreenshotsResourcesItem('No screenshots', '', false)] : [];
 		}
 
 		const itemsWithStat: { item: ScreenshotsResourcesItem; mtime: number }[] = [];

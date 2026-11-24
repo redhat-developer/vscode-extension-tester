@@ -31,6 +31,9 @@ The extension integrates into VS Code's Activity Bar and provides three main vie
    - Organizes tests in a hierarchical structure matching your project's folder layout
    - Supports Mocha's test structure with `describe` and `it` blocks
    - Provides visual indicators for test status and modifiers (`.only`, `.skip`)
+   - Shows the number of test files in each folder and of tests in each file, and marks files that cannot be parsed
+   - Shows next to the view title how many files contain `.only`, which makes Mocha skip every other test in the run
+   - Explains an empty view and links to the setting that fixes it
 
 2. **Test Execution**
    - One-click test running for individual files, folders or all tests
@@ -38,6 +41,10 @@ The extension integrates into VS Code's Activity Bar and provides three main vie
      - Test file (all tests in a file)
      - All test files in a folder
      - All tests in the workspace
+   - Runs the test file open in the editor from the editor title bar, the Explorer context menu or the **ExTester Runner: Run Test File** command
+   - Shows the running test in the status bar; click it, or the stop button in the UI Tests view, to stop the run. Only one run starts at a time
+   - Reports whether a run passed or failed in a notification, with buttons to show the screenshots and logs or to run it again
+   - **ExTester Runner: Rerun Last Run** repeats the last run with the current settings
 
 3. **Test, Logs and Screenshots Management**
    - Automatic refresh of views when test files change

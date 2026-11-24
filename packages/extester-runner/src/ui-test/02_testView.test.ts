@@ -94,11 +94,11 @@ describe('Empty View Tests', function () {
 		 * Verifies that the Tests view shows the correct message when no tests are present
 		 */
 		it('shows no tests message', async function () {
-			const visibleItems = await section.getVisibleItems();
-			assert.equal(visibleItems.length, 1);
-
-			const item = visibleItems[0];
-			assert.equal(await item.getText(), TESTS_VIEW_NO_TESTS);
+			// An empty view shows welcome content that explains why it is empty.
+			const welcome = await section.findWelcomeContent();
+			assert.ok(welcome, 'Tests view should show welcome content');
+			const [firstSection] = await welcome.getTextSections();
+			assert.ok(firstSection?.startsWith(TESTS_VIEW_NO_TESTS), `Unexpected welcome content: ${firstSection}`);
 		});
 
 		/**
@@ -145,11 +145,11 @@ describe('Empty View Tests', function () {
 		 * Verifies that the Screenshots view shows the correct message when no screenshots are present
 		 */
 		it('shows no tests message', async function () {
-			const visibleItems = await section.getVisibleItems();
-			assert.equal(visibleItems.length, 1);
-
-			const item = visibleItems[0];
-			assert.equal(await item.getText(), SCREENSHOTS_VIEW_NO_SCREENSHOTS);
+			// An empty view shows welcome content that explains why it is empty.
+			const welcome = await section.findWelcomeContent();
+			assert.ok(welcome, 'Screenshots view should show welcome content');
+			const [firstSection] = await welcome.getTextSections();
+			assert.ok(firstSection?.startsWith(SCREENSHOTS_VIEW_NO_SCREENSHOTS), `Unexpected welcome content: ${firstSection}`);
 		});
 
 		/**
@@ -202,11 +202,11 @@ describe('Empty View Tests', function () {
 		 * Verifies that the Logs view shows the correct message when no logs are present
 		 */
 		it('shows no tests message', async function () {
-			const visibleItems = await section.getVisibleItems();
-			assert.equal(visibleItems.length, 1);
-
-			const item = visibleItems[0];
-			assert.equal(await item.getText(), LOGS_VIEW_NO_LOGS);
+			// An empty view shows welcome content that explains why it is empty.
+			const welcome = await section.findWelcomeContent();
+			assert.ok(welcome, 'Logs view should show welcome content');
+			const [firstSection] = await welcome.getTextSections();
+			assert.ok(firstSection?.startsWith(LOGS_VIEW_NO_LOGS), `Unexpected welcome content: ${firstSection}`);
 		});
 
 		/**
