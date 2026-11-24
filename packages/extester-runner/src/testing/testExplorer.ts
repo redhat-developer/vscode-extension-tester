@@ -21,8 +21,8 @@ import { randomUUID } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { rm } from 'node:fs/promises';
 import { Logger } from '../logger/logger';
-import { ExtesterTreeProvider } from '../providers/extesterTreeProvider';
-import { listRunTargets } from '../providers/testCodeLensProvider';
+import { ExtesterTreeProvider, folderLabel } from '../providers/extesterTreeProvider';
+import { listRunTargets } from '../utils/runTargets';
 import { TestRunManager } from '../tasks/runManager';
 import { RunResult, TestRunner } from '../tasks/TestRunnerTask';
 import { RunAllTestsTask } from '../tasks/RunAllTask';
@@ -129,12 +129,7 @@ export class TestExplorer implements vscode.Disposable {
 			const folderPath = path.dirname(file);
 			let folder = folders.get(folderPath);
 			if (!folder) {
-				folder = this.createItem(
-					'folder:' + folderPath,
-					vscode.workspace.asRelativePath(folderPath),
-					{ kind: 'folder', path: folderPath },
-					vscode.Uri.file(folderPath),
-				);
+				folder = this.createItem('folder:' + folderPath, folderLabel(folderPath), { kind: 'folder', path: folderPath }, vscode.Uri.file(folderPath));
 				folders.set(folderPath, folder);
 			}
 			const uri = vscode.Uri.file(file);

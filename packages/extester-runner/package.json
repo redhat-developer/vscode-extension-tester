@@ -251,21 +251,8 @@
             "type": "string",
             "default": "",
             "scope": "resource",
-            "order": 11,
-            "markdownDescription": "Command that runs the tests instead of `npx extest setup-and-run`, for example `npm run ui-test -- ${target}`. `${target}` is replaced by the quoted path or glob of the tests to run; when it is missing, the target is appended. The command runs in the workspace folder and gets `env` and, for a single test, `MOCHA_GREP`. The VS Code version, type, temp folder and `additionalArgs` settings are not added to it."
-          },
-          "extesterRunner.testExplorer": {
-            "type": "boolean",
-            "default": true,
-            "order": 12,
-            "markdownDescription": "Show the UI tests in the **Testing** view, run them from there and see the result of each test. Preview."
-          },
-          "extesterRunner.codeLens": {
-            "type": "boolean",
-            "default": true,
-            "scope": "resource",
             "order": 10,
-            "markdownDescription": "Show **Run** above each `describe` block and `it` test in test files. Not shown while `#extesterRunner.testExplorer#` is on, because the Testing view puts run buttons in the editor gutter."
+            "markdownDescription": "Command that runs the tests instead of `npx extest setup-and-run`, for example `npm run ui-test -- ${target}`. `${target}` is replaced by the quoted path or glob of the tests to run; when it is missing, the target is appended. The command runs in the workspace folder and gets `env` and, for a single test, `MOCHA_GREP`. The VS Code version, type, temp folder and `additionalArgs` settings are not added to it."
           }
         }
       },
@@ -417,23 +404,8 @@
         "category": "ExTester Runner"
       }
     ],
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "extesterRunner",
-          "title": "ExTester Runner",
-          "icon": "resources/logo.png"
-        }
-      ]
-    },
     "views": {
-      "extesterRunner": [
-        {
-          "id": "extesterView",
-          "name": "UI Tests",
-          "initialSize": 2,
-          "icon": ""
-        },
+      "test": [
         {
           "id": "extesterResourcesScreenshotsView",
           "name": "Screenshots",
@@ -450,11 +422,6 @@
     },
     "viewsWelcome": [
       {
-        "view": "extesterView",
-        "when": "extesterRunner.hasTestFiles == false",
-        "contents": "No test files found. ExTester Runner lists files that match the test file pattern, by default .test.ts files in a ui-test folder. Set the pattern in the workspace settings or in the runner section of extester.config.json.\n[Configure Test File Pattern](command:workbench.action.openWorkspaceSettings?%22extesterRunner.testFileGlob%22)\n[Refresh Tests](command:extester-runner.refreshTests)\nNew to ExTester Runner? Read the [getting started guide](command:extester-runner.openWalkthrough)."
-      },
-      {
         "view": "extesterResourcesScreenshotsView",
         "contents": "No screenshots yet. ExTester saves a screenshot of VS Code when a test fails, and they appear here after the run.\nScreenshots are read from the storage folder set by the [Temp Folder](command:workbench.action.openWorkspaceSettings?%22extesterRunner.tempFolder%22) setting."
       },
@@ -465,26 +432,6 @@
     ],
     "menus": {
       "view/title": [
-        {
-          "command": "extester-runner.refreshTests",
-          "when": "view == extesterView",
-          "group": "navigation@1"
-        },
-        {
-          "command": "extester-runner.runAll",
-          "when": "view == extesterView && extesterRunner.hasTestFiles && !extesterRunner.isRunning",
-          "group": "navigation@2"
-        },
-        {
-          "command": "extester-runner.stopRun",
-          "when": "view == extesterView && extesterRunner.isRunning",
-          "group": "navigation@2"
-        },
-        {
-          "command": "extester-runner.rerunLastRun",
-          "when": "view == extesterView && extesterRunner.hasLastRun && !extesterRunner.isRunning",
-          "group": "navigation@3"
-        },
         {
           "command": "extester-runner.refreshLogs",
           "when": "view == extesterResourcesLogsView",
@@ -517,21 +464,6 @@
         }
       ],
       "view/item/context": [
-        {
-          "command": "extester-runner.runFolder",
-          "when": "view == extesterView && viewItem == folder && !extesterRunner.isRunning",
-          "group": "inline"
-        },
-        {
-          "command": "extester-runner.runFile",
-          "when": "view == extesterView && viewItem == file && !extesterRunner.isRunning",
-          "group": "inline"
-        },
-        {
-          "command": "extester-runner.runTest",
-          "when": "view == extesterView && (viewItem == describeBlock || viewItem == itBlock) && !extesterRunner.isRunning",
-          "group": "inline"
-        },
         {
           "command": "extester-runner.deleteLogsItem",
           "when": "view == extesterResourcesLogsView && (viewItem == logFolder || viewItem == logFile)",

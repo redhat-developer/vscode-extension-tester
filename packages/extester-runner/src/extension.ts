@@ -23,7 +23,6 @@ import { registerCommands } from './commands/registerCommands';
 import { ScreenshotsTreeProvider } from './providers/screenshotsTreeProvider';
 import { LogsTreeProvider } from './providers/logsTreeProvider';
 import { TestRunManager } from './tasks/runManager';
-import { TestCodeLensProvider } from './providers/testCodeLensProvider';
 import { TestExplorer } from './testing/testExplorer';
 import { screenshotOfMessage } from './testing/runReporter';
 
@@ -56,23 +55,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(outputChannel);
 	logger = createLogger(outputChannel);
 
-	// Register the tree views:
-	// test view
+	// Discovers the test files; the Testing view lists and runs them.
 	const treeDataProvider = await ExtesterTreeProvider.create(logger);
-	logger.debug('Registering test tree view.');
-	const testsView = vscode.window.createTreeView('extesterView', {
-		treeDataProvider: treeDataProvider,
-		showCollapseAll: true,
-	});
-	// Warn about focused tests (`.only`) next to the view title: they silently skip every other test.
-	// The title is used instead of a message above the tree, so the tree rows do not move when it changes.
-	const focusedTestsListener = treeDataProvider.onDidChangeFocusedTests((files) => {
-		const fileCount = files.length === 1 ? '1 file' : files.length + ' files';
-		const description = files.length ? `.only in ${fileCount}` : undefined;
-		if (testsView.description !== description) {
-			testsView.description = description;
-		}
-	});
 
 	// screenshots view
 	const screenshotsDataProvider = new ScreenshotsTreeProvider(logger);
@@ -93,61 +77,21 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Runs one test task at a time and shows its state in the status bar.
 	const runManager = new TestRunManager(logger);
 
-	// Run buttons above each `describe` block and `it` test in the editor.
-	// They are updated when test discovery finishes and when the setting that shows them changes.
-	const codeLensProvider = new TestCodeLensProvider((filePath) => treeDataProvider.isTestFile(filePath), logger);
-	const codeLensRegistration = vscode.languages.registerCodeLensProvider(
-		[
-			{ scheme: 'file', language: 'typescript' },
-			{ scheme: 'file', language: 'javascript' },
-		],
-		codeLensProvider,
+	// Tests in VS Code's Testing view, with a result, output and screenshot for each test.
+	const testExplorer = new TestExplorer(
+		treeDataProvider,
+		runManager,
+		context.asAbsolutePath(path.join('out', 'resultHook.js')),
+		() => screenshotsDataProvider.resolveRootPath(),
+		logger,
 	);
-	const codeLensRefresh = treeDataProvider.onDidChangeTreeData(() => codeLensProvider.refresh());
-	const codeLensSetting = vscode.workspace.onDidChangeConfiguration((e) => {
-		if (e.affectsConfiguration('extesterRunner.codeLens') || e.affectsConfiguration('extesterRunner.testExplorer')) {
-			codeLensProvider.refresh();
-		}
-	});
 
-	// Dispose the views, listeners, CodeLens provider and status bar item with the extension.
+	// Dispose the views, the test controller and the status bar item with the extension.
 	context.subscriptions.push(
-		testsView,
-		focusedTestsListener,
 		screenshotsView,
 		logsView,
 		runManager,
-		codeLensProvider,
-		codeLensRegistration,
-		codeLensRefresh,
-		codeLensSetting,
-	);
-
-	// Tests in VS Code's Testing view, with a result for each test. Turned on and off by a setting.
-	let testExplorer: TestExplorer | undefined;
-	const updateTestExplorer = () => {
-		const enabled = vscode.workspace.getConfiguration('extesterRunner').get<boolean>('testExplorer', true);
-		if (enabled && !testExplorer) {
-			testExplorer = new TestExplorer(
-				treeDataProvider,
-				runManager,
-				context.asAbsolutePath(path.join('out', 'resultHook.js')),
-				() => screenshotsDataProvider.resolveRootPath(),
-				logger,
-			);
-		} else if (!enabled && testExplorer) {
-			testExplorer.dispose();
-			testExplorer = undefined;
-		}
-	};
-	updateTestExplorer();
-	context.subscriptions.push(
-		vscode.workspace.onDidChangeConfiguration((e) => {
-			if (e.affectsConfiguration('extesterRunner.testExplorer')) {
-				updateTestExplorer();
-			}
-		}),
-		{ dispose: () => testExplorer?.dispose() },
+		testExplorer,
 		// "Open Screenshot" in the failure peek of the Testing view.
 		vscode.commands.registerCommand('extester-runner.openTestScreenshot', (context?: { message?: vscode.TestMessage }) => {
 			const screenshot = screenshotOfMessage(context?.message);
