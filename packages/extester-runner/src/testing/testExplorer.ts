@@ -50,6 +50,9 @@ interface Job {
  */
 const TITLE_SEPARATOR = ' \u203A ';
 
+/** Tags of tests marked with `.only` or `.skip`, for the filter of the Testing view. */
+const MODIFIER_TAGS: Record<string, vscode.TestTag> = { only: new vscode.TestTag('only'), skip: new vscode.TestTag('skip') };
+
 /** Waits this long after the last change of the test files before the Testing view is rebuilt. */
 const REFRESH_DELAY = 300;
 
@@ -138,6 +141,10 @@ export class TestExplorer implements vscode.Disposable {
 				fileItem.error = `Cannot parse this file: ${error}`;
 			}
 			this.addBlocks(fileItem, uri, targets);
+			if (targets.some((target) => target.modifier === 'only')) {
+				// `.only` makes Mocha skip every other test of the run: say so on the file.
+				fileItem.description = '.only';
+			}
 			folder.children.add(fileItem);
 		}
 		this.controller.items.replace([...folders.values()].sort((a, b) => a.label.localeCompare(b.label)));
@@ -154,6 +161,10 @@ export class TestExplorer implements vscode.Disposable {
 			const id = `${target.file}::${target.isTest ? 'it' : 'describe'}::${key}`;
 			const item = this.createItem(id, target.titles.at(-1) ?? '', { kind: 'block', target }, uri);
 			item.range = new vscode.Range(target.line - 1, 0, target.line - 1, 0);
+			// Own `.only` / `.skip` next to the name; own or inherited ones as tags, so `@extesterRunner:only` filters them.
+			item.description = target.modifier;
+			const modifier = target.modifier ?? target.inheritedModifier;
+			item.tags = modifier && MODIFIER_TAGS[modifier] ? [MODIFIER_TAGS[modifier]] : [];
 			const parent = byTitles.get(target.titles.slice(0, -1).join(TITLE_SEPARATOR)) ?? fileItem;
 			parent.children.add(item);
 			if (!target.isTest) {

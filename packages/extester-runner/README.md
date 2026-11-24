@@ -31,9 +31,8 @@
 
 ### Runs
 
-- Run the test file open in the editor from the editor title bar, the Explorer context menu or **ExTester Runner: Run Test File** in the Command Palette.
-- While tests run, the status bar shows what is running; click it, or Stop in the Testing view, to stop the run. Only one run starts at a time.
-- When a run ends, a notification says whether it passed or failed, with buttons to show the screenshots and logs or to run it again. **ExTester Runner: Rerun Last Run** repeats the last run.
+- Tests marked with `.only` or `.skip` show it next to their name, and files that contain `.only` say so. Filter them with `@extesterRunner:only` or `@extesterRunner:skip`.
+- Stop, rerun, run history and the run of the tests in the current file come from the Testing view. One run starts at a time.
 - Each run calls `extest setup-and-run` with the VS Code version, release type and extra arguments from your settings.
 - Build before each run with [`preRunTask`](#settings), and pass environment variables to the tests with [`env`](#settings).
 - Run the compiled JavaScript tests from your output folder, or the TypeScript sources with [`runSources`](#running-typescript-sources).

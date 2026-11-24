@@ -74,7 +74,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		showCollapseAll: true,
 	});
 
-	// Runs one test task at a time and shows its state in the status bar.
+	// Runs one test task at a time.
 	const runManager = new TestRunManager(logger);
 
 	// Tests in VS Code's Testing view, with a result, output and screenshot for each test.
@@ -102,7 +102,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	);
 
 	// Register extension commands.
-	registerCommands(context, treeDataProvider, screenshotsDataProvider, logsDataProvider, runManager, logger);
+	registerCommands(context, treeDataProvider, screenshotsDataProvider, logsDataProvider, logger);
 
 	logger.info('ExTester Runner extension activated successfully.');
 }
