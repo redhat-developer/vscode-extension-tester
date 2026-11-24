@@ -27,10 +27,22 @@ import { TestBlock, TestRunTarget } from '../types/testTypes';
 export function listRunTargets(blocks: TestBlock[], parentTitles: string[] = []): TestRunTarget[] {
 	return blocks.flatMap((block) => {
 		const titles = [...parentTitles, block.describe];
-		return [
-			{ file: block.filePath, titles, isTest: false, line: block.line },
-			...block.its.map((it) => ({ file: it.filePath, titles: [...titles, it.name], isTest: true, line: it.line })),
-			...listRunTargets(block.children, titles),
-		];
+		const blockTarget: TestRunTarget = {
+			file: block.filePath,
+			titles,
+			isTest: false,
+			line: block.line,
+			modifier: block.modifier ?? undefined,
+			inheritedModifier: block.parentModifier ?? undefined,
+		};
+		const tests = block.its.map((it): TestRunTarget => ({
+			file: it.filePath,
+			titles: [...titles, it.name],
+			isTest: true,
+			line: it.line,
+			modifier: it.modifier ?? undefined,
+			inheritedModifier: it.parentModifier ?? it.describeModifier ?? undefined,
+		}));
+		return [blockTarget, ...tests, ...listRunTargets(block.children, titles)];
 	});
 }

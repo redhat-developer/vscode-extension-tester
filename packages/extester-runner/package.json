@@ -276,65 +276,9 @@
         "category": "ExTester Runner"
       },
       {
-        "command": "extester-runner.runTest",
-        "icon": "$(play)",
-        "title": "Run",
-        "tooltip": "Run this describe block or test.",
-        "category": "ExTester Runner"
-      },
-      {
-        "command": "extester-runner.runFile",
-        "icon": "$(play)",
-        "title": "Run File",
-        "tooltip": "Run specific test file.",
-        "category": "ExTester Runner"
-      },
-      {
-        "command": "extester-runner.runFolder",
-        "icon": "$(run-below)",
-        "title": "Run Folder",
-        "tooltip": "Run all test files inside folder.",
-        "category": "ExTester Runner"
-      },
-      {
-        "command": "extester-runner.runAll",
-        "title": "Run All Tests",
-        "icon": "$(run-all)",
-        "tooltip": "Run all tests in workspace.",
-        "category": "ExTester Runner"
-      },
-      {
-        "command": "extester-runner.runCurrentFile",
-        "title": "Run Test File",
-        "icon": "$(play)",
-        "tooltip": "Run this test file.",
-        "category": "ExTester Runner"
-      },
-      {
-        "command": "extester-runner.stopRun",
-        "title": "Stop Test Run",
-        "icon": "$(debug-stop)",
-        "tooltip": "Stop the test run in progress.",
-        "category": "ExTester Runner"
-      },
-      {
-        "command": "extester-runner.rerunLastRun",
-        "title": "Rerun Last Run",
-        "icon": "$(debug-rerun)",
-        "tooltip": "Run the last test run again.",
-        "category": "ExTester Runner"
-      },
-      {
         "command": "extester-runner.openWalkthrough",
         "title": "Open Getting Started Guide",
         "icon": "$(book)",
-        "category": "ExTester Runner"
-      },
-      {
-        "command": "extester-runner.refreshTests",
-        "title": "Refresh Tests",
-        "icon": "$(refresh)",
-        "tooltip": "Refresh list of tests.",
         "category": "ExTester Runner"
       },
       {
@@ -507,34 +451,6 @@
           "when": "false"
         },
         {
-          "command": "extester-runner.runCurrentFile",
-          "when": "extesterRunner.hasTestFiles && !extesterRunner.isRunning"
-        },
-        {
-          "command": "extester-runner.stopRun",
-          "when": "extesterRunner.isRunning"
-        },
-        {
-          "command": "extester-runner.rerunLastRun",
-          "when": "extesterRunner.hasLastRun && !extesterRunner.isRunning"
-        },
-        {
-          "command": "extester-runner.runFile",
-          "when": "false"
-        },
-        {
-          "command": "extester-runner.runTest",
-          "when": "false"
-        },
-        {
-          "command": "extester-runner.runFolder",
-          "when": "false"
-        },
-        {
-          "command": "extester-runner.runAll",
-          "when": "extesterRunner.hasTestFiles && !extesterRunner.isRunning"
-        },
-        {
           "command": "extester-runner.clearLogs",
           "when": "false"
         },
@@ -565,25 +481,6 @@
         {
           "command": "extester-runner.revealScreenshotsItem",
           "when": "false"
-        }
-      ],
-      "editor/title": [
-        {
-          "command": "extester-runner.runCurrentFile",
-          "when": "resourceScheme == file && resourcePath in extesterRunner.testFiles && !extesterRunner.isRunning",
-          "group": "navigation@1"
-        },
-        {
-          "command": "extester-runner.stopRun",
-          "when": "resourceScheme == file && resourcePath in extesterRunner.testFiles && extesterRunner.isRunning",
-          "group": "navigation@1"
-        }
-      ],
-      "explorer/context": [
-        {
-          "command": "extester-runner.runCurrentFile",
-          "when": "resourceScheme == file && resourcePath in extesterRunner.testFiles && !extesterRunner.isRunning",
-          "group": "extester@1"
         }
       ]
     }

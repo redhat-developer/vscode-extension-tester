@@ -16,9 +16,7 @@
  */
 
 import * as vscode from 'vscode';
-import { registerTestCommands } from './testCommands';
 import { registerViewCommands } from './viewCommands';
-import { registerFileCommands } from './fileCommands';
 import { ExtesterTreeProvider } from '../providers/extesterTreeProvider';
 import { Logger } from '../logger/logger';
 import { settingsWatcher } from '../utils/settingsWatcher';
@@ -26,7 +24,6 @@ import { ScreenshotsTreeProvider } from '../providers/screenshotsTreeProvider';
 import { LogsTreeProvider } from '../providers/logsTreeProvider';
 import { registerScreenshotsCommands } from './screenshotsCommands';
 import { registerLogsCommands } from './logsCommands';
-import { TestRunManager } from '../tasks/runManager';
 
 /**
  * Registers all extension commands and initializes supporting utilities within the VS Code extension.
@@ -34,9 +31,7 @@ import { TestRunManager } from '../tasks/runManager';
  * This function sets up the core command registration and settings watching logic for the extension.
  * It organizes and registers commands across multiple domains, including:
  *
- * - **Test Management** (`registerTestCommands`): Registers commands related to running and managing tests.
  * - **View Management** (`registerViewCommands`): Registers commands for refreshing and controlling custom views.
- * - **File Operations** (`registerFileCommands`): Handles file-related actions (e.g., opening or saving files).
  * - **Screenshots Management** (`registerScreenshotsCommands`): Registers commands to handle screenshot viewing and actions.
  * - **Log Management** (`registerLogsCommands`): Registers commands for managing and displaying logs.
  * - **Settings Watcher** (`settingsWatcher`): Sets up watchers for configuration changes to trigger view updates.
@@ -45,7 +40,6 @@ import { TestRunManager } from '../tasks/runManager';
  * @param {ExtesterTreeProvider} treeDataProvider - The tree data provider for tests views.
  * @param {ScreenshotsTreeProvider} screenshotsDataProvider - The tree data provider for screenshots view.
  * @param {LogsTreeProvider} logsDataProvider - The tree data provider for managing for logs view.
- * @param {TestRunManager} runManager - Runs one test task at a time and shows its state.
  * @param {Logger} logger - The logging utility for debugging and error tracking.
  */
 export function registerCommands(
@@ -53,13 +47,10 @@ export function registerCommands(
 	treeDataProvider: ExtesterTreeProvider,
 	screenshotsDataProvider: ScreenshotsTreeProvider,
 	logsDataProvider: LogsTreeProvider,
-	runManager: TestRunManager,
 	logger: Logger,
 ) {
 	logger.debug('Registering commands and relevant settings watcher');
-	registerTestCommands(context, treeDataProvider, runManager, logger);
 	registerViewCommands(context, treeDataProvider, logger);
-	registerFileCommands(context, logger);
 	registerScreenshotsCommands(context, screenshotsDataProvider, logger);
 	registerLogsCommands(context, logsDataProvider, logger);
 	settingsWatcher(context, treeDataProvider, screenshotsDataProvider, logsDataProvider, logger);

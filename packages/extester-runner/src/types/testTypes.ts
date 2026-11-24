@@ -50,4 +50,6 @@ export interface TestRunTarget {
 	titles: string[]; // titles from the outermost `describe` block to this block
 	isTest: boolean; // whether this is an `it` test rather than a `describe` block
 	line: number; // line of occurrence
+	modifier?: string; // own modifier: "only" or "skip"
+	inheritedModifier?: string; // modifier of an enclosing `describe` block
 }
