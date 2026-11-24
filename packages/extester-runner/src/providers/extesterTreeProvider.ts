@@ -144,16 +144,8 @@ export class ExtesterTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 			// Return top-level folders.
 			const folderMap = this.groupFilesByFolder();
 			let folders = Array.from(folderMap.keys()).map((folder) => {
-				const owner = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(folder));
 				const folderPath = folder;
-				const relativeFolder = path.relative(owner?.uri.fsPath ?? '', folder);
-				const configuration = getRunnerConfiguration(vscode.Uri.file(folder));
-				const ignorePathPart = configuration.get<string>('ignorePathPart') ?? '';
-				// Compare with forward slashes so a configured "src/" also matches Windows paths (src\...).
-				const matchesIgnoredPart = relativeFolder.replaceAll('\\', '/').startsWith(ignorePathPart.replaceAll('\\', '/'));
-				// The ExTester configuration file stores ignorePathPart without a trailing separator; drop the leftover one.
-				const relativeLabel = matchesIgnoredPart ? relativeFolder.substring(ignorePathPart.length).replace(/^[/\\]/, '') : relativeFolder;
-				const displayName = (vscode.workspace.workspaceFolders?.length ?? 0) > 1 ? `${owner?.name}/${relativeLabel}` : relativeLabel;
+				const displayName = folderLabel(folder);
 
 				const treeItem = new TreeItem(displayName, vscode.TreeItemCollapsibleState.Collapsed, true, undefined, undefined, folderPath);
 				treeItem.id = folder;
@@ -485,4 +477,22 @@ export class ExtesterTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 		}
 		return paths;
 	}
+}
+
+/**
+ * The label of a folder of test files: its path relative to its workspace folder, without
+ * `ignorePathPart`, and prefixed with the workspace folder name in a multi-root workspace.
+ *
+ * @param {string} folder - Absolute path of the folder.
+ * @returns {string} The label.
+ */
+export function folderLabel(folder: string): string {
+	const owner = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(folder));
+	const relativeFolder = path.relative(owner?.uri.fsPath ?? '', folder);
+	const ignorePathPart = getRunnerConfiguration(vscode.Uri.file(folder)).get<string>('ignorePathPart') ?? '';
+	// Compare with forward slashes so a configured "src/" also matches Windows paths (src\...).
+	const matchesIgnoredPart = relativeFolder.replaceAll('\\', '/').startsWith(ignorePathPart.replaceAll('\\', '/'));
+	// The ExTester configuration file stores ignorePathPart without a trailing separator; drop the leftover one.
+	const relativeLabel = matchesIgnoredPart ? relativeFolder.substring(ignorePathPart.length).replace(/^[/\\]/, '') : relativeFolder;
+	return (vscode.workspace.workspaceFolders?.length ?? 0) > 1 ? `${owner?.name}/${relativeLabel}` : relativeLabel;
 }

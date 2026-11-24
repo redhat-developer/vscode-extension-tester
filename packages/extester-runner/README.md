@@ -11,7 +11,7 @@
 1. Install the extension from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=redhat.extester-runner) or the [Open VSX Registry](https://open-vsx.org/extension/redhat/extester-runner).
 2. Open the extension project that contains your ExTester UI tests.
 3. Open the Command Palette, run **Welcome: Open Walkthrough...** and pick **Get started with ExTester Runner**. The walkthrough stores the source and output folders, or the choice to run TypeScript sources, and the test file pattern in your workspace settings.
-4. Click the **ExTester Runner** icon in the Activity Bar, find a test in the **UI Tests** view and press its play button (▶️).
+4. Open the **Testing** view, find a test under **ExTester** and press its play button (▶️).
 
 ## Requirements
 
@@ -22,35 +22,29 @@
 
 ## Features
 
-### Three views in one Activity Bar container
+### Your UI tests in the Testing view
 
-- **UI Tests** shows every file matched by your test glob as a tree of folders, files, `describe` suites and `it` cases, marks `.only` and `.skip` modifiers, and jumps to the source when you click a node. Folders show how many test files they hold and files how many tests. A file that cannot be parsed is marked with an error icon, and the view title shows how many files contain `.only`.
-- An empty view explains why it is empty and links to the setting that fixes it.
-- **Screenshots** lists the screenshots captured during test runs.
-- **Logs** lists the log files written by test runs.
+- ExTester Runner lists the files matched by your test glob in VS Code's **Testing** view, as folders, files, `describe` suites and `it` cases, under **ExTester**.
+- Run everything, a folder, a file, a `describe` block or a single test from the Testing view, or from the gutter buttons next to each `describe` and `it` in the editor.
+- Each test shows whether it passed, failed or was skipped. A failure shows the error with a diff of expected and actual values, a clickable stack trace and a thumbnail of ExTester's screenshot that opens the full image. **Test Results** shows the output of the run and of each test.
+- The **Screenshots** and **Logs** views sit in the Testing sidebar, below the test tree.
 
-### One-click test runs
+### Runs
 
-- Run a single file, a whole folder, or every test in the workspace from the play buttons in the **UI Tests** view.
-- Run one `describe` block or `it` test from its play button in the **UI Tests** view, or from **Run** above it in the editor.
 - Run the test file open in the editor from the editor title bar, the Explorer context menu or **ExTester Runner: Run Test File** in the Command Palette.
-- While tests run, the status bar shows what is running; click it, or the stop button in the **UI Tests** view, to stop the run. Only one run starts at a time.
+- While tests run, the status bar shows what is running; click it, or Stop in the Testing view, to stop the run. Only one run starts at a time.
 - When a run ends, a notification says whether it passed or failed, with buttons to show the screenshots and logs or to run it again. **ExTester Runner: Rerun Last Run** repeats the last run.
 - Each run calls `extest setup-and-run` with the VS Code version, release type and extra arguments from your settings.
 - Build before each run with [`preRunTask`](#settings), and pass environment variables to the tests with [`env`](#settings).
 - Run the compiled JavaScript tests from your output folder, or the TypeScript sources with [`runSources`](#running-typescript-sources).
 
+The result of each test is read from a small hook that ExTester Runner preloads into the `extest` process with `NODE_OPTIONS`. It only listens to Mocha's events and copies the output; it does not change how the tests run.
+
 ### Always up to date
 
-- The **UI Tests** view refreshes when test files are added, removed or changed, and when the runner settings or `extester.config.json` change.
+- The test tree refreshes when test files are added, removed or changed, and when the runner settings or `extester.config.json` change.
 - The **Screenshots** and **Logs** views refresh when files are created, deleted or modified during a run.
 - Clear, delete or reveal screenshots and logs from the view toolbars and context menus.
-
-### Testing view (preview)
-
-The tests also appear in VS Code's **Testing** view. Run a folder, file, `describe` block or test from there, or with the gutter buttons in the editor, and see the result of each test: passed, failed with the error and a diff of expected and actual values, or skipped. A failed test shows its screenshot, with **Open Screenshot**, and a clickable stack trace; **Test Results** shows the output of the run and of each test. The Testing view's gutter buttons replace the **Run** CodeLens while it is on. Runs use the same tasks as the **UI Tests** view, so the status bar, Stop, `preRunTask` and `env` work the same. Turn it off with the `testExplorer` setting.
-
-The result of each test is read from a small hook that ExTester Runner preloads into the `extest` process with `NODE_OPTIONS`. It only listens to Mocha's events and does not change how the tests run.
 
 ## Settings
 
@@ -58,12 +52,11 @@ All settings live under the `extesterRunner` namespace in your workspace setting
 
 **View**
 
-| Setting          | Default                   | Description                                                           |
-| ---------------- | ------------------------- | --------------------------------------------------------------------- |
-| `testFileGlob`   | `**/ui-test/**/*.test.ts` | Glob pattern that locates test files.                                 |
-| `excludeGlob`    | `**/node_modules/**`      | Glob pattern for paths to leave out of the search.                    |
-| `ignorePathPart` | —                         | Path segment hidden from folder labels in the **UI Tests** view.      |
-| `codeLens`       | `true`                    | Show **Run** above each `describe` block and `it` test in test files. |
+| Setting          | Default                   | Description                                              |
+| ---------------- | ------------------------- | -------------------------------------------------------- |
+| `testFileGlob`   | `**/ui-test/**/*.test.ts` | Glob pattern that locates test files.                    |
+| `excludeGlob`    | `**/node_modules/**`      | Glob pattern for paths to leave out of the search.       |
+| `ignorePathPart` | —                         | Path segment hidden from folder labels in the test tree. |
 
 **Command line**
 
