@@ -254,12 +254,18 @@
             "order": 11,
             "markdownDescription": "Command that runs the tests instead of `npx extest setup-and-run`, for example `npm run ui-test -- ${target}`. `${target}` is replaced by the quoted path or glob of the tests to run; when it is missing, the target is appended. The command runs in the workspace folder and gets `env` and, for a single test, `MOCHA_GREP`. The VS Code version, type, temp folder and `additionalArgs` settings are not added to it."
           },
+          "extesterRunner.testExplorer": {
+            "type": "boolean",
+            "default": true,
+            "order": 12,
+            "markdownDescription": "Show the UI tests in the **Testing** view, run them from there and see the result of each test. Preview."
+          },
           "extesterRunner.codeLens": {
             "type": "boolean",
             "default": true,
             "scope": "resource",
             "order": 10,
-            "markdownDescription": "Show **Run** above each `describe` block and `it` test in test files."
+            "markdownDescription": "Show **Run** above each `describe` block and `it` test in test files. Not shown while `#extesterRunner.testExplorer#` is on, because the Testing view puts run buttons in the editor gutter."
           }
         }
       },
@@ -276,6 +282,12 @@
       }
     ],
     "commands": [
+      {
+        "command": "extester-runner.openTestScreenshot",
+        "icon": "$(file-media)",
+        "title": "Open Screenshot",
+        "category": "ExTester Runner"
+      },
       {
         "command": "extester-runner.runTest",
         "icon": "$(play)",
@@ -551,7 +563,17 @@
           "group": "2_navigation"
         }
       ],
+      "testing/message/content": [
+        {
+          "command": "extester-runner.openTestScreenshot",
+          "when": "testMessage == extesterRunner.screenshot"
+        }
+      ],
       "commandPalette": [
+        {
+          "command": "extester-runner.openTestScreenshot",
+          "when": "false"
+        },
         {
           "command": "extester-runner.runCurrentFile",
           "when": "extesterRunner.hasTestFiles && !extesterRunner.isRunning"

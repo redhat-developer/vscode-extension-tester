@@ -85,6 +85,9 @@ export abstract class TestRunner extends Task {
 		this.preRunTask = preRunTask?.trim() || undefined;
 		this.presentationOptions.echo = false; // hide command in terminal
 		this.presentationOptions.clear = true; // clean terminal output before each execution
+		// The Testing view shows the results and output: keep the task terminal in the background.
+		this.presentationOptions.reveal = vscode.TaskRevealKind.Never;
+		this.presentationOptions.focus = false;
 	}
 
 	/**
@@ -122,6 +125,16 @@ export abstract class TestRunner extends Task {
 			void vscode.commands.executeCommand('extester-runner.refreshLogs');
 			void vscode.commands.executeCommand('extester-runner.refreshScreenshots');
 		}
+	}
+
+	/**
+	 * Adds environment variables to the test process. Call it before `execute()`.
+	 *
+	 * @param {Record<string, string>} env - The variables to add; they replace configured variables with the same name.
+	 */
+	public addEnvironment(env: Record<string, string>): void {
+		const execution = this.execution as ShellExecution;
+		execution.options = { ...execution.options, env: { ...execution.options?.env, ...env } };
 	}
 
 	/**

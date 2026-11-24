@@ -16,7 +16,7 @@
  */
 
 import { strict as assert } from 'node:assert';
-import { buildGrepPattern, escapeRegExp } from '../../utils/testGrep';
+import { buildGrepPattern, escapeRegExp, matchesTitles } from '../../utils/testGrep';
 
 describe('Mocha grep pattern', () => {
 	/** Whether Mocha, which matches `grep` against the full title of each test, would run the test. */
@@ -46,5 +46,18 @@ describe('Mocha grep pattern', () => {
 		const pattern = buildGrepPattern(['Version ${version}', 'runs on ${?}'], true);
 		assert.ok(selects(pattern, 'Version 1.100.0 runs on linux'));
 		assert.ok(!selects(pattern, 'Release 1.100.0 runs on linux'));
+	});
+
+	it('matches run-time titles to parsed titles', () => {
+		assert.ok(matchesTitles(['Editor (1.2)', 'opens a file'], ['Editor (1.2)', 'opens a file']));
+		assert.ok(matchesTitles(['Version ${version}', 'works'], ['Version 1.100.0', 'works']));
+		assert.ok(!matchesTitles(['Editor', 'opens a file'], ['Editor', 'opens a file twice']));
+		assert.ok(!matchesTitles(['Editor', 'opens a file'], ['Editor']));
+	});
+
+	it('matches the suite of a test as a prefix', () => {
+		assert.ok(matchesTitles(['Editor', 'Broken', 'never runs'], ['Editor', 'Broken'], true));
+		assert.ok(matchesTitles(['Editor', 'opens a file'], [], true));
+		assert.ok(!matchesTitles(['Editor', 'opens a file'], ['Other'], true));
 	});
 });

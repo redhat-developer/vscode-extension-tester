@@ -46,6 +46,12 @@
 - The **Screenshots** and **Logs** views refresh when files are created, deleted or modified during a run.
 - Clear, delete or reveal screenshots and logs from the view toolbars and context menus.
 
+### Testing view (preview)
+
+The tests also appear in VS Code's **Testing** view. Run a folder, file, `describe` block or test from there, or with the gutter buttons in the editor, and see the result of each test: passed, failed with the error and a diff of expected and actual values, or skipped. A failed test shows its screenshot, with **Open Screenshot**, and a clickable stack trace; **Test Results** shows the output of the run and of each test. The Testing view's gutter buttons replace the **Run** CodeLens while it is on. Runs use the same tasks as the **UI Tests** view, so the status bar, Stop, `preRunTask` and `env` work the same. Turn it off with the `testExplorer` setting.
+
+The result of each test is read from a small hook that ExTester Runner preloads into the `extest` process with `NODE_OPTIONS`. It only listens to Mocha's events and does not change how the tests run.
+
 ## Settings
 
 All settings live under the `extesterRunner` namespace in your workspace settings. To share them with your team, put them in [`extester.config.json`](#project-configuration) instead.
