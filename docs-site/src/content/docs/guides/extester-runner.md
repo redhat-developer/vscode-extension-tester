@@ -35,6 +35,7 @@ It adds your tests to VS Code's built-in **Testing** view, under the **ExTester*
 2. **Test Execution**
    - Runs everything, a workspace folder, a folder, a file, a `describe` block or a single `it` from the Testing view, or from the gutter buttons next to each `describe` and `it` in the editor
    - **Test: Run Tests in Current File**, **Test: Rerun Last Run**, run history and the other **Test:** commands of VS Code work as for any test controller
+   - Debug any of them with **Debug Test** in the Testing view or the gutter menu. Debug runs the same command in a JavaScript Debug Terminal, so breakpoints in your tests stop them, and turn off Mocha's timeouts so a paused test does not fail. A test that sets its own timeout with `this.timeout()` keeps it. The command must start Node.js from the debug terminal, as `npx extest` and npm scripts do
    - Stop a run with the stop button of the Testing view. Only one run starts at a time; starting another one offers to stop the current run
    - Each run calls `extest setup-and-run`, or your [custom run command](#custom-run-command), in a VS Code task, with the VS Code version, release type and extra arguments from your settings. The task terminal shows the full output
    - Runs a build task before the tests with `preRunTask`, and passes environment variables to the tests with `env`; see [Build before running and environment variables](#build-before-running-and-environment-variables)

@@ -33,6 +33,7 @@
 
 - Tests marked with `.only` or `.skip` show it next to their name, and files that contain `.only` say so. Filter them with `@extesterRunner:only` or `@extesterRunner:skip`.
 - Stop, rerun, run history and the run of the tests in the current file come from the Testing view. One run starts at a time.
+- **Debug** any test, file or folder from the Testing view or the gutter (right-click the gutter button, or use its Debug Test action). Debug runs the same command in a JavaScript Debug Terminal, so breakpoints in your tests stop them, and turn off Mocha's timeouts so a paused test does not fail. A test that sets its own timeout with `this.timeout()` keeps it.
 - Each run calls `extest setup-and-run` with the VS Code version, release type and extra arguments from your settings, or your own [`runCommand`](#custom-run-command).
 - Build before each run with [`preRunTask`](#settings), and pass environment variables to the tests with [`env`](#settings).
 - Run the compiled JavaScript tests from your output folder, or the TypeScript sources with [`runSources`](#running-typescript-sources).

@@ -58,6 +58,8 @@ export abstract class TestRunner extends Task {
 	private readonly runId: string;
 	private readonly preRunTask: string | undefined;
 	private taskExecution: vscode.TaskExecution | undefined;
+	private debugging = false;
+	private debugSession: vscode.DebugSession | undefined;
 	private stopRequested = false;
 
 	/**
@@ -111,7 +113,9 @@ export abstract class TestRunner extends Task {
 				return preRunResult;
 			}
 			this.logger.info(`Starting test execution: ${this.label}`);
-			const exitCode = await this.executeAndWait(this, (execution) => execution.task.definition.runId === this.runId);
+			const exitCode = this.debugging
+				? await this.debugAndWait()
+				: await this.executeAndWait(this, (execution) => execution.task.definition.runId === this.runId);
 			const result = this.toResult(exitCode);
 			const exitCodeText = exitCode === undefined ? '' : ', exit code ' + exitCode;
 			this.logger.info(`Test execution completed: ${this.label} (${result.outcome}${exitCodeText})`);
@@ -137,13 +141,26 @@ export abstract class TestRunner extends Task {
 	}
 
 	/**
-	 * Stops the running task, if it was started.
+	 * Runs the tests with the JavaScript debugger instead of as a task, so breakpoints in the tests
+	 * stop them. Mocha's timeouts are turned off for the run. Call it before `execute()`.
+	 */
+	public useDebugger(): void {
+		this.debugging = true;
+		this.addEnvironment({ EXTESTER_RUNNER_NO_TIMEOUT: 'true' });
+	}
+
+	/**
+	 * Stops the running task or debug session, if it was started.
 	 */
 	public stop(): void {
 		this.stopRequested = true;
 		if (this.taskExecution) {
 			this.logger.info(`Stopping test execution: ${this.label}`);
 			this.taskExecution.terminate();
+		}
+		if (this.debugSession) {
+			this.logger.info(`Stopping test debugging: ${this.label}`);
+			void vscode.debug.stopDebugging(this.debugSession);
 		}
 	}
 
@@ -234,6 +251,53 @@ export abstract class TestRunner extends Task {
 	}
 
 	/**
+	 * Runs the command of the task in a JavaScript Debug Terminal and waits for the debug session to end.
+	 * The debugger attaches to every Node.js process the command starts, including the one that runs Mocha.
+	 *
+	 * @returns {Promise<number | undefined>} Always `undefined`: a debug session reports no exit code.
+	 */
+	private async debugAndWait(): Promise<number | undefined> {
+		const execution = this.execution as ShellExecution;
+		const name = `ExTester: ${this.label} (${this.runId.slice(0, 8)})`;
+		let resolveEnded: (() => void) | undefined;
+		const ended = new Promise<void>((resolve) => (resolveEnded = resolve));
+		const startListener = vscode.debug.onDidStartDebugSession((session) => {
+			if (session.name === name) {
+				this.debugSession = session;
+			}
+		});
+		const endListener = vscode.debug.onDidTerminateDebugSession((session) => {
+			if (session.name === name) {
+				resolveEnded?.();
+			}
+		});
+		try {
+			const configuration: vscode.DebugConfiguration = {
+				type: 'node-terminal',
+				request: 'launch',
+				name,
+				command: commandLine(execution),
+				cwd: execution.options?.cwd,
+				env: execution.options?.env,
+			};
+			const folder = typeof this.scope === 'object' ? this.scope : undefined;
+			if (!(await vscode.debug.startDebugging(folder, configuration))) {
+				throw new Error('the JavaScript debugger did not start');
+			}
+			if (this.stopRequested && this.debugSession) {
+				// Stop was requested while the debugger was starting.
+				void vscode.debug.stopDebugging(this.debugSession);
+			}
+			await ended;
+			return undefined;
+		} finally {
+			startListener.dispose();
+			endListener.dispose();
+			this.debugSession = undefined;
+		}
+	}
+
+	/**
 	 * Converts the exit code of the test process to a run result.
 	 *
 	 * @param {number | undefined} exitCode - Exit code reported by the task process.
@@ -258,4 +322,18 @@ export abstract class TestRunner extends Task {
  */
 function folderUri(scope: Task['scope']): string | undefined {
 	return typeof scope === 'object' ? scope.uri.toString() : undefined;
+}
+
+/**
+ * The command line of a shell execution, with quoted arguments in single quotes as the task shell gets them.
+ *
+ * @param {ShellExecution} execution - The shell execution of a test task.
+ * @returns {string} The command line.
+ */
+function commandLine(execution: ShellExecution): string {
+	if (execution.commandLine) {
+		return execution.commandLine;
+	}
+	const toText = (part: string | vscode.ShellQuotedString | undefined) => (typeof part === 'string' || part === undefined ? (part ?? '') : `'${part.value}'`);
+	return [execution.command, ...(execution.args ?? [])].map(toText).join(' ');
 }
