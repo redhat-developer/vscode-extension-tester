@@ -36,7 +36,7 @@ It adds your tests to VS Code's built-in **Testing** view, under the **ExTester*
    - Runs everything, a workspace folder, a folder, a file, a `describe` block or a single `it` from the Testing view, or from the gutter buttons next to each `describe` and `it` in the editor
    - **Test: Run Tests in Current File**, **Test: Rerun Last Run**, run history and the other **Test:** commands of VS Code work as for any test controller
    - Stop a run with the stop button of the Testing view. Only one run starts at a time; starting another one offers to stop the current run
-   - Each run calls `extest setup-and-run` in a VS Code task, with the VS Code version, release type and extra arguments from your settings. The task terminal shows the full output
+   - Each run calls `extest setup-and-run`, or your [custom run command](#custom-run-command), in a VS Code task, with the VS Code version, release type and extra arguments from your settings. The task terminal shows the full output
    - Runs a build task before the tests with `preRunTask`, and passes environment variables to the tests with `env`; see [Build before running and environment variables](#build-before-running-and-environment-variables)
 
 3. **Test Results**
@@ -215,6 +215,7 @@ By default the Runner runs `npx extest setup-and-run <target>` with the argument
 - `${target}` is replaced by the quoted path or glob of the tests to run: the test file, a glob of the files in a folder, or a glob of all test files. If the command has no `${target}`, the target is appended at the end.
 - The command runs in the workspace folder and gets the `env` variables and, when a single test or `describe` block runs, `MOCHA_GREP`. `preRunTask` still runs first.
 - The VS Code version, type, temp folder, `additionalArgs` and `configFile` are not added to the command. Put the options it needs in the command itself.
+- The Testing view still shows the result of each test when the command keeps the environment variables (`NODE_OPTIONS` loads the result hook) for the Node.js process that runs Mocha, as npm scripts and shell scripts do. A command that drops them, such as `docker run` without `-e`, still runs the tests, but they show as skipped and the results are only in the output.
 
 ### Running TypeScript Sources
 

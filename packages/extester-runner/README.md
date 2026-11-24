@@ -33,7 +33,7 @@
 
 - Tests marked with `.only` or `.skip` show it next to their name, and files that contain `.only` say so. Filter them with `@extesterRunner:only` or `@extesterRunner:skip`.
 - Stop, rerun, run history and the run of the tests in the current file come from the Testing view. One run starts at a time.
-- Each run calls `extest setup-and-run` with the VS Code version, release type and extra arguments from your settings.
+- Each run calls `extest setup-and-run` with the VS Code version, release type and extra arguments from your settings, or your own [`runCommand`](#custom-run-command).
 - Build before each run with [`preRunTask`](#settings), and pass environment variables to the tests with [`env`](#settings).
 - Run the compiled JavaScript tests from your output folder, or the TypeScript sources with [`runSources`](#running-typescript-sources).
 
@@ -105,6 +105,8 @@ Set `runCommand` to run the tests with your own command instead of `npx extest s
 ```
 
 `${target}` is replaced by the quoted path or glob of the tests to run: the file, a glob of the files in the folder, or a glob of all test files. Without `${target}`, the target is appended. The command runs in the workspace folder and gets `env` and, when one test runs, `MOCHA_GREP`. The VS Code version, type, temp folder, `additionalArgs` and `configFile` are not added to it: put the options it needs in the command.
+
+The Testing view still shows the result of each test when the command keeps the environment variables for the Node.js process that runs Mocha, as npm scripts and shell scripts do. A command that drops them, such as `docker run` without `-e`, still runs the tests, but they show as skipped and the results are only in the output.
 
 ## Running TypeScript sources
 
