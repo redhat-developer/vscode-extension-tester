@@ -31,19 +31,17 @@
       {
         "id": "extester-runner.gettingStarted",
         "title": "Get started with ExTester Runner",
-        "description": "Step-by-step guide to quickly set up and start using ExTester Runner",
+        "description": "Find, configure and run your ExTester UI tests from VS Code's Testing view",
         "steps": [
           {
-            "id": "setRootOut",
-            "title": "Choose Compiled Tests or TypeScript Sources",
-            "description": "Choose how ExTester Runner passes your tests to `extest setup-and-run`:\n\n• **Compiled JavaScript** (default) - set the [Root Folder](command:workbench.action.openWorkspaceSettings?%22extesterRunner.rootFolder%22) with your TypeScript tests and the [Output Folder](command:workbench.action.openWorkspaceSettings?%22extesterRunner.outputFolder%22) they are compiled to. Compile the tests before each run.\n• **TypeScript sources** - turn on [Run Sources](command:workbench.action.openWorkspaceSettings?%22extesterRunner.runSources%22) to run the `.ts` test files without compiling them. Requires ExTester 8.29.0 or later and `tsx` resolvable from the workspace folder of the tests, where ExTester runs. See [TypeScript Tests](https://redhat-developer.github.io/vscode-extension-tester/guides/typescript-tests/).",
+            "id": "testingView",
+            "title": "Find Your Tests in the Testing View",
+            "description": "ExTester Runner lists your UI tests in the Testing view, under **ExTester**: folders, files, `describe` blocks and `it` tests, with `only` and `skip` next to marked tests. The Screenshots and Logs views are in the same sidebar.\n[Open Testing View](command:workbench.view.testing.focus)",
             "media": {
-              "image": "resources/walkthroughs/setOutRoot.png",
-              "altText": "Configure Root and Output directories"
+              "markdown": "resources/walkthroughs/testingView.md"
             },
             "completionEvents": [
-              "onCommand:workbench.action.openWorkspaceSettings",
-              "onSettingChanged:extesterRunner.runSources"
+              "onCommand:workbench.view.testing.focus"
             ]
           },
           {
@@ -51,8 +49,7 @@
             "title": "Configure Test File Pattern",
             "description": "Set up the pattern that ExTester Runner will use to find your test files using [Test File Pattern](command:workbench.action.openWorkspaceSettings?%22extesterRunner.testFileGlob%22).",
             "media": {
-              "image": "resources/walkthroughs/setTestFileGlob.png",
-              "altText": "Configure Test File Pattern"
+              "markdown": "resources/walkthroughs/testFileGlob.md"
             },
             "completionEvents": [
               "onSettingChanged:extesterRunner.testFileGlob"
@@ -63,20 +60,64 @@
             "title": "Configure Excluded Paths",
             "description": "Specify which paths should be excluded from test file searches using [Exclude Pattern](command:workbench.action.openWorkspaceSettings?%22extesterRunner.excludeGlob%22).",
             "media": {
-              "image": "resources/walkthroughs/setExcludeGlob.png",
-              "altText": "Configure Excluded Paths"
+              "markdown": "resources/walkthroughs/excludeGlob.md"
             },
             "completionEvents": [
               "onSettingChanged:extesterRunner.excludeGlob"
             ]
           },
           {
+            "id": "projectConfig",
+            "title": "Share Settings in extester.config.json (Optional)",
+            "description": "Put the runner settings in the `runner` section of `extester.config.json`, the configuration file of the `extest` CLI, to share them with your team. The VS Code version and type come from its `setup` section. Workspace settings still win. See [Project Configuration](https://redhat-developer.github.io/vscode-extension-tester/guides/extester-runner/#project-configuration).",
+            "media": {
+              "markdown": "resources/walkthroughs/projectConfig.md"
+            },
+            "completionEvents": [
+              "onSettingChanged:extesterRunner.configFile"
+            ]
+          },
+          {
+            "id": "setRootOut",
+            "title": "Choose Compiled Tests or TypeScript Sources",
+            "description": "Choose how ExTester Runner passes your tests to `extest setup-and-run`:\n\n• **Compiled JavaScript** (default) - set the [Root Folder](command:workbench.action.openWorkspaceSettings?%22extesterRunner.rootFolder%22) with your TypeScript tests and the [Output Folder](command:workbench.action.openWorkspaceSettings?%22extesterRunner.outputFolder%22) they are compiled to. Compile the tests before each run.\n• **TypeScript sources** - turn on [Run Sources](command:workbench.action.openWorkspaceSettings?%22extesterRunner.runSources%22) to run the `.ts` test files without compiling them. Requires ExTester 8.29.0 or later and `tsx` resolvable from the workspace folder of the tests, where ExTester runs. See [TypeScript Tests](https://redhat-developer.github.io/vscode-extension-tester/guides/typescript-tests/).",
+            "media": {
+              "markdown": "resources/walkthroughs/sourcesOrCompiled.md"
+            },
+            "completionEvents": [
+              "onCommand:workbench.action.openWorkspaceSettings",
+              "onSettingChanged:extesterRunner.runSources"
+            ]
+          },
+          {
+            "id": "beforeRun",
+            "title": "Build and Set Environment Before Runs (Optional)",
+            "description": "Run a VS Code task before each test run with [Pre-Run Task](command:workbench.action.openWorkspaceSettings?%22extesterRunner.preRunTask%22), such as `npm: compile`. The tests start only when it succeeds. Pass environment variables to the tests with [Environment](command:workbench.action.openWorkspaceSettings?%22extesterRunner.env%22).",
+            "media": {
+              "markdown": "resources/walkthroughs/beforeRun.md"
+            },
+            "completionEvents": [
+              "onSettingChanged:extesterRunner.preRunTask",
+              "onSettingChanged:extesterRunner.env"
+            ]
+          },
+          {
+            "id": "runTests",
+            "title": "Run Tests and Read the Results",
+            "description": "Press the play button next to a test, `describe`, file or folder in the Testing view or in the editor gutter. Each test shows whether it passed, failed or was skipped. A failure shows the error, a diff, a clickable stack trace and a screenshot.\n[Run All Tests](command:testing.runAll)",
+            "media": {
+              "markdown": "resources/walkthroughs/runTests.md"
+            },
+            "completionEvents": [
+              "onCommand:testing.runAll"
+            ]
+          },
+          {
             "id": "setIgnorePathPart",
             "title": "Customize Path Display (Optional)",
-            "description": "Improve test view readability by hiding specific path segments using [Path Display Settings](command:workbench.action.openWorkspaceSettings?%22extesterRunner.ignorePathPart%22).",
+            "description": "Improve test tree readability by hiding specific path segments using [Path Display Settings](command:workbench.action.openWorkspaceSettings?%22extesterRunner.ignorePathPart%22).",
             "media": {
-              "image": "resources/walkthroughs/setIgnorePathPart.png",
-              "altText": "Customize Path Display Settings"
+              "markdown": "resources/walkthroughs/ignorePathPart.md"
             },
             "completionEvents": [
               "onCommand:workbench.action.openWorkspaceSettings"
@@ -87,8 +128,7 @@
             "title": "Additional Arguments (Optional)",
             "description": "Configure additional command line arguments to pass to ExTester using [Additional Arguments](command:workbench.action.openWorkspaceSettings?%22extesterRunner.additionalArgs%22). These arguments will be appended to the extest setup-and-run command. Learn more about available arguments in the [ExTester documentation](https://redhat-developer.github.io/vscode-extension-tester/guides/test-setup/#set-up-and-run-tests).",
             "media": {
-              "image": "resources/walkthroughs/additionalArgs.png",
-              "altText": "Additional Arguments"
+              "markdown": "resources/walkthroughs/additionalArgs.md"
             },
             "completionEvents": [
               "onCommand:workbench.action.openWorkspaceSettings"
@@ -99,8 +139,7 @@
             "title": "Additional Configuration Options",
             "description": "Discover more ways to customize ExTester Runner in the [Settings Panel](command:workbench.action.openWorkspaceSettings?%22extesterRunner%22).",
             "media": {
-              "image": "resources/walkthroughs/setOther.png",
-              "altText": "Additional Configuration Options"
+              "markdown": "resources/walkthroughs/otherSettings.md"
             },
             "completionEvents": [
               "onCommand:workbench.action.openWorkspaceSettings"
