@@ -373,6 +373,19 @@
             "type": "string"
           },
           "examples": [["--log_level Debug"]]
+        },
+        "env": {
+          "type": "object",
+          "description": "Environment variables for the test run, such as credentials or feature flags read by the tests.",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "examples": [{ "TEST_USER": "tester" }]
+        },
+        "preRunTask": {
+          "type": "string",
+          "description": "VS Code task to run before the tests, as named in 'Tasks: Run Task'. The tests start only when it ends successfully. It must not be a background (watch) task.",
+          "examples": ["npm: compile"]
         }
       }
     }

@@ -52,6 +52,6 @@ export class RunFileTask extends TestRunner {
 		const finalPath = getFileTarget(file, workspaceFolder, settings);
 		logger.debug(`RunFileTask: Final path: ${finalPath}`);
 
-		super(owner, 'Run Test File', createTestExecution(owner, configuration, finalPath, logger), logger);
+		super(owner, 'Run Test File', createTestExecution(owner, configuration, finalPath, logger), logger, configuration.get<string>('preRunTask'));
 	}
 }

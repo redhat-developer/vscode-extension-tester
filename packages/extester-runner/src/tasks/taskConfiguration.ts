@@ -46,12 +46,36 @@ function optionArgs(configuration: ConfigurationReader, key: string, option: str
 	return [option, quote ? `'${value}'` : value];
 }
 
+/**
+ * Environment variables for a test run: the configured `env` values and, when a single test or
+ * `describe` block runs, `MOCHA_GREP`, which ExTester passes to Mocha as its `grep` option.
+ *
+ * @param {ConfigurationReader} configuration - The runner configuration.
+ * @param {string} [grep] - The Mocha `grep` pattern that selects the tests to run.
+ * @returns {Record<string, string>} The environment variables to add to the task's environment.
+ */
+export function getRunEnvironment(configuration: ConfigurationReader, grep?: string): Record<string, string> {
+	const configured = configuration.get<Record<string, unknown>>('env') ?? {};
+	const env: Record<string, string> = {};
+	for (const [name, value] of Object.entries(configured)) {
+		if (typeof value !== 'string') {
+			throw new TypeError(`The value of the environment variable "${name}" must be a string.`);
+		}
+		env[name] = value;
+	}
+	if (grep) {
+		env.MOCHA_GREP = grep;
+	}
+	return env;
+}
+
 /** Build the shared CLI invocation, run from the workspace root that owns the tests. */
 export function createTestExecution(
 	owner: vscode.WorkspaceFolder,
 	configuration: ConfigurationReader,
 	finalPath: string,
 	logger: Logger,
+	grep?: string,
 ): vscode.ShellExecution {
 	const storageArgs = optionArgs(configuration, 'tempFolder', '--storage', true);
 	const versionArgs = optionArgs(configuration, 'visualStudioCode.Version', '--code_version');
@@ -59,11 +83,12 @@ export function createTestExecution(
 	const additionalArgs = configuration.get<string[]>('additionalArgs', []) ?? [];
 	const processedArgs = additionalArgs.flatMap((arg) => arg.match(/(?:[^\s"]+|"[^"]*")+/g) ?? []);
 	const configArgs = getConfigArguments(owner, processedArgs);
+	const env = getRunEnvironment(configuration, grep);
 
 	const shellExecution = new vscode.ShellExecution(
 		'npx',
 		['extest', 'setup-and-run', `'${finalPath}'`, ...storageArgs, ...versionArgs, ...typeArgs, ...processedArgs, ...configArgs],
-		{ cwd: owner.uri.fsPath },
+		{ cwd: owner.uri.fsPath, env },
 	);
 
 	const commandArgs = [
@@ -74,6 +99,12 @@ export function createTestExecution(
 		...configArgs.map((arg) => (typeof arg === 'string' ? arg : `'${arg.value}'`)),
 	];
 	logger.info(`Running command: npx extest setup-and-run '${finalPath}' ${commandArgs.join(' ')}`);
+	const envNames = Object.keys(env);
+	if (envNames.length) {
+		// Log names only: values can hold secrets. The grep pattern is not secret and helps when no test runs.
+		const grepText = grep ? ' (MOCHA_GREP=' + grep + ')' : '';
+		logger.info(`Environment variables: ${envNames.join(', ')}${grepText}`);
+	}
 
 	return shellExecution;
 }

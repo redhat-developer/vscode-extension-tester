@@ -41,3 +41,13 @@ export interface ItBlock {
 	parentModifier?: string | null; // optional modifier inherited from a parent block
 	describeModifier?: string | null; // optional modifier inherited from the enclosing `describe`
 }
+
+/**
+ * A `describe` block or an `it` test that can be run on its own.
+ */
+export interface TestRunTarget {
+	file: string; // absolute path of the test file
+	titles: string[]; // titles from the outermost `describe` block to this block
+	isTest: boolean; // whether this is an `it` test rather than a `describe` block
+	line: number; // line of occurrence
+}

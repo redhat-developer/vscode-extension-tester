@@ -53,6 +53,6 @@ export class RunFolderTask extends TestRunner {
 		const finalPath = getFolderTarget(folder, workspaceFolder, settings);
 		logger.debug(`RunFolderTask: Final path: ${finalPath}`);
 
-		super(owner, 'Run Test Folder', createTestExecution(owner, configuration, finalPath, logger), logger);
+		super(owner, 'Run Test Folder', createTestExecution(owner, configuration, finalPath, logger), logger, configuration.get<string>('preRunTask'));
 	}
 }

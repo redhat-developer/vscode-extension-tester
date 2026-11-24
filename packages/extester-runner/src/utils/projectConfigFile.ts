@@ -71,18 +71,37 @@ function readRunnerSection(runner: unknown, root: string, result: Record<string,
 		throw new Error('"runner" must be an object.');
 	}
 	for (const [key, value] of Object.entries(runner)) {
-		if (runnerStringKeys.has(key) && typeof value === 'string') {
-			result[key] = toRootRelative(root, value, key);
-		} else if (runnerGlobKeys.has(key) && typeof value === 'string') {
-			result[key] = toRootRelativeGlob(root, value, key);
-		} else if (key === 'runSources' && typeof value === 'boolean') {
-			result[key] = value;
-		} else if (key === 'additionalArgs' && Array.isArray(value) && value.every((arg) => typeof arg === 'string')) {
-			result[key] = value;
-		} else {
-			throw new Error(`Unknown setting or invalid value for "runner.${key}".`);
+		result[key] = readRunnerValue(key, value, root);
+	}
+}
+
+function isStringArray(value: unknown): value is string[] {
+	return Array.isArray(value) && value.every((item) => typeof item === 'string');
+}
+
+function isStringRecord(value: unknown): value is Record<string, string> {
+	return isObject(value) && Object.values(value).every((item) => typeof item === 'string');
+}
+
+/** Convert one value of the `runner` section to the value of the Runner setting with the same name. */
+function readRunnerValue(key: string, value: unknown, root: string): unknown {
+	if (typeof value === 'string') {
+		if (runnerStringKeys.has(key)) {
+			return toRootRelative(root, value, key);
+		}
+		if (runnerGlobKeys.has(key)) {
+			return toRootRelativeGlob(root, value, key);
+		}
+		if (key === 'preRunTask') {
+			return value;
 		}
 	}
+	const valid =
+		(key === 'runSources' && typeof value === 'boolean') || (key === 'additionalArgs' && isStringArray(value)) || (key === 'env' && isStringRecord(value));
+	if (!valid) {
+		throw new Error(`Unknown setting or invalid value for "runner.${key}".`);
+	}
+	return value;
 }
 
 /**

@@ -103,6 +103,10 @@ export interface ExTesterRunnerConfig {
 	runSources?: boolean;
 	/** Additional arguments for `extest setup-and-run`. */
 	additionalArgs?: string[];
+	/** Environment variables for the test run, such as credentials or feature flags read by the tests. */
+	env?: Record<string, string>;
+	/** VS Code task to run before the tests, such as `npm: compile`. The tests start only when it succeeds. */
+	preRunTask?: string;
 }
 
 /**

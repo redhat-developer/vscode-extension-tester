@@ -382,6 +382,8 @@ Read only by the [ExTester Runner](/vscode-extension-tester/guides/extester-runn
 | `outputFolder`   | string   | `out`                     | Folder with the compiled JavaScript tests                                            |
 | `runSources`     | boolean  | `false`                   | Run the TypeScript sources instead of the compiled tests                             |
 | `additionalArgs` | string[] | `[]`                      | Additional arguments for `extest setup-and-run`                                      |
+| `env` | object | `{}` | Environment variables for test runs, as names and string values |
+| `preRunTask` | string | — | VS Code task to run before each test run, such as `npm: compile` |
 
 ### Editor autocomplete
 
