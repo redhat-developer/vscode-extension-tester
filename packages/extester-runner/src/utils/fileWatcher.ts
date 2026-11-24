@@ -17,19 +17,19 @@
 
 import * as vscode from 'vscode';
 import { Logger } from '../logger/logger';
-import { ExtesterTreeProvider } from '../providers/extesterTreeProvider';
+import { TestFileDiscovery } from '../testing/testFileDiscovery';
 import { getRunnerConfiguration, shouldReportConfigurationError } from './projectConfiguration';
 import { replaceWatchers } from './watcherStore';
 
 /**
  * Creates (or re-creates) one file system watcher per workspace folder for its `testFileGlob`,
- * which refreshes the test view when test files are created, changed or deleted.
+ * which finds the test files again when test files are created, changed or deleted.
  *
  * @param {vscode.ExtensionContext} context - The extension context that disposes of the watchers.
- * @param {ExtesterTreeProvider} provider - The tree data provider of the test view.
+ * @param {TestFileDiscovery} provider - Finds the test files again when they change.
  * @param {Logger} logger - The logging utility.
  */
-export function createFileWatcher(context: vscode.ExtensionContext, provider: ExtesterTreeProvider, logger: Logger) {
+export function createFileWatcher(context: vscode.ExtensionContext, provider: TestFileDiscovery, logger: Logger) {
 	replaceWatchers(context, 'tests', () => {
 		const patterns = (vscode.workspace.workspaceFolders ?? []).flatMap((folder) => {
 			try {

@@ -21,7 +21,8 @@ import { randomUUID } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { rm } from 'node:fs/promises';
 import { Logger } from '../logger/logger';
-import { ExtesterTreeProvider, folderLabel } from '../providers/extesterTreeProvider';
+import { TestFileDiscovery, folderLabel } from './testFileDiscovery';
+import { clearProjectConfigurationCache } from '../utils/projectConfiguration';
 import { listRunTargets } from '../utils/runTargets';
 import { TestRunManager } from '../tasks/runManager';
 import { RunResult, TestRunner } from '../tasks/TestRunnerTask';
@@ -59,9 +60,8 @@ const REFRESH_DELAY = 300;
 /**
  * Shows the discovered UI tests in VS Code's Testing view and runs them from there.
  *
- * Tests are run with the same tasks as the UI Tests view, one task at a time through the run manager,
- * so the status bar, Stop, notifications, `preRunTask` and `env` work the same way. The result of each
- * test comes from a small hook preloaded into the `extest` process (see `resultHook.ts`).
+ * Tests run in VS Code tasks, one task at a time through the run manager, with `preRunTask` and `env`.
+ * The result of each test comes from a small hook preloaded into the `extest` process (see `resultHook.ts`).
  */
 export class TestExplorer implements vscode.Disposable {
 	private readonly controller: vscode.TestController;
@@ -73,25 +73,29 @@ export class TestExplorer implements vscode.Disposable {
 	/**
 	 * Creates the test controller and fills it with the discovered tests.
 	 *
-	 * @param {ExtesterTreeProvider} provider - Discovers the test files.
+	 * @param {TestFileDiscovery} provider - Discovers the test files.
 	 * @param {TestRunManager} runManager - Runs one test task at a time.
 	 * @param {string} hookPath - Absolute path of the bundled result hook.
 	 * @param {() => string | undefined} getScreenshotsRoot - The folder ExTester writes screenshot folders to.
 	 * @param {Logger} logger - The logger instance for logging messages.
 	 */
 	constructor(
-		private readonly provider: ExtesterTreeProvider,
+		private readonly provider: TestFileDiscovery,
 		private readonly runManager: TestRunManager,
 		private readonly hookPath: string,
 		private readonly getScreenshotsRoot: () => string | undefined,
 		private readonly logger: Logger,
 	) {
 		this.controller = vscode.tests.createTestController('extesterRunner', 'ExTester');
-		this.controller.refreshHandler = () => this.provider.refresh();
+		// Refresh Tests also reads the configuration files again, e.g. after a change in a base file they extend.
+		this.controller.refreshHandler = () => {
+			clearProjectConfigurationCache();
+			return this.provider.refresh();
+		};
 		this.controller.createRunProfile('Run', vscode.TestRunProfileKind.Run, (request, token) => this.runHandler(request, token), true);
 		this.disposables.push(
 			this.controller,
-			provider.onDidChangeTreeData(() => this.scheduleRefresh()),
+			provider.onDidChange(() => this.scheduleRefresh()),
 		);
 		this.scheduleRefresh();
 	}
@@ -113,7 +117,7 @@ export class TestExplorer implements vscode.Disposable {
 	 */
 	private async refresh(): Promise<void> {
 		const generation = ++this.refreshGeneration;
-		const files = await this.provider.getAllAbsolutePaths();
+		const files = this.provider.getTestFiles();
 		const parsed = await Promise.all(
 			files.map(async (file) => {
 				try {

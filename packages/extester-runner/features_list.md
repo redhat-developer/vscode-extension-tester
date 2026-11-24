@@ -3,7 +3,7 @@
 ExTester Runner contributes a test controller (`extesterRunner`, label **ExTester**) to VS Code's Testing view (`src/testing/testExplorer.ts`):
 
 - Test items: folder (one per folder that contains test files) → file → `describe` block → `it` test. Item ids join the titles with `›` (never `\0`, which VS Code rejects).
-- Discovery comes from `ExtesterTreeProvider` (glob search, file watching, configuration) and `listRunTargets` (`src/utils/runTargets.ts`), which parses `describe`/`it` blocks from the sources.
+- Discovery comes from `TestFileDiscovery` (`src/testing/testFileDiscovery.ts`: glob search per workspace folder, refreshed by file and configuration watchers) and `listRunTargets` (`src/utils/runTargets.ts`), which parses `describe`/`it` blocks from the sources.
 - Tests marked `.only`/`.skip` get `only`/`skip` as their description, and own or inherited modifiers as the tags `only`/`skip` (filter `@extesterRunner:only`). Files that contain `.only` get the description `.only`.
 - One run profile, **Run** (default). `refreshHandler` refreshes discovery.
 - The run handler creates one task per requested item (`RunFolderTask`, `RunFileTask`, `RunTestTask`), or one `RunAllTestsTask` per workspace folder when all tests run, and runs them one after another through `TestRunManager.startGroup` (one run at a time; a second run offers to stop the first).

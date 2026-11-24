@@ -16,8 +16,7 @@
  */
 
 import * as vscode from 'vscode';
-import { registerViewCommands } from './viewCommands';
-import { ExtesterTreeProvider } from '../providers/extesterTreeProvider';
+import { TestFileDiscovery } from '../testing/testFileDiscovery';
 import { Logger } from '../logger/logger';
 import { settingsWatcher } from '../utils/settingsWatcher';
 import { ScreenshotsTreeProvider } from '../providers/screenshotsTreeProvider';
@@ -31,27 +30,25 @@ import { registerLogsCommands } from './logsCommands';
  * This function sets up the core command registration and settings watching logic for the extension.
  * It organizes and registers commands across multiple domains, including:
  *
- * - **View Management** (`registerViewCommands`): Registers commands for refreshing and controlling custom views.
  * - **Screenshots Management** (`registerScreenshotsCommands`): Registers commands to handle screenshot viewing and actions.
  * - **Log Management** (`registerLogsCommands`): Registers commands for managing and displaying logs.
  * - **Settings Watcher** (`settingsWatcher`): Sets up watchers for configuration changes to trigger view updates.
  *
  * @param {vscode.ExtensionContext} context - The extension context, used for registering commands.
- * @param {ExtesterTreeProvider} treeDataProvider - The tree data provider for tests views.
+ * @param {TestFileDiscovery} testFileDiscovery - Finds the test files.
  * @param {ScreenshotsTreeProvider} screenshotsDataProvider - The tree data provider for screenshots view.
  * @param {LogsTreeProvider} logsDataProvider - The tree data provider for managing for logs view.
  * @param {Logger} logger - The logging utility for debugging and error tracking.
  */
 export function registerCommands(
 	context: vscode.ExtensionContext,
-	treeDataProvider: ExtesterTreeProvider,
+	testFileDiscovery: TestFileDiscovery,
 	screenshotsDataProvider: ScreenshotsTreeProvider,
 	logsDataProvider: LogsTreeProvider,
 	logger: Logger,
 ) {
 	logger.debug('Registering commands and relevant settings watcher');
-	registerViewCommands(context, treeDataProvider, logger);
 	registerScreenshotsCommands(context, screenshotsDataProvider, logger);
 	registerLogsCommands(context, logsDataProvider, logger);
-	settingsWatcher(context, treeDataProvider, screenshotsDataProvider, logsDataProvider, logger);
+	settingsWatcher(context, testFileDiscovery, screenshotsDataProvider, logsDataProvider, logger);
 }

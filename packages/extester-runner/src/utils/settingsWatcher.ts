@@ -17,7 +17,7 @@
 
 import * as vscode from 'vscode';
 import { Logger } from '../logger/logger';
-import { ExtesterTreeProvider } from '../providers/extesterTreeProvider';
+import { TestFileDiscovery } from '../testing/testFileDiscovery';
 import { ScreenshotsTreeProvider } from '../providers/screenshotsTreeProvider';
 import { LogsTreeProvider } from '../providers/logsTreeProvider';
 import { createScreenshotsWatcher } from './screenshotsWatcher';
@@ -34,7 +34,7 @@ import { clearProjectConfigurationCache, getProjectConfigPattern } from './proje
  */
 export function settingsWatcher(
 	context: vscode.ExtensionContext,
-	treeDataProvider: ExtesterTreeProvider,
+	testFileDiscovery: TestFileDiscovery,
 	screenshotsDataProvider: ScreenshotsTreeProvider,
 	logsDataProvider: LogsTreeProvider,
 	logger: Logger,
@@ -45,7 +45,7 @@ export function settingsWatcher(
 	};
 	const createWatchers = () => {
 		try {
-			createFileWatcher(context, treeDataProvider, logger);
+			createFileWatcher(context, testFileDiscovery, logger);
 			createResourceWatchers();
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
@@ -56,7 +56,7 @@ export function settingsWatcher(
 	const refresh = () => {
 		clearProjectConfigurationCache();
 		createWatchers();
-		void treeDataProvider.refresh();
+		void testFileDiscovery.refresh();
 		logsDataProvider.refresh();
 		screenshotsDataProvider.refresh();
 	};

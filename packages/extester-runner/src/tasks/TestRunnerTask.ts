@@ -91,7 +91,7 @@ export abstract class TestRunner extends Task {
 	}
 
 	/**
-	 * The name of the run, shown in the status bar and notifications.
+	 * The name of the run, shown in the task terminal and the log.
 	 */
 	public get runLabel(): string {
 		return this.label;
@@ -120,8 +120,7 @@ export abstract class TestRunner extends Task {
 			this.logger.error(`Test execution failed: ${this.label} - ${error}`);
 			return { outcome: 'unknown' };
 		} finally {
-			this.logger.debug('Refreshing all trees after test run.');
-			void vscode.commands.executeCommand('extester-runner.refreshTests');
+			this.logger.debug('Refreshing the Screenshots and Logs views after the test run.');
 			void vscode.commands.executeCommand('extester-runner.refreshLogs');
 			void vscode.commands.executeCommand('extester-runner.refreshScreenshots');
 		}
