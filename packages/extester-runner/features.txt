@@ -85,6 +85,9 @@ View settings:
     Ignore Path Part removes part of string from folders (/src/test/abcd can be presented as abcd only)
     Test File Glob specifies prescription for file searching
 Command Line Settings:
+    Run Sources:
+        - when active, test sources are passed to setup-and-run as they are (Out and Root folders are ignored)
+        - requires ExTester 8.29.0+ and tsx resolvable from the first workspace folder (checked by ExTester, not by Runner!)
     Adding additional args will add this arguments to setup-and-run command
         - they're added "as it is" so it's recommended to add single quotes to paths
     Out folder is used for test execution
@@ -103,8 +106,8 @@ Logs View settings:
     Hide Empty Log Folders:
         - when active, only folders with content are showed in Logs view
 Walkthrough: 
-    Configure Root and Output Directories
-        - links leads to relative workspace setting
+    Choose Compiled Tests or TypeScript Sources
+        - links leads to relative workspace setting (Root Folder, Output Folder, Run Sources)
     Configure Test File Pattern
         - links leads to relative workspace setting
     Configure Excluded Paths

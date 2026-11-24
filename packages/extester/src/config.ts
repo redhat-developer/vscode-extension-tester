@@ -83,6 +83,29 @@ export interface ExTesterRunConfig {
 }
 
 /**
+ * Runner section of `extester.config.json`.
+ * Read only by the ExTester Runner VS Code extension; the `extest` CLI ignores it.
+ * The VS Code version, release type and storage folder are not repeated here: the Runner
+ * reads them from the `setup` and `run` sections.
+ */
+export interface ExTesterRunnerConfig {
+	/** Glob pattern that discovers test files (e.g. `src/ui-test/**\/*.test.ts`). */
+	testFileGlob?: string;
+	/** Glob pattern of paths excluded from test discovery. */
+	excludeGlob?: string;
+	/** Leading path segment hidden from folder names in the Runner's test view. */
+	ignorePathPart?: string;
+	/** Folder with the TypeScript test sources. Its segments are dropped when mapping a test to `outputFolder`. */
+	rootFolder?: string;
+	/** Folder with the compiled JavaScript tests. */
+	outputFolder?: string;
+	/** Run the TypeScript test sources instead of the compiled JavaScript in `outputFolder`. */
+	runSources?: boolean;
+	/** Additional arguments for `extest setup-and-run`. */
+	additionalArgs?: string[];
+}
+
+/**
  * Shape of `extester.config.json`.
  *
  * @example
@@ -106,6 +129,8 @@ export interface ExTesterConfig {
 	setup?: ExTesterSetupConfig;
 	/** Run options: test execution inside VS Code. */
 	run?: ExTesterRunConfig;
+	/** ExTester Runner options: test discovery and execution from the VS Code extension. */
+	runner?: ExTesterRunnerConfig;
 }
 
 /** Path-valued keys in ExTesterSetupConfig that must be resolved relative to the config file. */
@@ -116,6 +141,12 @@ const RUN_PATH_KEYS: (keyof ExTesterRunConfig)[] = ['storage', 'extensionsDir', 
 
 /** Path-valued array keys in ExTesterRunConfig whose entries are plain paths (not glob patterns). */
 const RUN_PATH_ARRAY_KEYS: (keyof ExTesterRunConfig)[] = ['resources'];
+
+/** Path-valued keys in ExTesterRunnerConfig that must be resolved relative to the config file. */
+const RUNNER_PATH_KEYS: (keyof ExTesterRunnerConfig)[] = ['rootFolder', 'outputFolder', 'ignorePathPart'];
+
+/** Glob-valued keys in ExTesterRunnerConfig that must be resolved relative to the config file. */
+const RUNNER_GLOB_KEYS: (keyof ExTesterRunnerConfig)[] = ['testFileGlob', 'excludeGlob'];
 
 /**
  * Resolves a glob pattern relative to a base directory while preserving the glob syntax.
@@ -185,6 +216,23 @@ function resolvePaths(config: ExTesterConfig, baseDir: string): ExTesterConfig {
 			run.testFiles = run.testFiles.map((v: string) => (typeof v === 'string' ? resolveGlobPattern(baseDir, v) : v));
 		}
 		config = { ...config, run };
+	}
+
+	if (isPlainObject(config.runner)) {
+		const runner: Record<string, unknown> = { ...config.runner };
+		for (const key of RUNNER_PATH_KEYS) {
+			const val = runner[key];
+			if (typeof val === 'string' && !path.isAbsolute(val)) {
+				runner[key] = path.resolve(baseDir, val);
+			}
+		}
+		for (const key of RUNNER_GLOB_KEYS) {
+			const val = runner[key];
+			if (typeof val === 'string') {
+				runner[key] = resolveGlobPattern(baseDir, val);
+			}
+		}
+		config = { ...config, runner };
 	}
 
 	return config;
@@ -342,6 +390,32 @@ function safeConfigPath(filePath: string): string {
 	}
 
 	return resolved;
+}
+
+/**
+ * Loads a known `extester.config.json` file, including its `extends` bases, for tools
+ * that read the configuration outside the `extest` CLI (e.g. the ExTester Runner extension).
+ *
+ * Unlike {@link loadConfig}, the path is not restricted to the current working directory:
+ * it is chosen by the calling tool (for the Runner, from the open workspace), not taken from
+ * process input. It is canonicalised and must be a `.json` file. Paths in the file are
+ * resolved as in {@link loadConfig}, so the `runner` section receives absolute paths and globs.
+ *
+ * @param configPath Path of the config file. Throws when it does not exist or is invalid.
+ * @returns Parsed, merged and path-resolved {@link ExTesterConfig}.
+ */
+export function loadConfigFile(configPath: string): ExTesterConfig {
+	const resolved = path.resolve(configPath);
+	let canonical: string;
+	try {
+		canonical = realpathSync(resolved);
+	} catch {
+		throw new Error(`extester config: file not found: ${resolved}`);
+	}
+	if (path.extname(canonical).toLowerCase() !== '.json') {
+		throw new Error(`extester config: config file must be a .json file: ${canonical}`);
+	}
+	return loadConfigWithExtends(canonical, []);
 }
 
 /**

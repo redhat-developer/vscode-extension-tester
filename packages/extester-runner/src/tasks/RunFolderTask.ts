@@ -16,96 +16,43 @@
  */
 
 import * as vscode from 'vscode';
-import { ShellExecution, TaskScope, workspace } from 'vscode';
 import { TestRunner } from './TestRunnerTask';
-import * as path from 'path';
 import { Logger } from '../logger/logger';
+import { createTestExecution, getTaskConfiguration } from './taskConfiguration';
+import { getFolderTarget, getTestTargetSettings } from './testTarget';
 
 /**
  * Task for running all test files within a specified folder.
  *
  * This task executes all test files located within a given folder by converting the
- * folder path to match the compiled output structure. It retrieves necessary configurations
- * and constructs the appropriate command for execution using `extest`.
+ * folder path to match the compiled output structure, or by globbing the source folder
+ * when `runSources` is enabled. It retrieves necessary configurations and constructs the
+ * appropriate command for execution using `extest`.
  */
 export class RunFolderTask extends TestRunner {
 	/**
 	 * Creates an instance of the `RunFolderTask`.
 	 *
-	 * This constructor retrieves configurations, transforms the folder path to match the
-	 * compiled output structure, and sets up the shell execution command.
+	 * This constructor retrieves the configuration of the workspace folder that owns the folder,
+	 * transforms the folder path to match the compiled output structure (unless `runSources` is enabled),
+	 * and sets up the shell execution command.
 	 *
 	 * @param {string} folder - The absolute path of the folder containing test files.
 	 * @param {Logger} logger - The logger instance for logging messages.
+	 * @throws {Error} When no workspace folder is open or the configuration is invalid.
 	 */
 	constructor(folder: string, logger: Logger) {
-		const configuration = workspace.getConfiguration('extesterRunner');
-		const workspaceFolder = workspace.workspaceFolders?.[0]?.uri.fsPath;
-
-		if (!workspaceFolder) {
-			logger.error('No workspace folder found.');
-			vscode.window.showErrorMessage(`No workspace folder found.`);
-			throw new Error('No workspace folder found.');
-		}
+		const { owner, configuration, workspaceFolder } = getTaskConfiguration(vscode.Uri.file(folder));
 
 		// Get configuration values.
-		const outputFolder = configuration.get<string>('outputFolder') ?? 'out';
-		const rootFolder = configuration.get<string>('rootFolder');
-		const tempDirSettings = configuration.get<string>('tempFolder');
-		logger.info(`RunFolderTask: outputFolder: ${outputFolder}, rootFolder: ${rootFolder}`);
-		logger.info(`RunFolderTask: rootFolder: ${rootFolder}`);
-		logger.info(`RunFolderTask: tempDirSettings: ${tempDirSettings}`);
-
-		// Convert folder path to relative path.
-		const folderPath = path.resolve(folder);
-		const relativePath = path.relative(workspaceFolder, folderPath);
-
-		// Get test file pattern from configuration.
-		const testFileGlob = configuration.get<string>('testFileGlob') ?? '**/ui-test/**/*.test.ts';
-		logger.debug(`RunFolderTask: Using glob pattern: ${testFileGlob}`);
-
-		// Split paths into segments.
-		const outputSegments = outputFolder.split(/[/\\]/).filter(Boolean);
-		const rootSegments = rootFolder ? rootFolder.split(/[/\\]/).filter(Boolean) : [];
-		const relativeSegments = relativePath.split(/[/\\]/).filter(Boolean);
-		logger.debug(
-			`RunFolderTask: Path segments - Output: ${JSON.stringify(outputSegments)}, Root: ${JSON.stringify(rootSegments)}, Relative: ${JSON.stringify(relativeSegments)}`,
-		);
-
-		// Find matching segments between root and relative paths.
-		const matchingSegmentsCount =
-			rootSegments.length > 0 ? rootSegments.reduce((count, segment, i) => (relativeSegments[i] === segment ? count + 1 : count), 0) : 0;
+		const settings = getTestTargetSettings(configuration);
+		logger.info(`RunFolderTask: runSources: ${settings.runSources}, outputFolder: ${settings.outputFolder}, rootFolder: ${settings.rootFolder}`);
+		logger.debug(`RunFolderTask: Using glob pattern: ${settings.testFileGlob}`);
 
 		// Build final path for test execution.
-		const testFileGlobSegments = testFileGlob.split(/[/\\]/).filter(Boolean);
-		const testFilePattern = testFileGlobSegments[testFileGlobSegments.length - 1].replace(/\.ts$/, '.js');
-
-		const finalPath = path.join(workspaceFolder, outputFolder, ...relativeSegments.slice(matchingSegmentsCount), testFilePattern);
+		const finalPath = getFolderTarget(folder, workspaceFolder, settings);
 		logger.debug(`RunFolderTask: Final path: ${finalPath}`);
 
-		// Prepare command arguments.
-		const storageArgs = tempDirSettings && tempDirSettings.trim().length > 0 ? ['--storage', `'${tempDirSettings}'`] : [];
-		const visualStudioCodeVersion = configuration.get<string>('visualStudioCode.Version');
-		const versionArgs = visualStudioCodeVersion ? ['--code_version', visualStudioCodeVersion] : [];
-		const visualStudioCodeType = configuration.get<string>('visualStudioCode.Type');
-		const typeArgs = visualStudioCodeType ? ['--type', visualStudioCodeType] : [];
-		const additionalArgs = configuration.get<string[]>('additionalArgs', []) ?? [];
-		const processedArgs = additionalArgs.flatMap((arg) => arg.match(/(?:[^\s"]+|"[^"]*")+/g) ?? []);
-
-		// Create and execute shell command.
-		const shellExecution = new ShellExecution('npx', [
-			'extest',
-			'setup-and-run',
-			`'${finalPath}'`,
-			...storageArgs,
-			...versionArgs,
-			...typeArgs,
-			...processedArgs,
-		]);
-
-		const commandString = `npx extest setup-and-run '${finalPath}' ${storageArgs.join(' ')} ${versionArgs.join(' ')} ${typeArgs.join(' ')} ${additionalArgs.join(' ')}`;
-		logger.info(`RunFolderTask: Running command: ${commandString}`);
-
-		super(TaskScope.Workspace, 'Run Test Folder', shellExecution, logger);
+		super(owner, 'Run Test Folder', createTestExecution(owner, configuration, finalPath, logger), logger);
 	}
 }

@@ -23,18 +23,14 @@ import { LogsTreeProvider } from '../providers/logsTreeProvider';
 import { createScreenshotsWatcher } from './screenshotsWatcher';
 import { createLogsWatcher } from './logWatcher';
 import { createFileWatcher } from './fileWatcher';
+import { replaceWatchers } from './watcherStore';
+import { clearProjectConfigurationCache, getProjectConfigPattern } from './projectConfiguration';
 
 /**
- * Registers a settings watcher to detect configuration changes related to `extesterRunner`
- * and trigger a refresh of the view.
+ * Watch the `extesterRunner` settings and the ExTester configuration file of each workspace root,
+ * and keep the views and file watchers in line with them.
  *
- * This function listens for workspace configuration changes and refreshes the test explorer
- * whenever any setting under `extesterRunner` is updated. Ensures that updates to user-defined
- * settings are applied without requiring a manual reload.
- *
- * @param context - The extension context used to register disposables.
- * @param treeDataProvider - The tree data provider responsible for managing the test explorer view.
- * @param logger - Logger instance for logging configuration changes.
+ * At startup only the watchers are created: the views have already loaded their content.
  */
 export function settingsWatcher(
 	context: vscode.ExtensionContext,
@@ -43,24 +39,56 @@ export function settingsWatcher(
 	logsDataProvider: LogsTreeProvider,
 	logger: Logger,
 ) {
+	const createResourceWatchers = () => {
+		createLogsWatcher(context, logsDataProvider, logger);
+		createScreenshotsWatcher(context, screenshotsDataProvider, logger);
+	};
+	const createWatchers = () => {
+		try {
+			createFileWatcher(context, treeDataProvider, logger);
+			createResourceWatchers();
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			logger.error(message);
+			void vscode.window.showErrorMessage(message);
+		}
+	};
+	const refresh = () => {
+		clearProjectConfigurationCache();
+		createWatchers();
+		void treeDataProvider.refresh();
+		logsDataProvider.refresh();
+		screenshotsDataProvider.refresh();
+	};
+	const watchProjectFiles = () =>
+		replaceWatchers(context, 'configuration', () =>
+			(vscode.workspace.workspaceFolders ?? []).flatMap((folder) => {
+				const pattern = getProjectConfigPattern(folder);
+				logger.debug(`Watching ExTester configuration file ${folder.uri.fsPath}: ${pattern}`);
+				const watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(folder, pattern));
+				return [watcher, watcher.onDidCreate(refresh), watcher.onDidChange(refresh), watcher.onDidDelete(refresh)];
+			}),
+		);
+	watchProjectFiles();
+	createWatchers();
 	context.subscriptions.push(
 		vscode.workspace.onDidChangeConfiguration((event) => {
 			if (event.affectsConfiguration('extesterRunner')) {
 				logger.debug('SettingsWatcher: Setting was changed, refreshing views.');
-				void treeDataProvider.refresh();
-				logsDataProvider.refresh();
-				screenshotsDataProvider.refresh();
-
-				if (event.affectsConfiguration('extesterRunner.tempFolder')) {
-					logger.info('SettingsWatcher: tempFolder setting changed — resetting screenshots and logs watcher');
-					createScreenshotsWatcher(context, screenshotsDataProvider, logger);
-					createLogsWatcher(context, logsDataProvider, logger);
+				if (event.affectsConfiguration('extesterRunner.configFile')) {
+					watchProjectFiles();
 				}
-
-				if (event.affectsConfiguration('extesterRunner.testFileGlob')) {
-					logger.info('SettingsWatcher: testFileGlob setting changed — resetting file watcher');
-					createFileWatcher(context, treeDataProvider, logger);
-				}
+				refresh();
+			}
+		}),
+		vscode.workspace.onDidChangeWorkspaceFolders(() => {
+			watchProjectFiles();
+			refresh();
+		}),
+		// A test run creates the logs and screenshots folders, which cannot be watched before they exist.
+		vscode.tasks.onDidEndTask((event) => {
+			if (event.execution.task.source === 'extester-runner') {
+				createResourceWatchers();
 			}
 		}),
 	);

@@ -21,6 +21,49 @@ import { RunFileTask } from '../tasks/RunFileTask';
 import { Logger } from '../logger/logger';
 import { RunFolderTask } from '../tasks/RunFolderTask';
 import { ExtesterTreeProvider } from '../providers/extesterTreeProvider';
+import { TestRunner } from '../tasks/TestRunnerTask';
+import { getProjectConfigurationError } from '../utils/projectConfiguration';
+
+/**
+ * Create and execute a test task. Creating a task fails, for example, when the ExTester configuration
+ * file is invalid; the error is shown to the user instead of VS Code's generic "command failed" message.
+ *
+ * @param {string} target - What is run, used in the error message.
+ * @param {() => TestRunner} createTask - Creates the task to execute.
+ * @param {Logger} logger - Logger instance for reporting errors.
+ */
+async function runTask(target: string, createTask: () => TestRunner, logger: Logger): Promise<void> {
+	let task: TestRunner;
+	try {
+		task = createTask();
+	} catch (error) {
+		const message = `Cannot run ${target}: ${error instanceof Error ? error.message : String(error)}`;
+		logger.error(message);
+		void vscode.window.showErrorMessage(message);
+		return;
+	}
+	await task.execute();
+}
+
+/**
+ * Run all tests of one workspace folder, or log why the folder is skipped.
+ * A configuration error in one folder does not prevent the other folders from running.
+ *
+ * @param {vscode.WorkspaceFolder} folder - The workspace folder to run.
+ * @param {string[]} allFiles - Absolute paths of all discovered test files.
+ * @param {Logger} logger - Logger instance.
+ */
+async function runAllInFolder(folder: vscode.WorkspaceFolder, allFiles: string[], logger: Logger): Promise<void> {
+	const files = allFiles.filter((file) => vscode.workspace.getWorkspaceFolder(vscode.Uri.file(file))?.uri.toString() === folder.uri.toString());
+	if (files.length) {
+		await runTask(`tests in ${folder.name}`, () => new RunAllTestsTask(files, logger), logger);
+		return;
+	}
+	// Test discovery finds no files in a root whose configuration file is invalid; say why it is skipped.
+	const error = getProjectConfigurationError(folder.uri);
+	const reason = error ? 'its configuration is invalid: ' + error.message : 'no test files found';
+	logger.info(`Run All: skipping ${folder.name}, ${reason}.`);
+}
 
 /**
  * Registers test-related commands for the VS Code extension.
@@ -35,14 +78,17 @@ import { ExtesterTreeProvider } from '../providers/extesterTreeProvider';
 export function registerTestCommands(context: vscode.ExtensionContext, treeDataProvider: ExtesterTreeProvider, logger: Logger) {
 	/**
 	 * Registers the `extester-runner.runAll` command.
-	 * This command triggers the execution of all available tests in the workspace.
+	 * This command runs the tests of each workspace folder, one folder after another.
 	 */
 	context.subscriptions.push(
 		vscode.commands.registerCommand('extester-runner.runAll', async () => {
 			logger.debug('Command triggered: extester-runner.runAll');
 			const allFiles = await treeDataProvider.getAllAbsolutePaths();
-			const task = new RunAllTestsTask(allFiles, logger);
-			await task.execute();
+			// Test tasks share runner resources, so chain the roots: each starts after the previous one ended.
+			await (vscode.workspace.workspaceFolders ?? []).reduce(
+				(previous, folder) => previous.then(() => runAllInFolder(folder, allFiles, logger)),
+				Promise.resolve(),
+			);
 		}),
 	);
 
@@ -53,8 +99,7 @@ export function registerTestCommands(context: vscode.ExtensionContext, treeDataP
 	context.subscriptions.push(
 		vscode.commands.registerCommand('extester-runner.runFolder', async (item) => {
 			logger.debug(`Command triggered: extester-runner.runFolder for folder ${item.folderPath}`);
-			const task = new RunFolderTask(item.folderPath, logger);
-			await task.execute();
+			await runTask(item.folderPath, () => new RunFolderTask(item.folderPath, logger), logger);
 		}),
 	);
 
@@ -65,8 +110,7 @@ export function registerTestCommands(context: vscode.ExtensionContext, treeDataP
 	context.subscriptions.push(
 		vscode.commands.registerCommand('extester-runner.runFile', async (item) => {
 			logger.debug(`Command triggered: extester-runner.runFile for file ${item.filePath}`);
-			const task = new RunFileTask(item.filePath, logger);
-			await task.execute();
+			await runTask(item.filePath, () => new RunFileTask(item.filePath, logger), logger);
 		}),
 	);
 }

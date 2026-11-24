@@ -19,7 +19,7 @@ import assert from 'assert';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { loadConfig } from '../config';
+import { loadConfig, loadConfigFile } from '../config';
 
 /**
  * Creates a temporary directory, writes an extester.config.json with the given content,
@@ -207,6 +207,82 @@ describe('loadConfig', () => {
 				assert.strictEqual(cfg.setup?.storage, absPath);
 			} finally {
 				fs.rmSync(path.dirname(file), { recursive: true });
+			}
+		});
+	});
+
+	describe('runner section', () => {
+		it('resolves runner paths and globs relative to the config file directory and keeps other values', async () => {
+			const { dir, file } = makeTmpConfig(
+				JSON.stringify({
+					runner: {
+						testFileGlob: 'src/ui-test/**/*.test.ts',
+						excludeGlob: '**/node_modules/**',
+						ignorePathPart: 'src/ui-test/',
+						rootFolder: 'src',
+						outputFolder: 'out',
+						runSources: true,
+						additionalArgs: ['--log_level Debug'],
+					},
+				}),
+			);
+			const dirFwd = dir.split(path.sep).join('/');
+			try {
+				const cfg = await loadConfig(file);
+				assert.deepStrictEqual(cfg.runner, {
+					testFileGlob: `${dirFwd}/src/ui-test/**/*.test.ts`,
+					excludeGlob: `${dirFwd}/**/node_modules/**`,
+					ignorePathPart: path.resolve(dir, 'src/ui-test'),
+					rootFolder: path.resolve(dir, 'src'),
+					outputFolder: path.resolve(dir, 'out'),
+					runSources: true,
+					additionalArgs: ['--log_level Debug'],
+				});
+			} finally {
+				fs.rmSync(dir, { recursive: true });
+			}
+		});
+
+		it('resolves runner paths of an extended base against the base file directory', async () => {
+			const { dir, file } = makeTmpConfig(JSON.stringify({ extends: './shared/base.json', runner: { outputFolder: 'out' } }));
+			writeExtraConfig(dir, 'shared/base.json', JSON.stringify({ runner: { rootFolder: 'src', outputFolder: 'base-out' } }));
+			try {
+				const cfg = await loadConfig(file);
+				assert.strictEqual(cfg.runner?.rootFolder, path.resolve(dir, 'shared', 'src'));
+				assert.strictEqual(cfg.runner?.outputFolder, path.resolve(dir, 'out'));
+			} finally {
+				fs.rmSync(dir, { recursive: true });
+			}
+		});
+	});
+
+	describe('loadConfigFile', () => {
+		it('loads a config file outside the current working directory, including its bases', () => {
+			const { dir, file } = makeTmpConfig(JSON.stringify({ extends: './base.json', run: { mochaConfig: './.mocharc.js' } }));
+			writeExtraConfig(dir, 'base.json', JSON.stringify({ setup: { vscodeVersion: 'min' } }));
+			const orig = process.cwd();
+			process.chdir(os.homedir());
+			try {
+				const cfg = loadConfigFile(file);
+				assert.strictEqual(cfg.setup?.vscodeVersion, 'min');
+				assert.strictEqual(cfg.run?.mochaConfig, path.resolve(dir, '.mocharc.js'));
+			} finally {
+				process.chdir(orig);
+				fs.rmSync(dir, { recursive: true });
+			}
+		});
+
+		it('throws a descriptive error when the file does not exist', () => {
+			assert.throws(() => loadConfigFile(path.join(os.tmpdir(), 'missing-extester-config', 'extester.config.json')), /file not found/);
+		});
+
+		it('throws when the file is not a .json file', () => {
+			const { dir } = makeTmpConfig('{}');
+			const other = writeExtraConfig(dir, 'extester.config.js', '{}');
+			try {
+				assert.throws(() => loadConfigFile(other), /must be a \.json file/);
+			} finally {
+				fs.rmSync(dir, { recursive: true });
 			}
 		});
 	});
