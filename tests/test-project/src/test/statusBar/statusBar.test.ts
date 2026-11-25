@@ -39,10 +39,19 @@ describe('StatusBar', () => {
 		await new EditorView().closeAllEditors();
 	});
 
-	it('can open and close the notification center', async () => {
+	it('can open and close the notification center', async function () {
+		this.timeout(30_000);
+		// VS Code hides the center on its own when its last notification goes away (e.g. a startup
+		// notification that times out), which can happen right after the center opened.
+		// Start from an empty center and open it again if it closed by itself.
+		await (await bar.openNotificationsCenter()).clearAllNotifications();
+		await bar.closeNotificationsCenter();
+		await waitFor(async () => await (await bar.openNotificationsCenter()).isDisplayed(), {
+			timeout: 15_000,
+			pollInterval: 500,
+			message: 'Notifications center did not open',
+		});
 		const center = await bar.openNotificationsCenter();
-		await waitFor(async () => await center.isDisplayed(), { timeout: 10000, message: 'Notifications center did not open' });
-		expect(await center.isDisplayed()).is.true;
 
 		await bar.closeNotificationsCenter();
 		await waitFor(async () => !(await center.isDisplayed()), { timeout: 10000, message: 'Notifications center did not close' });
