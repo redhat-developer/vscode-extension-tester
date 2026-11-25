@@ -16,7 +16,7 @@
  */
 
 import { AbstractElement } from '../../AbstractElement';
-import { Key, WebElement, By } from 'selenium-webdriver';
+import { Key, WebElement, By, error } from 'selenium-webdriver';
 import { NullAttributeError, QuickOpenBox } from '../../..';
 import { sep } from 'path';
 
@@ -173,8 +173,14 @@ export abstract class Input extends AbstractElement {
 	 */
 	async clear(): Promise<void> {
 		const input = await this.findElement(Input.locators.Input.inputBox).findElement(Input.locators.Input.input);
+		// The quick input can be found before it accepts keys (it is still being shown), which is
+		// slow in a hidden or Xvfb window, so retry for a moment instead of failing at once.
 		// VS Code 1.40 breaks the default clear method, use select all + back space instead
-		await input.sendKeys(Key.END, Key.chord(Key.SHIFT, Key.HOME), Key.BACK_SPACE);
+		await this.getWaitHelper().withRetry(() => input.sendKeys(Key.END, Key.chord(Key.SHIFT, Key.HOME), Key.BACK_SPACE), {
+			maxRetries: 30,
+			retryDelay: 100,
+			isRetryable: (e) => e instanceof error.ElementNotInteractableError,
+		});
 		if ((await input.getAttribute('value'))!.length > 0) {
 			await input.sendKeys(Key.END, Key.chord(Key.SHIFT, Key.HOME), Key.BACK_SPACE);
 		}

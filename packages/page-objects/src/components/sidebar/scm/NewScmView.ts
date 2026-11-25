@@ -62,6 +62,12 @@ export class SingleScmProvider extends ScmProvider {
 	}
 
 	async takeAction(title: string): Promise<boolean> {
+		// The provider header renders again while the view refreshes (slow in a hidden window),
+		// which leaves the found action buttons stale; then look them up again.
+		return await this.getWaitHelper().withRetry(() => this.takeActionOnce(title), { isRetryable: isStale });
+	}
+
+	private async takeActionOnce(title: string): Promise<boolean> {
 		const view = this.enclosingItem as NewScmView;
 		let actions: WebElement[] = [];
 		let names: string[] = [];
@@ -109,7 +115,9 @@ export class SingleScmProvider extends ScmProvider {
 
 	async openMoreActions(): Promise<ContextMenu> {
 		const view = this.enclosingItem as NewScmView;
-		return await new MoreAction(view).openContextMenu();
+		// The provider header can render again (for example right after an action ran, which is
+		// slow in a hidden window) and leave the button stale; then find it again.
+		return await this.getWaitHelper().withRetry(() => new MoreAction(view).openContextMenu(), { isRetryable: isStale });
 	}
 
 	async getChanges(staged: boolean = false): Promise<ScmChange[]> {
@@ -242,4 +250,8 @@ class MultiMoreAction extends ElementWithContextMenu {
 	constructor(scm: ScmProvider) {
 		super(MoreAction.locators.ScmView.multiMore, scm);
 	}
+}
+
+function isStale(e: Error): boolean {
+	return e.name === 'StaleElementReferenceError';
 }

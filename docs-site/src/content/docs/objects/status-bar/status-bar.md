@@ -21,7 +21,11 @@ const center = await statusbar.openNotificationsCenter();
 await statusbar.closeNotificationsCenter();
 ```
 
+`openNotificationsCenter` throws `Notifications center did not open` when the center is still closed after its retries, instead of returning a closed center.
+
 ## Editor Status
+
+The editor items (language, encoding, position, ...) appear shortly after an editor opens, so these methods wait up to 5 seconds for their item and then throw a `NoSuchElementError`.
 
 ```typescript
 // open language selection input

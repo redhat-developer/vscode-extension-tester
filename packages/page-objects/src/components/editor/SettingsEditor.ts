@@ -17,7 +17,7 @@
 
 import { Editor } from './Editor';
 import { ContextMenu } from '../menu/ContextMenu';
-import { WebElement, Key, By } from 'selenium-webdriver';
+import { WebElement, Key, By, error } from 'selenium-webdriver';
 import { AbstractElement } from '../AbstractElement';
 import { EditorView, EditorGroup, Workbench } from '../..';
 import { satisfies } from 'compare-versions';
@@ -402,7 +402,7 @@ export class ArraySetting extends Setting {
 	async getItem(item: string | number): Promise<ArraySettingItem | undefined> {
 		const row = await this.findRow(item);
 		if (row) {
-			return new ArraySettingItem(row, this);
+			return new ArraySettingItem(row, this, item);
 		}
 		return undefined;
 	}
@@ -540,7 +540,14 @@ export class ArraySetting extends Setting {
  * Represents each row of an ArraySetting array of strings
  */
 export class ArraySettingItem extends AbstractElement {
-	constructor(element: WebElement, setting: ArraySetting) {
+	/**
+	 * @param key label or index the row was found by, used to find the row again when it goes stale
+	 */
+	constructor(
+		element: WebElement,
+		setting: ArraySetting,
+		private readonly key?: string | number,
+	) {
 		super(element, setting);
 	}
 
@@ -572,15 +579,49 @@ export class ArraySettingItem extends AbstractElement {
 	 * @param value string
 	 */
 	async setValue(value: string): Promise<void> {
-		const input = await this.findElement(SettingsEditor.locators.SettingsEditor.textSetting);
-		await input.clear();
-		await input.sendKeys(value);
+		await this.typeValue(this, value, 1);
+	}
+
+	/**
+	 * VS Code can render the edit row again right after it opens (slow windows make this
+	 * visible), which leaves the row stale; then type into the edit row that is there now.
+	 */
+	private async typeValue(row: WebElement, value: string, attempt: number): Promise<void> {
+		try {
+			const input = await row.findElement(SettingsEditor.locators.SettingsEditor.textSetting);
+			await input.clear();
+			await input.sendKeys(value);
+		} catch (e) {
+			if (!(e instanceof error.StaleElementReferenceError) || attempt >= 3) {
+				throw e;
+			}
+			await this.getWaitHelper().sleep(200);
+			const editRow = await this.enclosingItem.findElement(SettingsEditor.locators.SettingsEditor.arrayEditRow);
+			await this.typeValue(editRow, value, attempt + 1);
+		}
 	}
 
 	/**
 	 * Click 'Remove Item' button
 	 */
 	async remove(): Promise<void> {
+		try {
+			await this.removeRow();
+		} catch (e) {
+			// VS Code can render the list again (slow windows make this visible), which leaves this
+			// row stale; then find the row again by the label or index it was found by and retry once.
+			if (!(e instanceof error.StaleElementReferenceError) || this.key === undefined) {
+				throw e;
+			}
+			const fresh = await (this.enclosingItem as ArraySetting).getItem(this.key);
+			if (!fresh) {
+				return; // the row is gone already
+			}
+			await fresh.removeRow();
+		}
+	}
+
+	private async removeRow(): Promise<void> {
 		await this.select();
 		const remove = await this.findElement(SettingsEditor.locators.SettingsEditor.arrayBtnConstructor('Remove Item'));
 		await remove.click();
