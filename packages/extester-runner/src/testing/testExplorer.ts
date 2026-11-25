@@ -162,9 +162,14 @@ export class TestExplorer implements vscode.Disposable {
 	 */
 	private addBlocks(fileItem: vscode.TestItem, uri: vscode.Uri, targets: TestRunTarget[]): void {
 		const byTitles = new Map<string, vscode.TestItem>();
+		const idCounts = new Map<string, number>();
 		for (const target of targets) {
 			const key = target.titles.join(TITLE_SEPARATOR);
-			const id = `${target.file}::${target.isTest ? 'it' : 'describe'}::${key}`;
+			const baseId = `${target.file}::${target.isTest ? 'it' : 'describe'}::${key}`;
+			// Two blocks with the same titles need their own ids, or the second one replaces the first.
+			const count = (idCounts.get(baseId) ?? 0) + 1;
+			idCounts.set(baseId, count);
+			const id = count === 1 ? baseId : `${baseId}::${count}`;
 			const item = this.createItem(id, target.titles.at(-1) ?? '', { kind: 'block', target }, uri);
 			item.range = new vscode.Range(target.line - 1, 0, target.line - 1, 0);
 			// Own `.only` / `.skip` next to the name; own or inherited ones as tags, so `@extesterRunner:only` filters them.
@@ -283,6 +288,10 @@ export class TestExplorer implements vscode.Disposable {
 					run.skipped(leaf.item);
 				}
 			}
+			if (!message && result.outcome === 'failed') {
+				// The command failed, for example in a root hook, but no test item shows a failure: do not show the run as passed.
+				reporter.reportRunFailure(job.items, result.exitCode);
+			}
 		} finally {
 			await reader.close();
 			await rm(resultsFile, { force: true });
@@ -298,6 +307,10 @@ export class TestExplorer implements vscode.Disposable {
 		}
 		if (!reported && result.outcome === 'failed') {
 			return new vscode.TestMessage(`The test command failed (exit code ${result.exitCode}) before any test ran. See the task terminal for its output.`);
+		}
+		if (!reported && result.outcome === 'unknown') {
+			// A debug session reports no exit code: a command that failed before the tests started ends like this.
+			return new vscode.TestMessage('The test command ended before any test ran. See the terminal for its output.');
 		}
 		return undefined;
 	}

@@ -27,6 +27,8 @@ export interface Leaf {
 	item: vscode.TestItem;
 	titles: string[];
 	done: boolean;
+	/** The result reported for the test. A test that runs more than once keeps a failure over a pass. */
+	state?: 'passed' | 'failed' | 'skipped' | 'errored';
 }
 
 /** Context value of the screenshot message, used by the "Open Screenshot" action of the failure peek. */
@@ -141,8 +143,11 @@ export function toStackFrames(stack: string): vscode.TestMessageStackFrame[] {
  * screenshot of a failed test in an `afterEach` hook, after Mocha reported the failure.
  */
 export class RunReporter {
-	private pendingFailures: { leaves: Leaf[]; event: ResultEvent }[] = [];
+	private pendingFailures: { items: vscode.TestItem[]; event: ResultEvent }[] = [];
 	private reportedAny = false;
+	private failedAny = false;
+	/** A hook failure that no test item of the job stands for, such as an `after` hook outside any `describe` block. */
+	private unattributedFailure: ResultEvent | undefined;
 
 	/**
 	 * @param {vscode.TestRun} run - The test run.
@@ -164,6 +169,11 @@ export class RunReporter {
 		return this.reportedAny;
 	}
 
+	/** Whether a test or hook failure was shown on a test item. */
+	get hasFailures(): boolean {
+		return this.failedAny;
+	}
+
 	/**
 	 * Shows one event of the results file in the test run.
 	 */
@@ -181,34 +191,127 @@ export class RunReporter {
 			this.flushFailures();
 		}
 		if (event.hook) {
-			// A failed hook stops the tests of its suite that did not run yet: fail them with the hook's error.
-			const failed = this.leaves.filter((leaf) => !leaf.done && matchesTitles(leaf.titles, event.titles, true));
-			failed.forEach((leaf) => (leaf.done = true));
-			this.pendingFailures.push({ leaves: failed, event });
+			this.reportHookFailure(event);
 			return;
 		}
-		const leaf = this.leaves.find((candidate) => !candidate.done && matchesTitles(candidate.titles, event.titles));
-		if (!leaf) {
-			this.logger.debug(`Testing view: no test item for "${event.titles.join(' > ')}"`);
-			return;
-		}
+		const open = this.leaves.find((candidate) => !candidate.done && matchesTitles(candidate.titles, event.titles));
 		switch (event.event) {
 			case 'started':
-				this.run.started(leaf.item);
+				if (open) {
+					this.run.started(open.item);
+				}
 				break;
 			case 'passed':
-				leaf.done = true;
-				this.run.passed(leaf.item, event.duration);
-				break;
-			case 'failed':
-				leaf.done = true;
-				this.pendingFailures.push({ leaves: [leaf], event });
+				if (open) {
+					this.settle(open, 'passed');
+					this.run.passed(open.item, event.duration);
+				}
 				break;
 			case 'skipped':
-				leaf.done = true;
-				this.run.skipped(leaf.item);
+				if (open) {
+					this.settle(open, 'skipped');
+					this.run.skipped(open.item);
+				}
 				break;
+			case 'failed': {
+				// A test in a loop, or a second test with the same title, can report to a test that already has a result:
+				// its failure replaces a pass, so the Testing view does not show a failed run as passed.
+				const leaf = open ?? this.findSettled(event.titles);
+				if (leaf) {
+					this.settle(leaf, 'failed');
+					this.pendingFailures.push({ items: [leaf.item], event });
+				}
+				break;
+			}
 		}
+		if (!open && event.event !== 'failed') {
+			this.logger.debug(`Testing view: no test item without a result for "${event.titles.join(' > ')}" (${event.event})`);
+		}
+	}
+
+	/**
+	 * Shows a hook failure on the tests it affects.
+	 *
+	 * - `before` and `beforeEach`: Mocha does not run the tests of the suite that are left, so they fail with the hook's error.
+	 * - `afterEach`: the test the hook ran for fails, as do the tests of the suite that Mocha no longer runs.
+	 * - `after`: all tests of the suite ran, so the `describe` block fails.
+	 *
+	 * A failure that no test item stands for, such as one in a root hook, fails the run (see {@link reportRunFailure}).
+	 */
+	private reportHookFailure(event: ResultEvent): void {
+		const items: vscode.TestItem[] = [];
+		if (event.hookType === 'after each' && event.testTitles) {
+			const ranFor = this.findSettled(event.testTitles) ?? this.leaves.find((leaf) => !leaf.done && matchesTitles(leaf.titles, event.testTitles!));
+			if (ranFor) {
+				this.settle(ranFor, 'failed');
+				items.push(ranFor.item);
+			}
+		}
+		if (event.hookType !== 'after all') {
+			for (const leaf of this.leaves.filter((candidate) => !candidate.done && matchesTitles(candidate.titles, event.titles, true))) {
+				this.settle(leaf, 'failed');
+				items.push(leaf.item);
+			}
+		}
+		if (!items.length) {
+			const suite = this.findSuite(event.titles);
+			if (suite) {
+				items.push(suite);
+			}
+		}
+		if (items.length) {
+			this.failedAny = true;
+			this.pendingFailures.push({ items, event });
+		} else {
+			this.unattributedFailure ??= event;
+			this.logger.debug(`Testing view: no test item for the failed hook of "${event.titles.join(' > ')}"`);
+		}
+	}
+
+	/**
+	 * Fails the given test items when the test command failed but no failure was shown, for example
+	 * when a root hook failed or the process crashed after the tests. Call it when the run ended.
+	 *
+	 * @param {vscode.TestItem[]} items - The test items the job ran.
+	 * @param {number | undefined} exitCode - The exit code of the test command.
+	 */
+	reportRunFailure(items: vscode.TestItem[], exitCode: number | undefined): void {
+		if (this.failedAny) {
+			return;
+		}
+		const event = this.unattributedFailure;
+		const text = `The test command failed (exit code ${exitCode ?? 'unknown'}), but no test failed. See the task terminal for its output.`;
+		// Show the error of a hook that no test item stands for, else explain the exit code.
+		const message = event?.error ? this.toMessage(event, undefined) : new vscode.TestMessage(text);
+		items.forEach((item) => this.run.errored(item, message));
+		this.failedAny = true;
+	}
+
+	private settle(leaf: Leaf, state: NonNullable<Leaf['state']>): void {
+		leaf.done = true;
+		leaf.state = state;
+		if (state === 'failed') {
+			this.failedAny = true;
+		}
+	}
+
+	/** A test with these titles that already has a result, preferring one that did not fail yet. */
+	private findSettled(titles: string[]): Leaf | undefined {
+		const settled = this.leaves.filter((leaf) => leaf.done && matchesTitles(leaf.titles, titles));
+		return settled.find((leaf) => leaf.state !== 'failed') ?? settled[0];
+	}
+
+	/** The test item of the `describe` block with these titles, found from one of its tests. */
+	private findSuite(titles: string[]): vscode.TestItem | undefined {
+		if (!titles.length) {
+			return undefined;
+		}
+		const leaf = this.leaves.find((candidate) => candidate.titles.length > titles.length && matchesTitles(candidate.titles, titles, true));
+		let item = leaf?.item;
+		for (let depth = leaf?.titles.length ?? 0; item && depth > titles.length; depth--) {
+			item = item.parent;
+		}
+		return item;
 	}
 
 	/**
@@ -226,10 +329,11 @@ export class RunReporter {
 						'(for compiled tests, check the outputFolder and rootFolder settings), or no test matched the selected title.',
 				);
 		for (const leaf of notRun) {
-			leaf.done = true;
 			if (message) {
+				this.settle(leaf, 'errored');
 				this.run.errored(leaf.item, message);
 			} else {
+				this.settle(leaf, 'skipped');
 				// Not run: filtered out by .only or grep, or reported under a title the parser could not match.
 				this.run.skipped(leaf.item);
 			}
@@ -242,14 +346,14 @@ export class RunReporter {
 	flushFailures(): void {
 		const failures = this.pendingFailures;
 		this.pendingFailures = [];
-		for (const { leaves, event } of failures) {
-			const screenshot = this.findScreenshot(event.titles);
-			for (const leaf of leaves) {
-				const messages = [this.toMessage(event, leaf.item)];
+		for (const { items, event } of failures) {
+			const screenshot = this.findScreenshot(event.testTitles ?? event.titles);
+			for (const item of items) {
+				const messages = [this.toMessage(event, item)];
 				if (screenshot) {
-					messages.push(this.toScreenshotMessage(screenshot, leaf.item));
+					messages.push(this.toScreenshotMessage(screenshot, item));
 				}
-				this.run.failed(leaf.item, messages, event.duration);
+				this.run.failed(item, messages, event.duration);
 			}
 		}
 	}
@@ -267,11 +371,11 @@ export class RunReporter {
 		}
 	}
 
-	private toMessage(event: ResultEvent, item: vscode.TestItem): vscode.TestMessage {
+	private toMessage(event: ResultEvent, item: vscode.TestItem | undefined): vscode.TestMessage {
 		const error = event.error ?? { message: 'Failed' };
 		const hasDiff = error.expected !== undefined && error.actual !== undefined;
 		const message = hasDiff ? vscode.TestMessage.diff(error.message, error.expected!, error.actual!) : new vscode.TestMessage(error.message);
-		if (item.uri && item.range) {
+		if (item?.uri && item.range) {
 			message.location = new vscode.Location(item.uri, item.range);
 		}
 		if (error.stack) {
