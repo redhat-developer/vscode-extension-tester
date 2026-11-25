@@ -172,6 +172,10 @@ export class RunReporter {
 			this.reportOutput(event);
 			return;
 		}
+		if (event.event === 'finished') {
+			this.finish();
+			return;
+		}
 		this.reportedAny = true;
 		if (event.event === 'started') {
 			this.flushFailures();
@@ -204,6 +208,31 @@ export class RunReporter {
 				leaf.done = true;
 				this.run.skipped(leaf.item);
 				break;
+		}
+	}
+
+	/**
+	 * Ends the tests that Mocha did not report once it ran all tests, so they do not keep spinning
+	 * while the process shuts down, or when it does not exit. Without any reported test, extest most
+	 * likely found no test files, so the tests fail with a hint instead.
+	 */
+	private finish(): void {
+		this.flushFailures();
+		const notRun = this.leaves.filter((leaf) => !leaf.done);
+		const message = this.reportedAny
+			? undefined
+			: new vscode.TestMessage(
+					'Mocha finished without running any of these tests. Check the task terminal: extest may not have found the test files ' +
+						'(for compiled tests, check the outputFolder and rootFolder settings), or no test matched the selected title.',
+				);
+		for (const leaf of notRun) {
+			leaf.done = true;
+			if (message) {
+				this.run.errored(leaf.item, message);
+			} else {
+				// Not run: filtered out by .only or grep, or reported under a title the parser could not match.
+				this.run.skipped(leaf.item);
+			}
 		}
 	}
 
