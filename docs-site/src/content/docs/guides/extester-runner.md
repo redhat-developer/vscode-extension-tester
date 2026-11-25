@@ -78,6 +78,7 @@ The extension supports both VS Code settings and a [project configuration](#proj
    - `env`: Environment variables for test runs (default: `{}`)
    - `preRunTask`: VS Code task to run before each test run, such as `npm: compile` (default: not set)
    - `runCommand`: Command that runs the tests instead of `npx extest setup-and-run`; see [Custom run command](#custom-run-command) (default: not set)
+   - `hiddenWindow`: **Experimental.** Run the tests in a VS Code window that is never shown or focused; see [Running tests with a hidden window](#running-tests-with-a-hidden-window) (default: `false`)
 
 3. **Log Management**
    - `hideEmptyLogFolders`: Controls visibility of empty log directories (default: `true`)
@@ -200,6 +201,16 @@ Set `env` to pass environment variables to the tests, for example account names 
   }
 }
 ```
+
+### Running tests with a hidden window
+
+:::caution[Experimental]
+This setting uses the experimental [hidden window](/vscode-extension-tester/guides/hidden-window/) mode of ExTester. It may change or be removed in any release.
+:::
+
+Turn on `hiddenWindow` to keep the test VS Code window off your screen, so you can keep working while the tests run. The Runner then sets `EXTESTER_HIDDEN_WINDOW=true` for the run, for `npx extest setup-and-run` and for a custom `runCommand` alike. A value of `EXTESTER_HIDDEN_WINDOW` in `env` wins over the setting. To turn it on for the whole team, set `run.hiddenWindow` in the `run` section of `extester.config.json` instead; the CLI reads it there.
+
+It needs an ExTester release with the hidden window mode and VS Code 1.147 or newer. VS Code runs in extension test mode, so dialogs are not shown and UI state is not kept between runs. The [hidden window guide](/vscode-extension-tester/guides/hidden-window/) lists every difference.
 
 ### Custom run command
 
