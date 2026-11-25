@@ -69,7 +69,8 @@ describe('Project configuration integration', () => {
 		rmSync(join(root, 'new.other.ts'), { force: true });
 		rmSync(join(root, 'healthy.test.ts'), { force: true });
 	});
-	after(() => rmSync(join(root, 'project-config-fixture'), { recursive: true, force: true }));
+	// Windows can still hold a handle on the fixture from a file watcher: retry instead of failing on ENOTEMPTY.
+	after(() => rmSync(join(root, 'project-config-fixture'), { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }));
 	// The extension host owns the channel; provider refreshes can still log after a test.
 	function write(runner: object = {}, sections: object = {}) {
 		writeFileSync(
