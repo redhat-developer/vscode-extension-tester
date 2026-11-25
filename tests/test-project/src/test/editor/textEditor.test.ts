@@ -27,6 +27,7 @@ import {
 	FindWidget,
 	VSBrowser,
 	ModalDialog,
+	WebView,
 	after,
 	before,
 	afterEach,
@@ -718,6 +719,11 @@ describe('TextEditor in a non-focused editor group', function () {
 				timeout: 15_000,
 				message: 'WebView tab did not appear',
 			});
+			// Wait until the webview content has loaded: a loading webview grabs focus,
+			// which used to swallow the key press of the next command.
+			const webview = new WebView();
+			await webview.switchToFrame(15_000);
+			await webview.switchBack();
 
 			// group 1: a text editor, created in the webview's group and moved to the right
 			await newTextFile(0);

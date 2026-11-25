@@ -16,7 +16,7 @@
  */
 
 import { AbstractElement } from '../AbstractElement';
-import { WebElement, Key, until } from 'selenium-webdriver';
+import { WebElement, Key, until, error } from 'selenium-webdriver';
 import { TitleBar } from '../menu/TitleBar';
 import { SideBarView } from '../sidebar/SideBarView';
 import { ActivityBar } from '../activityBar/ActivityBar';
@@ -34,6 +34,9 @@ import { satisfies } from 'compare-versions';
  * Handler for general workbench related actions
  */
 export class Workbench extends AbstractElement {
+	/** How many times openCommandPrompt presses the shortcut before it gives up */
+	private static readonly COMMAND_PROMPT_ATTEMPTS = 3;
+
 	constructor() {
 		super(Workbench.locators.Workbench.constructor);
 	}
@@ -135,21 +138,47 @@ export class Workbench extends AbstractElement {
 	 * @returns Promise resolving to InputBox (vscode 1.44+) or QuickOpenBox (vscode up to 1.43) object
 	 */
 	async openCommandPrompt(): Promise<QuickOpenBox | InputBox> {
-		const webview = await new EditorView().findElements(EditorView.locators.EditorView.webView);
-		if (webview.length > 0) {
+		if (satisfies(Workbench.versionInfo.version, '<1.44.0') && !(await this.hasOpenWebview())) {
+			await this.pressCommandPromptKeys();
+			return await QuickOpenBox.create();
+		}
+		return await this.openCommandPromptInputBox(Workbench.COMMAND_PROMPT_ATTEMPTS);
+	}
+
+	/**
+	 * Press the key that opens the command prompt, then wait for the input box.
+	 * A webview that is still loading can take focus right after the key press and swallow it,
+	 * which leaves the command prompt closed. When the input box does not show up in time,
+	 * press the key again instead of failing.
+	 */
+	private async openCommandPromptInputBox(attemptsLeft: number): Promise<InputBox> {
+		await this.pressCommandPromptKeys();
+		const lastAttempt = attemptsLeft <= 1;
+		try {
+			return await InputBox.create(lastAttempt ? 5000 : 2000);
+		} catch (e) {
+			if (lastAttempt || !(e instanceof error.TimeoutError)) {
+				throw e;
+			}
+		}
+		return await this.openCommandPromptInputBox(attemptsLeft - 1);
+	}
+
+	private async hasOpenWebview(): Promise<boolean> {
+		return (await new EditorView().findElements(EditorView.locators.EditorView.webView)).length > 0;
+	}
+
+	private async pressCommandPromptKeys(): Promise<void> {
+		// keyboard shortcuts do not reach the workbench while a webview iframe has focus,
+		// so send F1 to the active editor tab instead
+		if (await this.hasOpenWebview()) {
 			const tab = await new EditorView().getActiveTab();
 			if (tab) {
 				await tab.sendKeys(Key.F1);
-				return await InputBox.create();
+				return;
 			}
 		}
-		const driver = this.getDriver();
-		await driver.actions().keyDown(Workbench.ctlKey).keyDown(Key.SHIFT).sendKeys('p').perform();
-
-		if (satisfies(Workbench.versionInfo.version, '>=1.44.0')) {
-			return await InputBox.create();
-		}
-		return await QuickOpenBox.create();
+		await this.getDriver().actions().keyDown(Workbench.ctlKey).keyDown(Key.SHIFT).sendKeys('p').perform();
 	}
 
 	/**

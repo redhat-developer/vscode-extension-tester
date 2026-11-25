@@ -27,6 +27,11 @@ describe('StatusBar', () => {
 		this.timeout(30000);
 		await new Workbench().executeCommand('Create: New File...');
 		await (await InputBox.create()).selectQuickPick('Text File');
+		// the new editor takes focus once it opens, so let that settle before the tests click the status bar
+		await waitFor(async () => (await new EditorView().getOpenEditorTitles()).some((title) => title.startsWith('Untitled')), {
+			timeout: 10_000,
+			message: 'Untitled editor did not open',
+		});
 		bar = new StatusBar();
 	});
 
