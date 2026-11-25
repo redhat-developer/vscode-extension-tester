@@ -28,6 +28,7 @@ import { RunResult, TestRunner } from './TestRunnerTask';
  */
 export class TestRunManager implements vscode.Disposable {
 	private current: TestRunner | undefined;
+	private groupRunning = false;
 	private stopRequested = false;
 
 	/**
@@ -41,7 +42,7 @@ export class TestRunManager implements vscode.Disposable {
 	 * Whether a test run is in progress.
 	 */
 	get isRunning(): boolean {
-		return this.current !== undefined;
+		return this.groupRunning || this.current !== undefined;
 	}
 
 	/**
@@ -60,14 +61,21 @@ export class TestRunManager implements vscode.Disposable {
 	 */
 	async startGroup(runGroup: () => Promise<void>): Promise<void> {
 		if (this.isRunning) {
-			const choice = await vscode.window.showInformationMessage(`ExTester is already running ${this.current?.runLabel}.`, 'Stop');
+			const running = this.current ? `ExTester is already running ${this.current.runLabel}.` : 'ExTester is already running tests.';
+			const choice = await vscode.window.showInformationMessage(running, 'Stop');
 			if (choice === 'Stop') {
 				this.stop();
 			}
 			return;
 		}
+		// The whole group holds the lock, so a request between two of its runs cannot start or reset the stop flag.
+		this.groupRunning = true;
 		this.stopRequested = false;
-		await runGroup();
+		try {
+			await runGroup();
+		} finally {
+			this.groupRunning = false;
+		}
 	}
 
 	/**

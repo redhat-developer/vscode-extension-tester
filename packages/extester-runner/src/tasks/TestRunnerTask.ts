@@ -335,7 +335,7 @@ function folderUri(scope: Task['scope']): string | undefined {
 }
 
 /**
- * The command line of a shell execution, with quoted arguments in single quotes as the task shell gets them.
+ * The command line of a shell execution, with quoted arguments in quotes as the task shell gets them.
  *
  * @param {ShellExecution} execution - The shell execution of a test task.
  * @returns {string} The command line.
@@ -344,6 +344,9 @@ function commandLine(execution: ShellExecution): string {
 	if (execution.commandLine) {
 		return execution.commandLine;
 	}
-	const toText = (part: string | vscode.ShellQuotedString | undefined) => (typeof part === 'string' || part === undefined ? (part ?? '') : `'${part.value}'`);
+	// cmd.exe does not treat single quotes as quotes; PowerShell and cmd.exe both accept double quotes.
+	const quote = process.platform === 'win32' ? '"' : "'";
+	const toText = (part: string | vscode.ShellQuotedString | undefined) =>
+		typeof part === 'string' || part === undefined ? (part ?? '') : `${quote}${part.value}${quote}`;
 	return [execution.command, ...(execution.args ?? [])].map(toText).join(' ');
 }
