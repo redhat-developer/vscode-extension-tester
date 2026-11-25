@@ -54,7 +54,8 @@ export class ResultReader {
 	}
 
 	private queueRead(): Promise<void> {
-		this.reading = this.reading.then(() => this.read());
+		// A failed read, such as a file that was locked for a moment, must not stop the reads that follow.
+		this.reading = this.reading.then(() => this.read()).catch(() => undefined);
 		return this.reading;
 	}
 

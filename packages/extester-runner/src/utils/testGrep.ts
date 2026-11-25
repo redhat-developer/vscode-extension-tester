@@ -70,11 +70,27 @@ export function matchesTitles(parsed: string[], runtime: string[], prefix = fals
 	if (prefix ? runtime.length > parsed.length : runtime.length !== parsed.length) {
 		return false;
 	}
-	return runtime.every((title, index) => {
-		const pattern = parsed[index]
+	return runtime.every((title, index) => titleMatcher(parsed[index]).test(title));
+}
+
+/** Compiled title patterns: each output line of a run is matched against the tests, so they are compiled once. */
+const titleMatchers = new Map<string, RegExp>();
+
+/** Most patterns kept, so the cache cannot grow without bound while test files change. */
+const MAX_TITLE_MATCHERS = 10_000;
+
+function titleMatcher(parsedTitle: string): RegExp {
+	let matcher = titleMatchers.get(parsedTitle);
+	if (!matcher) {
+		const pattern = parsedTitle
 			.split(PLACEHOLDER_PATTERN)
 			.map((part) => escapeRegExp(part))
 			.join('.*');
-		return new RegExp(`^${pattern}$`).test(title);
-	});
+		matcher = new RegExp(`^${pattern}$`);
+		if (titleMatchers.size >= MAX_TITLE_MATCHERS) {
+			titleMatchers.clear();
+		}
+		titleMatchers.set(parsedTitle, matcher);
+	}
+	return matcher;
 }
