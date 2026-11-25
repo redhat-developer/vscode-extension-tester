@@ -35,7 +35,8 @@ import { inspect } from 'node:util';
 
 /** One line of the results file. */
 export interface ResultEvent {
-	event: 'started' | 'passed' | 'failed' | 'skipped' | 'output';
+	/** `finished` is written once Mocha ran all tests, even when the process does not exit afterwards. */
+	event: 'started' | 'passed' | 'failed' | 'skipped' | 'output' | 'finished';
 	/** Titles from the outermost `describe` block to the test, or to the suite of a failed hook. */
 	titles: string[];
 	/** Whether a hook (`before`, `afterEach`, ...) failed rather than a test. */
@@ -160,6 +161,7 @@ function listen(runner: MochaRunner): void {
 	runner.on('pass', report('passed'));
 	runner.on('fail', report('failed'));
 	runner.on('pending', report('skipped'));
+	runner.on('end', () => writeEvent({ event: 'finished', titles: [] }));
 }
 
 /**
