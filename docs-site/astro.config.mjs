@@ -54,6 +54,7 @@ export default defineConfig({
             'guides/debugging-tests',
             'guides/code-coverage',
             'guides/locale-testing',
+            'guides/hidden-window',
             'guides/taking-screenshots',
             'guides/custom-page-objects',
             'guides/automated-version-updates',
