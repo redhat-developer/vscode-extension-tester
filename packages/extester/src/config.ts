@@ -80,6 +80,8 @@ export interface ExTesterRunConfig {
 	customPageObjects?: string;
 	/** Display language locale for VS Code (e.g. `ru`, `zh-cn`, `fr`). Requires the matching language pack extension to be installed. */
 	locale?: string;
+	/** Experimental: launch VS Code (1.147+) with a window that is never shown or focused, so a local run does not take over the screen. Defaults to `false`. */
+	hiddenWindow?: boolean;
 }
 
 /**

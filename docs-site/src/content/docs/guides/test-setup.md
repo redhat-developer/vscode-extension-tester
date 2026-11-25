@@ -37,6 +37,7 @@ To run TypeScript tests without compiling them first, see [TypeScript Tests](/vs
   ```
 
 - `CODE_TYPE` - release stream to use when `-t`/`--type` is not passed; `insider` selects the insider stream, anything else selects stable.
+- `EXTESTER_HIDDEN_WINDOW` - (experimental) `true` launches VS Code (1.147+) with a window that is never shown or focused, the same as `--hidden_window`. See [Running With a Hidden Window](/vscode-extension-tester/guides/hidden-window/).
 - `MOCHA_GREP` / `MOCHA_INVERT` - override Mocha's `grep`/`invert` for the run without touching the mocharc file (`MOCHA_INVERT` applies only for the exact string `"true"`).
 
 ## Using the CLI
@@ -163,6 +164,7 @@ Options:
   -f, --offline                                # Attempt to run without internet connection, make sure to have all requirements downloaded (default: false)
   -C, --coverage                               # Enable code coverage using c8
   -L, --locale <locale>                        # Launch VS Code with the given display language (e.g. ru, zh-cn). Requires the matching language pack extension to already be installed. See the Locale Testing guide.
+  --hidden_window                              # Experimental: launch VS Code (1.147+) with a window that is never shown or focused (default: false). See the Running With a Hidden Window guide.
   -r, --open_resource <resources...>           # Open resources in VS Code. Multiple files and folders can be specified.
   -p, --custom_page_objects <path>             # Path to a JavaScript or TypeScript locator contribution file for custom page objects
   --config <path>                              # Path to extester.config.json configuration file
@@ -196,6 +198,7 @@ Options:
   -r, --open_resource <resources...>           # Open resources in VS Code. Multiple files and folders can be specified.
   -n, --no_cache                               # Disable caching of VS Code and ChromeDriver downloads (default: false)
   -L, --locale <locale>                        # Launch VS Code with the given display language (e.g. ru, zh-cn). Requires the language pack to be installed via -i. See the Locale Testing guide.
+  --hidden_window                              # Experimental: launch VS Code (1.147+) with a window that is never shown or focused (default: false). See the Running With a Hidden Window guide.
   -p, --custom_page_objects <path>             # Path to a JavaScript or TypeScript locator contribution file for custom page objects
   --config <path>                              # Path to extester.config.json configuration file
   -h, --help                                   # display help for command
@@ -323,7 +326,7 @@ Settings are resolved in this order — later sources override earlier ones:
 built-in defaults  ←  extended base configs (in order)  ←  extester.config.json  ←  CLI flags
 ```
 
-Boolean options are an exception: a `true` in the config file cannot be switched off from the command line (`installDependencies`, `noCache`, `cleanup`, `offline` are OR-ed with their CLI flags). Remove the value from the config file to disable it.
+Boolean options are an exception: a `true` in the config file cannot be switched off from the command line (`installDependencies`, `noCache`, `cleanup`, `offline`, `hiddenWindow` are OR-ed with their CLI flags). Remove the value from the config file to disable it.
 
 Environment variables (`CODE_VERSION`, `TEST_RESOURCES`, etc.) continue to apply at their existing layer inside ExTester and are not affected by the config file.
 
@@ -368,6 +371,7 @@ Controls test execution inside VS Code. Used by `run-tests` and `setup-and-run`.
 | `resources`         | string[]                  | `[]`                                          | `-r` / `--open_resource`       | Files or folders to open in VS Code at startup                                                                                                                                                                 |
 | `customPageObjects` | string                    | —                                             | `-p` / `--custom_page_objects` | Path to a JavaScript or TypeScript locator contribution file                                                                                                                                                                |
 | `locale`            | string                    | —                                             | `-L` / `--locale`              | Display language locale (e.g. `ru`, `zh-cn`). Requires the language pack extension to be installed. See [Locale Testing](/vscode-extension-tester/guides/locale-testing/)                                                                                     |
+| `hiddenWindow`      | boolean                   | `false`                                       | `--hidden_window`              | Experimental: launch VS Code (1.147+) with a window that is never shown or focused. See [Running With a Hidden Window](/vscode-extension-tester/guides/hidden-window/)                                                       |
 
 #### `runner` section
 
@@ -500,6 +504,8 @@ export interface RunOptions {
   keybindings?: string;
   /** path to a folder of snippet files seeded into the test instance's User/snippets */
   snippets?: string;
+  /** experimental: launch VS Code (1.147+) with a window that is never shown or focused */
+  hiddenWindow?: boolean;
 }
 
 export interface CustomPageObjectsOptions {

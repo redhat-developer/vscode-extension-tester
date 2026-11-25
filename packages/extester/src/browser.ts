@@ -38,6 +38,15 @@ import {
 import { DEFAULT_STORAGE_FOLDER } from './extester';
 import { DriverUtil } from './util/driverUtil';
 import { browserLaunchEnvironment, formatLaunchFailure, isSessionNotCreated } from './util/launchDiagnostics';
+import {
+	HIDDEN_WINDOW_MIN_VERSION,
+	adoptSession,
+	closeBidiConnection,
+	forwardToCurrentSession,
+	hiddenWindowArgs,
+	isHiddenWindowRequested,
+	supportsHiddenWindow,
+} from './util/hiddenWindow';
 
 export class VSBrowser {
 	static readonly baseVersion = '1.37.0';
@@ -55,6 +64,10 @@ export class VSBrowser {
 	private static _instance: VSBrowser;
 	private readonly _startTimestamp: string;
 	private static _signalHandlersRegistered = false;
+	private codePath: string | undefined;
+	private readonly hiddenWindow: boolean;
+	/** set after the first VS Code session ended, so later sessions append to the logs */
+	private appendLogs = false;
 
 	private formatTimestamp(date: Date): string {
 		const pad = (num: number) => num.toString().padStart(2, '0');
@@ -80,6 +93,9 @@ export class VSBrowser {
 		this.locale = locale;
 		this.seedFiles = seedFiles;
 		this._startTimestamp = this.formatTimestamp(new Date());
+		// Known before start(): test files read `isHiddenWindow` when they load, which is
+		// before the global setup launches VS Code.
+		this.hiddenWindow = isHiddenWindowRequested() && supportsHiddenWindow(this.codeVersion);
 
 		VSBrowser._instance = this;
 	}
@@ -89,6 +105,23 @@ export class VSBrowser {
 	 * @param codePath path to code binary
 	 */
 	async start(codePath: string, resources: string[] = []): Promise<VSBrowser> {
+		this.codePath = codePath;
+		await this.prepareUserDataDir();
+		if (isHiddenWindowRequested() && !this.hiddenWindow) {
+			console.log(
+				'\x1b[33m%s\x1b[0m',
+				`WARNING: --hidden_window needs VS Code ${HIDDEN_WINDOW_MIN_VERSION} or newer, VS Code ${this.codeVersion} will show its window as usual`,
+			);
+		}
+		this.warnShadowedSettings(resources);
+		return await this.launch(codePath, resources);
+	}
+
+	/**
+	 * Write a fresh user data dir: the framework's default settings merged with the custom ones,
+	 * seeded keybindings and snippets, and the locale.
+	 */
+	private async prepareUserDataDir(): Promise<void> {
 		const settingsDir = path.join(this.storagePath, 'settings');
 		const userSettings = path.join(settingsDir, 'User');
 		const languagePacksPath = path.join(settingsDir, 'languagepacks.json');
@@ -163,7 +196,15 @@ export class VSBrowser {
 			fs.writeJSONSync(languagePacksPath, languagePacks);
 			console.log(`Restored languagepacks.json to ${languagePacksPath}`);
 		}
+	}
 
+	/**
+	 * Launch VS Code with the prepared user data dir. A hidden window restart calls this
+	 * directly, so the user data dir keeps what the tests changed, as it does when a
+	 * visible window opens another folder.
+	 */
+	private async launch(codePath: string, resources: string[]): Promise<VSBrowser> {
+		const settingsDir = path.join(this.storagePath, 'settings');
 		// Crash dumps are redirected into the storage folder so CI can collect
 		// them as failure artifacts alongside screenshots and driver logs.
 		const crashesDir = path.join(this.storagePath, 'crashes');
@@ -204,11 +245,16 @@ export class VSBrowser {
 			args.push(`--extensionDevelopmentPath=${extensionDevPath}`);
 		}
 
+		if (this.hiddenWindow) {
+			// yellow like the other notices, so it is clear the run uses an experimental mode
+			console.log('\x1b[33m%s\x1b[0m', 'Launching VS Code with a hidden window (--hidden-window, experimental)');
+			args.push(...hiddenWindowArgs(this.storagePath, !!process.env.EXTENSION_DEV_PATH));
+		}
+
 		// Open initial resources with the launch itself instead of a post-launch
 		// second-instance CLI call: when such a call lands while VS Code is still
 		// starting up, VS Code >= 1.123.0 corrupts webview resource streaming for
 		// the whole window (microsoft/vscode#330243, #2454).
-		this.warnShadowedSettings(resources);
 		for (const resource of resources) {
 			args.push(VSBrowser.resourceToLaunchArg(resource));
 		}
@@ -235,7 +281,12 @@ export class VSBrowser {
 		// cannot turn the Electron binary into plain Node.
 		const service = new ServiceBuilder(chromeDriverBinaryPath)
 			.loggingTo(chromeDriverLog)
-			.addArguments(...DriverUtil.chromeDriverLogLevelArgs(this.logLevel), '--enable-chrome-logs')
+			.addArguments(
+				...DriverUtil.chromeDriverLogLevelArgs(this.logLevel),
+				'--enable-chrome-logs',
+				// a hidden window restart starts a new ChromeDriver: keep the log of the earlier sessions
+				...(this.appendLogs ? ['--append-log'] : []),
+			)
 			.setEnvironment(browserLaunchEnvironment(process.env));
 
 		const launchStartedMs = Date.now();
@@ -348,6 +399,15 @@ export class VSBrowser {
 	}
 
 	/**
+	 * Whether VS Code runs with a hidden window (experimental `--hidden_window`). VS Code is then in
+	 * extension test mode: it never shows dialogs (confirmations are auto-accepted, other
+	 * dialogs fail), so suites that test dialogs can skip themselves based on this.
+	 */
+	get isHiddenWindow(): boolean {
+		return this.hiddenWindow;
+	}
+
+	/**
 	 * Returns the vscode version as string
 	 */
 	get version(): string {
@@ -447,11 +507,16 @@ export class VSBrowser {
 		try {
 			const entries = await this._driver.manage().logs().get(logging.Type.DRIVER);
 			const logFile = path.join(this.storagePath, 'test.log');
-			const logStream = fs.createWriteStream(logFile, { flags: 'w' });
+			// a hidden window restart ends a session mid-run: keep the log of the earlier sessions
+			const logStream = fs.createWriteStream(logFile, { flags: this.appendLogs ? 'a' : 'w' });
+			if (this.appendLogs) {
+				logStream.write(`\n----- VS Code restarted at ${new Date().toLocaleTimeString()} -----\n`);
+			}
 			for (const entry of entries) {
 				logStream.write(`[${new Date(entry.timestamp).toLocaleTimeString()}][${entry.level.name}] ${entry.message}`);
 			}
 			logStream.end();
+			this.appendLogs = true;
 		} catch (err) {
 			console.error('Failed to collect driver logs before shutdown:', err);
 		} finally {
@@ -515,6 +580,11 @@ export class VSBrowser {
 		}
 
 		this.warnShadowedSettings(paths);
+		if (this.hiddenWindow && paths.some(isFolderOrWorkspace)) {
+			await this.relaunchWithResources(paths);
+			await this.waitForWorkbench(undefined, waitForFn);
+			return;
+		}
 		const code = new CodeUtil(this.storagePath, this.releaseType, this.extensionsFolder);
 		code.open(...paths);
 		await this.waitForWorkbench(undefined, waitForFn);
@@ -548,6 +618,35 @@ export class VSBrowser {
 	}
 
 	/**
+	 * Open a folder or workspace in hidden window mode. VS Code's extension test mode
+	 * (required for `--hidden-window`) exits instead of switching the window to another
+	 * folder, so VS Code is restarted with the resources as launch arguments. The new
+	 * session is moved into the existing WebDriver object, so `VSBrowser.instance.driver`
+	 * references held by tests stay valid; elements found before go stale, exactly as
+	 * they do when a visible window reloads into another folder.
+	 */
+	private async relaunchWithResources(resources: string[]): Promise<void> {
+		if (!this.codePath) {
+			throw new Error('Cannot open resources before VS Code was started');
+		}
+		console.log(`Hidden window: restarting VS Code to open ${resources.join(', ')}`);
+		const startedMs = Date.now();
+		const driver = this._driver;
+		const previousExecutor = driver.getExecutor();
+		// WebDriver.quit() returns before closing a BiDi connection when a quit hook is set,
+		// as it is for ChromeDriver, so close it here: the new session needs its own.
+		await closeBidiConnection(driver);
+		await this.quit();
+		this.appendLogs = true;
+		await this.launch(this.codePath, resources);
+		adoptSession(driver, this._driver);
+		this._driver = driver;
+		forwardToCurrentSession(previousExecutor, driver);
+		initPageObjects(this.codeVersion, VSBrowser.baseVersion, getLocatorsPath(), this._driver, VSBrowser.browserName, this.customPageObjects?.locatorsPath);
+		console.log(`Hidden window: VS Code restarted in ${Date.now() - startedMs} ms`);
+	}
+
+	/**
 	 * Best-effort check that every given file is open as an editor tab.
 	 * Resolves to true once all file basenames are found among the open editor titles
 	 * in any editor group, false if that does not happen within the given timeout.
@@ -569,4 +668,12 @@ export class VSBrowser {
 			return false;
 		}
 	}
+}
+
+/** A folder, or a `.code-workspace` file: opening it switches the window's workspace. */
+function isFolderOrWorkspace(resource: string): boolean {
+	if (path.extname(resource) === '.code-workspace') {
+		return true;
+	}
+	return fs.existsSync(resource) && fs.statSync(resource).isDirectory();
 }

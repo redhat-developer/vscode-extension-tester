@@ -328,6 +328,11 @@
           "type": "string",
           "description": "Display language locale for VS Code (e.g. 'ru', 'zh-cn', 'fr'). Requires the matching language pack extension to be installed.",
           "examples": ["ru", "zh-cn", "fr", "de", "es", "ja", "ko", "pt-br", "tr"]
+        },
+        "hiddenWindow": {
+          "type": "boolean",
+          "description": "Experimental: launch VS Code (1.147+) with a window that is never shown or focused, so a local run does not take over the screen.",
+          "default": false
         }
       }
     },

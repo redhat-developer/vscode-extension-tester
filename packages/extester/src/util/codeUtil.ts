@@ -20,6 +20,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import { parse as parseJsonc, printParseErrorCode, type ParseError } from 'jsonc-parser';
 import { satisfies } from 'compare-versions';
+import { HIDDEN_WINDOW_ENV } from './hiddenWindow';
 import * as vsce from '@vscode/vsce';
 import type { IPackageOptions } from '@vscode/vsce';
 import { VSRunner } from '../suite/runner';
@@ -65,6 +66,8 @@ export interface RunOptions {
 	keybindings?: string;
 	/** path to a folder of snippet files seeded into the test instance's User/snippets */
 	snippets?: string;
+	/** experimental: launch VS Code (1.147+) with a window that is never shown or focused */
+	hiddenWindow?: boolean;
 }
 
 /** User files seeded into the test instance's user data dir at startup */
@@ -743,6 +746,9 @@ export class CodeUtil {
 			delete process.env.EXTENSIONS_FOLDER;
 		}
 		applyExtensionDevPath(this.coverage, process.cwd());
+		if (runOptions.hiddenWindow) {
+			process.env[HIDDEN_WINDOW_ENV] = 'true';
+		}
 		const runner = new VSRunner(
 			this.getExecutablePath(),
 			literalVersion,
