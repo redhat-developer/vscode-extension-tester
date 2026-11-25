@@ -369,6 +369,15 @@ export class TextEditor extends Editor {
 			},
 			{ timeout: 2000, pollInterval: 50, message: 'Text selection did not appear' },
 		);
+		// The selection appears after the first key press, while the rest of the queued key presses can
+		// still be processing. Wait until the status bar reports the whole text as selected, so that
+		// callers reading the cursor position or the selection see the final state.
+		const statusBar = new StatusBar();
+		await this.getWaitHelper()
+			.forCondition(async () => (await statusBar.getCurrentPosition()).includes(`(${text.length} selected)`), { timeout: 2000, pollInterval: 50 })
+			.catch(() => {
+				/* The selection count can differ from text.length (e.g. line endings), keep the selection as it is */
+			});
 	}
 
 	/**

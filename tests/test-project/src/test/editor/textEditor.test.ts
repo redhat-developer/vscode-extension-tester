@@ -536,8 +536,12 @@ describe('TextEditor', function () {
 			expect(await lens0?.getId()).equal(await lens0Duplicate?.getId());
 		});
 
-		it('getCodeLens works with partial text', async function () {
-			const lens = await editor.getCodeLens('Codelens provided');
+		it('getCodeLens works with partial text', async function (this: Mocha.Context) {
+			this.timeout(15000);
+			// Lenses can be re-rendered right after they appear, so poll until one is found by its text.
+			const lens = await editor
+				.getDriver()
+				.wait(async () => await editor.getCodeLens('Codelens provided'), 10000, 'CodeLens "Codelens provided" did not appear');
 			expect(await lens?.getText()).has.string('Codelens provided');
 			expect(await lens?.getTooltip()).has.string('Tooltip provided');
 		});

@@ -33,7 +33,7 @@ import {
 	WelcomeContentSection,
 	Workbench,
 } from 'vscode-extension-tester';
-import { waitFor } from '../testUtils';
+import { retry, waitFor } from '../testUtils';
 
 describe('CustomTreeSection', () => {
 	let section: CustomTreeSection;
@@ -123,14 +123,25 @@ describe('CustomTreeSection', () => {
 	});
 
 	it('getAction of EMPTY works', async () => {
-		const action = (await emptySection.getAction('Refresh')) as ViewPanelAction;
-		expect(await action?.getLabel()).equals('Refresh');
-		await emptySection.collapse();
+		try {
+			const action = (await emptySection.getAction('Refresh')) as ViewPanelAction;
+			expect(await action?.getLabel()).equals('Refresh');
+		} finally {
+			// Always collapse, otherwise the expanded section squeezes 'Test View' and later tests fail too
+			await emptySection.collapse();
+		}
 	});
 
 	(process.platform === 'darwin' && satisfies(VSBrowser.instance.version, '<1.101.0') ? it.skip : it)('getAction dropdown works', async () => {
-		const action = (await section.getAction('Hello Who...')) as ViewPanelActionDropdown;
-		const menu = await action.open();
+		// The header toolbar can be re-rendered while the dropdown opens (stale button or detached
+		// shadow root), so look the button up again and retry the whole open.
+		const menu = await retry(
+			async () => {
+				const action = (await section.getAction('Hello Who...')) as ViewPanelActionDropdown;
+				return await action.open();
+			},
+			{ maxRetries: 3, retryDelay: 300 },
+		);
 		expect(menu).not.undefined;
 
 		await menu.select('Hello a World');
@@ -233,8 +244,11 @@ describe('CustomTreeSection', () => {
 		});
 
 		it('hasChildren works for expandable elements without children', async () => {
-			const cItem = await section.findItem('c');
-			expect(await cItem?.hasChildren()).is.false;
+			const cItem = (await waitFor(async () => await section.findItem('c'), {
+				timeout: 5_000,
+				message: 'Item "c" not found in Test View',
+			})) as CustomTreeItem;
+			expect(await cItem.hasChildren()).is.false;
 		});
 
 		it('getChildren works', async () => {

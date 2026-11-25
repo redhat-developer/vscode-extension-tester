@@ -18,6 +18,7 @@
 import { CustomTreeSection, DefaultTreeSection, ExtensionsViewSection, SideBarView, ViewSection, ViewSectionConstructor } from '../..';
 import { WebElement, error } from 'selenium-webdriver';
 import { AbstractElement } from '../AbstractElement';
+import { isTransientDomError } from '../../utils/transientDomError';
 
 /**
  * Page object representing the view container of a side bar view
@@ -106,12 +107,14 @@ export class ViewContent extends AbstractElement {
 	 * @returns Promise resolving to array of ViewSection objects
 	 */
 	async getSections(): Promise<ViewSection[]> {
-		const sections: ViewSection[] = [];
-		const elements = await this.findElements(ViewContent.locators.ViewContent.section);
-		for (const element of elements) {
-			sections.push(await this.createSection(element));
-		}
-		return sections;
+		// A section can be re-rendered while we classify it; collect them all again when that happens.
+		return await this.getWaitHelper().withRetry(
+			async () => {
+				const elements = await this.findElements(ViewContent.locators.ViewContent.section);
+				return await Promise.all(elements.map(async (element) => await this.createSection(element)));
+			},
+			{ maxRetries: 3, retryDelay: 200, isRetryable: isTransientDomError },
+		);
 	}
 
 	private async createSection<T extends ViewSection>(panel: WebElement, type?: ViewSectionConstructor<T>): Promise<ViewSection> {
