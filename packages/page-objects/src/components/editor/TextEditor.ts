@@ -16,7 +16,7 @@
  */
 
 import { ContentAssist, ContextMenu, InputBox } from '../..';
-import { Key, until, WebElement } from 'selenium-webdriver';
+import { Key, until, WebElement, error } from 'selenium-webdriver';
 import { fileURLToPath } from 'node:url';
 import { StatusBar } from '../statusBar/StatusBar';
 import { Editor } from './Editor';
@@ -213,8 +213,9 @@ export class TextEditor extends Editor {
 			// restore below all act on the focused editor: make sure it is this one.
 			await self.focus();
 
-			// Store current position
-			const [line, col] = await self.getCoordinates();
+			// Store current position. It is only used to put the cursor back afterwards, so a status
+			// bar that does not show it (focus coming back from a webview can be slow) must not fail the read.
+			const position = await self.getCoordinates().catch(() => undefined);
 
 			// Select/copy contents
 			await self.executeCommand('editor.action.selectAll');
@@ -240,7 +241,9 @@ export class TextEditor extends Editor {
 
 			try {
 				// Restore original cursor position
-				await self.setCursor(line, col);
+				if (position) {
+					await self.setCursor(position[0], position[1]);
+				}
 			} catch {
 				await self.sendKeys(Key.UP);
 			}
@@ -544,16 +547,7 @@ export class TextEditor extends Editor {
 		const coordinates = await this.getCoordinates();
 		const lineGap = coordinates[0] - line;
 		const lineKey = lineGap >= 0 ? Key.UP : Key.DOWN;
-
-		for (let i = 0; i < Math.abs(lineGap); i++) {
-			if (await this.isLine(line)) {
-				break;
-			}
-			await inputArea.getDriver().actions().clear();
-			await inputArea.sendKeys(lineKey);
-			// Minimal delay for key processing - this is a tight loop with position checking
-			await this.getWaitHelper().sleep(20);
-		}
+		await this.pressUntil(inputArea, lineKey, coordinates, Math.abs(lineGap), (now) => now[0] === line);
 	}
 
 	/**
@@ -563,22 +557,63 @@ export class TextEditor extends Editor {
 	 * @returns Promise resolving when the cursor has reached the given column coordinate
 	 */
 	private async moveCursorToColumn(inputArea: WebElement, column: number): Promise<void> {
-		const coordinates = await this.getCoordinates();
-		const columnGap = coordinates[1] - column;
+		const start = await this.getCoordinates();
+		const columnGap = start[1] - column;
 		const columnKey = columnGap >= 0 ? Key.LEFT : Key.RIGHT;
-
-		for (let i = 0; i < Math.abs(columnGap); i++) {
-			if (await this.isColumn(column)) {
-				break;
+		await this.pressUntil(inputArea, columnKey, start, Math.abs(columnGap), (now) => {
+			if (now[0] !== start[0]) {
+				throw new Error(`Column number ${column} is not accessible on line ${start[0]}`);
 			}
-			await inputArea.getDriver().actions().clear();
-			await inputArea.sendKeys(columnKey);
-			// Minimal delay for key processing - this is a tight loop with position checking
-			await this.getWaitHelper().sleep(20);
-			if ((await this.getCoordinates())[0] !== coordinates[0]) {
-				throw new Error(`Column number ${column} is not accessible on line ${coordinates[0]}`);
+			return now[1] === column;
+		});
+	}
+
+	/**
+	 * (private) Press a key one at a time, reading the new position after each press, until the
+	 * position is reached or the given number of presses is used up.
+	 * @param reached whether the cursor is where it should be; may throw when it cannot get there
+	 */
+	private async pressUntil(
+		inputArea: WebElement,
+		key: string,
+		coordinates: [number, number],
+		pressesLeft: number,
+		reached: (coordinates: [number, number]) => boolean,
+	): Promise<void> {
+		if (pressesLeft <= 0 || reached(coordinates)) {
+			return;
+		}
+		await inputArea.getDriver().actions().clear();
+		await inputArea.sendKeys(key);
+		const next = await this.coordinatesAfterKey(coordinates);
+		await this.pressUntil(inputArea, key, next, pressesLeft - 1, reached);
+	}
+
+	/**
+	 * (private) Cursor coordinates after a key press. The status bar shows the new position on a later
+	 * animation frame, which can take much longer than the key press on a slow or hidden window. Reading
+	 * it too early returns the old position and makes the callers press the key once too often.
+	 * @param previous coordinates before the key press
+	 * @returns the new coordinates, or the previous ones when the cursor did not move (e.g. at the end of a line)
+	 */
+	private async coordinatesAfterKey(previous: [number, number], timeout: number = 1_000): Promise<[number, number]> {
+		let coordinates = previous;
+		try {
+			await this.getDriver().wait(
+				async () => {
+					coordinates = await this.getCoordinates();
+					return coordinates[0] !== previous[0] || coordinates[1] !== previous[1];
+				},
+				timeout,
+				undefined,
+				20,
+			);
+		} catch (e) {
+			if (!(e instanceof error.TimeoutError)) {
+				throw e;
 			}
 		}
+		return coordinates;
 	}
 
 	/**
@@ -729,6 +764,10 @@ export class TextEditor extends Editor {
 		await this.getDriver().wait(
 			async () => {
 				try {
+					// check first, so a missing item is polled here instead of waited for in the status bar
+					if ((await statusBar.findElements(TextEditor.locators.StatusBar.selection)).length === 0) {
+						return false;
+					}
 					const text = await statusBar.getCurrentPosition();
 					const match = text.match(/\d+/g);
 					if (match && match.length >= 2) {

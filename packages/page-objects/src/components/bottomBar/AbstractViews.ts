@@ -30,6 +30,14 @@ export abstract class ChannelView extends ElementWithContextMenu {
 	 * @returns Promise resolving to array of strings - channel names
 	 */
 	async getChannelNames(): Promise<string[]> {
+		// The channel list can render again while it is read (slow in a hidden window), which
+		// leaves options stale; then read the list again.
+		return await this.getWaitHelper().withRetry(() => this.readChannelNames(), {
+			isRetryable: (e) => e.name === 'StaleElementReferenceError',
+		});
+	}
+
+	private async readChannelNames(): Promise<string[]> {
 		const names: string[] = [];
 		const elements = await (
 			await this.enclosingItem.findElement(ChannelView.locators.BottomBarViews.actionsContainer(this.actionsLabel))

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Key } from 'selenium-webdriver';
+import { Key, error } from 'selenium-webdriver';
 import { AbstractElement } from '../AbstractElement';
 import { Notification, CenterNotification, NotificationType } from './Notification';
 
@@ -58,12 +58,17 @@ export class NotificationsCenter extends AbstractElement {
 
 	/**
 	 * Get all notifications of a given type
+	 * VS Code can close the center by itself, for example when a notification is removed or the
+	 * window is busy; the center is opened again first, so the notifications it holds can be read.
+	 * Each row is waited for as before; a row that does not show within that time (or is gone
+	 * meanwhile) is left out instead of failing the whole call.
 	 * @param type type of the notifications to look for,
 	 * NotificationType.Any will retrieve all notifications
 	 *
 	 * @returns Promise resolving to array of Notification objects
 	 */
 	async getNotifications(type: NotificationType): Promise<Notification[]> {
+		await this.reopenIfClosed();
 		const notifications: Notification[] = [];
 		const elements = await this.findElements(NotificationsCenter.locators.NotificationsCenter.row);
 
@@ -73,13 +78,60 @@ export class NotificationsCenter extends AbstractElement {
 				if (type === NotificationType.Any || (await not.getType()) === type) {
 					notifications.push(await not.wait());
 				}
-			} catch (e: any) {
-				if (e.name === 'StaleElementReferenceError') {
+			} catch (e) {
+				if (e instanceof error.StaleElementReferenceError || e instanceof error.NoSuchElementError || e instanceof error.TimeoutError) {
 					continue;
 				}
 				throw e;
 			}
 		}
 		return notifications;
+	}
+
+	/**
+	 * Wait until the center lists a notification whose message contains the given text or matches
+	 * the given expression. Notifications can reach the center well after the action that shows them,
+	 * and the newest one is not always the one a test is waiting for.
+	 * @param message text the message contains, or a regular expression it matches
+	 * @param timeout time to wait in milliseconds
+	 * @returns Promise resolving to the matching notification
+	 */
+	async waitForNotification(message: string | RegExp, timeout: number = 10_000): Promise<Notification> {
+		const matches = (text: string) => (typeof message === 'string' ? text.includes(message) : message.test(text));
+		const found = await this.getDriver().wait<Notification | undefined>(
+			async () => {
+				for (const notification of await this.getNotifications(NotificationType.Any)) {
+					try {
+						if (matches(await notification.getMessage())) {
+							return notification;
+						}
+					} catch (e) {
+						if (!(e instanceof error.StaleElementReferenceError || e instanceof error.NoSuchElementError)) {
+							throw e;
+						}
+					}
+				}
+				return undefined;
+			},
+			timeout,
+			`Notification "${String(message)}" did not appear within ${timeout} ms`,
+		);
+		return found as Notification;
+	}
+
+	/**
+	 * Open the center again when VS Code has closed it, using the bell in the status bar.
+	 * Fails like `StatusBar.openNotificationsCenter()` when the center does not open.
+	 */
+	private async reopenIfClosed(): Promise<void> {
+		if (await this.isDisplayed()) {
+			return;
+		}
+		await this.getDriver().findElement(NotificationsCenter.locators.StatusBar.bell).click();
+		try {
+			await this.getDriver().wait(async () => await this.isDisplayed(), 3000);
+		} catch {
+			throw new Error('Notifications center did not open');
+		}
 	}
 }
