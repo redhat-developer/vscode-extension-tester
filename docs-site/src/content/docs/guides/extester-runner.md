@@ -47,7 +47,7 @@ It adds your tests to VS Code's built-in **Testing** view, under the **ExTester*
    - **Test Results** shows the output of the run, and the output each test wrote while it ran
    - When the run fails before any test starts, for example because `preRunTask` failed or `extest` is not installed, the tests are marked as errored with the reason
 
-   The results come from a small hook that the Runner preloads into the `extest` process with `NODE_OPTIONS`. It listens to Mocha's events and copies the output to a temporary file that the Runner reads during the run. It does not change how the tests run. A test whose title is computed at run time, for example in a loop, may not match the parsed tree; it is then shown as skipped and its result is in the output.
+   The results come from a small hook that the Runner preloads into the `extest` process with `NODE_OPTIONS`. It listens to Mocha's events and copies the output to a temporary file that the Runner reads during the run. It does not change how the tests run. A test that runs more than once, for example one `it` in a loop, shows as one test in the tree: it fails if any of its runs failed, with the error of each failed run. A failed `after` hook fails its `describe` block, and a failed `afterEach` hook fails the test it ran for. A test whose title the parser cannot match to the run, for example a title computed by a function, is shown as skipped and its result is in the output.
 
 4. **Logs and Screenshots Management**
    - The **Screenshots** and **Logs** views refresh when files are created, deleted or modified during a run

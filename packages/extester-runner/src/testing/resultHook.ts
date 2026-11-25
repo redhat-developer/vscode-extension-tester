@@ -41,6 +41,10 @@ export interface ResultEvent {
 	titles: string[];
 	/** Whether a hook (`before`, `afterEach`, ...) failed rather than a test. */
 	hook?: boolean;
+	/** For a failed hook: which kind of hook failed. */
+	hookType?: HookType;
+	/** For a failed `beforeEach` or `afterEach` hook: titles of the test the hook ran for. */
+	testTitles?: string[];
 	file?: string;
 	duration?: number;
 	error?: { message: string; stack?: string; expected?: string; actual?: string };
@@ -48,12 +52,18 @@ export interface ResultEvent {
 	text?: string;
 }
 
+/** The kinds of Mocha hooks. */
+export type HookType = 'before all' | 'before each' | 'after all' | 'after each';
+
 interface MochaRunnable {
 	type?: string;
+	title?: string;
+	originalTitle?: string;
 	file?: string;
 	duration?: number;
 	titlePath(): string[];
 	parent?: MochaRunnable;
+	ctx?: { currentTest?: MochaRunnable };
 }
 
 interface MochaRunner {
@@ -117,6 +127,18 @@ function toError(error: unknown): ResultEvent['error'] {
 	return { message: String(error) };
 }
 
+/** Mocha titles its hooks `"before all" hook`, `"after each" hook: name`, `"after each" hook for "test"` and so on. */
+const HOOK_TITLE = /^"(before all|before each|after all|after each)" hook/;
+
+/**
+ * Describes a failed hook: its kind and, for a `beforeEach` or `afterEach` hook, the test it ran for.
+ */
+function hookDetails(hook: MochaRunnable): Pick<ResultEvent, 'hookType' | 'testTitles'> {
+	const hookType = HOOK_TITLE.exec(hook.originalTitle ?? hook.title ?? '')?.[1] as HookType | undefined;
+	const test = hookType?.endsWith('each') ? hook.ctx?.currentTest : undefined;
+	return { hookType, testTitles: test?.titlePath() };
+}
+
 function writeEvent(event: ResultEvent): void {
 	try {
 		appendFileSync(resultsFile!, JSON.stringify(event) + '\n');
@@ -152,6 +174,7 @@ function listen(runner: MochaRunner): void {
 			event,
 			titles: hook ? (test.parent?.titlePath() ?? []) : test.titlePath(),
 			hook: hook || undefined,
+			...(hook ? hookDetails(test) : {}),
 			file: test.file,
 			duration: test.duration,
 			error: error === undefined ? undefined : toError(error),
