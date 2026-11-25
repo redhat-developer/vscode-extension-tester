@@ -175,7 +175,7 @@ export class StatusBar extends AbstractElement {
 		// that has just opened), so check the result and click the bell again if needed.
 		try {
 			await this.getWaitHelper().forCondition(async () => (await this.isNotificationsCentreVisible()) === open, {
-				timeout: 2000,
+				timeout: 3000,
 				pollInterval: 100,
 			});
 		} catch {
