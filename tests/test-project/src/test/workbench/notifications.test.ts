@@ -23,42 +23,35 @@ import { waitFor } from '../testUtils';
 describe('NotificationsCenter', () => {
 	let center: NotificationsCenter;
 
-	before(async () => {
-		center = await new Workbench().openNotificationsCenter();
+	before(async function () {
+		this.timeout(45000);
+		// The first command of a run can arrive before the test extension is activated: wait for
+		// it once here, so the tests below run each command once.
+		await showNotification('Hello World', 'Hello World', 30000);
 	});
 
 	after(async () => {
 		await center.close();
 	});
 
-	it('getNotifications works', async function () {
-		this.timeout(10000);
-		await new Workbench().executeCommand('Hello World');
+	/** Run a command that shows a notification and wait until the center lists it. */
+	async function showNotification(command: string, message: string, timeout: number = 10000): Promise<Notification> {
+		await new Workbench().executeCommand(command);
 		// Re-open the center after triggering the command so the notification is visible
 		center = await new Workbench().openNotificationsCenter();
-		await waitFor(
-			async () => {
-				const notifications = await center.getNotifications(NotificationType.Any);
-				return notifications.length > 0;
-			},
-			{ timeout: 5000, message: 'Notifications did not appear' },
-		);
+		return await center.waitForNotification(message, timeout);
+	}
+
+	it('getNotifications works', async function () {
+		this.timeout(40000);
+		await showNotification('Hello World', 'Hello World');
 		const notifications = await center.getNotifications(NotificationType.Any);
 		expect(notifications).not.empty;
 	});
 
 	it('clearAllNotifications works', async function () {
-		this.timeout(15000);
-		await new Workbench().executeCommand('Hello World');
-		center = await new Workbench().openNotificationsCenter();
-		// Wait for notification to appear
-		await waitFor(
-			async () => {
-				const notifications = await center.getNotifications(NotificationType.Any);
-				return notifications.length > 0;
-			},
-			{ timeout: 5000 },
-		);
+		this.timeout(45000);
+		await showNotification('Hello World', 'Hello World');
 		const notifications = await center.getNotifications(NotificationType.Any);
 		expect(notifications).not.empty;
 
@@ -81,18 +74,9 @@ describe('NotificationsCenter', () => {
 		let notification: Notification;
 
 		before(async function () {
-			this.timeout(12000);
-			await new Workbench().executeCommand('Test Notification');
-			center = await new Workbench().openNotificationsCenter();
-			// Wait for the 'Test Notification' to appear in the center
-			await waitFor(
-				async () => {
-					const notifications = await center.getNotifications(NotificationType.Any);
-					return notifications.length > 0;
-				},
-				{ timeout: 6000 },
-			);
-			notification = (await center.getNotifications(NotificationType.Any))[0];
+			this.timeout(45000);
+			// pick the notification by its text: an older one (e.g. Hello World) can still be listed first
+			notification = await showNotification('Test Notification', 'This is a notification');
 		});
 
 		it('getMessage gets the text', async () => {

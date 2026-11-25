@@ -19,7 +19,10 @@ import { expect } from 'chai';
 import { satisfies } from 'compare-versions';
 import { By, EditorView, InputBox, ModalDialog, TextEditor, until, VSBrowser, after, before, Workbench } from 'vscode-extension-tester';
 
-(satisfies(VSBrowser.instance.version, '>=1.50.0') && process.platform !== 'darwin' ? describe : describe.skip)('Modal Dialog', function () {
+// a hidden window runs VS Code in extension test mode, which never shows dialogs
+const dialogsShown = !VSBrowser.instance.isHiddenWindow;
+
+(satisfies(VSBrowser.instance.version, '>=1.50.0') && process.platform !== 'darwin' && dialogsShown ? describe : describe.skip)('Modal Dialog', function () {
 	let dialog: ModalDialog;
 
 	before(async function (this: Mocha.Context) {

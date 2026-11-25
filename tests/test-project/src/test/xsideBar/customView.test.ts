@@ -145,15 +145,17 @@ describe('CustomTreeSection', () => {
 		expect(menu).not.undefined;
 
 		await menu.select('Hello a World');
-		const infoMessage = await (await new Workbench().openNotificationsCenter()).getNotifications(NotificationType.Info);
-		expect(await infoMessage[0].getMessage()).to.equal('Hello World, Test Project!');
+		// the notification shows up a moment after the menu item is selected, and an older one can be listed first
+		const infoMessage = await (await new Workbench().openNotificationsCenter()).waitForNotification('Hello World, Test Project!');
+		expect(await infoMessage.getMessage()).to.equal('Hello World, Test Project!');
 		await (await new Workbench().openNotificationsCenter()).clearAllNotifications();
 	});
 
 	it('findWelcomeContent returns undefined if no WelcomeContent is present', async () => {
 		expect(await section.findWelcomeContent()).to.be.undefined;
 		await emptyViewSection.expand();
-		expect(await emptyViewSection.findWelcomeContent()).to.not.be.undefined;
+		// the welcome content is rendered after the section expands
+		expect(await waitFor(async () => await emptyViewSection.findWelcomeContent(), { timeout: 5000 })).to.not.be.undefined;
 	});
 
 	it('findWelcomeContent returns the section', async () => {

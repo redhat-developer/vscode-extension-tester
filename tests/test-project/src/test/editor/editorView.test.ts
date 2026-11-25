@@ -311,8 +311,8 @@ describe('EditorView', function () {
 	}
 
 	async function newUntitledFile(title?: string, group?: number, timeout: number = 10000): Promise<void> {
-		await new Workbench().executeCommand('Create: New File...');
-		await (await InputBox.create()).selectQuickPick('Text File');
+		// a direct command: the "Create: New File..." picker sometimes never opened in a freshly started hidden window
+		await new Workbench().executeCommand('File: New Untitled Text File');
 		if (title === undefined) {
 			await view.getDriver().sleep(500);
 		} else {
