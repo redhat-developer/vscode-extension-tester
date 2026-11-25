@@ -167,16 +167,34 @@ export class StatusBar extends AbstractElement {
 	 * Open/Close notification centre
 	 * @param open true to open, false to close
 	 */
-	private async toggleNotificationsCentre(open: boolean): Promise<void> {
-		let visible = false;
+	private async toggleNotificationsCentre(open: boolean, attemptsLeft: number = 3): Promise<void> {
+		if ((await this.isNotificationsCentreVisible()) !== open) {
+			await this.findElement(StatusBar.locators.StatusBar.bell).click();
+		}
+		// The click can get lost while the workbench is still moving focus (e.g. into an editor
+		// that has just opened), so check the result and click the bell again if needed.
+		try {
+			await this.getWaitHelper().forCondition(async () => (await this.isNotificationsCentreVisible()) === open, {
+				timeout: 2000,
+				pollInterval: 100,
+			});
+		} catch {
+			if (attemptsLeft > 1) {
+				await this.toggleNotificationsCentre(open, attemptsLeft - 1);
+			}
+		}
+	}
+
+	private async isNotificationsCentreVisible(): Promise<boolean> {
 		try {
 			const klass = (await this.enclosingItem.findElement(StatusBar.locators.StatusBar.notifications).getAttribute('class'))!;
-			visible = klass.indexOf('visible') > -1;
+			return klass.includes('visible');
 		} catch (err) {
-			// element doesn't exist until the button is first clicked
-		}
-		if (visible !== open) {
-			await this.findElement(StatusBar.locators.StatusBar.bell).click();
+			if (err instanceof error.NoSuchElementError) {
+				// element doesn't exist until the button is first clicked
+				return false;
+			}
+			throw err;
 		}
 	}
 
