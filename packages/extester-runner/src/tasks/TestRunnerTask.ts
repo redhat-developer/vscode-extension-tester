@@ -20,6 +20,9 @@ import { randomUUID } from 'node:crypto';
 import { ShellExecution, Task, TaskDefinition, tasks, TaskScope, WorkspaceFolder } from 'vscode';
 import { Logger } from '../logger/logger';
 
+/** How long a debug run waits for another process of its command before it ends, in milliseconds. */
+const DEBUG_END_DELAY = 2000;
+
 /**
  * How a test run ended.
  *
@@ -271,14 +274,34 @@ export abstract class TestRunner extends Task {
 		const name = `ExTester: ${this.label} (${this.runId.slice(0, 8)})`;
 		let resolveEnded: (() => void) | undefined;
 		const ended = new Promise<void>((resolve) => (resolveEnded = resolve));
+		// The session of a JavaScript Debug Terminal lasts as long as its shell, which stays open after the
+		// command. The Node.js processes of the command are its child sessions: once they all ended, the
+		// command is done, so the session is stopped. The terminal and its output stay.
+		const processes = new Set<vscode.DebugSession>();
+		let stopTimer: NodeJS.Timeout | undefined;
+		const isOwnProcess = (session: vscode.DebugSession) => {
+			for (let parent = session.parentSession; parent; parent = parent.parentSession) {
+				if (parent === this.debugSession) {
+					return true;
+				}
+			}
+			return false;
+		};
 		const startListener = vscode.debug.onDidStartDebugSession((session) => {
 			if (session.name === name) {
 				this.debugSession = session;
+			} else if (isOwnProcess(session)) {
+				processes.add(session);
+				clearTimeout(stopTimer);
 			}
 		});
 		const endListener = vscode.debug.onDidTerminateDebugSession((session) => {
 			if (session.name === name) {
 				resolveEnded?.();
+			} else if (processes.delete(session) && processes.size === 0 && this.debugSession) {
+				// Wait a moment: a command such as `npm run build && extest ...` starts its next process right away.
+				const debugSession = this.debugSession;
+				stopTimer = setTimeout(() => void vscode.debug.stopDebugging(debugSession), DEBUG_END_DELAY);
 			}
 		});
 		try {
@@ -301,6 +324,7 @@ export abstract class TestRunner extends Task {
 			await ended;
 			return undefined;
 		} finally {
+			clearTimeout(stopTimer);
 			startListener.dispose();
 			endListener.dispose();
 			this.debugSession = undefined;
