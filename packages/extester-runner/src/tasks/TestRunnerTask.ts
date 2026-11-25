@@ -141,6 +141,16 @@ export abstract class TestRunner extends Task {
 	}
 
 	/**
+	 * Reads an environment variable that the test process gets from the task, such as one from the `extesterRunner.env` setting.
+	 *
+	 * @param {string} name - The variable name.
+	 * @returns {string | undefined} The value, or `undefined` when the task does not set the variable.
+	 */
+	public getEnvironment(name: string): string | undefined {
+		return (this.execution as ShellExecution).options?.env?.[name];
+	}
+
+	/**
 	 * Runs the tests with the JavaScript debugger instead of as a task, so breakpoints in the tests
 	 * stop them. Mocha's timeouts are turned off for the run. Call it before `execute()`.
 	 */
