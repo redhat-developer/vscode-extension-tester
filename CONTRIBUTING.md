@@ -34,6 +34,12 @@ Now that you have the code, you will need to build the project. First, we need t
 npm install
 ```
 
+The repository requires **npm 11.2 or newer** (Node.js 24 and later ship with it). The `package-lock.json` is generated with npm 11, and older npm versions resolve the `overrides` differently and would rewrite it, so npm refuses to run in this repository with an older version (`EBADDEVENGINES`). If you are on Node.js 22, upgrade npm first:
+
+```bash
+npm install -g npm@11
+```
+
 ### Test It
 
 **When you make a change, make sure the tests are passing**. In the `tests/test-project` directory there is a dummy VS Code extension we use to test the framework itself.
