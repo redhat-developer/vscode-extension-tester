@@ -110,6 +110,11 @@ describe('SideBarView', () => {
 		});
 
 		after(async function () {
+			// Removing the last workspace folder from inside the window is not possible in
+			// extension test mode, which a hidden window runs in: the folder stays open there.
+			if (VSBrowser.instance.isHiddenWindow) {
+				return;
+			}
 			this.timeout(15000);
 			const wait = getWaitHelper();
 			await new Workbench().executeCommand('close test folder');

@@ -31,6 +31,7 @@ import {
 	after,
 	before,
 	afterEach,
+	error,
 	beforeEach,
 } from 'vscode-extension-tester';
 import { satisfies } from 'compare-versions';
@@ -539,12 +540,26 @@ describe('TextEditor', function () {
 
 		it('getCodeLens works with partial text', async function (this: Mocha.Context) {
 			this.timeout(15000);
-			// Lenses can be re-rendered right after they appear, so poll until one is found by its text.
-			const lens = await editor
-				.getDriver()
-				.wait(async () => await editor.getCodeLens('Codelens provided'), 10000, 'CodeLens "Codelens provided" did not appear');
-			expect(await lens?.getText()).has.string('Codelens provided');
-			expect(await lens?.getTooltip()).has.string('Tooltip provided');
+			// Lenses can be re-rendered right after they appear (leaving a found lens stale), so poll
+			// until one lens is found by its text and both its text and tooltip can be read.
+			const lensValues = await editor.getDriver().wait(
+				async () => {
+					try {
+						const lens = await editor.getCodeLens('Codelens provided');
+						return lens ? [await lens.getText(), await lens.getTooltip()] : undefined;
+					} catch (e) {
+						if (e instanceof error.StaleElementReferenceError) {
+							return undefined;
+						}
+						throw e;
+					}
+				},
+				10000,
+				'CodeLens "Codelens provided" did not appear',
+			);
+			const [text, tooltip] = lensValues!;
+			expect(text).has.string('Codelens provided');
+			expect(tooltip).has.string('Tooltip provided');
 		});
 
 		it('getCodeLenses works with second in the span', async function (this: Mocha.Context) {
