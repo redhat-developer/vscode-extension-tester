@@ -17,6 +17,7 @@
 
 import * as vscode from 'vscode';
 import { Logger } from '../logger/logger';
+import { parseScreen, VirtualDisplay } from '../utils/virtualDisplay';
 import { RunResult, TestRunner } from './TestRunnerTask';
 
 /**
@@ -30,13 +31,17 @@ export class TestRunManager implements vscode.Disposable {
 	private current: TestRunner | undefined;
 	private groupRunning = false;
 	private stopRequested = false;
+	private platformWarningShown = false;
 
 	/**
 	 * Creates an instance of the `TestRunManager`.
 	 *
 	 * @param {Logger} logger - Logger instance for tracking runs.
 	 */
-	constructor(private readonly logger: Logger) {}
+	constructor(
+		private readonly logger: Logger,
+		private readonly virtualDisplay = new VirtualDisplay(),
+	) {}
 
 	/**
 	 * Whether a test run is in progress.
@@ -90,6 +95,10 @@ export class TestRunManager implements vscode.Disposable {
 		}
 		this.current = task;
 		try {
+			const displayError = await this.prepareDisplay(task);
+			if (displayError) {
+				return { outcome: 'failed', failedStep: displayError };
+			}
 			const result = await task.execute();
 			if (result.outcome === 'stopped') {
 				this.stopRequested = true;
@@ -98,6 +107,49 @@ export class TestRunManager implements vscode.Disposable {
 			return result;
 		} finally {
 			this.current = undefined;
+		}
+	}
+
+	/**
+	 * Points the run at the virtual display when the `virtualDisplay` setting is on.
+	 *
+	 * @param {TestRunner} task - The task to run.
+	 * @returns {Promise<string | undefined>} Why the run cannot start, or `undefined` when it can.
+	 */
+	private async prepareDisplay(task: TestRunner): Promise<string | undefined> {
+		const scope = typeof task.scope === 'object' ? task.scope.uri : undefined;
+		const settings = vscode.workspace.getConfiguration('extesterRunner', scope);
+		if (!settings.get<boolean>('virtualDisplay', false)) {
+			// Do not keep Xvfb running once the setting is turned off.
+			this.virtualDisplay.dispose();
+			return undefined;
+		}
+		if (process.platform !== 'linux') {
+			this.logger.info('The virtualDisplay setting works on Linux only; the tests run on the screen.');
+			if (!this.platformWarningShown) {
+				this.platformWarningShown = true;
+				void vscode.window.showWarningMessage(
+					'ExTester Runner: the virtual display (Xvfb) is available on Linux only, so the tests run on your screen. Try the experimental hiddenWindow setting instead.',
+				);
+			}
+			return undefined;
+		}
+		const configuredDisplay = task.getEnvironment('DISPLAY');
+		if (configuredDisplay) {
+			// A display set in `env` wins, as EXTESTER_HIDDEN_WINDOW in `env` wins over hiddenWindow.
+			this.logger.info(`Running the tests on DISPLAY=${configuredDisplay} from the env setting instead of a virtual display.`);
+			task.useDisplay(configuredDisplay);
+			return undefined;
+		}
+		try {
+			const access = await this.virtualDisplay.acquire(parseScreen(settings.get<string>('virtualDisplayScreen')));
+			this.logger.info(`Running the tests on the virtual display ${access.display}.`);
+			task.useDisplay(access.display, access.xauthority);
+			return undefined;
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			this.logger.error(`The virtual display did not start: ${message}`);
+			return `the virtual display did not start: ${message}`;
 		}
 	}
 
@@ -111,5 +163,6 @@ export class TestRunManager implements vscode.Disposable {
 
 	dispose(): void {
 		this.stop();
+		this.virtualDisplay.dispose();
 	}
 }

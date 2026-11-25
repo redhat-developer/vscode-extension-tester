@@ -61,20 +61,22 @@ All settings live under the `extesterRunner` namespace in your workspace setting
 
 **Command line**
 
-| Setting                    | Default            | Description                                                                                                                                               |
-| -------------------------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `runSources`               | `false`            | Run the TypeScript test sources without compiling them. `rootFolder` and `outputFolder` are then ignored.                                                 |
-| `rootFolder`               | —                  | Root of your TypeScript test sources. When set, this segment is dropped when mapping a source file to its compiled output.                                |
-| `outputFolder`             | `out`              | Directory with the compiled JavaScript test files.                                                                                                        |
-| `tempFolder`               | system temp folder | Directory ExTester uses for the downloaded VS Code, ChromeDriver and other test resources.                                                                |
-| `visualStudioCode.Version` | `max`              | VS Code version to test with: `max`, `min`, `latest` or an exact version such as `1.97.1`.                                                                |
-| `visualStudioCode.Type`    | `stable`           | `stable` or `insider`.                                                                                                                                    |
-| `additionalArgs`           | `[]`               | Extra arguments passed to `extest setup-and-run`.                                                                                                         |
-| `configFile`               | —                  | Path of the ExTester configuration file, relative to the workspace folder. Default: `extester.config.json` in the folder.                                 |
-| `env`                      | `{}`               | Environment variables for test runs, such as `{ "TEST_USER": "tester" }`. Only their names are logged.                                                    |
-| `runCommand`               | —                  | Command that runs the tests instead of `npx extest setup-and-run`, such as `npm run ui-test -- ${target}`. See [Custom run command](#custom-run-command). |
-| `preRunTask`               | —                  | VS Code task to run before each test run, such as `npm: compile`. The tests start only when it succeeds.                                                  |
-| `hiddenWindow`             | `false`            | **Experimental.** Run the tests in a VS Code window that is never shown or focused. See [Hidden window](#hidden-window-experimental).                     |
+| Setting                    | Default            | Description                                                                                                                                                  |
+| -------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `runSources`               | `false`            | Run the TypeScript test sources without compiling them. `rootFolder` and `outputFolder` are then ignored.                                                    |
+| `rootFolder`               | —                  | Root of your TypeScript test sources. When set, this segment is dropped when mapping a source file to its compiled output.                                   |
+| `outputFolder`             | `out`              | Directory with the compiled JavaScript test files.                                                                                                           |
+| `tempFolder`               | system temp folder | Directory ExTester uses for the downloaded VS Code, ChromeDriver and other test resources.                                                                   |
+| `visualStudioCode.Version` | `max`              | VS Code version to test with: `max`, `min`, `latest` or an exact version such as `1.97.1`.                                                                   |
+| `visualStudioCode.Type`    | `stable`           | `stable` or `insider`.                                                                                                                                       |
+| `additionalArgs`           | `[]`               | Extra arguments passed to `extest setup-and-run`.                                                                                                            |
+| `configFile`               | —                  | Path of the ExTester configuration file, relative to the workspace folder. Default: `extester.config.json` in the folder.                                    |
+| `env`                      | `{}`               | Environment variables for test runs, such as `{ "TEST_USER": "tester" }`. Only their names are logged.                                                       |
+| `runCommand`               | —                  | Command that runs the tests instead of `npx extest setup-and-run`, such as `npm run ui-test -- ${target}`. See [Custom run command](#custom-run-command).    |
+| `preRunTask`               | —                  | VS Code task to run before each test run, such as `npm: compile`. The tests start only when it succeeds.                                                     |
+| `hiddenWindow`             | `false`            | **Experimental.** Run the tests in a VS Code window that is never shown or focused. See [Hidden window](#hidden-window-experimental).                        |
+| `virtualDisplay`           | `false`            | Linux only. Run the tests on a virtual display (Xvfb) instead of your screen. See [Running tests on a virtual display](#running-tests-on-a-virtual-display). |
+| `virtualDisplayScreen`     | `1920x1080x24`     | Screen size of the virtual display.                                                                                                                          |
 
 **Logs**
 
@@ -116,6 +118,23 @@ The Testing view still shows the result of each test when the command keeps the 
 Turn on `extesterRunner.hiddenWindow` to run the tests in a VS Code window that is never shown or focused, so a run does not take over your screen. The Runner sets `EXTESTER_HIDDEN_WINDOW=true` for `npx extest setup-and-run` and for a custom `runCommand`; a value of `EXTESTER_HIDDEN_WINDOW` in `env` wins over the setting. To turn it on for the whole team, set `run.hiddenWindow` in `extester.config.json` instead.
 
 It needs an ExTester release with hidden window support and VS Code 1.147 or newer. VS Code then runs in extension test mode: dialogs are not shown and UI state is not kept between runs. See [Running With a Hidden Window](https://redhat-developer.github.io/vscode-extension-tester/guides/hidden-window/).
+
+## Running tests on a virtual display
+
+Set `virtualDisplay` to run the tests on a virtual X display instead of your screen. The VS Code window under test then does not cover your editor or take the keyboard focus, so you can keep working while the tests run:
+
+```json
+{ "extesterRunner.virtualDisplay": true }
+```
+
+- Linux only. The Runner starts `Xvfb` on the first run, keeps it for the next runs and stops it when VS Code closes or the setting is turned off. Install it first, for example `sudo apt install xvfb` (Debian, Ubuntu) or `sudo dnf install xorg-x11-server-Xvfb` (Fedora). If it cannot start, the run reports why in the Testing view. VS Code installed as a Flatpak or Snap cannot see the host's Xvfb, so the Runner reports it as missing there.
+- Like `xvfb-run`, the Runner gives Xvfb a random cookie and passes it to the tests through `XAUTHORITY`, so other users of the machine cannot connect to the display.
+- `virtualDisplayScreen` sets the screen size (default `1920x1080x24`), which is also the largest size of the window and its screenshots.
+- In a Wayland session (`WAYLAND_DISPLAY` set or `XDG_SESSION_TYPE=wayland`) the test command runs without `WAYLAND_DISPLAY`, so VS Code uses the X display. The command still runs in the shell VS Code runs tasks in.
+- It works with `runCommand` too. Do not wrap that command in `xvfb-run` then.
+- A `DISPLAY` in `env` wins over the virtual display: the Runner then starts no Xvfb and runs the tests on that display. Use it to watch a run on a display you can see, such as an Xephyr or VNC server, for example `{ "DISPLAY": ":1" }`.
+- These are VS Code settings, not `runner` keys of `extester.config.json`: whether the window may appear is your choice, not the project's.
+- On macOS and Windows there is no Xvfb, and the setting is ignored with a warning. Use the experimental `hiddenWindow` setting there instead. On Linux prefer `virtualDisplay`: it keeps VS Code in its normal mode, while a hidden window runs in extension test mode and can start slowly under X11.
 
 ## Running TypeScript sources
 

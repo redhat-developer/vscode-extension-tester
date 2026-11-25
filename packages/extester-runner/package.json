@@ -282,6 +282,21 @@
               "experimental"
             ],
             "markdownDescription": "**Experimental.** Run the tests in a VS Code window that is never shown or focused, so a run does not take over the screen. Needs VS Code 1.147 or newer. Sets `EXTESTER_HIDDEN_WINDOW=true` for `npx extest setup-and-run` and for a custom `runCommand`; a value of `EXTESTER_HIDDEN_WINDOW` in `env` wins. VS Code then runs in extension test mode: dialogs are not shown and UI state is not kept. See [Running With a Hidden Window](https://redhat-developer.github.io/vscode-extension-tester/guides/hidden-window/)."
+          },
+          "extesterRunner.virtualDisplay": {
+            "type": "boolean",
+            "default": false,
+            "scope": "machine-overridable",
+            "order": 12,
+            "markdownDescription": "Linux only. Run the tests on a virtual display (Xvfb) that the Runner starts, so the VS Code window under test does not open on your screen or take the focus. Needs `Xvfb` (package `xvfb` or `xorg-x11-server-Xvfb`). The display is kept for the next runs and stopped with VS Code or when the setting is turned off. A `DISPLAY` set in `#extesterRunner.env#` wins over it. Works with `runCommand` too; do not wrap that command in `xvfb-run` then. On macOS and Windows the setting is ignored; use `#extesterRunner.hiddenWindow#` there."
+          },
+          "extesterRunner.virtualDisplayScreen": {
+            "type": "string",
+            "default": "1920x1080x24",
+            "scope": "machine-overridable",
+            "order": 13,
+            "pattern": "^(\\d{2,5}x\\d{2,5}(x(8|16|24|30))?)?$",
+            "markdownDescription": "Screen size of the virtual display, `WIDTHxHEIGHT` or `WIDTHxHEIGHTxDEPTH`. It is also the largest size of the VS Code window and its screenshots. Used when `#extesterRunner.virtualDisplay#` is on."
           }
         }
       },

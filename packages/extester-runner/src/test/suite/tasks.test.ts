@@ -570,4 +570,55 @@ describe('Task Command Generation', () => {
 			assert.strictEqual(execution.options?.cwd, workspacePath);
 		});
 	});
+
+	describe('on another display', () => {
+		let workspacePath: string;
+		const saved: Record<string, string | undefined> = {};
+
+		before(() => {
+			workspacePath = vscode.workspace.workspaceFolders![0].uri.fsPath;
+			saved.WAYLAND_DISPLAY = process.env.WAYLAND_DISPLAY;
+			saved.XDG_SESSION_TYPE = process.env.XDG_SESSION_TYPE;
+		});
+
+		afterEach(() => {
+			for (const [name, value] of Object.entries(saved)) {
+				if (value === undefined) {
+					delete process.env[name];
+				} else {
+					process.env[name] = value;
+				}
+			}
+		});
+
+		it('sets DISPLAY and XAUTHORITY and keeps the command outside a Wayland session', () => {
+			delete process.env.WAYLAND_DISPLAY;
+			process.env.XDG_SESSION_TYPE = 'x11';
+			const task = new RunFileTask(path.join(workspacePath, 'src', 'ui-test', 'a.test.ts'), dummyLogger);
+			const before = task.execution as vscode.ShellExecution;
+
+			task.useDisplay(':42', '/tmp/cookie/Xauthority');
+
+			const execution = task.execution as vscode.ShellExecution;
+			assert.strictEqual(execution.command, before.command);
+			assert.deepStrictEqual(execution.args, before.args);
+			assert.strictEqual(execution.options?.env?.DISPLAY, ':42');
+			assert.strictEqual(execution.options?.env?.XAUTHORITY, '/tmp/cookie/Xauthority');
+		});
+
+		it('runs the command without WAYLAND_DISPLAY in the task shell in a Wayland session', () => {
+			process.env.WAYLAND_DISPLAY = 'wayland-0';
+			const task = new RunFileTask(path.join(workspacePath, 'src', 'ui-test', 'a.test.ts'), dummyLogger);
+
+			task.useDisplay(':42');
+
+			const execution = task.execution as vscode.ShellExecution;
+			const commandLine = String(execution.commandLine);
+			assert.ok(commandLine.startsWith('env -u WAYLAND_DISPLAY XDG_SESSION_TYPE=x11 '), commandLine);
+			assert.ok(commandLine.includes(" -c 'npx extest setup-and-run "), commandLine);
+			assert.strictEqual(execution.options?.cwd, workspacePath);
+			assert.strictEqual(execution.options?.env?.DISPLAY, ':42');
+			assert.strictEqual(execution.options?.env?.XAUTHORITY, undefined);
+		});
+	});
 });

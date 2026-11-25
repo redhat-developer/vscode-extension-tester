@@ -38,7 +38,7 @@ Running, stopping and rerunning tests use VS Code's own **Test:** commands.
 
 # Settings (Configuration)
 
-Settings live under `extesterRunner`: `testFileGlob`, `excludeGlob`, `ignorePathPart`, `runSources`, `rootFolder`, `outputFolder`, `tempFolder`, `visualStudioCode.Version`, `visualStudioCode.Type`, `additionalArgs`, `configFile`, `env`, `preRunTask`, `runCommand`, `hiddenWindow` (experimental), `hideEmptyLogFolders`.
+Settings live under `extesterRunner`: `testFileGlob`, `excludeGlob`, `ignorePathPart`, `runSources`, `rootFolder`, `outputFolder`, `tempFolder`, `visualStudioCode.Version`, `visualStudioCode.Type`, `additionalArgs`, `configFile`, `env`, `preRunTask`, `runCommand`, `hiddenWindow` (experimental), `virtualDisplay`, `virtualDisplayScreen`, `hideEmptyLogFolders`.
 
 Project configuration: the `runner` section of `extester.config.json` (read with the CLI's own loader, `extends` included) holds the shared values of `testFileGlob`, `excludeGlob`, `ignorePathPart`, `rootFolder`, `outputFolder`, `runSources`, `additionalArgs`, `env`, `preRunTask` and `runCommand`; `visualStudioCode.Version`, `visualStudioCode.Type` and `tempFolder` come from `setup` / `run`. Precedence: defaults < user settings < file < workspace / workspace-folder settings. The file is read per workspace root, cached, and watched.
 
@@ -54,6 +54,8 @@ Tests run in VS Code shell tasks (source `extester-runner`) that call `extest se
 - All tasks pass `env`, and run the `preRunTask` VS Code task first, if set. With the experimental `hiddenWindow` setting on, they also set `EXTESTER_HIDDEN_WINDOW=true` unless `env` sets it (`getRunEnvironment` in `src/tasks/taskConfiguration.ts`).
 
 - With `runCommand` set, all tasks run that command instead of `npx extest setup-and-run`; `${target}` is replaced by the quoted target, or the target is appended (`src/utils/runCommand.ts`). Version, type, storage, `additionalArgs` and `--config` are not added. The result hook still works when the command keeps `NODE_OPTIONS` and `EXTESTER_RUNNER_RESULTS` for the Mocha process.
+
+- With `virtualDisplay` on (Linux), `TestRunManager` starts one Xvfb (`src/utils/virtualDisplay.ts`, `-displayfd` picks a free display), reuses it for later runs, restarts it when `virtualDisplayScreen` changes and stops it on dispose. The task gets `DISPLAY`; in a Wayland session the command runs through `env -u WAYLAND_DISPLAY XDG_SESSION_TYPE=x11 <task shell> -c`. Xvfb gets a random cookie (`-auth`, a 0600 file in a private temp folder) and the task gets `XAUTHORITY`. A `DISPLAY` in `env` wins: no Xvfb is started. Turning the setting off stops Xvfb. A failed start fails the run with the reason. Ignored with a warning on other platforms.
 
 # Logging
 
