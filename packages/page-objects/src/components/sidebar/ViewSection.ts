@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
-import { until, WebElement } from 'selenium-webdriver';
+import { error, until, WebElement } from 'selenium-webdriver';
 import { ContextMenu, ViewContent, ViewItem, waitForAttributeValue, WelcomeContentSection } from '../..';
 import { AbstractElement } from '../AbstractElement';
 import { ElementWithContextMenu } from '../ElementWithContextMenu';
 import { ChromiumWebDriver } from 'selenium-webdriver/chromium';
 import { ActionButtonElementDropdown } from '../ActionButtonElementDropdown';
+import { isTransientDomError } from '../../utils/transientDomError';
 
 export type ViewSectionConstructor<T extends ViewSection> = {
 	new (rootElement: WebElement, tree: ViewContent): T;
@@ -145,17 +146,24 @@ export abstract class ViewSection extends AbstractElement {
 	 * @returns Promise resolving to array of ViewPanelAction objects
 	 */
 	async getActions(): Promise<ViewPanelAction[]> {
-		await this.getDriver().actions().move({ origin: this }).perform(); // move mouse to bring auto-hided buttons visible
-		const actions = await this.findElement(ViewSection.locators.ViewSection.actions).findElements(ViewSection.locators.ViewSection.button);
-		return Promise.all(
-			actions.map(async (action) => {
-				const dropdown = (await action.getAttribute('aria-haspopup')) || (await action.getAttribute('aria-expanded'));
-				if (dropdown) {
-					return new ViewPanelActionDropdown(action, this);
-				} else {
-					return new ViewPanelAction(action, this);
-				}
-			}),
+		// VS Code re-renders the header toolbar when the layout changes (e.g. a sibling section is
+		// collapsed), so collect the buttons again if one goes stale while we read it.
+		return await this.getWaitHelper().withRetry(
+			async () => {
+				await this.getDriver().actions().move({ origin: this }).perform(); // move mouse to bring auto-hided buttons visible
+				const actions = await this.findElement(ViewSection.locators.ViewSection.actions).findElements(ViewSection.locators.ViewSection.button);
+				return await Promise.all(
+					actions.map(async (action) => {
+						const dropdown = (await action.getAttribute('aria-haspopup')) || (await action.getAttribute('aria-expanded'));
+						if (dropdown) {
+							return new ViewPanelActionDropdown(action, this);
+						} else {
+							return new ViewPanelAction(action, this);
+						}
+					}),
+				);
+			},
+			{ maxRetries: 3, retryDelay: 200, isRetryable: isTransientDomError },
 		);
 	}
 
@@ -165,18 +173,40 @@ export abstract class ViewSection extends AbstractElement {
 	 * @returns ViewPanelAction object if found, undefined otherwise
 	 */
 	async getAction(label: string): Promise<ViewPanelAction | undefined> {
-		const actions = await this.getActions();
-		for (const action of actions) {
-			try {
-				if ((await action.getLabel()) === label) {
-					return action;
-				}
-			} catch (e: any) {
-				if (e.name === 'StaleElementReferenceError') {
-					continue;
-				}
-				throw e;
+		try {
+			// The toolbar can be re-rendered while we read it. If a label went stale and no match
+			// was found, the label may have been skipped, so collect the actions again.
+			return await this.getWaitHelper().withRetry(
+				async () => {
+					const actions = await this.getActions();
+					const labels = await Promise.all(
+						actions.map(async (action) => {
+							try {
+								return await action.getLabel();
+							} catch (e) {
+								if (isTransientDomError(e)) {
+									return undefined;
+								}
+								throw e;
+							}
+						}),
+					);
+					const index = labels.indexOf(label);
+					if (index >= 0) {
+						return actions[index];
+					}
+					if (labels.includes(undefined)) {
+						throw new error.StaleElementReferenceError(`Action '${label}' not found while the toolbar was re-rendering`);
+					}
+					return undefined;
+				},
+				{ maxRetries: 2, retryDelay: 200, isRetryable: isTransientDomError },
+			);
+		} catch (e) {
+			if (isTransientDomError(e)) {
+				return undefined;
 			}
+			throw e;
 		}
 	}
 

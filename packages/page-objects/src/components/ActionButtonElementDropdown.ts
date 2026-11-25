@@ -18,6 +18,7 @@
 import { ContextMenu } from './menu/ContextMenu';
 import { AbstractElement } from './AbstractElement';
 import { By } from 'selenium-webdriver';
+import { isTransientDomError } from '../utils/transientDomError';
 
 export abstract class ActionButtonElementDropdown extends AbstractElement {
 	async open(): Promise<ContextMenu> {
@@ -51,8 +52,16 @@ export abstract class ActionButtonElementDropdown extends AbstractElement {
 					{ timeout: 2000, pollInterval: 50 },
 				);
 			}
-			const shadowRoot = await shadowRootHost[0].getShadowRoot();
-			return new ContextMenu(await shadowRoot.findElement(By.className('monaco-menu-container'))).wait();
+			// VS Code can re-render the menu while it opens, which detaches the shadow root
+			// or the menu container we already hold. Look both up again when that happens.
+			return await this.getWaitHelper().withRetry(
+				async () => {
+					const hosts = await this.enclosingItem.findElements(ActionButtonElementDropdown.locators.ContextMenu.shadowRootHost);
+					const shadowRoot = await (hosts[0] ?? shadowRootHost[0]).getShadowRoot();
+					return await new ContextMenu(await shadowRoot.findElement(By.className('monaco-menu-container'))).wait();
+				},
+				{ maxRetries: 3, retryDelay: 200, isRetryable: isTransientDomError },
+			);
 		} else {
 			const workbench = await this.getDriver().findElement(ActionButtonElementDropdown.locators.Workbench.constructor);
 			return new ContextMenu(workbench).wait();

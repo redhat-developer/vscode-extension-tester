@@ -198,30 +198,51 @@ export abstract class TreeItem extends ViewItem {
 	 * @param locator locator of a given type of tree item
 	 */
 	protected async getChildItems(locator: By): Promise<WebElement[]> {
-		const items: WebElement[] = [];
+		const expandable = await this.isExpandable();
+		const wasExpanded = expandable && (await this.isExpanded());
 		await this.expand();
 
+		if (!expandable || wasExpanded) {
+			return await this.findChildRows(locator);
+		}
+		// The item reports itself expanded before VS Code renders its children, so give the rows a moment
+		// to appear and settle. An expandable item can legitimately have no children, hence the short wait.
+		const wait = this.getWaitHelper();
+		await wait
+			.forCondition(async () => (await this.findChildRows(locator)).length > 0, { timeout: 1000, pollInterval: 50 })
+			.catch(() => {
+				/* no children rendered, the item may have none */
+			});
+		await wait
+			.forCountStable(async () => (await this.findChildRows(locator)).length, { timeout: 2000, stableChecks: 2, stabilityInterval: 100 })
+			.catch(() => {
+				/* keep whatever is rendered */
+			});
+		return await this.findChildRows(locator);
+	}
+
+	private async findChildRows(locator: By): Promise<WebElement[]> {
 		const rows = await this.enclosingItem.findElements(locator);
 		const baseIndex = +(await this.getAttribute(TreeItem.locators.ViewSection.index))!;
 		const baseLevel = +(await this.getAttribute(TreeItem.locators.ViewSection.level))!;
+		const positions = await Promise.all(
+			rows.map(async (row) => ({
+				level: +(await row.getAttribute(TreeItem.locators.ViewSection.level))!,
+				index: +(await row.getAttribute(TreeItem.locators.ViewSection.index))!,
+			})),
+		);
 
-		for (const row of rows) {
-			const level = +(await row.getAttribute(TreeItem.locators.ViewSection.level))!;
-			const index = +(await row.getAttribute(TreeItem.locators.ViewSection.index))!;
-
-			if (index <= baseIndex) {
-				continue;
-			}
-			if (level > baseLevel + 1) {
+		const items: WebElement[] = [];
+		for (let i = 0; i < rows.length; i++) {
+			const { level, index } = positions[i];
+			if (index <= baseIndex || level > baseLevel + 1) {
 				continue;
 			}
 			if (level <= baseLevel) {
 				break;
 			}
-
-			items.push(row);
+			items.push(rows[i]);
 		}
-
 		return items;
 	}
 
