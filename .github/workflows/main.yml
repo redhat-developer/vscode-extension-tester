@@ -225,6 +225,24 @@ jobs:
     with:
       test_group: xsideBar
 
+  group_hiddenWindow:
+    name: 🧪 hidden workbench
+    # Smoke test of the experimental --hidden_window mode (VS Code 1.147+, so the
+    # newest version only). The workbench group switches folders and workspaces,
+    # which restarts the hidden VS Code, and covers quick input and notifications.
+    # Informational while the mode is experimental: it is not part of the status
+    # check, so a change in VS Code's new --hidden-window cannot block merges.
+    needs: changes
+    if: needs.changes.outputs.core == 'true'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/template-suite.yaml
+    with:
+      test_group: workbench
+      versions: '["max"]'
+      hidden_window: true
+      collect_coverage: false
+
   coverage:
     name: 📊 Framework Coverage
     # Merges the V8 dumps that the ubuntu cells of every suite job collected
