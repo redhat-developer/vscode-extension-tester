@@ -33,6 +33,7 @@ hiddenWindow setting (experimental) sets EXTESTER_HIDDEN_WINDOW=true, the test V
     - a value of EXTESTER_HIDDEN_WINDOW in env wins
 Screenshots and Logs views are in the Testing sidebar below the test tree, collapsed by default
 Empty Screenshots and Logs views show welcome content with a link to the Temp Folder setting
+virtualDisplay setting (Linux) runs tests on an Xvfb display started by the Runner, reused across runs; missing Xvfb fails the run with an install hint
 
 ** Logs view **
 Folder structure from logs is available inside

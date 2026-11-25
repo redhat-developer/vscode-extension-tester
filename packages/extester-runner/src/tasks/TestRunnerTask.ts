@@ -19,6 +19,7 @@ import * as vscode from 'vscode';
 import { randomUUID } from 'node:crypto';
 import { ShellExecution, Task, TaskDefinition, tasks, TaskScope, WorkspaceFolder } from 'vscode';
 import { Logger } from '../logger/logger';
+import { quoteForShell, withoutWayland } from '../utils/virtualDisplay';
 
 /** How long a debug run waits for another process of its command before it ends, in milliseconds. */
 const DEBUG_END_DELAY = 2000;
@@ -151,6 +152,24 @@ export abstract class TestRunner extends Task {
 	 */
 	public getEnvironment(name: string): string | undefined {
 		return (this.execution as ShellExecution).options?.env?.[name];
+	}
+
+	/**
+	 * Runs the tests on another X display, such as a virtual display, instead of the user's screen.
+	 * In a Wayland session the command also runs without `WAYLAND_DISPLAY`, so that VS Code uses
+	 * the X display. Call it before `execute()`.
+	 *
+	 * @param {string} display - The `DISPLAY` value, such as `:99`.
+	 * @param {string} [xauthority] - The `XAUTHORITY` file with the cookie the display accepts.
+	 */
+	public useDisplay(display: string, xauthority?: string): void {
+		this.addEnvironment(xauthority ? { DISPLAY: display, XAUTHORITY: xauthority } : { DISPLAY: display });
+		const execution = this.execution as ShellExecution;
+		const line = commandLine(execution);
+		const wrapped = withoutWayland(line, process.env, vscode.env.shell);
+		if (wrapped !== line) {
+			this.execution = new ShellExecution(wrapped, execution.options);
+		}
 	}
 
 	/**
@@ -369,8 +388,7 @@ function commandLine(execution: ShellExecution): string {
 		return execution.commandLine;
 	}
 	// cmd.exe does not treat single quotes as quotes; PowerShell and cmd.exe both accept double quotes.
-	const quote = process.platform === 'win32' ? '"' : "'";
-	const toText = (part: string | vscode.ShellQuotedString | undefined) =>
-		typeof part === 'string' || part === undefined ? (part ?? '') : `${quote}${part.value}${quote}`;
+	const quote = (value: string) => (process.platform === 'win32' ? `"${value}"` : quoteForShell(value));
+	const toText = (part: string | vscode.ShellQuotedString | undefined) => (typeof part === 'string' || part === undefined ? (part ?? '') : quote(part.value));
 	return [execution.command, ...(execution.args ?? [])].map(toText).join(' ');
 }

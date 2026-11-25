@@ -79,6 +79,8 @@ The extension supports both VS Code settings and a [project configuration](#proj
    - `preRunTask`: VS Code task to run before each test run, such as `npm: compile` (default: not set)
    - `runCommand`: Command that runs the tests instead of `npx extest setup-and-run`; see [Custom run command](#custom-run-command) (default: not set)
    - `hiddenWindow`: **Experimental.** Run the tests in a VS Code window that is never shown or focused; see [Running tests with a hidden window](#running-tests-with-a-hidden-window) (default: `false`)
+   - `virtualDisplay`: Linux only. Run the tests on a virtual display (Xvfb) instead of your screen; see [Running tests on a virtual display](#running-tests-on-a-virtual-display) (default: `false`)
+   - `virtualDisplayScreen`: Screen size of the virtual display (default: `1920x1080x24`)
 
 3. **Log Management**
    - `hideEmptyLogFolders`: Controls visibility of empty log directories (default: `true`)
@@ -210,7 +212,7 @@ This setting uses the experimental [hidden window](/vscode-extension-tester/guid
 
 Turn on `hiddenWindow` to keep the test VS Code window off your screen, so you can keep working while the tests run. The Runner then sets `EXTESTER_HIDDEN_WINDOW=true` for the run, for `npx extest setup-and-run` and for a custom `runCommand` alike. A value of `EXTESTER_HIDDEN_WINDOW` in `env` wins over the setting. To turn it on for the whole team, set `run.hiddenWindow` in the `run` section of `extester.config.json` instead; the CLI reads it there.
 
-It needs an ExTester release with the hidden window mode and VS Code 1.147 or newer. VS Code runs in extension test mode, so dialogs are not shown and UI state is not kept between runs. The [hidden window guide](/vscode-extension-tester/guides/hidden-window/) lists every difference.
+It needs an ExTester release with the hidden window mode and VS Code 1.147 or newer. VS Code runs in extension test mode, so dialogs are not shown and UI state is not kept between runs. The [hidden window guide](/vscode-extension-tester/guides/hidden-window/) lists every difference. On Linux, [`virtualDisplay`](#running-tests-on-a-virtual-display) keeps the window off your screen without these differences.
 
 ### Custom run command
 
@@ -228,6 +230,23 @@ By default the Runner runs `npx extest setup-and-run <target>` with the argument
 - The command runs in the workspace folder and gets the `env` variables and, when a single test or `describe` block runs, `MOCHA_GREP`. `preRunTask` still runs first.
 - The VS Code version, type, temp folder, `additionalArgs` and `configFile` are not added to the command. Put the options it needs in the command itself.
 - The Testing view still shows the result of each test when the command keeps the environment variables (`NODE_OPTIONS` loads the result hook) for the Node.js process that runs Mocha, as npm scripts and shell scripts do. A command that drops them, such as `docker run` without `-e`, still runs the tests, but they show as skipped and the results are only in the output.
+
+### Running Tests on a Virtual Display
+
+Set `virtualDisplay` to run the tests on a virtual X display instead of your screen. The VS Code window under test then does not cover your editor or take the keyboard focus, so you can keep working while the tests run:
+
+```json
+{ "extesterRunner.virtualDisplay": true }
+```
+
+- Linux only. The Runner starts `Xvfb` on the first run, keeps it for the next runs and stops it when VS Code closes or the setting is turned off. Install it first, for example `sudo apt install xvfb` (Debian, Ubuntu) or `sudo dnf install xorg-x11-server-Xvfb` (Fedora). If it cannot start, the run reports why in the Testing view. VS Code installed as a Flatpak or Snap cannot see the host's Xvfb, so the Runner reports it as missing there.
+- Like `xvfb-run`, the Runner gives Xvfb a random cookie and passes it to the tests through `XAUTHORITY`, so other users of the machine cannot connect to the display.
+- `virtualDisplayScreen` sets the screen size (default `1920x1080x24`), which is also the largest size of the window and its screenshots.
+- In a Wayland session (`WAYLAND_DISPLAY` set or `XDG_SESSION_TYPE=wayland`) the test command runs without `WAYLAND_DISPLAY`, so VS Code uses the X display. The command still runs in the shell VS Code runs tasks in.
+- It works with `runCommand` too. Do not wrap that command in `xvfb-run` then.
+- A `DISPLAY` in `env` wins over the virtual display: the Runner then starts no Xvfb and runs the tests on that display. Use it to watch a run on a display you can see, such as an Xephyr or VNC server, for example `{ "DISPLAY": ":1" }`.
+- These are VS Code settings, not `runner` keys of `extester.config.json`: whether the window may appear is your choice, not the project's.
+- On macOS and Windows there is no Xvfb, and the setting is ignored with a warning. Use the experimental `hiddenWindow` setting there instead. On Linux prefer `virtualDisplay`: it keeps VS Code in its normal mode, while a hidden window runs in extension test mode and can start slowly under X11.
 
 ### Running TypeScript Sources
 
