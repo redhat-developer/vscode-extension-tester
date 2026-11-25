@@ -21,6 +21,9 @@ import { ConfigurationReader } from '../utils/projectConfigFile';
 import { getRunnerConfiguration, getConfigArguments } from '../utils/projectConfiguration';
 import { buildRunCommand } from '../utils/runCommand';
 
+/** Environment variable that makes ExTester (8.x with the experimental hidden window) hide the VS Code window. */
+export const HIDDEN_WINDOW_ENV = 'EXTESTER_HIDDEN_WINDOW';
+
 /**
  * Resolve the task's workspace root and configuration consistently for all run commands.
  * Errors are thrown, not shown: the run commands report them to the user.
@@ -48,8 +51,9 @@ function optionArgs(configuration: ConfigurationReader, key: string, option: str
 }
 
 /**
- * Environment variables for a test run: the configured `env` values and, when a single test or
- * `describe` block runs, `MOCHA_GREP`, which ExTester passes to Mocha as its `grep` option.
+ * Environment variables for a test run: the configured `env` values, `EXTESTER_HIDDEN_WINDOW` when the
+ * experimental `hiddenWindow` setting is on, and, when a single test or `describe` block runs,
+ * `MOCHA_GREP`, which ExTester passes to Mocha as its `grep` option.
  *
  * @param {ConfigurationReader} configuration - The runner configuration.
  * @param {string} [grep] - The Mocha `grep` pattern that selects the tests to run.
@@ -63,6 +67,9 @@ export function getRunEnvironment(configuration: ConfigurationReader, grep?: str
 			throw new TypeError(`The value of the environment variable "${name}" must be a string.`);
 		}
 		env[name] = value;
+	}
+	if (configuration.get<boolean>('hiddenWindow') && !(HIDDEN_WINDOW_ENV in env)) {
+		env[HIDDEN_WINDOW_ENV] = 'true';
 	}
 	if (grep) {
 		env.MOCHA_GREP = grep;

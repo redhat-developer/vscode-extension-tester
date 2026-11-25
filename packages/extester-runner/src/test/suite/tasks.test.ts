@@ -515,6 +515,38 @@ describe('Task Command Generation', () => {
 		});
 	});
 
+	describe('with the experimental hidden window', () => {
+		let workspacePath: string;
+		const env = (task: vscode.Task) => (task.execution as vscode.ShellExecution).options?.env;
+
+		before(async () => {
+			const config = vscode.workspace.getConfiguration('extesterRunner');
+			await config.update('hiddenWindow', true, vscode.ConfigurationTarget.Workspace);
+			workspacePath = vscode.workspace.workspaceFolders![0].uri.fsPath;
+		});
+
+		after(async () => {
+			const config = vscode.workspace.getConfiguration('extesterRunner');
+			await config.update('hiddenWindow', undefined, vscode.ConfigurationTarget.Workspace);
+			await config.update('env', undefined, vscode.ConfigurationTarget.Workspace);
+		});
+
+		it('sets EXTESTER_HIDDEN_WINDOW for the run', () => {
+			const task = new RunFileTask(path.join(workspacePath, 'src', 'ui-test', 'a.test.ts'), dummyLogger);
+
+			assert.deepStrictEqual(env(task), { EXTESTER_HIDDEN_WINDOW: 'true' });
+		});
+
+		it('keeps EXTESTER_HIDDEN_WINDOW from the env setting', async () => {
+			const config = vscode.workspace.getConfiguration('extesterRunner');
+			await config.update('env', { EXTESTER_HIDDEN_WINDOW: 'false' }, vscode.ConfigurationTarget.Workspace);
+
+			const task = new RunFileTask(path.join(workspacePath, 'src', 'ui-test', 'a.test.ts'), dummyLogger);
+
+			assert.deepStrictEqual(env(task), { EXTESTER_HIDDEN_WINDOW: 'false' });
+		});
+	});
+
 	describe('with a custom run command', () => {
 		let workspacePath: string;
 
