@@ -11,7 +11,7 @@ ExTester
          └─ saves a file    skip
 ```
 
-- Folders, files, `describe` blocks and `it` tests, with `only` and `skip` next to marked tests.
+- Folders, files, suites and tests (`describe` and `it`, or `suite` and `test` with Mocha's TDD interface), with `only` and `skip` next to marked tests.
 - A file that contains `.only` is marked `.only`: running it skips every other test.
 - Filter marked tests with `@extesterRunner:only` or `@extesterRunner:skip`.
 - The **Screenshots** and **Logs** views are in the same sidebar, below the tests.

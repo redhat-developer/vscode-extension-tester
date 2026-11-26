@@ -24,8 +24,8 @@
 
 ### Your UI tests in the Testing view
 
-- ExTester Runner lists the files matched by your test glob in VS Code's **Testing** view, as folders, files, `describe` suites and `it` cases, under **ExTester**.
-- Run everything, a folder, a file, a `describe` block or a single test from the Testing view, or from the gutter buttons next to each `describe` and `it` in the editor.
+- ExTester Runner lists the files matched by your test glob in VS Code's **Testing** view, as folders, files, suites and tests, under **ExTester**. It reads Mocha's BDD interface (`describe` and `it`) and its TDD interface (`suite` and `test`).
+- Run everything, a folder, a file, a suite or a single test from the Testing view, or from the gutter buttons next to each suite and test in the editor.
 - Each test shows whether it passed, failed or was skipped. A failure shows the error with a diff of expected and actual values, a clickable stack trace and a thumbnail of ExTester's screenshot that opens the full image. **Test Results** shows the output of the run and of each test.
 - The **Screenshots** and **Logs** views sit in the Testing sidebar, below the test tree.
 

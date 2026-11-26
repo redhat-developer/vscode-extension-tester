@@ -2,8 +2,8 @@
 
 ExTester Runner contributes a test controller (`extesterRunner`, label **ExTester**) to VS Code's Testing view (`src/testing/testExplorer.ts`):
 
-- Test items: folder (one per folder that contains test files) → file → `describe` block → `it` test. Item ids join the titles with `›` (never `\0`, which VS Code rejects).
-- Discovery comes from `TestFileDiscovery` (`src/testing/testFileDiscovery.ts`: glob search per workspace folder, refreshed by file and configuration watchers) and `listRunTargets` (`src/utils/runTargets.ts`), which parses `describe`/`it` blocks from the sources.
+- Test items: folder (one per folder that contains test files) → file → suite → test. Item ids join the titles with `›` (never `\0`, which VS Code rejects).
+- Discovery comes from `TestFileDiscovery` (`src/testing/testFileDiscovery.ts`: glob search per workspace folder, refreshed by file and configuration watchers), `parseTestFile` (`src/utils/parser.ts`), which parses the suites and tests of Mocha's BDD (`describe`/`it`, with `context`/`specify` and the `x` variants) and TDD (`suite`/`test`) interfaces from the sources (only Mocha's globals and functions imported from `mocha`, not local helpers with the same names), and `listRunTargets` (`src/utils/runTargets.ts`).
 - Tests marked `.only`/`.skip` get `only`/`skip` as their description, and own or inherited modifiers as the tags `only`/`skip` (filter `@extesterRunner:only`). Files that contain `.only` get the description `.only`.
 - Two run profiles: **Run** and **Debug**. Debug runs the task's command line in a `node-terminal` debug session (`TestRunner.useDebugger`), and the result hook turns off Mocha's timeouts when `EXTESTER_RUNNER_NO_TIMEOUT=true`. The debug run stops the terminal session when the last Node.js child session ends and no new one starts within two seconds, because the shell stays open at its prompt. `refreshHandler` refreshes discovery.
 - The run handler creates one task per requested item (`RunFolderTask`, `RunFileTask`, `RunTestTask`), or one `RunAllTestsTask` per workspace folder when all tests run, and runs them one after another through `TestRunManager.startGroup` (one run at a time; a second run offers to stop the first).
@@ -49,7 +49,7 @@ Changing a setting or the file refreshes discovery and the views.
 Tests run in VS Code shell tasks (source `extester-runner`) that call `extest setup-and-run` with `ShellExecution`:
 
 - `RunAllTestsTask`, `RunFolderTask`, `RunFileTask`: map sources from `rootFolder` to `outputFolder`, or with `runSources` pass the source file, `<folder>/<pattern>` or `<common folder>/**/<pattern>` (`src/tasks/testTarget.ts`).
-- `RunTestTask`: runs one file and selects one `describe`/`it` with Mocha's `grep` in `MOCHA_GREP` (`src/utils/testGrep.ts`).
+- `RunTestTask`: runs one file and selects one suite or test with Mocha's `grep` in `MOCHA_GREP` (`src/utils/testGrep.ts`).
 - Each task runs in the workspace root that owns the tests, with that root's configuration. Values from `extester.config.json` (VS Code version, type, storage) are not passed as CLI arguments; the CLI reads them from the file.
 - All tasks pass `env`, and run the `preRunTask` VS Code task first, if set. With the experimental `hiddenWindow` setting on, they also set `EXTESTER_HIDDEN_WINDOW=true` unless `env` sets it (`getRunEnvironment` in `src/tasks/taskConfiguration.ts`).
 

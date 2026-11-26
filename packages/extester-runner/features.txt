@@ -2,6 +2,8 @@
 Tests are listed in the built-in Testing view under the ExTester test controller
     - no custom activity bar container, no UI Tests view, no CodeLens
 Folders that contain test files matching testFileGlob are listed, then files, describe blocks and it tests
+    - Mocha's TDD interface works too: suite and test instead of describe and it (the file is read as BDD when it calls a BDD function)
+    - context, specify, xdescribe, xcontext, xit and xspecify are listed; the x functions show as skipped
     - if describe or it has variable (like ${foo}) inside name, this variable is processed as string
     - a file that cannot be parsed is shown without children and the error is logged
 Tests marked with .only or .skip show only / skip as description, files that contain .only show .only
