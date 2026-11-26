@@ -20,8 +20,20 @@ hooks by default. In order to capture screenshots on failed hooks, one
 must import vscode-extension-tester hook.
 
 ```typescript
-// Supported hooks: before, beforeEach, after and afterEach
+// Mocha's BDD interface (the default): before, beforeEach, after and afterEach
 import { before } from "vscode-extension-tester";
+
+// Mocha's TDD interface (ui: "tdd"): suiteSetup, setup, suiteTeardown and teardown
+import { suiteSetup } from "vscode-extension-tester";
 ```
 
-These hooks call Mocha's `before`, `beforeEach`, `after` and `afterEach`, which only Mocha's default BDD interface defines. With Mocha's TDD interface (`ui: "tdd"`), calling them fails with `ReferenceError: before is not defined`: use Mocha's `suiteSetup`, `setup`, `suiteTeardown` and `teardown` instead. A failed hook then has no screenshot; failed tests still have theirs.
+Each hook registers Mocha's hook of the same kind for the interface that Mocha uses, so both sets of names work with either interface:
+
+| BDD          | TDD             | Runs                               |
+| ------------ | --------------- | ---------------------------------- |
+| `before`     | `suiteSetup`    | once, before the tests of a suite  |
+| `beforeEach` | `setup`         | before each test                   |
+| `afterEach`  | `teardown`      | after each test                    |
+| `after`      | `suiteTeardown` | once, after the tests of a suite   |
+
+ExTester 8.29.0 and older have only the BDD names, and they work only with the BDD interface: with `ui: "tdd"` they fail with `ReferenceError: before is not defined`. With these versions, use Mocha's own TDD hooks; a failed hook then has no screenshot, but failed tests still have theirs.
