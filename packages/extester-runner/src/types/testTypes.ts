@@ -16,7 +16,8 @@
  */
 
 /**
- * Represents a test block, typically corresponding to a `describe` block in a test file.
+ * Represents a test block: a Mocha suite, such as a BDD `describe` block or a TDD `suite`.
+ * The field names follow the BDD interface.
  *
  * A `TestBlock` can contain nested child test blocks and individual test cases (`ItBlock`s).
  */
@@ -31,7 +32,7 @@ export interface TestBlock {
 }
 
 /**
- * Represents an individual test case, typically corresponding to an `it` block in a test file.
+ * Represents an individual test case: a Mocha test, such as a BDD `it` block or a TDD `test`.
  */
 export interface ItBlock {
 	name: string; // name of the test case

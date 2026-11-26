@@ -9,7 +9,7 @@ title: ExTester Runner
 1. Install the ExTester Runner extension from the VS Code marketplace or the Open VSX Registry
 2. Open your VS Code extension project
 3. Open the **Testing** view and expand **ExTester**
-4. Press the play button (▶️) next to a test, or next to a `describe` or `it` in the editor gutter
+4. Press the play button (▶️) next to a test, or next to a suite or test in the editor gutter
 
 ## What is ExTester Runner?
 
@@ -25,15 +25,15 @@ It adds your tests to VS Code's built-in **Testing** view, under the **ExTester*
 ### Core Functionality
 
 1. **Test Discovery**
-   - Discovers the test files that match `testFileGlob` and lists them as folders, files, `describe` blocks and `it` tests
-   - Parses Mocha's `describe` and `it` blocks from the sources, so the tree is ready before the tests are compiled
+   - Discovers the test files that match `testFileGlob` and lists them as folders, files, suites and tests
+   - Parses the suites and tests from the sources, so the tree is ready before the tests are compiled. It reads Mocha's BDD interface (`describe` and `it`) and its TDD interface (`suite` and `test`); see [Mocha interfaces](#mocha-interfaces)
    - Shows `only` or `skip` next to tests marked with `.only` or `.skip`, and `.only` next to files that contain `.only`, which makes Mocha skip every other test in the run
    - Tags marked tests, so `@extesterRunner:only` or `@extesterRunner:skip` in the filter of the Testing view shows only them
-   - Clicking a test opens its source at the `describe` or `it`
+   - Clicking a test opens its source at the `describe`, `it`, `suite` or `test` that defines it
    - Refreshes the tree when test files are added, removed or changed, and when the settings or `extester.config.json` change. **Refresh Tests** in the Testing view refreshes it by hand
 
 2. **Test Execution**
-   - Runs everything, a workspace folder, a folder, a file, a `describe` block or a single `it` from the Testing view, or from the gutter buttons next to each `describe` and `it` in the editor
+   - Runs everything, a workspace folder, a folder, a file, a suite or a single test from the Testing view, or from the gutter buttons next to each suite and test in the editor
    - **Test: Run Tests in Current File**, **Test: Rerun Last Run**, run history and the other **Test:** commands of VS Code work as for any test controller
    - Debug any of them with **Debug Test** in the Testing view or the gutter menu. Debug runs the same command in a JavaScript Debug Terminal, so breakpoints in your tests stop them, and turns off Mocha's timeouts so a paused test does not fail. A test that sets its own timeout with `this.timeout()` keeps it. The command must start Node.js from the debug terminal, as `npx extest` and npm scripts do. The debug run ends by itself when the last Node.js process of the command exits, so the terminal left at its prompt does not keep the run going
    - Stop a run with the stop button of the Testing view. Only one run starts at a time; starting another one offers to stop the current run
@@ -47,7 +47,7 @@ It adds your tests to VS Code's built-in **Testing** view, under the **ExTester*
    - **Test Results** shows the output of the run, and the output each test wrote while it ran
    - When the run fails before any test starts, for example because `preRunTask` failed or `extest` is not installed, the tests are marked as errored with the reason
 
-   The results come from a small hook that the Runner preloads into the `extest` process with `NODE_OPTIONS`. It listens to Mocha's events and copies the output to a temporary file that the Runner reads during the run. It does not change how the tests run. A test that runs more than once, for example one `it` in a loop, shows as one test in the tree: it fails if any of its runs failed, with the error of each failed run. A failed `after` hook fails its `describe` block, and a failed `afterEach` hook fails the test it ran for. A test whose title the parser cannot match to the run, for example a title computed by a function, is shown as skipped and its result is in the output.
+   The results come from a small hook that the Runner preloads into the `extest` process with `NODE_OPTIONS`. It listens to Mocha's events and copies the output to a temporary file that the Runner reads during the run. It does not change how the tests run. A test that runs more than once, for example one `it` in a loop, shows as one test in the tree: it fails if any of its runs failed, with the error of each failed run. A failed `after` hook (`suiteTeardown` in TDD) fails its suite, and a failed `afterEach` hook (`teardown` in TDD) fails the test it ran for. A test whose title the parser cannot match to the run, for example a title computed by a function, is shown as skipped and its result is in the output.
 
 4. **Logs and Screenshots Management**
    - The **Screenshots** and **Logs** views refresh when files are created, deleted or modified during a run
@@ -187,7 +187,30 @@ If you prefer to configure the extension manually, you can access all settings t
 
 ### Running a single test
 
-Each `describe` block and `it` test has a play button in the Testing view and in the editor gutter. The Runner runs the file and passes the full title of the block to Mocha's `grep` option in the `MOCHA_GREP` environment variable, so only that block runs. Titles with template literal expressions, such as `` `works on ${platform}` ``, match any value of the expression.
+Each suite and test has a play button in the Testing view and in the editor gutter. The Runner runs the file and passes the full title of the suite or test to Mocha's `grep` option in the `MOCHA_GREP` environment variable, so only that suite or test runs. Titles with template literal expressions, such as `` `works on ${platform}` ``, match any value of the expression.
+
+### Mocha interfaces
+
+The Runner lists the suites and tests of two of Mocha's [interfaces](https://mochajs.org/#interfaces):
+
+| Interface             | Suites                                          | Tests                                    |
+| --------------------- | ----------------------------------------------- | ---------------------------------------- |
+| BDD (Mocha's default) | `describe`, `context`, `xdescribe`, `xcontext`  | `it`, `specify`, `xit`, `xspecify`       |
+| TDD                   | `suite`                                         | `test`                                   |
+
+`.only` and `.skip` work in both, and the `x` functions show as skipped, like `.skip`.
+
+There is nothing to set in the Runner: it reads the interface from the functions each file calls. Only Mocha's functions count, the globals that Mocha defines and the functions imported from `mocha`: a helper function that the file declares or imports from another module does not add suites or tests to the tree, even when it is named like a Mocha function. A file that calls a BDD function is read as BDD. A TDD `suite` is listed when its callback is written in the call, as in `suite('Name', () => { ... })`. To run TDD tests, set Mocha's `ui` option in your [Mocha configuration file](/vscode-extension-tester/guides/mocha-configuration/), which ExTester passes to Mocha:
+
+```json
+{
+  "ui": "tdd"
+}
+```
+
+With TDD, use Mocha's `suiteSetup`, `setup`, `suiteTeardown` and `teardown` hooks. ExTester's `before`, `beforeEach`, `after` and `afterEach`, imported from `vscode-extension-tester` to [take a screenshot of a failed hook](/vscode-extension-tester/guides/taking-screenshots/#mocha-integration), call Mocha's BDD hooks and fail with `ReferenceError: before is not defined` under TDD.
+
+Tests of the QUnit and exports interfaces still run when you run their file or folder, but the Testing view does not list their tests, so they cannot be run one by one and their results are only in the output.
 
 ### Build before running and environment variables
 

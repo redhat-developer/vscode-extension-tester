@@ -17,11 +17,14 @@
 
 import * as assert from 'assert';
 import * as vscode from 'vscode';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { parseTestFile } from '../../utils/parser';
 import { ItBlock, TestBlock } from '../../types/testTypes';
 import { Logger } from '../../logger/logger';
 import path from 'path';
 import {
+	BDD_ALIASES_FILE,
 	COMPLEX_FILE,
 	MOD_ONLY,
 	MOD_SKIP,
@@ -29,6 +32,7 @@ import {
 	SIMPLE_FILE,
 	SIMPLE_FILE_WITH_MODIFIERS,
 	SIMPLE_FILE_WITH_VARIABLES,
+	TDD_FILE,
 	TEST_RESOURCES_PATH,
 } from '../utils/testUtils';
 
@@ -148,6 +152,7 @@ function assertItBlock(
  * 7. Handling test files with multiple describe blocks at different nesting levels
  * 8. Processing test files with various modifier combinations
  * 9. Validating modifier inheritance between parent and child blocks
+ * 10. Reading the BDD aliases (`context`, `specify`, `xit`, ...) and the TDD interface
  *
  * To be done:
  * 1. Proper handling of empty describe blocks
@@ -540,5 +545,132 @@ describe('Parser Utility Tests', () => {
 			parentModifier: undefined,
 			fileName: MULTIPLE_ROOT_DESCRIBES,
 		});
+	});
+});
+
+/**
+ * Lists a parsed structure as indented lines, one per suite and test, with its line and its own and
+ * inherited modifiers, so the structure of a whole file can be compared at once.
+ */
+function outline(blocks: TestBlock[], indent = ''): string[] {
+	return blocks.flatMap((block) => [
+		`${indent}suite ${block.describe} @${block.line}${modifiers(block)}`,
+		...block.its.map((test) => `${indent}  test ${test.name} @${test.line}${modifiers(test)}`),
+		...outline(block.children, `${indent}  `),
+	]);
+}
+
+function modifiers(block: TestBlock | ItBlock): string {
+	const parts = [block.modifier, block.parentModifier && `in ${block.parentModifier}`].filter(Boolean);
+	return parts.length > 0 ? ` (${parts.join(', ')})` : '';
+}
+
+/** Parses a test resource and checks that every suite and test has the path of the file. */
+async function parseResource(fileName: string): Promise<TestBlock[]> {
+	const structure = await parseTestFile(vscode.Uri.file(path.join(TEST_RESOURCES_PATH, fileName)), dummyLogger);
+	const assertFilePath = (blocks: TestBlock[]): void =>
+		blocks.forEach((block) => {
+			assert.ok(block.filePath.endsWith(fileName));
+			block.its.forEach((test) => assert.ok(test.filePath.endsWith(fileName)));
+			assertFilePath(block.children);
+		});
+	assertFilePath(structure);
+	return structure;
+}
+
+/** Parses a test file with the given lines. */
+async function parseLines(...lines: string[]): Promise<TestBlock[]> {
+	const folder = await mkdtemp(path.join(tmpdir(), 'extester-runner-parser-'));
+	try {
+		const file = path.join(folder, 'source.test.ts');
+		await writeFile(file, lines.join('\n'));
+		return await parseTestFile(vscode.Uri.file(file), dummyLogger);
+	} finally {
+		await rm(folder, { recursive: true, force: true });
+	}
+}
+
+/**
+ * Mocha's `ui` option selects how test files define their suites and tests. The parser reads the
+ * BDD and TDD interfaces, so the Testing view lists the tests of a project that uses either.
+ */
+describe('Parser Mocha interfaces', () => {
+	it('Parses the BDD aliases context and specify and the skipping x functions', async () => {
+		assert.deepStrictEqual(outline(await parseResource(BDD_ALIASES_FILE)), [
+			'suite Context suite @1',
+			'  test Specify test @2',
+			'  test Skipped it @3 (skip)',
+			'  test Skipped specify @4 (skip)',
+			'  suite Nested context @5 (only)',
+			'    test Skipped nested specify @6 (skip, in only)',
+			'suite Skipped describe @10 (skip)',
+			'  test Test of skipped describe @12 (in skip)', // `it.retries(2)` on line 11 is not a test
+		]);
+	});
+
+	it('Parses TDD suites and tests with their modifiers', async () => {
+		assert.deepStrictEqual(outline(await parseResource(TDD_FILE)), [
+			'suite Calculator @1',
+			'  test adds @4',
+			'  test subtracts @5 (skip)',
+			'  suite Advanced @7 (only)',
+			'    test multiplies @8 (in only)',
+			'    test divides @9 (only, in only)',
+			'suite Strings @14 (skip)',
+			'  test concatenates @15 (in skip)',
+		]);
+	});
+
+	it('Reads a BDD file as BDD although it calls a helper named like a TDD function', async () => {
+		const structure = await parseLines(
+			'function test(name: string): string {',
+			'\treturn name;',
+			'}',
+			"describe('Suite', () => {",
+			"\tit('works', () => test('helper'));",
+			'});',
+		);
+		assert.deepStrictEqual(outline(structure), ['suite Suite @4', '  test works @5']);
+	});
+
+	it('Ignores local helpers named like Mocha functions in a TDD file', async () => {
+		const structure = await parseLines(
+			'function context(name: string): string {',
+			'\treturn name;',
+			'}',
+			"suite('Suite', () => {",
+			"\tcontext('not a suite');",
+			"\ttest('works', () => {",
+			'\t\tconst test = (title: string): string => title;',
+			"\t\ttest('helper call');",
+			'\t});',
+			'});',
+		);
+		assert.deepStrictEqual(outline(structure), ['suite Suite @4', '  test works @6']);
+	});
+
+	it('Reads Mocha functions imported or required from mocha, also under another name', async () => {
+		const imported = await parseLines("import { suite as group, test } from 'mocha';", "group('Suite', () => {", "\ttest('works', () => {});", '});');
+		assert.deepStrictEqual(outline(imported), ['suite Suite @2', '  test works @3']);
+		const required = await parseLines(
+			"const { describe, it: check } = require('mocha');",
+			"describe('Suite', () => {",
+			"\tcheck.skip('works', () => {});",
+			'});',
+		);
+		assert.deepStrictEqual(outline(required), ['suite Suite @2', '  test works @3 (skip)']);
+	});
+
+	it('Ignores functions named like Mocha functions that are imported from another module', async () => {
+		const structure = await parseLines("import { suite, test } from './helpers';", "suite('Suite', () => {", "\ttest('works', () => {});", '});');
+		assert.deepStrictEqual(structure, []);
+	});
+
+	it('Lists no suite for a suite call without a callback, as in the QUnit interface', async () => {
+		assert.deepStrictEqual(await parseLines("suite('Array');", "test('push', () => {});"), []);
+	});
+
+	it('Lists nothing in a file without suites or tests', async () => {
+		assert.deepStrictEqual(await parseLines("export const helper = { works: () => 'value' };"), []);
 	});
 });

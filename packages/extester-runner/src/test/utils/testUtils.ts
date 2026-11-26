@@ -24,6 +24,8 @@ export const MULTIPLE_ROOT_DESCRIBES = 'multipleRootDescribes.ts';
 export const SIMPLE_FILE = 'simpleFile.ts';
 export const SIMPLE_FILE_WITH_MODIFIERS = 'simpleFileWithModifiers.ts';
 export const SIMPLE_FILE_WITH_VARIABLES = 'simpleFileWithVariable.ts';
+export const BDD_ALIASES_FILE = 'bddAliasesFile.ts';
+export const TDD_FILE = 'tddFile.ts';
 
 // modifiers
 export const MOD_ONLY = 'only';

@@ -48,7 +48,7 @@
           {
             "id": "testingView",
             "title": "Find Your Tests in the Testing View",
-            "description": "ExTester Runner lists your UI tests in the Testing view, under **ExTester**: folders, files, `describe` blocks and `it` tests, with `only` and `skip` next to marked tests. The Screenshots and Logs views are in the same sidebar.\n[Open Testing View](command:workbench.view.testing.focus)",
+            "description": "ExTester Runner lists your UI tests in the Testing view, under **ExTester**: folders, files, suites and tests, with `only` and `skip` next to marked tests. The Screenshots and Logs views are in the same sidebar.\n[Open Testing View](command:workbench.view.testing.focus)",
             "media": {
               "markdown": "resources/walkthroughs/testingView.md"
             },

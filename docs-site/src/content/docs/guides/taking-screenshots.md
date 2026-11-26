@@ -23,3 +23,5 @@ must import vscode-extension-tester hook.
 // Supported hooks: before, beforeEach, after and afterEach
 import { before } from "vscode-extension-tester";
 ```
+
+These hooks call Mocha's `before`, `beforeEach`, `after` and `afterEach`, which only Mocha's default BDD interface defines. With Mocha's TDD interface (`ui: "tdd"`), calling them fails with `ReferenceError: before is not defined`: use Mocha's `suiteSetup`, `setup`, `suiteTeardown` and `teardown` instead. A failed hook then has no screenshot; failed tests still have theirs.
