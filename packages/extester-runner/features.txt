@@ -1,62 +1,44 @@
-** UI Tests view **
-ExTester Runner view is available
-Folder structure from explorer is available inside Test Explorer
-    - only folders with with at least one test matching pattern are listed
-    - if no folder nor file is available, welcome content explains why and links to the test file pattern setting
-Folders contains test files matching prescription
-Folders are listed with icon folder in white color
-Files inside folder are parsed
-Files are listed with icon file in white color
-Clicking on filename opens file in editor on line 0
-Test structure (describe, it) is available for individual files
-    - if file don't have any describe or it, expand button is not available
+** Testing view **
+Tests are listed in the built-in Testing view under the ExTester test controller
+    - no custom activity bar container, no UI Tests view, no CodeLens
+Folders that contain test files matching testFileGlob are listed, then files, describe blocks and it tests
     - if describe or it has variable (like ${foo}) inside name, this variable is processed as string
-Describes are listed with icon bracket in white color
-    - if modifier skip is present, icon has (x) and orange color and description shows skip
-    - if modifier only is present, icon has dot and blue color and description shows only
-    - if describe doesn't have any describe or it, expand button is not available
-It are listed with icon variable in white color
-    - if modifier skip is present icon has orange color and description shows skip
-    - if modifier only is present, icon has blue color and description shows only
-Inherit for modifier is working as following: 
-    - if describe has modifier skip, all it's inside are shown in orange color but don't have skip in description
-    - if describe has modifier only, all it's inside are shown in blue color but don't have only in description
-    - own modifier of it inside this scope has priority (overrides the describe one)
-Clicking on describe or it opens editor on line of occurrence
-Collapse All button is available
-    - if no folder nor file is present, button is not clickable
-Clicking on Collapse All button actually collapse all folders and files
-New file matching pattern is created, explorer will update itself
-File matching pattern is deleted, explorer will update itself
-File matching pattern is Changed, explorer will update itself
-Clicking on Refresh Test buttons will update explorer manually
-Run All button is available
-    - if no folder nor file is present, button is not available
-Each folder has Run Folder button available on hover
-Each file has Run File button available on hover
-Run All button executes all tests
-Run Folder button executes all tests inside folder
-Run File button executes only one file
-Each describe and it has Run button available on hover, it runs only that block (MOCHA_GREP)
-Test files show Run CodeLens above each describe and it (setting codeLens)
+    - a file that cannot be parsed is shown without children and the error is logged
+Tests marked with .only or .skip show only / skip as description, files that contain .only show .only
+Own or inherited .only / .skip are tags: filter @extesterRunner:only and @extesterRunner:skip shows only them
+Clicking on file, describe or it opens editor on line of occurrence
+New file matching pattern is created, tree will update itself
+File matching pattern is deleted, tree will update itself
+File matching pattern is changed, tree will update itself
+Changing runner settings or extester.config.json updates the tree
+Refresh Tests in the Testing view updates the tree manually
+Run button on the ExTester root, a workspace folder, a folder, a file, a describe or an it runs only that part
+    - describe and it run the file with MOCHA_GREP
+Gutter buttons next to each describe and it run that block, right-click offers Debug Test
+Test: Run Tests in Current File, Test: Rerun Last Run and run history work
+Debug profile runs the same command in a JavaScript Debug Terminal, breakpoints in tests stop
+    - Mocha timeouts are off unless the test sets this.timeout()
+    - the debug run ends by itself when the test command ends (no Stop needed)
+Each test shows passed, failed or skipped with duration
+Failure shows error, expected/actual diff, clickable stack trace and screenshot thumbnail
+    - Open Screenshot in the failure view opens the full image
+Test Results shows the output of the run and of each test
+Run that fails before any test (preRunTask fails, extest missing, invalid config) marks tests errored with the reason
+Only one run at a time, starting another offers to stop the current one
+Stop button of the Testing view stops the run in progress
 preRunTask setting runs a VS Code task before each run; tests do not start when it fails or is missing
 env setting passes environment variables to test runs; only names are logged
 runCommand setting replaces npx extest setup-and-run; ${target} is replaced by the quoted target or appended
-Folders show the number of test files, files show the number of tests
-File that cannot be parsed has error icon and "cannot parse" description, no notification is shown
-View title description shows the number of files with .only
-Run Test File is available in editor title and Explorer context menu for test files, and in Command Palette
-While a run is in progress, status bar shows it, Run buttons are replaced by Stop, a second run is refused
-Stop button and status bar item stop the run in progress
-Notification shows whether a run passed or failed, with Show Screenshots, Show Logs and Rerun buttons
-Rerun Last Run runs the last run again
-Empty Screenshots and Logs views show welcome content
+hiddenWindow setting (experimental) sets EXTESTER_HIDDEN_WINDOW=true, the test VS Code window is never shown or focused
+    - a value of EXTESTER_HIDDEN_WINDOW in env wins
+Screenshots and Logs views are in the Testing sidebar below the test tree, collapsed by default
+Empty Screenshots and Logs views show welcome content with a link to the Temp Folder setting
 
 ** Logs view **
 Folder structure from logs is available inside
     - all folders are listed
     - empty folders don't have expand button
-    - if no folder nor file is available, welcome content explains why and links to the test file pattern setting
+    - if no folder nor file is available, welcome content explains why and links to the Temp Folder setting
 Folders are sorted newest-first (by mtime)
 Timestamp-named folders (YYYY-MM-DD_HH-mm-ss) display a human-readable label with raw name as description
 Clicking on filename opens file in editor on line 0
@@ -93,7 +75,8 @@ Trash icon is available per-item on hover
 Right-click on item shows context menu with Delete and Reveal in File Explorer options
 
 ** Settings ** 
-Settings are split into two categories - View Settings and Command Line Settings
+Settings are split into three categories - View, Command Line and Logs
+Values from the runner section of extester.config.json beat user settings, workspace settings beat the file
 View settings:
     Exclude glob is excluding path from test file search
     Ignore Path Part removes part of string from folders (/src/test/abcd can be presented as abcd only)
@@ -116,16 +99,26 @@ Command Line Settings:
         - if there's path, then it's used
     VS Code type changes type used for execution
     VS Code version changes version used for execution
+    Config File points to extester.config.json in a subfolder and is passed with --config
+    Env passes environment variables to test runs, only names are logged
+    Pre-Run Task runs a VS Code task before each run
+    Run Command replaces npx extest setup-and-run (version, type, temp folder, additionalArgs are not added)
+    Hidden Window (experimental) sets EXTESTER_HIDDEN_WINDOW=true for the run (VS Code 1.147+)
 Logs View settings:
     Hide Empty Log Folders:
         - when active, only folders with content are showed in Logs view
-Walkthrough: 
-    Choose Compiled Tests or TypeScript Sources
-        - links leads to relative workspace setting (Root Folder, Output Folder, Run Sources)
+Walkthrough:
+    Find Your Tests in the Testing View
     Configure Test File Pattern
         - links leads to relative workspace setting
     Configure Excluded Paths
         - links leads to relative workspace setting
+    Share Settings in extester.config.json
+    Choose Compiled Tests or TypeScript Sources
+        - links leads to relative workspace setting (Root Folder, Output Folder, Run Sources)
+    Build and Set Environment Before Runs
+        - links leads to relative workspace setting (Pre-Run Task, Env)
+    Run Tests and Read the Results
     Customize Path Display
         - links leads to relative workspace setting
     Additional Arguments
