@@ -106,7 +106,8 @@ export async function parseTestFile(uri: vscode.Uri, logger: Logger): Promise<Te
 	});
 
 	const mochaInterface = detectInterface(ast);
-	logger.debug(`Parsing file: ${uri}${mochaInterface ? ` (${mochaInterface.name} interface)` : ''}`);
+	const interfaceText = mochaInterface ? ' (' + mochaInterface.name + ' interface)' : '';
+	logger.debug(`Parsing file: ${uri}${interfaceText}`);
 	return mochaInterface ? parseSuites(ast, uri.fsPath, mochaInterface) : [];
 }
 
