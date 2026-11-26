@@ -16,7 +16,9 @@
  */
 /* eslint-disable no-redeclare */
 import type { AsyncFunc, Func } from 'mocha';
-import { HookCallback, HookType, withScreenshot } from './hookScreenshots';
+import { HookCallback, withScreenshot } from './hookScreenshots';
+
+type HookType = 'before' | 'beforeEach' | 'after' | 'afterEach';
 
 /*
  * ExTester's hooks register Mocha's hook of the same kind, with a callback that takes a screenshot
@@ -25,7 +27,8 @@ import { HookCallback, HookType, withScreenshot } from './hookScreenshots';
  *
  * The overloads are those of Mocha's hook functions, one per kind of callback, so `this` is Mocha's
  * context without an annotation, as in `beforeEach(async function () { this.timeout(5000); })`.
- * A single overload for `Func | AsyncFunc` would leave `this` untyped in callbacks without `done`.
+ * A single overload for `Func | AsyncFunc` would leave `this` untyped in callbacks without `done`,
+ * and an extra overload for `Function` would hide the type errors in callbacks.
  */
 
 function vscodeBefore(fn: Func): void;
@@ -93,7 +96,7 @@ function callHook(hookType: HookType, firstArgument: string | HookCallback | und
 	const fn = typeof firstArgument === 'function' ? firstArgument : secondArgument;
 
 	const hook = getHookFunction(hookType);
-	const callback = withScreenshot(hookType, fn ?? (() => {}));
+	const callback = withScreenshot(fn ?? (() => {}));
 
 	if (name !== undefined) {
 		hook(name, callback);

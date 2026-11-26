@@ -19,6 +19,8 @@ determined by calling `this.currentTest.fullTitle()` — characters that are inv
 
 It also takes a screenshot when a hook fails, before Mocha goes on, named after the titles of the hook's suites and the hook, for example `Editor.before each hook open file for saves.png`. This works for every hook of your test files, with Mocha's own hook functions and nothing to import: `before`, `beforeEach`, `afterEach` and `after` with Mocha's default BDD interface, `suiteSetup`, `setup`, `teardown` and `suiteTeardown` with its TDD interface (`ui: "tdd"`), and the hooks of the other interfaces. A hook that skips its tests with `this.skip()` takes no screenshot.
 
+Mocha waits for the screenshot, up to 10 seconds, even when that goes past the hook's timeout, and then reports the hook's own error. Two kinds of hook failures get no screenshot, because Mocha reports them while the hook's code is still running: a hook that runs past its timeout, and an error thrown later outside the hook, such as in a `setTimeout` callback of a hook that takes `done`.
+
 ExTester 8.29.0 and older take a screenshot of a failed hook only for the hooks imported from `vscode-extension-tester`:
 
 ```typescript
@@ -26,4 +28,12 @@ ExTester 8.29.0 and older take a screenshot of a failed hook only for the hooks 
 import { before } from "vscode-extension-tester";
 ```
 
-These imports keep working and are no longer needed. They now also work with the TDD interface, where they register Mocha's `suiteSetup`, `setup`, `suiteTeardown` and `teardown`; in 8.29.0 and older they fail there with `ReferenceError: before is not defined`. Their callbacks have the types of Mocha's hook callbacks, so `this` is Mocha's context without a `this: Mocha.Context` annotation, and a callback can take Mocha's `done`.
+These imports keep working and are no longer needed. They now also work with the TDD interface, where they register Mocha's `suiteSetup`, `setup`, `suiteTeardown` and `teardown`; in 8.29.0 and older they fail there with `ReferenceError: before is not defined`. Their callbacks have the types of Mocha's hook callbacks, so `this` is Mocha's context without a `this: Mocha.Context` annotation, and a callback can take Mocha's `done`. In 8.29.0 and older they accepted any `Function`. A callback typed as `Function`, or with a `this` type other than Mocha's context, no longer compiles: type it as `Mocha.Func` or `Mocha.AsyncFunc`, and add the properties you use on `this` to Mocha's `Context` interface:
+
+```typescript
+declare module "mocha" {
+  interface Context {
+    editor: TextEditor;
+  }
+}
+```
