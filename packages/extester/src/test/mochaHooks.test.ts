@@ -21,58 +21,64 @@ import * as fs from 'fs-extra';
 import * as os from 'os';
 import * as path from 'path';
 import { promisify } from 'util';
+import type { beforeEach as extesterBeforeEach } from '../suite/mochaHooks';
 
 /** The compiled module that exports ExTester's hooks and `VSBrowser`. */
 const EXTESTER = path.resolve(__dirname, '..', 'extester');
 
-/** What a Mocha run reported, and the screenshots that ExTester's hooks took. */
+/** The compiled module that makes every hook take a screenshot when it fails. */
+const HOOK_SCREENSHOTS = path.resolve(__dirname, '..', 'suite', 'hookScreenshots');
+
+/** What a Mocha run reported, and the screenshots that the hooks took. */
 interface MochaResult {
 	passed: string[];
 	failed: string[];
+	pending: string[];
 	screenshots: string[];
 	/** The error thrown while Mocha loaded the test file. */
 	loadError?: string;
 }
 
 /**
- * Runs Mocha on one test file and writes a {@link MochaResult} to a file. `VSBrowser` is replaced by
- * a stand-in that records the names of the screenshots it is asked to take.
- * Arguments: path of Mocha, path of ExTester, `ui`, test file, result file.
+ * Runs Mocha on one test file as `extest` does: every hook of the test file takes a screenshot when it
+ * fails. `VSBrowser` is replaced by a stand-in that records the names of the screenshots it is asked to
+ * take. Writes a {@link MochaResult} to a file.
+ * Arguments: path of Mocha, path of ExTester, path of the hook screenshots module, `ui`, test file, result file.
  */
 const RUNNER = `
 const fs = require('fs');
-const [mochaPath, extester, ui, testFile, resultFile] = process.argv.slice(2);
+const [mochaPath, extester, hookScreenshots, ui, testFile, resultFile] = process.argv.slice(2);
 const Mocha = require(mochaPath);
 const { VSBrowser } = require(extester);
-const result = { passed: [], failed: [], screenshots: [] };
+const result = { passed: [], failed: [], pending: [], screenshots: [] };
 VSBrowser._instance = { takeScreenshot: async (name) => result.screenshots.push(name) };
 const mocha = new Mocha({ ui, reporter: function () {} });
 mocha.addFile(testFile);
+require(hookScreenshots).takeScreenshotsOfFailedHooks(mocha.suite);
 try {
 	const runner = mocha.run(() => fs.writeFileSync(resultFile, JSON.stringify(result)));
 	runner.on('pass', (test) => result.passed.push(test.fullTitle()));
 	runner.on('fail', (test, error) => result.failed.push(test.fullTitle() + ': ' + error.message));
+	runner.on('pending', (test) => result.pending.push(test.fullTitle()));
 } catch (error) {
 	result.loadError = String(error);
 	fs.writeFileSync(resultFile, JSON.stringify(result));
 }
 `;
 
-/** The suite and test functions of the Mocha interfaces the tests use. */
+/** The suite and test functions, and the before each hook, of the Mocha interfaces the tests use. */
 const INTERFACES = {
-	bdd: { suite: 'describe', test: 'it' },
-	tdd: { suite: 'suite', test: 'test' },
+	bdd: { suite: 'describe', test: 'it', beforeEach: 'beforeEach' },
+	tdd: { suite: 'suite', test: 'test', beforeEach: 'setup' },
 };
 
-/** ExTester's hooks under the names of each interface, in the order: before all, before each, after each, after all. */
-const HOOK_NAMES = {
-	bdd: ['before', 'beforeEach', 'afterEach', 'after'],
-	tdd: ['suiteSetup', 'setup', 'teardown', 'suiteTeardown'],
-};
+/** Imports ExTester's hooks in a test file. */
+const IMPORT_HOOKS = `const { before, beforeEach, afterEach, after } = require(${JSON.stringify(EXTESTER)});`;
 
 describe('ExTester Mocha hooks', function () {
 	this.timeout(30_000);
 	let folder: string;
+	let fileCount = 0;
 
 	before(async () => {
 		folder = await fs.mkdtemp(path.join(os.tmpdir(), 'extester-hooks-'));
@@ -88,65 +94,154 @@ describe('ExTester Mocha hooks', function () {
 	 * this process, Mocha already defines the hooks of its BDD interface for the tests here, and they
 	 * would hide the hooks of another interface.
 	 */
-	async function runMocha(ui: string, source: string): Promise<MochaResult> {
-		const testFile = path.join(folder, `${ui}-${Date.now()}.js`);
+	async function runMocha(ui: string, ...lines: string[]): Promise<MochaResult> {
+		const testFile = path.join(folder, `${ui}-${++fileCount}.js`);
 		const resultFile = `${testFile}.json`;
-		await fs.writeFile(testFile, source);
-		await promisify(execFile)(process.execPath, [path.join(folder, 'runner.js'), require.resolve('mocha'), EXTESTER, ui, testFile, resultFile]);
+		await fs.writeFile(testFile, lines.join('\n'));
+		const runner = path.join(folder, 'runner.js');
+		await promisify(execFile)(process.execPath, [runner, require.resolve('mocha'), EXTESTER, HOOK_SCREENSHOTS, ui, testFile, resultFile]);
 		return fs.readJson(resultFile) as Promise<MochaResult>;
 	}
 
-	for (const ui of ['bdd', 'tdd'] as const) {
-		for (const names of ['bdd', 'tdd'] as const) {
-			it(`runs the hooks named as in ${names.toUpperCase()} with Mocha's ${ui.toUpperCase()} interface`, async () => {
-				const { suite, test } = INTERFACES[ui];
-				const [beforeAll, beforeEach, afterEach, afterAll] = HOOK_NAMES[names];
-				const result = await runMocha(
-					ui,
-					[
-						"const assert = require('assert');",
-						`const { ${HOOK_NAMES[names].join(', ')} } = require(${JSON.stringify(EXTESTER)});`,
-						'const calls = [];',
-						`${suite}('Hooks', function () {`,
-						`	${beforeAll}(function () { calls.push('before all'); });`,
-						`	${beforeEach}('named', function () { calls.push('before each'); });`,
-						`	${afterEach}(function () { calls.push('after each'); });`,
-						`	${afterAll}(function () { calls.push('after all'); });`,
-						`	${test}('first', function () { assert.deepStrictEqual(calls, ['before all', 'before each']); });`,
-						`	${test}('second', function () { assert.deepStrictEqual(calls, ['before all', 'before each', 'after each', 'before each']); });`,
-						'});',
-						`${suite}('Check', function () {`,
-						`	${test}('ran every hook', function () {`,
-						"		assert.deepStrictEqual(calls, ['before all', 'before each', 'after each', 'before each', 'after each', 'after all']);",
-						'	});',
-						'});',
-					].join('\n'),
-				);
-				assert.deepStrictEqual(result, { passed: ['Hooks first', 'Hooks second', 'Check ran every hook'], failed: [], screenshots: [] });
-			});
-		}
+	function result(fields: Partial<MochaResult>): MochaResult {
+		return { passed: [], failed: [], pending: [], screenshots: [], ...fields };
 	}
 
-	it("takes a screenshot when a hook fails with Mocha's TDD interface", async () => {
-		const result = await runMocha(
-			'tdd',
-			[
-				`const { setup } = require(${JSON.stringify(EXTESTER)});`,
-				"suite('Failing', function () {",
-				"	setup('prepares', function () { throw new Error('setup failed'); });",
-				"	test('works', function () {});",
+	for (const ui of ['bdd', 'tdd'] as const) {
+		const { suite, test } = INTERFACES[ui];
+
+		it(`runs ExTester's hooks with Mocha's ${ui.toUpperCase()} interface`, async () => {
+			const actual = await runMocha(
+				ui,
+				"const assert = require('assert');",
+				IMPORT_HOOKS,
+				'const calls = [];',
+				`${suite}('Hooks', function () {`,
+				"	before(function () { calls.push('before all'); });",
+				"	beforeEach('named', function () { calls.push('before each'); });",
+				"	afterEach(function () { calls.push('after each'); });",
+				"	after(function () { calls.push('after all'); });",
+				`	${test}('first', function () { assert.deepStrictEqual(calls, ['before all', 'before each']); });`,
+				`	${test}('second', function () { assert.deepStrictEqual(calls, ['before all', 'before each', 'after each', 'before each']); });`,
 				'});',
-			].join('\n'),
-		);
-		assert.deepStrictEqual(result, {
-			passed: [],
-			failed: ['Failing "before each" hook: prepares for "works": setup failed'],
-			screenshots: ['Failing.before each hook prepares for works'],
+				`${suite}('Check', function () {`,
+				`	${test}('ran every hook', function () {`,
+				"		assert.deepStrictEqual(calls, ['before all', 'before each', 'after each', 'before each', 'after each', 'after all']);",
+				'	});',
+				'});',
+			);
+			assert.deepStrictEqual(actual, result({ passed: ['Hooks first', 'Hooks second', 'Check ran every hook'] }));
 		});
+
+		it(`takes one screenshot when a hook fails with Mocha's ${ui.toUpperCase()} interface, without importing ExTester's hooks`, async () => {
+			const actual = await runMocha(
+				ui,
+				`${suite}('Failing', function () {`,
+				`	${INTERFACES[ui].beforeEach}('prepares', async function () { throw new Error('failed'); });`,
+				`	${test}('works', function () {});`,
+				'});',
+			);
+			assert.deepStrictEqual(
+				actual,
+				result({
+					failed: ['Failing "before each" hook: prepares for "works": failed'],
+					screenshots: ['Failing.before each hook prepares for works'],
+				}),
+			);
+		});
+	}
+
+	it('takes one screenshot when a hook of the exports interface fails', async () => {
+		const actual = await runMocha('exports', 'module.exports = {', "	Failing: { beforeEach() { throw new Error('failed'); }, works() {} },", '};');
+		assert.deepStrictEqual(
+			actual,
+			// Mocha titles the hook after the name of the method, `beforeEach`.
+			result({ failed: ['Failing "before each" hook: beforeEach for "works": failed'], screenshots: ['Failing.before each hook beforeEach for works'] }),
+		);
 	});
 
-	it('explains that Mocha defines no hooks for its exports interface', async () => {
-		const result = await runMocha('exports', [`require(${JSON.stringify(EXTESTER)}).before(function () {});`, 'module.exports = {};'].join('\n'));
-		assert.match(result.loadError ?? '', /Mocha defines neither before\(\) nor suiteSetup\(\)/);
+	it("takes one screenshot when one of ExTester's hooks fails, with the title Mocha gives the hook", async () => {
+		const actual = await runMocha(
+			'bdd',
+			IMPORT_HOOKS,
+			"describe('Failing', function () {",
+			"	beforeEach('prepares', function () { throw new Error('failed'); });",
+			"	it('works', function () {});",
+			'});',
+			"describe('Failing named', function () {",
+			"	before(function openEditor() { throw new Error('failed'); });",
+			"	it('works', function () {});",
+			'});',
+		);
+		assert.deepStrictEqual(
+			actual,
+			result({
+				failed: ['Failing "before each" hook: prepares for "works": failed', 'Failing named "before all" hook: openEditor for "works": failed'],
+				screenshots: ['Failing.before each hook prepares for works', 'Failing named.before all hook openEditor for works'],
+			}),
+		);
+	});
+
+	it('passes done to the hooks that take it, and takes a screenshot when they report an error', async () => {
+		const actual = await runMocha(
+			'bdd',
+			IMPORT_HOOKS,
+			"describe('Done', function () {",
+			'	before(function (done) { setTimeout(done, 10); });',
+			'	beforeEach(function (done) { setTimeout(done, 10); });',
+			"	it('works', function () {});",
+			'});',
+			"describe('Done with an error', function () {",
+			"	before(function (done) { setTimeout(() => done(new Error('failed')), 10); });",
+			"	it('works', function () {});",
+			'});',
+		);
+		assert.deepStrictEqual(
+			actual,
+			result({
+				passed: ['Done works'],
+				failed: ['Done with an error "before all" hook for "works": failed'],
+				screenshots: ['Done with an error.before all hook for works'],
+			}),
+		);
+	});
+
+	it('takes no screenshot when a hook skips the tests', async () => {
+		const actual = await runMocha(
+			'bdd',
+			IMPORT_HOOKS,
+			"describe('Skipped by an ExTester hook', function () {",
+			'	beforeEach(function () { this.skip(); });',
+			"	it('works', function () {});",
+			'});',
+			"describe('Skipped by a hook that takes done', function () {",
+			'	before(function (done) { this.skip(); });',
+			"	it('works', function () {});",
+			'});',
+			"describe('Skipped by an async hook', function () {",
+			'	before(async function () { this.skip(); });',
+			"	it('works', function () {});",
+			'});',
+		);
+		assert.deepStrictEqual(actual.failed, []);
+		assert.deepStrictEqual(actual.screenshots, []);
+		assert.deepStrictEqual(actual.pending.sort(), [
+			'Skipped by a hook that takes done works',
+			'Skipped by an ExTester hook works',
+			'Skipped by an async hook works',
+		]);
+	});
+
+	it("explains that Mocha defines no hooks for ExTester's hooks in its exports interface", async () => {
+		const actual = await runMocha('exports', `require(${JSON.stringify(EXTESTER)}).before(function () {});`, 'module.exports = {};');
+		assert.match(actual.loadError ?? '', /Mocha defines neither before\(\) nor suiteSetup\(\)/);
+	});
+
+	it("types this in the callbacks of ExTester's hooks as Mocha's context", () => {
+		// Compiling this file is the check: with callbacks typed as `Function`, `this` would implicitly be `any`.
+		const callback: Parameters<typeof extesterBeforeEach>[1] = async function () {
+			this.timeout(5000);
+		};
+		assert.strictEqual(typeof callback, 'function');
 	});
 });

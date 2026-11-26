@@ -27,6 +27,7 @@ import { VSBrowser } from '../browser';
 import { CodeUtil, CustomPageObjectsOptions, ReleaseQuality, SeedFilesOptions } from '../util/codeUtil';
 import { Coverage } from '../util/coverage';
 import { registerTypeScript } from '../util/typescript';
+import { takeScreenshotsOfFailedHooks } from './hookScreenshots';
 
 // For some reason these properties are not yet included in @types/mocha,
 // so we need to augment the MochaOptions interface ourselves.
@@ -346,6 +347,8 @@ export class VSRunner {
 			);
 
 			const fixtures = installGlobalFixtures(mocha, { setup: setupWorkbench, teardown: teardownWorkbench });
+			// Every hook of the test files, loaded by mocha.run, takes a screenshot when it fails; the hooks above do not.
+			takeScreenshotsOfFailedHooks(mocha.suite);
 
 			// Finally run tests
 			mocha.run((failures) => {

@@ -15,11 +15,50 @@
  * limitations under the License.
  */
 /* eslint-disable no-redeclare */
-import { Func } from 'mocha';
-import { VSBrowser } from '../extester';
-import sanitize from 'sanitize-filename';
+import type { AsyncFunc, Func } from 'mocha';
+import { HookCallback, HookType, withScreenshot } from './hookScreenshots';
 
-type HookType = 'before' | 'beforeEach' | 'after' | 'afterEach';
+/*
+ * ExTester's hooks register Mocha's hook of the same kind, with a callback that takes a screenshot
+ * when it fails. `extest` now takes that screenshot for every hook, so Mocha's own hooks do the
+ * same and importing these is not needed. They are kept so that existing tests keep working.
+ *
+ * The overloads are those of Mocha's hook functions, one per kind of callback, so `this` is Mocha's
+ * context without an annotation, as in `beforeEach(async function () { this.timeout(5000); })`.
+ * A single overload for `Func | AsyncFunc` would leave `this` untyped in callbacks without `done`.
+ */
+
+function vscodeBefore(fn: Func): void;
+function vscodeBefore(fn: AsyncFunc): void;
+function vscodeBefore(name: string, fn: Func): void;
+function vscodeBefore(name: string, fn: AsyncFunc): void;
+function vscodeBefore(name?: any, fn?: any): void {
+	callHook('before', name, fn);
+}
+
+function vscodeBeforeEach(fn: Func): void;
+function vscodeBeforeEach(fn: AsyncFunc): void;
+function vscodeBeforeEach(name: string, fn: Func): void;
+function vscodeBeforeEach(name: string, fn: AsyncFunc): void;
+function vscodeBeforeEach(name?: any, fn?: any): void {
+	callHook('beforeEach', name, fn);
+}
+
+function vscodeAfter(fn: Func): void;
+function vscodeAfter(fn: AsyncFunc): void;
+function vscodeAfter(name: string, fn: Func): void;
+function vscodeAfter(name: string, fn: AsyncFunc): void;
+function vscodeAfter(name?: any, fn?: any): void {
+	callHook('after', name, fn);
+}
+
+function vscodeAfterEach(fn: Func): void;
+function vscodeAfterEach(fn: AsyncFunc): void;
+function vscodeAfterEach(name: string, fn: Func): void;
+function vscodeAfterEach(name: string, fn: AsyncFunc): void;
+function vscodeAfterEach(name?: any, fn?: any): void {
+	callHook('afterEach', name, fn);
+}
 
 /**
  * The names of Mocha's function for each kind of hook: the BDD (and QUnit) name, then the TDD name.
@@ -32,127 +71,34 @@ const mochaHookNames: Record<HookType, readonly [bdd: string, tdd: string]> = {
 	afterEach: ['afterEach', 'teardown'],
 };
 
-function vscodeBefore(fn: Function): void;
-function vscodeBefore(name: string, fn: Function): void;
-function vscodeBefore(name?: any, fn?: any): void {
-	callHook('before', name, fn);
-}
-
-function vscodeBeforeEach(fn: Function): void;
-function vscodeBeforeEach(name: string, fn: Function): void;
-function vscodeBeforeEach(name?: any, fn?: any): void {
-	callHook('beforeEach', name, fn);
-}
-
-function vscodeAfter(fn: Function): void;
-function vscodeAfter(name: string, fn: Function): void;
-function vscodeAfter(name?: any, fn?: any): void {
-	callHook('after', name, fn);
-}
-
-function vscodeAfterEach(fn: Function): void;
-function vscodeAfterEach(name: string, fn: Function): void;
-function vscodeAfterEach(name?: any, fn?: any): void {
-	callHook('afterEach', name, fn);
-}
-
-/* The same hooks under the names of Mocha's TDD interface. */
-
-function vscodeSuiteSetup(fn: Function): void;
-function vscodeSuiteSetup(name: string, fn: Function): void;
-function vscodeSuiteSetup(name?: any, fn?: any): void {
-	callHook('before', name, fn, 'suiteSetup');
-}
-
-function vscodeSetup(fn: Function): void;
-function vscodeSetup(name: string, fn: Function): void;
-function vscodeSetup(name?: any, fn?: any): void {
-	callHook('beforeEach', name, fn, 'setup');
-}
-
-function vscodeSuiteTeardown(fn: Function): void;
-function vscodeSuiteTeardown(name: string, fn: Function): void;
-function vscodeSuiteTeardown(name?: any, fn?: any): void {
-	callHook('after', name, fn, 'suiteTeardown');
-}
-
-function vscodeTeardown(fn: Function): void;
-function vscodeTeardown(name: string, fn: Function): void;
-function vscodeTeardown(name?: any, fn?: any): void {
-	callHook('afterEach', name, fn, 'teardown');
-}
-
-/**
- * Create new function which wraps original function. The wrapper function
- * will be able to create screenshots in case of test crashes.
- * @param hookType hook name
- * @param fn callback function
- * @returns wrapped function capable of doing screenshots on callback failure
- */
-function createScreenshotCallbackFunction(name: string | undefined, hookType: HookType, fn: Function): Func {
-	const alternativeFileName: string = createAlternativeFileName(hookType);
-
-	return async function (this: Mocha.Context) {
-		try {
-			await fn.call(this);
-		} catch (e) {
-			if (this === undefined) {
-				throw e;
-			}
-			if (this.test === undefined) {
-				try {
-					await VSBrowser.instance.takeScreenshot(sanitize(alternativeFileName));
-				} catch (screenshotError) {
-					console.error(`Could not take screenshot. this.test is undefined. Reason:\n${screenshotError}\n\n`);
-				}
-				throw e;
-			}
-
-			try {
-				const titlePath = this.test.titlePath();
-				await VSBrowser.instance.takeScreenshot(sanitize(titlePath.join('.')));
-			} catch (screenshotError) {
-				console.error(`Could not take screenshot. Reason:\n${screenshotError}\n\n`);
-			}
-			throw e;
-		}
-	};
-}
-
 /**
  * Call Mocha hook function with given arguments.
  * @param hookType hook name
  * @param firstArgument hook description or a callback
  * @param secondArgument callback to be called or undefined
- * @param functionName name of the ExTester function that was called, for error messages
  */
-function callHook(
-	hookType: HookType,
-	firstArgument: string | Function | undefined,
-	secondArgument: Function | undefined,
-	functionName: string = hookType,
-): void {
+function callHook(hookType: HookType, firstArgument: string | HookCallback | undefined, secondArgument: HookCallback | undefined): void {
 	/* Disallowed combinations */
 	if (typeof firstArgument === 'function' && secondArgument !== undefined) {
-		throw new Error(`${functionName}(func1, func2) If the first argument is a function, then the second argument must be undefined.`);
+		throw new Error(`${hookType}(func1, func2) If the first argument is a function, then the second argument must be undefined.`);
 	}
 	if (typeof firstArgument === 'string' && secondArgument === undefined) {
-		throw new Error(`${functionName}(${firstArgument}) required callback function as seconds argument.`);
+		throw new Error(`${hookType}(${firstArgument}) required callback function as seconds argument.`);
 	}
 	if (firstArgument === undefined && secondArgument === undefined) {
-		throw new Error(`${functionName}() requires at least callback function.`);
+		throw new Error(`${hookType}() requires at least callback function.`);
 	}
 	/* Remaining 2 combinations are valid. eg. before(callback) and before(name, callback). */
 	const name = typeof firstArgument === 'string' ? firstArgument : undefined;
 	const fn = typeof firstArgument === 'function' ? firstArgument : secondArgument;
 
 	const hook = getHookFunction(hookType);
-	const callback = fn ? fn : () => {};
+	const callback = withScreenshot(hookType, fn ?? (() => {}));
 
 	if (name !== undefined) {
-		hook(name, createScreenshotCallbackFunction(name, hookType, callback));
+		hook(name, callback);
 	} else {
-		hook(createScreenshotCallbackFunction(name, hookType, callback));
+		hook(callback);
 	}
 }
 
@@ -178,52 +124,4 @@ function getHookFunction(hookType: HookType): Mocha.HookFunction {
 	return mochaGlobals[name] as Mocha.HookFunction;
 }
 
-/**
- * Create number generator [1..].
- */
-function* createScreenshotNameGenerator(): Generator<number, number, void> {
-	let counter = 1;
-
-	while (true) {
-		yield counter;
-		counter++;
-	}
-}
-
-/**
- * Create alternative filename if given hook does not have name.
- * @param hookType hook name
- * @returns alternative file name without extension
- */
-function createAlternativeFileName(hookType: HookType): string {
-	const generator = screenshotNameGenerators.get(hookType);
-
-	if (generator) {
-		return `${hookType} ${generator.next().value}`;
-	} else {
-		throw new Error(`Unknown mocha hook type "${hookType}".`);
-	}
-}
-
-/**
- * Create number generator for each callback.
- */
-const screenshotNameGenerators = new Map(
-	Object.entries({
-		before: createScreenshotNameGenerator(),
-		beforeEach: createScreenshotNameGenerator(),
-		after: createScreenshotNameGenerator(),
-		afterEach: createScreenshotNameGenerator(),
-	}),
-);
-
-export {
-	vscodeBefore as before,
-	vscodeBeforeEach as beforeEach,
-	vscodeAfter as after,
-	vscodeAfterEach as afterEach,
-	vscodeSuiteSetup as suiteSetup,
-	vscodeSetup as setup,
-	vscodeSuiteTeardown as suiteTeardown,
-	vscodeTeardown as teardown,
-};
+export { vscodeBefore as before, vscodeBeforeEach as beforeEach, vscodeAfter as after, vscodeAfterEach as afterEach };
