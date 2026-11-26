@@ -397,12 +397,14 @@
         {
           "id": "extesterResourcesScreenshotsView",
           "name": "Screenshots",
+          "icon": "$(file-media)",
           "initialSize": 1,
           "visibility": "collapsed"
         },
         {
           "id": "extesterResourcesLogsView",
           "name": "Logs",
+          "icon": "$(output)",
           "initialSize": 1,
           "visibility": "collapsed"
         }
