@@ -25,6 +25,8 @@ import { DEFAULT_SCREEN, isWaylandSession, parseScreen, quoteForShell, VirtualDi
 /**
  * Opens an X11 connection to a local display, with the cookie of an Xauthority file or without one,
  * and reports whether the server accepted it. The first byte of the server's reply is 1 on success.
+ * A server that refuses a client can close the connection before the client has written its setup
+ * request, so a broken pipe, a reset or a close without a reply also count as refused.
  */
 function connectsToDisplay(display: string, xauthority?: string): Promise<boolean> {
 	let name: Buffer = Buffer.alloc(0);
@@ -50,12 +52,19 @@ function connectsToDisplay(display: string, xauthority?: string): Promise<boolea
 	header.writeUInt16LE(data.length, 8);
 	return new Promise((resolve, reject) => {
 		const socket = createConnection(`/tmp/.X11-unix/X${display.slice(1)}`);
-		socket.once('error', reject);
+		socket.once('error', (error: NodeJS.ErrnoException) => {
+			if (error.code === 'EPIPE' || error.code === 'ECONNRESET') {
+				resolve(false);
+			} else {
+				reject(error);
+			}
+		});
 		socket.once('connect', () => socket.write(Buffer.concat([header, pad(name), pad(data)])));
 		socket.once('data', (reply: Buffer) => {
 			socket.destroy();
 			resolve(reply[0] === 1);
 		});
+		socket.once('close', () => resolve(false));
 	});
 }
 
