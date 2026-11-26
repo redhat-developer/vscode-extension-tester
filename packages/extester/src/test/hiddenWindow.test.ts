@@ -25,10 +25,12 @@ import {
 	HIDDEN_WINDOW_ENV,
 	adoptSession,
 	closeBidiConnection,
+	filesToReopen,
 	forwardToCurrentSession,
 	hiddenWindowArgs,
 	isHiddenWindowRequested,
 	supportsHiddenWindow,
+	trackOpened,
 } from '../util/hiddenWindow';
 
 describe('hiddenWindow', function () {
@@ -191,6 +193,40 @@ describe('hiddenWindow', function () {
 			await first.execute(new FakeCommand());
 			await second.execute(new FakeCommand());
 			assert.deepStrictEqual(sent, ['third:third', 'third:third']);
+		});
+	});
+
+	describe('reload tracking', function () {
+		const isWorkspace = (resource: string) => resource.endsWith('folder') || resource.endsWith('.code-workspace');
+		const empty = { workspace: [], files: [] };
+
+		it('resolves relative folders and files', function () {
+			const state = trackOpened(empty, ['folder', 'a.ts'], isWorkspace);
+			assert.deepStrictEqual(state, { workspace: [path.resolve('folder')], files: [path.resolve('a.ts')] });
+		});
+
+		it('moves a file opened again to the end', function () {
+			let state = trackOpened(empty, ['/w/folder', '/w/a.ts', '/w/b.ts'], isWorkspace);
+			state = trackOpened(state, ['/w/a.ts'], isWorkspace);
+			assert.deepStrictEqual(state.files, [path.resolve('/w/b.ts'), path.resolve('/w/a.ts')]);
+		});
+
+		it('forgets the files of a previous folder', function () {
+			let state = trackOpened(empty, ['/w/folder', '/w/a.ts'], isWorkspace);
+			state = trackOpened(state, ['/x/other.code-workspace'], isWorkspace);
+			assert.deepStrictEqual(state, { workspace: [path.resolve('/x/other.code-workspace')], files: [] });
+		});
+
+		it('reopens only files whose editor is open, by exact title', function () {
+			const files = ['/w/foo.ts', '/w/bar.ts', '/w/gone.ts'];
+			const reopened = filesToReopen(files, ['foo.tsx', 'bar.ts'], 'bar.ts', () => true);
+			assert.deepStrictEqual(reopened, ['/w/bar.ts']);
+		});
+
+		it('puts the active editor last and skips deleted files', function () {
+			const files = ['/w/a.ts', '/w/b.ts', '/w/c.ts'];
+			const reopened = filesToReopen(files, ['a.ts', 'b.ts', 'c.ts'], 'a.ts', (file) => file !== '/w/c.ts');
+			assert.deepStrictEqual(reopened, ['/w/b.ts', '/w/a.ts']);
 		});
 	});
 });

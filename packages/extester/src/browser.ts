@@ -18,7 +18,7 @@
 import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as fs from 'fs-extra';
-import { WebDriver, Builder, initPageObjects, logging, By, Browser, EditorView, Workbench } from '@redhat-developer/page-objects';
+import { WebDriver, Builder, initPageObjects, logging, By, Browser, EditorTab, EditorView, Workbench } from '@redhat-developer/page-objects';
 import { Options, ServiceBuilder } from 'selenium-webdriver/chrome';
 import { getLocatorsPath } from '@redhat-developer/locators';
 import {
@@ -41,11 +41,14 @@ import { browserLaunchEnvironment, formatLaunchFailure, isSessionNotCreated } fr
 import {
 	HIDDEN_WINDOW_MIN_VERSION,
 	adoptSession,
+	OpenedResources,
 	closeBidiConnection,
+	filesToReopen,
 	forwardToCurrentSession,
 	hiddenWindowArgs,
 	isHiddenWindowRequested,
 	supportsHiddenWindow,
+	trackOpened,
 } from './util/hiddenWindow';
 
 export class VSBrowser {
@@ -68,6 +71,8 @@ export class VSBrowser {
 	private readonly hiddenWindow: boolean;
 	/** set after the first VS Code session ended, so later sessions append to the logs */
 	private appendLogs = false;
+	/** what the window has open, as far as ExTester opened it, so a hidden window reload can open it again */
+	private opened: OpenedResources = { workspace: [], files: [] };
 
 	private formatTimestamp(date: Date): string {
 		const pad = (num: number) => num.toString().padStart(2, '0');
@@ -114,7 +119,9 @@ export class VSBrowser {
 			);
 		}
 		this.warnShadowedSettings(resources);
-		return await this.launch(codePath, resources);
+		const browser = await this.launch(codePath, resources);
+		this.opened = trackOpened(this.opened, resources, isFolderOrWorkspace);
+		return browser;
 	}
 
 	/**
@@ -582,6 +589,7 @@ export class VSBrowser {
 		this.warnShadowedSettings(paths);
 		if (this.hiddenWindow && paths.some(isFolderOrWorkspace)) {
 			await this.relaunchWithResources(paths);
+			this.opened = trackOpened(this.opened, paths, isFolderOrWorkspace);
 			await this.waitForWorkbench(undefined, waitForFn);
 			return;
 		}
@@ -615,6 +623,70 @@ export class VSBrowser {
 				}
 			}
 		}
+		// tracked only once they are open, so a failed open does not change what a hidden reload reopens
+		this.opened = trackOpened(this.opened, paths, isFolderOrWorkspace);
+	}
+
+	/**
+	 * Reload the VS Code window (`Developer: Reload Window`) and wait until the workbench is back.
+	 *
+	 * With a hidden window VS Code runs in extension test mode, where it exits instead of reloading.
+	 * ExTester then restarts it with the same folder or workspace and reopens the files that were
+	 * opened through ExTester (`openResources()` or the launch resources) and are still open, with the
+	 * active one last so it is active again. Saved files, settings and files an extension wrote carry
+	 * over. Not restored: unsaved changes (hot exit), extension `globalState` and `workspaceState`
+	 * (VS Code keeps storage in memory in test mode), the editor layout and groups, editors not opened
+	 * through ExTester, and editors reopened with another editor ("Reopen With"). Tests of those still
+	 * need a visible window.
+	 *
+	 * @param waitForFn optional function to run once the workbench is back
+	 *
+	 * @example
+	 * await VSBrowser.instance.reloadWindow(async () => {
+	 *   await waitForMyExtensionToActivate();
+	 * });
+	 */
+	async reloadWindow(waitForFn?: () => void | Promise<any>): Promise<void> {
+		// the editor tabs and the workbench are in the top document, not in a webview frame a test may have switched to
+		await this._driver.switchTo().defaultContent();
+		if (this.hiddenWindow) {
+			const open = await this.openEditorFiles();
+			await this.relaunchWithResources([...this.opened.workspace, ...open]);
+			await this.waitForWorkbench(undefined, waitForFn);
+			return;
+		}
+		const workbench = await this._driver.findElement(By.css('.monaco-workbench'));
+		await new Workbench().executeCommand('workbench.action.reloadWindow');
+		await this._driver.wait(
+			async () => {
+				try {
+					await workbench.isDisplayed();
+					return false;
+				} catch {
+					return true; // the old workbench is gone
+				}
+			},
+			15_000,
+			'The window did not reload within 15 s. Something may block it, such as a "Save changes?" dialog when hot exit is off, or the reload command did not run.',
+		);
+		await this.waitForWorkbench(undefined, waitForFn);
+	}
+
+	/** Files opened through ExTester that are still open in an editor and still exist, the active one last. */
+	private async openEditorFiles(): Promise<string[]> {
+		let titles: string[] = [];
+		let activeTitle: string | undefined;
+		try {
+			titles = await new EditorView().getOpenEditorTitles();
+			const active = await this._driver.findElements(By.css('.editor-group-container.active .tab.active'));
+			activeTitle = active.length > 0 ? await new EditorTab(active[0], new EditorView()).getTitle() : undefined;
+		} catch (err) {
+			// only a window without an editor area counts as having no editors open
+			if ((err as Error).name !== 'NoSuchElementError') {
+				throw err;
+			}
+		}
+		return filesToReopen(this.opened.files, titles, activeTitle);
 	}
 
 	/**
