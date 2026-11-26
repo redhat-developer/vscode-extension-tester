@@ -17,7 +17,7 @@
 
 - A VS Code extension project with UI tests written in TypeScript using [vscode-extension-tester](https://www.npmjs.com/package/vscode-extension-tester).
 - Node.js 22 or newer, as required by ExTester.
-- VS Code 1.100 or newer.
+- VS Code 1.100 or newer. The experimental [`hiddenWindow`](#hidden-window-experimental) setting needs VS Code 1.147 or newer in the tests.
 - To run the TypeScript sources without compiling them (`runSources`): vscode-extension-tester 8.29.0 or newer and [`tsx`](https://redhat-developer.github.io/vscode-extension-tester/guides/typescript-tests/) installed where ExTester runs (see [Running TypeScript sources](#running-typescript-sources)).
 
 ## Features
@@ -33,10 +33,11 @@
 
 - Tests marked with `.only` or `.skip` show it next to their name, and files that contain `.only` say so. Filter them with `@extesterRunner:only` or `@extesterRunner:skip`.
 - Stop, rerun, run history and the run of the tests in the current file come from the Testing view. One run starts at a time.
-- **Debug** any test, file or folder from the Testing view or the gutter (right-click the gutter button, or use its Debug Test action). Debug runs the same command in a JavaScript Debug Terminal, so breakpoints in your tests stop them, and turn off Mocha's timeouts so a paused test does not fail. A test that sets its own timeout with `this.timeout()` keeps it.
+- **Debug** any test, file or folder from the Testing view or the gutter (right-click the gutter button, or use its Debug Test action). Debug runs the same command in a JavaScript Debug Terminal, so breakpoints in your tests stop them, and turns off Mocha's timeouts so a paused test does not fail. A test that sets its own timeout with `this.timeout()` keeps it. The debug run ends by itself when the test command ends.
 - Each run calls `extest setup-and-run` with the VS Code version, release type and extra arguments from your settings, or your own [`runCommand`](#custom-run-command).
 - Build before each run with [`preRunTask`](#settings), and pass environment variables to the tests with [`env`](#settings).
 - Run the compiled JavaScript tests from your output folder, or the TypeScript sources with [`runSources`](#running-typescript-sources).
+- Keep working while the tests run: the experimental [`hiddenWindow`](#hidden-window-experimental) setting runs them in a VS Code window that is never shown or focused.
 
 The result of each test is read from a small hook that ExTester Runner preloads into the `extest` process with `NODE_OPTIONS`. It only listens to Mocha's events and copies the output; it does not change how the tests run.
 
@@ -73,6 +74,7 @@ All settings live under the `extesterRunner` namespace in your workspace setting
 | `env`                      | `{}`               | Environment variables for test runs, such as `{ "TEST_USER": "tester" }`. Only their names are logged.                                                    |
 | `runCommand`               | —                  | Command that runs the tests instead of `npx extest setup-and-run`, such as `npm run ui-test -- ${target}`. See [Custom run command](#custom-run-command). |
 | `preRunTask`               | —                  | VS Code task to run before each test run, such as `npm: compile`. The tests start only when it succeeds.                                                  |
+| `hiddenWindow`             | `false`            | **Experimental.** Run the tests in a VS Code window that is never shown or focused. See [Hidden window](#hidden-window-experimental).                     |
 
 **Logs**
 
@@ -108,6 +110,12 @@ Set `runCommand` to run the tests with your own command instead of `npx extest s
 `${target}` is replaced by the quoted path or glob of the tests to run: the file, a glob of the files in the folder, or a glob of all test files. Without `${target}`, the target is appended. The command runs in the workspace folder and gets `env` and, when one test runs, `MOCHA_GREP`. The VS Code version, type, temp folder, `additionalArgs` and `configFile` are not added to it: put the options it needs in the command.
 
 The Testing view still shows the result of each test when the command keeps the environment variables for the Node.js process that runs Mocha, as npm scripts and shell scripts do. A command that drops them, such as `docker run` without `-e`, still runs the tests, but they show as skipped and the results are only in the output.
+
+## Hidden window (experimental)
+
+Turn on `extesterRunner.hiddenWindow` to run the tests in a VS Code window that is never shown or focused, so a run does not take over your screen. The Runner sets `EXTESTER_HIDDEN_WINDOW=true` for `npx extest setup-and-run` and for a custom `runCommand`; a value of `EXTESTER_HIDDEN_WINDOW` in `env` wins over the setting. To turn it on for the whole team, set `run.hiddenWindow` in `extester.config.json` instead.
+
+It needs an ExTester release with hidden window support and VS Code 1.147 or newer. VS Code then runs in extension test mode: dialogs are not shown and UI state is not kept between runs. See [Running With a Hidden Window](https://redhat-developer.github.io/vscode-extension-tester/guides/hidden-window/).
 
 ## Running TypeScript sources
 

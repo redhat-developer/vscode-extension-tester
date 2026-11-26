@@ -92,7 +92,7 @@ The full policy, including how the tested VS Code range is kept up to date, is o
 
 ## ExTester Runner
 
-The [ExTester Runner](https://marketplace.visualstudio.com/items?itemName=redhat.extester-runner) extension adds a view to the Activity Bar that lists your UI tests as a tree, runs a file, a folder or everything with one click, and shows the screenshots and logs from each run. It is also available on [Open VSX](https://open-vsx.org/extension/redhat/extester-runner). See the [ExTester Runner guide](https://redhat-developer.github.io/vscode-extension-tester/guides/extester-runner/).
+The [ExTester Runner](https://marketplace.visualstudio.com/items?itemName=redhat.extester-runner) extension lists your UI tests in VS Code's **Testing** view, runs or debugs everything, a folder, a file, a `describe` block or a single test, and shows the result of each test with its error, stack trace and failure screenshot. The **Screenshots** and **Logs** views below the tests keep the files of each run. It is also available on [Open VSX](https://open-vsx.org/extension/redhat/extester-runner). See the [ExTester Runner guide](https://redhat-developer.github.io/vscode-extension-tester/guides/extester-runner/).
 
 ## Documentation
 

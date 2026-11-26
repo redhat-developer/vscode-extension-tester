@@ -66,4 +66,4 @@ You can remove the step that emits compiled **test** files. The extension and it
 
 ## ExTester Runner
 
-[ExTester Runner](/vscode-extension-tester/guides/extester-runner/) runs compiled JavaScript tests by default. To run TypeScript sources from its UI Tests view, enable the `extesterRunner.runSources` setting. See [Running TypeScript Sources](/vscode-extension-tester/guides/extester-runner/#running-typescript-sources).
+[ExTester Runner](/vscode-extension-tester/guides/extester-runner/) runs compiled JavaScript tests by default. To run the TypeScript sources from the Testing view, enable the `extesterRunner.runSources` setting. See [Running TypeScript Sources](/vscode-extension-tester/guides/extester-runner/#running-typescript-sources).
