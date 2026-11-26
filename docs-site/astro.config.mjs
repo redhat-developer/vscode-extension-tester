@@ -40,6 +40,7 @@ export default defineConfig({
           items: [
             'getting-started/installation',
             'getting-started/supported-versions',
+            'getting-started/extester-and-vscode-test-cli',
             'getting-started/writing-simple-tests',
             'getting-started/opening-files-and-folders',
           ],
