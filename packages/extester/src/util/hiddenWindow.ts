@@ -166,3 +166,41 @@ export function forwardToCurrentSession(previous: CommandExecutor, driver: Sessi
 		return await current.execute(command);
 	};
 }
+
+/** What the window has open, as far as ExTester opened it: a hidden window reload opens it again. */
+export interface OpenedResources {
+	/** absolute paths of the folders or `.code-workspace` file the window has open */
+	workspace: string[];
+	/** absolute paths of the files opened through ExTester, least recently opened first */
+	files: string[];
+}
+
+/**
+ * Record resources that were opened. A folder or workspace replaces the previous one and closes its
+ * editors; a file opened again moves to the end, as the most recently opened one.
+ */
+export function trackOpened(state: OpenedResources, resources: string[], isWorkspace: (resource: string) => boolean): OpenedResources {
+	const resolved = resources.map((resource) => path.resolve(resource));
+	const workspace = resolved.filter(isWorkspace);
+	let files = workspace.length > 0 ? [] : state.files;
+	for (const file of resolved.filter((resource) => !isWorkspace(resource))) {
+		files = [...files.filter((known) => known !== file), file];
+	}
+	return { workspace: workspace.length > 0 ? workspace : state.workspace, files };
+}
+
+/**
+ * Files to open again after a hidden window reload: those opened through ExTester whose editor is still
+ * open (exact title match) and that still exist. The active editor's file comes last, so VS Code
+ * focuses it again; the others keep their opening order.
+ */
+export function filesToReopen(
+	openedFiles: string[],
+	editorTitles: string[],
+	activeTitle: string | undefined,
+	exists: (file: string) => boolean = fs.existsSync,
+): string[] {
+	const files = openedFiles.filter((file) => exists(file) && editorTitles.includes(path.basename(file)));
+	const isActive = (file: string) => path.basename(file) === activeTitle;
+	return [...files.filter((file) => !isActive(file)), ...files.filter(isActive)];
+}

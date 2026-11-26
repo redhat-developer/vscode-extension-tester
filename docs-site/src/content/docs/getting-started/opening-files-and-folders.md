@@ -38,6 +38,22 @@ await VSBrowser.instance.openResources(
 );
 ```
 
+## reloadWindow
+
+```typescript
+reloadWindow(waitForFn?: () => void | Promise<any>): Promise<void>
+```
+
+Reloads the VS Code window (`Developer: Reload Window`) and waits until the workbench is back, then runs the optional wait function. Use it instead of running the reload command yourself: elements found before the reload go stale, so look them up again afterwards.
+
+```ts
+await VSBrowser.instance.reloadWindow(async () => {
+  // Optional: wait until your extension is active again
+});
+```
+
+With the experimental [hidden window](/vscode-extension-tester/guides/hidden-window/), VS Code cannot reload, so `reloadWindow` restarts it with the same folder and reopens the files opened through `openResources` that were still open, with the active one active again. Saved files and settings carry over. Unsaved changes, extension `globalState`/`workspaceState`, the editor layout and editors opened some other way do not, so a test that checks those after a reload needs a visible window.
+
 ## Using Dialogs
 
 When a test triggers a native open dialog (e.g. via `File > Open Folder...`), VS Code shows the **Simple Dialog** instead — an input box for entering the path. ExTester enables this automatically through its [default settings](/vscode-extension-tester/guides/test-setup/#how-custom-settings-propagate) (`files.simpleDialog.enable: true` and `window.dialogStyle: custom`), so no configuration is needed — native OS dialogs cannot be driven by WebDriver.
