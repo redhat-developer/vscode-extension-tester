@@ -208,7 +208,7 @@ There is nothing to set in the Runner: it reads the interface from the functions
 }
 ```
 
-With TDD, use Mocha's `suiteSetup`, `setup`, `suiteTeardown` and `teardown` hooks. ExTester's `before`, `beforeEach`, `after` and `afterEach`, imported from `vscode-extension-tester` to [take a screenshot of a failed hook](/vscode-extension-tester/guides/taking-screenshots/#mocha-integration), call Mocha's BDD hooks and fail with `ReferenceError: before is not defined` under TDD.
+To [take a screenshot of a failed hook](/vscode-extension-tester/guides/taking-screenshots/#mocha-integration) with TDD, import ExTester's hooks under their TDD names, `suiteSetup`, `setup`, `suiteTeardown` and `teardown`, from `vscode-extension-tester`. ExTester 8.29.0 and older have only the BDD names, `before`, `beforeEach`, `after` and `afterEach`, which fail with `ReferenceError: before is not defined` under TDD: with these versions, use Mocha's own TDD hooks.
 
 Tests of the QUnit and exports interfaces still run when you run their file or folder, but the Testing view does not list their tests, so they cannot be run one by one and their results are only in the output.
 

@@ -21,6 +21,17 @@ import sanitize from 'sanitize-filename';
 
 type HookType = 'before' | 'beforeEach' | 'after' | 'afterEach';
 
+/**
+ * The names of Mocha's function for each kind of hook: the BDD (and QUnit) name, then the TDD name.
+ * Mocha defines the functions of the interface that its `ui` option selects.
+ */
+const mochaHookNames: Record<HookType, readonly [bdd: string, tdd: string]> = {
+	before: ['before', 'suiteSetup'],
+	beforeEach: ['beforeEach', 'setup'],
+	after: ['after', 'suiteTeardown'],
+	afterEach: ['afterEach', 'teardown'],
+};
+
 function vscodeBefore(fn: Function): void;
 function vscodeBefore(name: string, fn: Function): void;
 function vscodeBefore(name?: any, fn?: any): void {
@@ -43,6 +54,32 @@ function vscodeAfterEach(fn: Function): void;
 function vscodeAfterEach(name: string, fn: Function): void;
 function vscodeAfterEach(name?: any, fn?: any): void {
 	callHook('afterEach', name, fn);
+}
+
+/* The same hooks under the names of Mocha's TDD interface. */
+
+function vscodeSuiteSetup(fn: Function): void;
+function vscodeSuiteSetup(name: string, fn: Function): void;
+function vscodeSuiteSetup(name?: any, fn?: any): void {
+	callHook('before', name, fn, 'suiteSetup');
+}
+
+function vscodeSetup(fn: Function): void;
+function vscodeSetup(name: string, fn: Function): void;
+function vscodeSetup(name?: any, fn?: any): void {
+	callHook('beforeEach', name, fn, 'setup');
+}
+
+function vscodeSuiteTeardown(fn: Function): void;
+function vscodeSuiteTeardown(name: string, fn: Function): void;
+function vscodeSuiteTeardown(name?: any, fn?: any): void {
+	callHook('after', name, fn, 'suiteTeardown');
+}
+
+function vscodeTeardown(fn: Function): void;
+function vscodeTeardown(name: string, fn: Function): void;
+function vscodeTeardown(name?: any, fn?: any): void {
+	callHook('afterEach', name, fn, 'teardown');
 }
 
 /**
@@ -87,17 +124,23 @@ function createScreenshotCallbackFunction(name: string | undefined, hookType: Ho
  * @param hookType hook name
  * @param firstArgument hook description or a callback
  * @param secondArgument callback to be called or undefined
+ * @param functionName name of the ExTester function that was called, for error messages
  */
-function callHook(hookType: HookType, firstArgument: string | Function | undefined, secondArgument: Function | undefined): void {
+function callHook(
+	hookType: HookType,
+	firstArgument: string | Function | undefined,
+	secondArgument: Function | undefined,
+	functionName: string = hookType,
+): void {
 	/* Disallowed combinations */
 	if (typeof firstArgument === 'function' && secondArgument !== undefined) {
-		throw new Error(`${hookType}(func1, func2) If the first argument is a function, then the second argument must be undefined.`);
+		throw new Error(`${functionName}(func1, func2) If the first argument is a function, then the second argument must be undefined.`);
 	}
 	if (typeof firstArgument === 'string' && secondArgument === undefined) {
-		throw new Error(`${hookType}(${firstArgument}) required callback function as seconds argument.`);
+		throw new Error(`${functionName}(${firstArgument}) required callback function as seconds argument.`);
 	}
 	if (firstArgument === undefined && secondArgument === undefined) {
-		throw new Error(`${hookType}() requires at least callback function.`);
+		throw new Error(`${functionName}() requires at least callback function.`);
 	}
 	/* Remaining 2 combinations are valid. eg. before(callback) and before(name, callback). */
 	const name = typeof firstArgument === 'string' ? firstArgument : undefined;
@@ -114,23 +157,25 @@ function callHook(hookType: HookType, firstArgument: string | Function | undefin
 }
 
 /**
- * Get hook function from hook name.
- * @param hookType name of wanted hook function
+ * Get Mocha's hook function of a kind of hook: the one of the BDD (or QUnit) interface, such as
+ * `before`, or else the one of the TDD interface, such as `suiteSetup`. Mocha defines the functions
+ * of one interface, the one its `ui` option selects, while it loads the test files.
+ * @param hookType kind of the wanted hook function
  * @returns hook function
  */
 function getHookFunction(hookType: HookType): Mocha.HookFunction {
-	switch (hookType) {
-		case 'before':
-			return before;
-		case 'beforeEach':
-			return beforeEach;
-		case 'after':
-			return after;
-		case 'afterEach':
-			return afterEach;
-		default:
-			throw new Error(`Unknown hook type "${hookType}".`);
+	const names = mochaHookNames[hookType];
+	if (names === undefined) {
+		throw new Error(`Unknown hook type "${hookType}".`);
 	}
+	const mochaGlobals = globalThis as unknown as Record<string, unknown>;
+	const name = names.find((candidate) => typeof mochaGlobals[candidate] === 'function');
+	if (name === undefined) {
+		throw new Error(
+			`Mocha defines neither ${names[0]}() nor ${names[1]}(). Call ExTester's hooks in a test file that Mocha loads with its BDD, TDD or QUnit interface.`,
+		);
+	}
+	return mochaGlobals[name] as Mocha.HookFunction;
 }
 
 /**
@@ -172,4 +217,13 @@ const screenshotNameGenerators = new Map(
 	}),
 );
 
-export { vscodeBefore as before, vscodeBeforeEach as beforeEach, vscodeAfter as after, vscodeAfterEach as afterEach };
+export {
+	vscodeBefore as before,
+	vscodeBeforeEach as beforeEach,
+	vscodeAfter as after,
+	vscodeAfterEach as afterEach,
+	vscodeSuiteSetup as suiteSetup,
+	vscodeSetup as setup,
+	vscodeSuiteTeardown as suiteTeardown,
+	vscodeTeardown as teardown,
+};
