@@ -7,4 +7,6 @@ test-extensions/**
 resources/**
 ../../**
 out/test/**
-extester.config*vitest/**
+extester.config*
+vitest/**
+
