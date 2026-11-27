@@ -39,6 +39,7 @@ To run TypeScript tests without compiling them first, see [TypeScript Tests](/vs
 - `CODE_TYPE` - release stream to use when `-t`/`--type` is not passed; `insider` selects the insider stream, anything else selects stable.
 - `EXTESTER_HIDDEN_WINDOW` - (experimental) `true` launches VS Code (1.147+) with a window that is never shown or focused, the same as `--hidden_window`. See [Running With a Hidden Window](/vscode-extension-tester/guides/hidden-window/).
 - `MOCHA_GREP` / `MOCHA_INVERT` - override Mocha's `grep`/`invert` for the run without touching the mocharc file (`MOCHA_INVERT` applies only for the exact string `"true"`).
+- `EXTESTER_GREP` - (experimental, Vitest only) run only the tests whose full name matches this pattern, as Vitest's `--testNamePattern`. `MOCHA_GREP` is accepted too.
 
 ## Using the CLI
 
@@ -160,6 +161,8 @@ Options:
   --code_snippets <folder>                     # Path to a folder of snippet files seeded into the test instance's User/snippets
   -u, --uninstall_extension                    # Uninstall the extension after the test run (default: false)
   -m, --mocha_config <mocharc.js>              # Path to Mocha configuration file
+  --test_runner <runner>                       # Experimental: test framework running the tests, mocha (default) or vitest. See the Running Tests With Vitest guide.
+  --vitest_config <vitest.config.ts>           # Path to Vitest configuration file, used with --test_runner vitest
   -l, --log_level <level>                      # Log messages from webdriver with a given level (default: "Info")
   -f, --offline                                # Attempt to run without internet connection, make sure to have all requirements downloaded (default: false)
   -C, --coverage                               # Enable code coverage using c8
@@ -191,6 +194,8 @@ Options:
   --package_options <json>                     # JSON string of vsce IPackageOptions (e.g. '{"useYarn":true,"followSymlinks":true}')
   -u, --uninstall_extension                    # Uninstall the extension after the test run (default: false)
   -m, --mocha_config <mocharc.js>              # Path to Mocha configuration file
+  --test_runner <runner>                       # Experimental: test framework running the tests, mocha (default) or vitest. See the Running Tests With Vitest guide.
+  --vitest_config <vitest.config.ts>           # Path to Vitest configuration file, used with --test_runner vitest
   -i, --install_dependencies                   # Automatically install extensions your extension depends on (default: false)
   -l, --log_level <level>                      # Log messages from webdriver with a given level (default: "Info")
   -f, --offline                                # Attempt to run without internet connection, make sure to have all requirements downloaded (default: false)
@@ -365,6 +370,8 @@ Controls test execution inside VS Code. Used by `run-tests` and `setup-and-run`.
 | `snippets`          | string                    | —                                             | `--code_snippets`              | Folder of snippet files seeded into the test instance's `User/snippets`                                                                                                                                        |
 | `cleanup`           | boolean                   | `false`                                       | `-u` / `--uninstall_extension` | Uninstall the extension after the test run                                                                                                                                                                     |
 | `mochaConfig`       | string                    | —                                             | `-m` / `--mocha_config`        | Path to a Mocha configuration file                                                                                                                                                                             |
+| `testRunner`        | `"mocha"` \| `"vitest"`  | `"mocha"`                                     | `--test_runner`                | Experimental: test framework running the tests. See [Running Tests With Vitest](/vscode-extension-tester/guides/vitest/) |
+| `vitestConfig`      | string                    | —                                             | `--vitest_config`              | Path to a Vitest configuration file, used with `testRunner: "vitest"` |
 | `logLevel`          | string                    | `"Info"`                                      | `-l` / `--log_level`           | Webdriver and ChromeDriver log level: `Debug`, `Info`, `Warning`, `Severe`, `OFF`, `ALL` (`ALL` records the full CDP wire traffic in `chromedriver.log` and can grow it by hundreds of MB over a long session) |
 | `offline`           | boolean                   | `false`                                       | `-f` / `--offline`             | Run without internet access                                                                                                                                                                                    |
 | `coverage`          | boolean                   | `false`                                       | `-C` / `--coverage`            | Enable c8 code coverage                                                                                                                                                                                        |
