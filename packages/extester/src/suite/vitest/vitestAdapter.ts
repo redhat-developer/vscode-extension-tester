@@ -17,8 +17,8 @@
 
 import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import type * as VitestNode from 'vitest/node' with { 'resolution-mode': 'import' };
 import { exitCode, GlobalFixturesState, resolveFromProject, RunContext, TestRunnerAdapter, TestRunnerOptions } from '../adapter';
+import { VitePlugin, VitestCliOptions, VitestNodeModule, VitestRunResult } from './vitestApi';
 import { SESSION_KEY } from './worker';
 
 /** Environment variable selecting tests by name, like `MOCHA_GREP` (which is accepted too) */
@@ -55,7 +55,7 @@ export class VitestAdapter implements TestRunnerAdapter {
 	}
 
 	async run({ testFiles, browser, workbench }: RunContext): Promise<number> {
-		const { createVitest } = (await import(pathToFileURL(resolveFromProject('vitest/node', 'vitest')).href)) as typeof VitestNode;
+		const { createVitest } = (await import(pathToFileURL(resolveFromProject('vitest/node', 'vitest')).href)) as VitestNodeModule;
 		const state: GlobalFixturesState = { setupFailed: false, teardownFailed: false };
 
 		// resolve the configuration before VS Code starts, so a broken config fails fast
@@ -72,7 +72,7 @@ export class VitestAdapter implements TestRunnerAdapter {
 			if (!state.setupFailed) {
 				const session = await browser.getSessionInfo();
 				for (const project of vitest.projects) {
-					project.provide(SESSION_KEY as 'extester:session', session);
+					project.provide(SESSION_KEY, session);
 				}
 				await vitest.standalone();
 				const project = vitest.getRootProject();
@@ -97,7 +97,7 @@ export class VitestAdapter implements TestRunnerAdapter {
  * configuration file and the test name filter.
  * @param configFile explicit Vitest configuration file, `undefined` to let Vitest find one
  */
-export function vitestCliOptions(configFile: string | undefined): VitestNode.CliOptions {
+export function vitestCliOptions(configFile: string | undefined): VitestCliOptions {
 	const grep = process.env[GREP_ENV] || process.env.MOCHA_GREP;
 	return {
 		run: true,
@@ -112,11 +112,11 @@ export function vitestCliOptions(configFile: string | undefined): VitestNode.Cli
  * the setup file attaching the workers to VS Code, one test file at a time, natively loaded
  * ExTester packages, and UI-test timeouts unless the user chose their own.
  */
-export function extesterPlugin(): VitestNode.Vite.Plugin {
+export function extesterPlugin(): VitePlugin {
 	return {
 		name: 'vscode-extension-tester',
 		config(userConfig) {
-			const test = (userConfig as { test?: VitestNode.TestUserConfig }).test ?? {};
+			const test = userConfig.test ?? {};
 			return {
 				test: {
 					setupFiles: [path.join(__dirname, 'setup.mjs')],
@@ -126,7 +126,7 @@ export function extesterPlugin(): VitestNode.Vite.Plugin {
 					hookTimeout: test.hookTimeout ?? DEFAULT_HOOK_TIMEOUT,
 					server: { deps: { external: EXTERNAL_PACKAGES } },
 				},
-			} as VitestNode.Vite.UserConfig;
+			};
 		},
 	};
 }
@@ -136,7 +136,7 @@ export function extesterPlugin(): VitestNode.Vite.Plugin {
  * failed test (e.g. a failing import or `beforeAll` hook), plus unhandled errors
  * @param result result of the run
  */
-export function countFailures(result: VitestNode.TestRunResult): number {
+export function countFailures(result: VitestRunResult): number {
 	let failures = result.unhandledErrors.length;
 	for (const module of result.testModules) {
 		const failedTests = [...module.children.allTests('failed')].length;

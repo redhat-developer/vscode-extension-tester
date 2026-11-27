@@ -20,17 +20,15 @@
  * before each test file: it attaches `VSBrowser.instance` and the page objects to the VS Code
  * window the ExTester process started, and screenshots failed tests.
  */
-import { beforeEach, inject } from 'vitest';
 import type { VSBrowserSessionInfo } from '../../browser.js';
+import type { VitestRuntimeModule } from './vitestApi.js';
 import worker from './worker.js';
 
-declare module 'vitest' {
-	interface ProvidedContext {
-		'extester:session': VSBrowserSessionInfo;
-	}
-}
+// Vitest is resolved at runtime from the project under test, ExTester is not built against its types (see vitestApi.ts)
+const vitestModule: string = 'vitest';
+const { beforeEach, inject } = (await import(vitestModule)) as VitestRuntimeModule;
 
-worker.attachWorker(inject(worker.SESSION_KEY as 'extester:session'));
+worker.attachWorker(inject(worker.SESSION_KEY) as VSBrowserSessionInfo | undefined);
 
 beforeEach(({ task, onTestFailed }) => {
 	onTestFailed(() => worker.screenshotFailedTest(task.fullTestName ?? task.name));
