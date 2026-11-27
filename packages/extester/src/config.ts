@@ -68,6 +68,10 @@ export interface ExTesterRunConfig {
 	cleanup?: boolean;
 	/** Path to a Mocha configuration file (e.g. `.mocharc.js`). */
 	mochaConfig?: string;
+	/** Experimental: test framework running the tests. Defaults to `mocha`. */
+	testRunner?: 'mocha' | 'vitest';
+	/** Path to a Vitest configuration file (e.g. `vitest.config.ts`), used with `testRunner: "vitest"`. */
+	vitestConfig?: string;
 	/** Webdriver log level. Defaults to `Info`. */
 	logLevel?: 'Debug' | 'Info' | 'Warning' | 'Severe' | 'OFF' | 'ALL';
 	/** Run without an internet connection. All required resources must be pre-downloaded. Defaults to `false`. */
@@ -148,7 +152,16 @@ export interface ExTesterConfig {
 const SETUP_PATH_KEYS: (keyof ExTesterSetupConfig)[] = ['storage', 'extensionsDir', 'settings'];
 
 /** Path-valued keys in ExTesterRunConfig that must be resolved relative to the config file. */
-const RUN_PATH_KEYS: (keyof ExTesterRunConfig)[] = ['storage', 'extensionsDir', 'settings', 'keybindings', 'snippets', 'mochaConfig', 'customPageObjects'];
+const RUN_PATH_KEYS: (keyof ExTesterRunConfig)[] = [
+	'storage',
+	'extensionsDir',
+	'settings',
+	'keybindings',
+	'snippets',
+	'mochaConfig',
+	'vitestConfig',
+	'customPageObjects',
+];
 
 /** Path-valued array keys in ExTesterRunConfig whose entries are plain paths (not glob patterns). */
 const RUN_PATH_ARRAY_KEYS: (keyof ExTesterRunConfig)[] = ['resources'];

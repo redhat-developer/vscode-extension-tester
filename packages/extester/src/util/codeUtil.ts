@@ -20,10 +20,11 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import { parse as parseJsonc, printParseErrorCode, type ParseError } from 'jsonc-parser';
 import { satisfies } from 'compare-versions';
-import { HIDDEN_WINDOW_ENV } from './hiddenWindow';
+import { HIDDEN_WINDOW_ENV, isHiddenWindowRequested } from './hiddenWindow';
 import * as vsce from '@vscode/vsce';
 import type { IPackageOptions } from '@vscode/vsce';
 import { VSRunner } from '../suite/runner';
+import { selectTestRunner, TestRunnerName } from '../suite/adapter';
 import { Unpack } from './unpack';
 import { logging } from 'selenium-webdriver';
 import { Download } from './download';
@@ -52,6 +53,10 @@ export interface RunOptions {
 	cleanup?: boolean;
 	/** path to a custom mocha configuration file */
 	config?: string;
+	/** experimental: test framework running the tests, `mocha` (default) or `vitest` */
+	testRunner?: TestRunnerName;
+	/** path to a custom Vitest configuration file, used with `testRunner: 'vitest'` */
+	vitestConfig?: string;
 	/** logging level of the Webdriver */
 	logLevel?: logging.Level;
 	/** try to perform all setup without internet connection, needs all requirements pre-downloaded manually */
@@ -718,14 +723,16 @@ export class CodeUtil {
 	}
 
 	/**
-	 * Run tests in your test environment using mocha
+	 * Run tests in your test environment using the selected test runner (Mocha by default)
 	 *
 	 * @param testFilesPattern glob pattern of test files to run
 	 * @param runOptions additional options for customizing the test run
 	 *
-	 * @return The exit code of the mocha process
+	 * @return The exit code of the test run
 	 */
 	async runTests(testFilesPattern: string[], runOptions: RunOptions = DEFAULT_RUN_OPTIONS): Promise<number> {
+		// before anything is downloaded or the environment changes
+		const testRunner = selectTestRunner(runOptions, isHiddenWindowRequested());
 		if (!runOptions.offline) {
 			await this.checkCodeVersion(runOptions.vscodeVersion ?? DEFAULT_RUN_OPTIONS.vscodeVersion);
 		} else {
@@ -753,12 +760,13 @@ export class CodeUtil {
 			this.getExecutablePath(),
 			literalVersion,
 			this.releaseType,
-			runOptions.config,
+			testRunner.configFile,
 			runOptions.customPageObjects,
 			this.parseSettings(runOptions.settings ?? DEFAULT_RUN_OPTIONS.settings),
 			runOptions.cleanup,
 			runOptions.locale,
 			{ keybindings: runOptions.keybindings, snippets: runOptions.snippets },
+			testRunner.name,
 		);
 		try {
 			return await runner.runTests(testFilesPattern, this, runOptions.resources, runOptions.logLevel);

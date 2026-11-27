@@ -21,7 +21,8 @@ import * as os from 'os';
 import Mocha from 'mocha';
 import * as path from 'path';
 import { VSBrowser } from '../browser';
-import { exitCode, GlobalFixture, installGlobalFixtures, screenshotsReport, VSRunner } from '../suite/runner';
+import { exitCode, screenshotsReport } from '../suite/runner';
+import { GlobalFixture, installGlobalFixtures, loadMochaConfig as loadMochaConfigFile } from '../suite/mocha/mochaAdapter';
 import { ReleaseQuality } from '../util/codeUtil';
 
 /**
@@ -35,15 +36,14 @@ function writeMocharc(content: string, name = '.mocharc.yml'): string {
 }
 
 /**
- * Loads a mocha config file through VSRunner's private loader so the assertions target exactly
+ * Loads a mocha config file through the Mocha adapter's loader so the assertions target exactly
  * what `new Mocha(...)` receives.
  */
 function loadMochaConfig(file: string): Mocha.MochaOptions {
-	const runner = new VSRunner('/dev/null', '1.100.0', ReleaseQuality.Stable);
-	return runner['loadConfig'](file);
+	return loadMochaConfigFile(file);
 }
 
-describe('VSRunner mocha config loading (YAML)', () => {
+describe('Mocha adapter config loading (YAML)', () => {
 	const tmpDirs: string[] = [];
 
 	afterEach(() => {

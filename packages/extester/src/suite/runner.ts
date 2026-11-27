@@ -17,37 +17,19 @@
 
 import * as fs from 'fs-extra';
 import { globSync } from 'glob';
-import * as yaml from 'js-yaml';
-import Mocha from 'mocha';
 import * as os from 'node:os';
 import * as path from 'node:path';
-import sanitize from 'sanitize-filename';
 import { logging } from 'selenium-webdriver';
 import { VSBrowser } from '../browser';
 import { CodeUtil, CustomPageObjectsOptions, ReleaseQuality, SeedFilesOptions } from '../util/codeUtil';
 import { Coverage } from '../util/coverage';
 import { registerTypeScript } from '../util/typescript';
+import { createTestRunnerAdapter, DEFAULT_TEST_RUNNER, TestRunnerAdapter, TestRunnerName } from './adapter';
 
-// For some reason these properties are not yet included in @types/mocha,
-// so we need to augment the MochaOptions interface ourselves.
-declare module 'mocha' {
-	interface MochaOptions {
-		// https://legacy.mochajs.org/api/mocha#enableGlobalSetup
-		enableGlobalSetup?: boolean;
-		// https://legacy.mochajs.org/api/mocha#enableGlobalTeardown
-		enableGlobalTeardown?: boolean;
-		// https://legacy.mochajs.org/api/mocha#globalSetup
-		globalSetup?: unknown;
-		// https://legacy.mochajs.org/api/mocha#globalTeardown
-		globalTeardown?: unknown;
-	}
-}
-
-/** YAML 1.2 core schema plus merge keys, matching how mocha parses .mocharc.yml */
-const MOCHARC_YAML_SCHEMA = yaml.CORE_SCHEMA.withTags(yaml.mergeTag);
+export { exitCode, GlobalFixturesState, WorkbenchLifecycle } from './adapter';
 
 /**
- * Expand test file glob patterns into the ordered set of files Mocha will load
+ * Expand test file glob patterns into the ordered set of files the test runner will load
  * @param testFilesPattern glob patterns of test files, optionally wrapped in single quotes
  */
 export function expandTestFiles(testFilesPattern: string[]): Set<string> {
@@ -90,129 +72,12 @@ export function screenshotsReport(screenshotsDir: string): string {
 		: 'INFO: No screenshots of failures were captured. Screenshots are taken only for failed tests and failed hooks imported from vscode-extension-tester while VS Code is running; see the errors above.';
 }
 
-/** A Mocha global setup or teardown fixture */
-export type GlobalFixture = (this: object) => unknown;
-
-/** Callbacks starting and stopping the VS Code workbench around the test run */
-export interface WorkbenchLifecycle {
-	setup: () => Promise<void>;
-	teardown: () => Promise<void>;
-}
-
-/** Outcome of the global fixtures, filled in while Mocha runs them */
-export interface GlobalFixturesState {
-	/** whether starting the workbench or a user-provided global setup fixture failed */
-	setupFailed: boolean;
-	/** error thrown while starting the workbench or by a user-provided global setup fixture */
-	setupError?: unknown;
-	/** whether a user-provided global teardown fixture or the workbench shutdown failed */
-	teardownFailed: boolean;
-}
-
 /**
- * Wrap the workbench lifecycle and the user-provided global fixtures into a single Mocha global
- * setup fixture and a single global teardown fixture.
- *
- * Mocha does not catch errors thrown by global fixtures on every supported version, and it stops
- * at the first failing one, so:
- * - errors from the setup are stored and rethrown from a root `before all` hook, failing the tests
- *   the same way a failed root hook would, while the teardown still runs
- * - each user-provided teardown fixture is isolated, and the workbench is always shut down last
- *
- * User-provided fixtures are skipped when disabled with `enableGlobalSetup` / `enableGlobalTeardown`,
- * the workbench fixtures always run.
- * @param mocha Mocha instance, with the user configuration already applied
- * @param workbench callbacks starting and stopping the workbench
- * @returns state of the fixtures, read once the run finishes
- */
-export function installGlobalFixtures(mocha: Mocha, workbench: WorkbenchLifecycle): GlobalFixturesState {
-	const state: GlobalFixturesState = { setupFailed: false, teardownFailed: false };
-	const userSetupFixtures = userFixtures(mocha.options.globalSetup, mocha.options.enableGlobalSetup);
-	const userTeardownFixtures = userFixtures(mocha.options.globalTeardown, mocha.options.enableGlobalTeardown);
-
-	// the workbench starts before any user-provided fixture runs
-	mocha.globalSetup(async function (this: object) {
-		try {
-			await workbench.setup();
-			await runInSequence(userSetupFixtures, this);
-		} catch (err) {
-			state.setupFailed = true;
-			state.setupError = err;
-		}
-	});
-
-	// report a failed setup as a root hook failure, so that the tests fail and the teardown still runs
-	mocha.suite.beforeAll('ExTester global setup', function () {
-		if (state.setupFailed) {
-			throw state.setupError;
-		}
-	});
-
-	// user-provided fixtures can still interact with the workbench, which is shut down last
-	mocha.globalTeardown(async function (this: object) {
-		try {
-			await runInSequence(userTeardownFixtures, this, (err) => {
-				console.error('Error in global teardown fixture:', err);
-				state.teardownFailed = true;
-			});
-		} finally {
-			try {
-				await workbench.teardown();
-			} catch (err) {
-				console.error('Error shutting down the workbench:', err);
-				state.teardownFailed = true;
-			}
-		}
-	});
-
-	mocha.enableGlobalSetup(true);
-	mocha.enableGlobalTeardown(true);
-	return state;
-}
-
-/**
- * Compute the exit code of a test run
- * @param failures number of failures reported by Mocha
- * @param state outcome of the global fixtures
- * @returns 1 if a test, a hook or a global fixture failed, 0 otherwise
- */
-export function exitCode(failures: number, state: GlobalFixturesState): number {
-	return failures > 0 || state.setupFailed || state.teardownFailed ? 1 : 0;
-}
-
-/**
- * Run fixtures one after another, each one starting once the previous one has settled
- * @param fixtures fixtures to run
- * @param context `this` of every fixture, shared between the setup and the teardown
- * @param onError called with the error of a failing fixture, the remaining ones still run;
- * without it, the first error stops the sequence and is rethrown
- */
-function runInSequence(fixtures: GlobalFixture[], context: object, onError?: (err: unknown) => void): Promise<void> {
-	return fixtures.reduce<Promise<void>>(async (previous, fixture) => {
-		await previous;
-		try {
-			await fixture.call(context);
-		} catch (err) {
-			if (!onError) {
-				throw err;
-			}
-			onError(err);
-		}
-	}, Promise.resolve());
-}
-
-function userFixtures(fixtures: unknown, enabled: boolean | undefined): GlobalFixture[] {
-	if (enabled === false || !fixtures) {
-		return [];
-	}
-	return (Array.isArray(fixtures) ? fixtures : [fixtures]) as GlobalFixture[];
-}
-
-/**
- * Mocha runner wrapper
+ * Runs the UI tests: owns the VS Code workbench (launch, shutdown, coverage, cleanup) and hands
+ * its lifecycle to the adapter of the selected test runner, which loads and runs the test files.
  */
 export class VSRunner {
-	private readonly mochaOptions: Mocha.MochaOptions;
+	private readonly adapter: TestRunnerAdapter;
 	private readonly chromeBin: string;
 	private readonly customSettings: object;
 	private readonly codeVersion: string;
@@ -233,8 +98,9 @@ export class VSRunner {
 		cleanup: boolean = false,
 		locale?: string,
 		seedFiles?: SeedFilesOptions,
+		testRunner: TestRunnerName = DEFAULT_TEST_RUNNER,
 	) {
-		this.mochaOptions = this.loadConfig(config);
+		this.adapter = createTestRunnerAdapter(testRunner, { configFile: config });
 		this.chromeBin = bin;
 		this.customSettings = customSettings;
 		this.codeVersion = codeVersion;
@@ -246,19 +112,17 @@ export class VSRunner {
 	}
 
 	/**
-	 * Set up mocha suite, add vscode instance handling, run tests
+	 * Start VS Code and run the tests with the selected test runner
 	 * @param testFilesPattern glob pattern of test files to run
 	 * @param logLevel The logging level for the Webdriver
-	 * @return The exit code of the mocha process
+	 * @return The exit code of the test run
 	 */
-	runTests(testFilesPattern: string[], code: CodeUtil, resources: string[], logLevel: logging.Level = logging.Level.INFO): Promise<number> {
-		let unregister: (() => void) | undefined;
-		return new Promise<number>((resolve) => {
-			const testFiles = expandTestFiles(testFilesPattern);
-			unregister = registerTypeScript(withLocators(testFiles, this.customPageObjects));
-
+	async runTests(testFilesPattern: string[], code: CodeUtil, resources: string[], logLevel: logging.Level = logging.Level.INFO): Promise<number> {
+		const testFiles = [...expandTestFiles(testFilesPattern)];
+		// test files loaded by another process (e.g. Vitest workers) are compiled there; custom locators always load here
+		const unregister = registerTypeScript(withLocators(this.adapter.loadsTestFilesInProcess ? testFiles : [], this.customPageObjects));
+		try {
 			const self = this;
-			const mocha = new Mocha(this.mochaOptions);
 			const browser: VSBrowser = new VSBrowser(
 				this.codeVersion,
 				this.releaseType,
@@ -269,21 +133,6 @@ export class VSRunner {
 				this.seedFiles,
 			);
 			let coverage: Coverage | undefined;
-
-			testFiles.forEach((file) => mocha.addFile(file));
-
-			mocha.suite.afterEach(async function () {
-				// Screenshot only genuinely failed tests — 'pending' (skipped) tests
-				// would otherwise produce misleading failure screenshots in CI artifacts.
-				if (this.currentTest?.state === 'failed') {
-					try {
-						const filename = sanitize(this.currentTest.fullTitle());
-						await browser.takeScreenshot(filename);
-					} catch (err) {
-						console.log('Screenshot capture failed.', err);
-					}
-				}
-			});
 
 			const setupWorkbench = this.withTimeout(
 				async () => {
@@ -345,21 +194,14 @@ export class VSRunner {
 				'Workbench teardown timed out after 180 seconds',
 			);
 
-			const fixtures = installGlobalFixtures(mocha, { setup: setupWorkbench, teardown: teardownWorkbench });
-
-			// Finally run tests
-			mocha.run((failures) => {
-				if (fixtures.setupFailed && failures === 0) {
-					// no test ran, so the root hook never reported the error
-					console.error('Error in global setup:', fixtures.setupError);
-				}
-				process.exitCode = exitCode(failures, fixtures);
-				if (process.exitCode) {
-					console.log('\x1b[33m%s\x1b[0m', `${screenshotsReport(browser.getScreenshotsDir())}\n`);
-				}
-				resolve(process.exitCode);
-			});
-		}).finally(() => unregister?.());
+			process.exitCode = await this.adapter.run({ testFiles, browser, workbench: { setup: setupWorkbench, teardown: teardownWorkbench } });
+			if (process.exitCode) {
+				console.log('\x1b[33m%s\x1b[0m', `${screenshotsReport(browser.getScreenshotsDir())}\n`);
+			}
+			return process.exitCode;
+		} finally {
+			unregister?.();
+		}
 	}
 
 	private async createShortcut(src: string, dest: string): Promise<string> {
@@ -382,67 +224,6 @@ export class VSRunner {
 			}
 		}
 		return path.join(dir.root, ...newSegments);
-	}
-
-	private loadConfig(config?: string): Mocha.MochaOptions {
-		const defaultFiles = ['.mocharc.js', '.mocharc.json', '.mocharc.yml', '.mocharc.yaml'];
-		let conf: Mocha.MochaOptions = {};
-		const isExplicit = !!config;
-		let file = config;
-		if (!config) {
-			file = path.resolve('.');
-			for (const defFile of defaultFiles) {
-				if (fs.existsSync(path.join(file, defFile))) {
-					file = path.join(file, defFile);
-					break;
-				}
-			}
-		}
-
-		if (file && fs.existsSync(file) && fs.statSync(file).isFile()) {
-			console.log(`Loading mocha configuration from ${file}`);
-			if (/\.(yml|yaml)$/.test(file)) {
-				try {
-					// js-yaml 5 throws on an empty stream and its default (YAML 1.2 core) schema no longer applies merge
-					// keys (`<<`). Keep the js-yaml 4 behaviour mocha itself still has: merge keys are honoured, and an
-					// empty or comment-only file means "no options".
-					const docs = yaml.loadAll(fs.readFileSync(file, 'utf-8'), { schema: MOCHARC_YAML_SCHEMA });
-					if (docs.length > 1) {
-						throw new Error('expected a single YAML document');
-					}
-					conf = (docs[0] as Mocha.MochaOptions | null | undefined) ?? {};
-				} catch (err) {
-					if (isExplicit) {
-						throw new Error(`Failed to parse mocha configuration ${file}: ${err}`);
-					}
-					console.log(`Invalid mocha configuration file ${file}, will be ignored:`, err);
-				}
-			} else if (/\.(js|json)$/.test(file)) {
-				try {
-					conf = require(path.resolve(file));
-				} catch (err) {
-					if (isExplicit) {
-						throw new Error(`Failed to load mocha configuration ${file}: ${err}`);
-					}
-					console.log(`Invalid mocha configuration file ${file}, will be ignored:`, err);
-				}
-			} else {
-				const msg = `Unsupported mocha configuration file extension: ${file}. Use .js, .json, .yml or .yaml.`;
-				if (isExplicit) {
-					throw new Error(msg);
-				}
-				console.log(msg);
-			}
-		}
-
-		if (process.env.MOCHA_GREP) {
-			conf.grep = process.env.MOCHA_GREP;
-		}
-		if (process.env.MOCHA_INVERT) {
-			conf.invert = process.env.MOCHA_INVERT === 'true';
-		}
-
-		return conf;
 	}
 
 	private withTimeout(fn: () => Promise<void>, ms: number, message: string): () => Promise<void> {

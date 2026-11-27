@@ -19,6 +19,7 @@
 import { program } from 'commander';
 import { ExTester } from './extester';
 import { ReleaseQuality } from './util/codeUtil';
+import { parseTestRunner } from './suite/adapter';
 import { loadConfig } from './config';
 import type { IPackageOptions } from '@vscode/vsce';
 import type { ExTesterConfig } from './config';
@@ -179,6 +180,8 @@ program
 	.option('--code_snippets <folder>', "Path to a folder of snippet files seeded into the test instance's User/snippets")
 	.option('-u, --uninstall_extension', 'Uninstall the extension after the test run', false)
 	.option('-m, --mocha_config <mocharc.js>', 'Path to Mocha configuration file')
+	.option('--test_runner <runner>', 'Experimental: test framework running the tests, mocha (default) or vitest')
+	.option('--vitest_config <vitest.config.ts>', 'Path to Vitest configuration file, used with --test_runner vitest')
 	.option('-l, --log_level <level>', 'Log messages from webdriver with a given level', 'Info')
 	.option('-f, --offline', 'Attempt to run without internet connection, make sure to have all requirements downloaded', false)
 	.option('-C, --coverage', 'Enable code coverage using c8')
@@ -213,6 +216,8 @@ program
 				snippets: cmd.code_snippets ?? run.snippets,
 				cleanup: cmd.uninstall_extension || run.cleanup,
 				config: cmd.mocha_config ?? run.mochaConfig,
+				testRunner: parseTestRunner(cmd.test_runner ?? run.testRunner),
+				vitestConfig: cmd.vitest_config ?? run.vitestConfig,
 				logLevel: cmd.log_level ?? run.logLevel,
 				offline: cmd.offline || run.offline,
 				resources: cmd.open_resource ?? run.resources ?? [],
@@ -236,6 +241,8 @@ program
 	.option('--package_options <json>', 'JSON string of vsce IPackageOptions passed to vsce.createVSIX() (e.g. \'{"useYarn":true,"followSymlinks":true}\')')
 	.option('-u, --uninstall_extension', 'Uninstall the extension after the test run', false)
 	.option('-m, --mocha_config <mocharc.js>', 'Path to Mocha configuration file')
+	.option('--test_runner <runner>', 'Experimental: test framework running the tests, mocha (default) or vitest')
+	.option('--vitest_config <vitest.config.ts>', 'Path to Vitest configuration file, used with --test_runner vitest')
 	.option('-i, --install_dependencies', 'Automatically install extensions your extension depends on', false)
 	.option('-l, --log_level <level>', 'Log messages from webdriver with a given level', 'Info')
 	.option('-f, --offline', 'Attempt to run without internet connection, make sure to have all requirements downloaded', false)
@@ -282,6 +289,8 @@ program
 					snippets: cmd.code_snippets ?? run.snippets,
 					cleanup: cmd.uninstall_extension || run.cleanup,
 					config: cmd.mocha_config ?? run.mochaConfig,
+					testRunner: parseTestRunner(cmd.test_runner ?? run.testRunner),
+					vitestConfig: cmd.vitest_config ?? run.vitestConfig,
 					logLevel: cmd.log_level ?? run.logLevel,
 					offline: cmd.offline || run.offline,
 					resources: cmd.open_resource ?? run.resources ?? [],

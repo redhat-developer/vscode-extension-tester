@@ -8,3 +8,5 @@ resources/**
 ../../**
 out/test/**
 extester.config*
+vitest/**
+

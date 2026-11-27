@@ -83,15 +83,23 @@
   "peerDependencies": {
     "mocha": ">=8.2.0",
     "tsx": "^4.22.4",
-    "typescript": ">=4.6.2"
+    "typescript": ">=4.6.2",
+    "vitest": ">=5.0.0"
   },
   "devDependencies": {
     "@types/unzipper": "^0.10.11",
     "mocha": "^12.0.3",
-    "tsx": "^4.23.15"
+    "tsx": "^4.23.15",
+    "vitest": "^5.1.2"
   },
   "peerDependenciesMeta": {
+    "mocha": {
+      "optional": true
+    },
     "tsx": {
+      "optional": true
+    },
+    "vitest": {
       "optional": true
     }
   }

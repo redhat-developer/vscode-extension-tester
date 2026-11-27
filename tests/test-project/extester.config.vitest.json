@@ -1,0 +1,15 @@
+{
+  "$schema": "../../packages/extester/resources/extester.schema.json",
+  "setup": {
+    "extensionsDir": "./test-extensions",
+    "installDependencies": true
+  },
+  "run": {
+    "testRunner": "vitest",
+    "testFiles": ["./vitest/**/*.test.ts"],
+    "extensionsDir": "./test-extensions",
+    "cleanup": true,
+    "resources": ["."],
+    "customPageObjects": "./out/test/customPageObjects/locators.js"
+  }
+}
