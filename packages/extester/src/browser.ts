@@ -20,6 +20,9 @@ import { pathToFileURL } from 'node:url';
 import * as fs from 'fs-extra';
 import { WebDriver, Builder, initPageObjects, logging, By, Browser, EditorTab, EditorView, Workbench } from '@redhat-developer/page-objects';
 import { Options, ServiceBuilder } from 'selenium-webdriver/chrome';
+import { Session } from 'selenium-webdriver';
+import { Executor, HttpClient } from 'selenium-webdriver/http';
+import type { DriverService } from 'selenium-webdriver/remote';
 import { getLocatorsPath } from '@redhat-developer/locators';
 import {
 	CodeUtil,
@@ -51,6 +54,49 @@ import {
 	trackOpened,
 } from './util/hiddenWindow';
 
+/**
+ * ChromeDriver service builder that remembers the service `Builder` creates from it, so the
+ * URL of the server can be shared with test runner workers (see {@link VSBrowser.getSessionInfo}).
+ */
+class AddressTrackingServiceBuilder extends ServiceBuilder {
+	private service: DriverService | undefined;
+
+	override build(): DriverService {
+		this.service = super.build();
+		return this.service;
+	}
+
+	/** URL of the started server */
+	async address(): Promise<string> {
+		if (!this.service) {
+			throw new Error('ChromeDriver service was not started');
+		}
+		return await this.service.address();
+	}
+}
+
+/** Plain-data description of a running VS Code WebDriver session, see {@link VSBrowser.getSessionInfo} */
+export interface VSBrowserSessionInfo {
+	/** URL of the ChromeDriver server */
+	serverUrl: string;
+	/** WebDriver session id */
+	sessionId: string;
+	/** capabilities the session was created with */
+	capabilities: Record<string, unknown>;
+	codeVersion: string;
+	releaseType: ReleaseQuality;
+	customSettings: object;
+	/** name of the WebDriver log level */
+	logLevel: string;
+	customPageObjects?: CustomPageObjectsOptions;
+	locale: string;
+	seedFiles?: SeedFilesOptions;
+	/** VS Code binary the session was launched with */
+	codePath?: string;
+	/** names the folder of the failure screenshots of this run */
+	startTimestamp: string;
+}
+
 export class VSBrowser {
 	static readonly baseVersion = '1.37.0';
 	static readonly browserName = 'vscode';
@@ -65,7 +111,11 @@ export class VSBrowser {
 	private readonly locale: string;
 	private readonly seedFiles?: SeedFilesOptions;
 	private static _instance: VSBrowser;
-	private readonly _startTimestamp: string;
+	private _startTimestamp: string;
+	/** URL of the ChromeDriver server of the current session, shared with test runner workers */
+	private serverUrl: string | undefined;
+	/** whether this browser borrows a session started by another process (see {@link VSBrowser.attach}) */
+	private attached = false;
 	private static _signalHandlersRegistered = false;
 	private codePath: string | undefined;
 	private readonly hiddenWindow: boolean;
@@ -286,7 +336,8 @@ export class VSBrowser {
 		// that exits during startup leaves no trace of why (#2049).
 		// The environment is filtered so that e.g. an inherited ELECTRON_RUN_AS_NODE
 		// cannot turn the Electron binary into plain Node.
-		const service = new ServiceBuilder(chromeDriverBinaryPath)
+		const service = new AddressTrackingServiceBuilder(chromeDriverBinaryPath);
+		service
 			.loggingTo(chromeDriverLog)
 			.addArguments(
 				...DriverUtil.chromeDriverLogLevelArgs(this.logLevel),
@@ -299,6 +350,7 @@ export class VSBrowser {
 		const launchStartedMs = Date.now();
 		try {
 			this._driver = await new Builder().setChromeService(service).forBrowser(Browser.CHROME).setChromeOptions(options).build();
+			this.serverUrl = await service.address();
 		} catch (err) {
 			if (!isSessionNotCreated(err)) {
 				throw err;
@@ -507,6 +559,9 @@ export class VSBrowser {
 	 * Terminates the webdriver/browser
 	 */
 	async quit(): Promise<void> {
+		if (this.attached) {
+			throw new Error('This VS Code window is owned by the ExTester process and is shut down by it once the tests finish');
+		}
 		if (!this._driver) {
 			// the session was never created (e.g. VS Code failed to launch): nothing to shut down
 			return;
@@ -553,6 +608,73 @@ export class VSBrowser {
 	 */
 	getScreenshotsDir(): string {
 		return path.join(this.storagePath, 'screenshots', this._startTimestamp);
+	}
+
+	/**
+	 * Describe the running WebDriver session, so that another process (e.g. a Vitest worker)
+	 * can drive the same VS Code window with {@link VSBrowser.attach}. Plain data only.
+	 * @throws when VS Code was not started by this process
+	 */
+	async getSessionInfo(): Promise<VSBrowserSessionInfo> {
+		if (!this._driver || !this.serverUrl || this.attached) {
+			throw new Error('VS Code was not started by this process, there is no session to share');
+		}
+		const session = await this._driver.getSession();
+		const capabilities = session.getCapabilities();
+		return {
+			serverUrl: this.serverUrl,
+			sessionId: session.getId(),
+			capabilities: Object.fromEntries([...capabilities.keys()].map((key) => [key, capabilities.get(key)])),
+			codeVersion: this.codeVersion,
+			releaseType: this.releaseType,
+			customSettings: this.customSettings,
+			logLevel: this.logLevel.name,
+			customPageObjects: this.customPageObjects,
+			locale: this.locale,
+			seedFiles: this.seedFiles,
+			codePath: this.codePath,
+			startTimestamp: this._startTimestamp,
+		};
+	}
+
+	/**
+	 * Drive a VS Code window started by another process, through its WebDriver session.
+	 * Used by test runners that run test files outside the ExTester process (e.g. Vitest workers):
+	 * `VSBrowser.instance` and the page objects then work as in the ExTester process. The session
+	 * stays owned by the process that started it, so it is never quit from here.
+	 * @param info session description from {@link VSBrowser.getSessionInfo}
+	 */
+	static attach(info: VSBrowserSessionInfo): VSBrowser {
+		const browser = new VSBrowser(
+			info.codeVersion,
+			info.releaseType,
+			info.customSettings,
+			logging.getLevel(info.logLevel),
+			info.customPageObjects,
+			info.locale,
+			info.seedFiles,
+		);
+		browser.attached = true;
+		browser.codePath = info.codePath;
+		// failure screenshots go to the folder the ExTester process reports
+		browser._startTimestamp = info.startTimestamp;
+		const executor = new Executor(Promise.resolve(new HttpClient(info.serverUrl)));
+		browser._driver = new WebDriver(new Session(info.sessionId, info.capabilities), executor);
+		VSBrowser._instance = browser;
+		initPageObjects(
+			browser.codeVersion,
+			VSBrowser.baseVersion,
+			getLocatorsPath(),
+			browser._driver,
+			VSBrowser.browserName,
+			browser.customPageObjects?.locatorsPath,
+		);
+		return browser;
+	}
+
+	/** Whether this browser drives a VS Code window started by another process (see {@link VSBrowser.attach}). */
+	get isAttached(): boolean {
+		return this.attached;
 	}
 
 	/**
@@ -698,6 +820,9 @@ export class VSBrowser {
 	 * they do when a visible window reloads into another folder.
 	 */
 	private async relaunchWithResources(resources: string[]): Promise<void> {
+		if (this.attached) {
+			throw new Error('Hidden window restarts are not supported when tests run outside the ExTester process (e.g. with Vitest)');
+		}
 		if (!this.codePath) {
 			throw new Error('Cannot open resources before VS Code was started');
 		}
