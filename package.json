@@ -60,14 +60,14 @@
     "typescript": "~6.0.3"
   },
   "overrides": {
-    "axios": "^1.18.1",
-    "brace-expansion": "^5.0.8",
+    "axios": "^1.21.1",
+    "brace-expansion": "^5.1.0",
     "diff": "9.0.0",
     "glob@^13": "^14.0.2",
     "js-yaml@^4": "^4.3.2",
     "minimatch@^10": "^11.0.1",
-    "pacote": "^21.5.1",
-    "serialize-javascript": "7.0.7",
+    "pacote": "^22.0.1",
+    "serialize-javascript": "7.1.4",
     "tar": "^7.5.22"
   },
   "devEngines": {
@@ -77,5 +77,5 @@
       "onFail": "error"
     }
   },
-  "packageManager": "npm@11.21.3"
+  "packageManager": "npm@12.2.3"
 }
