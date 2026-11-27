@@ -133,6 +133,22 @@ describe('Vitest adapter options', () => {
 });
 
 describe('VSBrowser.attach', () => {
+	it('shares a session started with the CLI log level name', async () => {
+		// the CLI passes --log_level through as a string ('Info' by default)
+		const owner = new VSBrowser('1.100.0', ReleaseQuality.Stable, {}, 'Info' as never);
+		Object.assign(owner, {
+			_driver: new WebDriver(new Session('owned', { browserName: 'chrome' }), new Executor(Promise.resolve(new HttpClient('http://127.0.0.1:1')))),
+			serverUrl: 'http://127.0.0.1:1',
+		});
+		const info = await owner.getSessionInfo();
+		assert.strictEqual(info.logLevel, 'INFO');
+		assert.strictEqual(info.sessionId, 'owned');
+		assert.deepStrictEqual(info.capabilities, { browserName: 'chrome' });
+		const attached = VSBrowser.attach(info);
+		assert.strictEqual((await attached.driver.getSession()).getId(), 'owned');
+		assert.strictEqual(attached.getScreenshotsDir(), owner.getScreenshotsDir());
+	});
+
 	it('refuses to quit a VS Code window it does not own', async () => {
 		const browser = VSBrowser.attach({
 			serverUrl: 'http://127.0.0.1:1',
