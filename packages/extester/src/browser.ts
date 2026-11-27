@@ -628,7 +628,8 @@ export class VSBrowser {
 			codeVersion: this.codeVersion,
 			releaseType: this.releaseType,
 			customSettings: this.customSettings,
-			logLevel: this.logLevel.name,
+			// the CLI passes the level as a name ('Info'), not as a logging.Level
+			logLevel: DriverUtil.resolveLogLevel(this.logLevel).name,
 			customPageObjects: this.customPageObjects,
 			locale: this.locale,
 			seedFiles: this.seedFiles,
@@ -649,7 +650,7 @@ export class VSBrowser {
 			info.codeVersion,
 			info.releaseType,
 			info.customSettings,
-			logging.getLevel(info.logLevel),
+			DriverUtil.resolveLogLevel(info.logLevel),
 			info.customPageObjects,
 			info.locale,
 			info.seedFiles,
