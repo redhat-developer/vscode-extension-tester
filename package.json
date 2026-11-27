@@ -32,7 +32,8 @@
     "test:system": "npm run test:system --workspace=extester-test",
     "test:webview": "npm run test:webview --workspace=extester-test",
     "test:workbench": "npm run test:workbench --workspace=extester-test",
-    "test:xsideBar": "npm run test:xsideBar --workspace=extester-test"
+    "test:xsideBar": "npm run test:xsideBar --workspace=extester-test",
+    "test:vitest": "npm run test:vitest --workspace=extester-test"
   },
   "workspaces": [
     "packages/*",
