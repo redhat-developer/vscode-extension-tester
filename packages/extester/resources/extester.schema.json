@@ -295,6 +295,17 @@
           "description": "Path to a Mocha configuration file.",
           "examples": ["./.mocharc.js", "./.mocharc.json"]
         },
+        "testRunner": {
+          "type": "string",
+          "enum": ["mocha", "vitest"],
+          "default": "mocha",
+          "description": "Experimental: test framework running the tests. Vitest needs the vitest package installed and does not support hiddenWindow yet."
+        },
+        "vitestConfig": {
+          "type": "string",
+          "description": "Path to a Vitest configuration file, used with testRunner \"vitest\".",
+          "examples": ["./vitest.config.ts"]
+        },
         "logLevel": {
           "type": "string",
           "description": "Webdriver log level.",

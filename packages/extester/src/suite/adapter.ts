@@ -18,7 +18,7 @@
 import type { VSBrowser } from '../browser';
 
 /** Test frameworks ExTester can run the UI tests with */
-export const TEST_RUNNERS = ['mocha'] as const;
+export const TEST_RUNNERS = ['mocha', 'vitest'] as const;
 
 /** Name of a test framework ExTester can run the UI tests with */
 export type TestRunnerName = (typeof TEST_RUNNERS)[number];
@@ -112,9 +112,25 @@ export function createTestRunnerAdapter(name: TestRunnerName, options: TestRunne
 			const { MochaAdapter } = loadAdapterModule(() => require('./mocha/mochaAdapter') as typeof import('./mocha/mochaAdapter'), 'mocha');
 			return new MochaAdapter(options);
 		}
+		case 'vitest': {
+			const { VitestAdapter } = require('./vitest/vitestAdapter') as typeof import('./vitest/vitestAdapter');
+			return new VitestAdapter(options);
+		}
 		default:
 			throw new Error(`Unknown test runner "${String(name)}"`);
 	}
+}
+
+/**
+ * Check, without loading it, that the test framework is installed, so a missing one is reported
+ * before VS Code is downloaded and the extension installed
+ * @param name test runner
+ */
+export function assertTestRunnerAvailable(name: TestRunnerName): void {
+	if (name === 'vitest') {
+		resolveFromProject('vitest/node', 'vitest');
+	}
+	// Mocha is resolved from ExTester itself, as before; a missing one is reported when the run starts
 }
 
 /**
@@ -135,4 +151,72 @@ function loadAdapterModule<T>(load: () => T, framework: string): T {
 		}
 		throw error;
 	}
+}
+
+/**
+ * Resolve a package from the project under test (the current working directory) rather than
+ * from ExTester's own folder, so the project's own copy of the test framework is used.
+ * @param request module to resolve, e.g. `mocha` or `vitest/node`
+ * @param installHint package to tell the user to install
+ * @throws an actionable error when the package is not installed
+ */
+export function resolveFromProject(request: string, installHint: string): string {
+	const { createRequire } = require('node:module') as typeof import('node:module');
+	const path = require('node:path') as typeof import('node:path');
+	const projectRequire = createRequire(path.join(process.cwd(), 'package.json'));
+	try {
+		return projectRequire.resolve(request);
+	} catch (error) {
+		const code = (error as NodeJS.ErrnoException).code;
+		if (code !== 'MODULE_NOT_FOUND' && code !== 'ERR_PACKAGE_PATH_NOT_EXPORTED') {
+			throw error;
+		}
+		throw new Error(
+			`ExTester cannot find "${request}" from "${process.cwd()}". The selected test runner needs it installed in the package containing your tests:\n` +
+				`  npm install --save-dev ${installHint}`,
+		);
+	}
+}
+
+/** Run options that choose and configure the test runner */
+export interface TestRunnerSelectionOptions {
+	/** test runner name, `mocha` by default */
+	testRunner?: string;
+	/** Mocha configuration file */
+	config?: string;
+	/** Vitest configuration file */
+	vitestConfig?: string;
+	/** whether the hidden window mode is requested through the run options */
+	hiddenWindow?: boolean;
+}
+
+/** The chosen test runner and its configuration file */
+export interface TestRunnerSelection {
+	name: TestRunnerName;
+	configFile?: string;
+}
+
+/**
+ * Choose the test runner of a run and check the options fit it
+ * @param options run options
+ * @param hiddenWindowRequested whether the hidden window mode is requested in another way (e.g. its environment variable)
+ * @throws when the runner is unknown, or Vitest is combined with the hidden window mode
+ */
+export function selectTestRunner(options: TestRunnerSelectionOptions, hiddenWindowRequested = false): TestRunnerSelection {
+	const name = parseTestRunner(options.testRunner);
+	if (name === 'mocha') {
+		if (options.vitestConfig) {
+			console.log('\x1b[33m%s\x1b[0m', `WARNING: the Vitest configuration ${options.vitestConfig} is ignored, the tests run with Mocha`);
+		}
+		return { name, configFile: options.config };
+	}
+	if (options.hiddenWindow || hiddenWindowRequested) {
+		throw new Error(
+			'The hidden window mode is not supported with the Vitest test runner yet: Vitest runs the tests in worker processes, which cannot restart VS Code. Run without --hidden_window, or with Mocha.',
+		);
+	}
+	if (options.config) {
+		console.log('\x1b[33m%s\x1b[0m', `WARNING: the Mocha configuration ${options.config} is ignored, the tests run with Vitest`);
+	}
+	return { name, configFile: options.vitestConfig };
 }

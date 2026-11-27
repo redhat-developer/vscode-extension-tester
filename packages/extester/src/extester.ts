@@ -26,6 +26,8 @@ import pjson from '../package.json';
 import { globSync } from 'glob';
 import { expandTestFiles, withLocators } from './suite/runner';
 import { assertTypeScriptLoader } from './util/typescript';
+import { assertTestRunnerAvailable, selectTestRunner } from './suite/adapter';
+import { isHiddenWindowRequested } from './util/hiddenWindow';
 
 /** Returns true when the string contains at least one glob special character. */
 function isGlobPattern(p: string): boolean {
@@ -79,6 +81,8 @@ export function resolveVsixPath(packageOptions: IPackageOptions): string {
 export { ReleaseQuality };
 export type { RunOptions };
 export { MochaOptions } from 'mocha';
+export { TEST_RUNNERS, type TestRunnerName } from './suite/adapter';
+export { type VSBrowserSessionInfo } from './browser';
 export * from './browser';
 export * from './suite/mochaHooks';
 export * from '@redhat-developer/page-objects';
@@ -282,7 +286,7 @@ export class ExTester {
 	 * @param setupOptions Additional options for setting up the tests
 	 * @param runOptions Additional options for running the tests
 	 *
-	 * @returns Promise resolving to the mocha process exit code - 0 for no failures, 1 otherwise
+	 * @returns Promise resolving to the exit code of the test run - 0 for no failures, 1 otherwise
 	 */
 	async setupAndRunTests(
 		testFilesPattern: string | string[],
@@ -293,7 +297,11 @@ export class ExTester {
 		// Fail before the slow downloads and VSIX install if TypeScript tests cannot be loaded.
 		// Patterns matching nothing yet (e.g. JS emitted by the extension build) are skipped here
 		// and still checked by the runner.
-		assertTypeScriptLoader(withLocators(expandTestFiles(toPatterns(testFilesPattern)), runOptions.customPageObjects));
+		const testRunner = selectTestRunner(runOptions, isHiddenWindowRequested());
+		assertTestRunnerAvailable(testRunner.name);
+		// Vitest compiles TypeScript test files itself, in its workers
+		const testFiles = testRunner.name === 'mocha' ? expandTestFiles(toPatterns(testFilesPattern)) : [];
+		assertTypeScriptLoader(withLocators(testFiles, runOptions.customPageObjects));
 		await this.setupRequirements(
 			{ ...setupOptions, vscodeVersion, settings: setupOptions.settings ?? runOptions.settings },
 			runOptions.offline,
@@ -306,11 +314,11 @@ export class ExTester {
 	}
 
 	/**
-	 * Runs the selected test files in VS Code using mocha and webdriver
+	 * Runs the selected test files in VS Code using the selected test runner (Mocha by default) and webdriver
 	 * @param testFilesPattern glob pattern(s) for selected test files
 	 * @param runOptions Additional options for running the tests
 	 *
-	 * @returns Promise resolving to the mocha process exit code - 0 for no failures, 1 otherwise
+	 * @returns Promise resolving to the exit code of the test run - 0 for no failures, 1 otherwise
 	 */
 	async runTests(testFilesPattern: string | string[], runOptions: RunOptions = DEFAULT_RUN_OPTIONS): Promise<number> {
 		runOptions.vscodeVersion = loadCodeVersion(runOptions.vscodeVersion);

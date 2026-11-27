@@ -3,7 +3,8 @@
   "compilerOptions": {
     "outDir": "out",
     "rootDir": "src",
-    "lib": ["dom"]
+    "lib": ["dom"],
+    "skipLibCheck": true
   },
   "include": ["src"]
 }

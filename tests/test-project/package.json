@@ -264,14 +264,16 @@
     "test:system": "npm run cb-init && extest setup-and-run \"./out/test/system/**/*.test.js\" --config ./extester.config.json",
     "test:webview": "npm run cb-init && extest setup-and-run \"./out/test/webview/**/*.test.js\" --config ./extester.config.json",
     "test:workbench": "npm run cb-init && extest setup-and-run \"./out/test/workbench/**/*.test.js\" --config ./extester.config.json",
-    "test:xsideBar": "npm run cb-init && extest setup-and-run \"./out/test/xsideBar/**/*.test.js\" --config ./extester.config.json"
+    "test:xsideBar": "npm run cb-init && extest setup-and-run \"./out/test/xsideBar/**/*.test.js\" --config ./extester.config.json",
+    "test:vitest": "npm run cb-init && extest setup-and-run --config ./extester.config.vitest.json"
   },
   "devDependencies": {
     "chai": "^4.5.0",
-    "compare-versions": "^6.1.1",
     "clipboard-cli": "^5.0.0",
     "clipboardy": "^5.3.2",
+    "compare-versions": "^6.1.1",
     "mocha": "^12.0.3",
+    "vitest": "^5.1.2",
     "vscode-extension-tester": "*"
   }
 }
